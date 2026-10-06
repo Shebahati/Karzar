@@ -1336,6 +1336,82 @@ documents:
       Wave 1A Owner authority decisions required before Wave 1B design/APPLY.
       Evidence only. WAVE_1B_APPLY_AUTHORIZED=NO.
 
+  - id: SELLABILITY-WAVE1A1-AUTHORITY-CLOSURE-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only Sellability Wave 1A.1 authority closure + source refresh
+      (2026-10-06). Registers INSIZE trailing-A identity rule. APPLY AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A1-FINAL-REPORT-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Sellability Wave 1A.1 final report. Verdict AUTHORITY_REFRESH_STILL_REQUIRED;
+      APPLY AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A1-OWNER-DECISIONS-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/OWNER_DECISIONS_REMAINING.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A.1 remaining Owner decisions after trailing-A identity closure.
+      Evidence only. APPLY AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A1-INSIZE-PROVENANCE-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/INSIZE_SOURCE_PROVENANCE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A.1 INSIZE source-year provenance. SOURCE_YEAR_UNPROVEN; evidence only.
+
+  - id: SELLABILITY-WAVE1A1-HESABFA-POLICY-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/HESABFA_STOCK_POLICY_PROPOSAL.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A.1 Hesabfa stock policy proposal only. Semantics remain UNPROVEN;
+      does not authorize APPLY.
+
+  - id: SELLABILITY-WAVE1A1-PRODUCT-1789-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/PRODUCT_1789_INTEGRITY_INVESTIGATION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A.1 read-only product 1789 integrity investigation. No repair performed.
+
+  - id: SELLABILITY-WAVE1A1-PROPOSED-ASTPOWER-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/PROPOSED_ASTPOWER_AUTHORITY_DECISION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Proposed ASTPOWER authority decision only. Not registered; targets remain UNKNOWN.
+
+  - id: SELLABILITY-WAVE1A1-PROPOSED-SANOU-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/PROPOSED_SANOU_AUTHORITY_DECISION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Proposed SAN OU authority decision only. Not registered; targets remain UNKNOWN.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE

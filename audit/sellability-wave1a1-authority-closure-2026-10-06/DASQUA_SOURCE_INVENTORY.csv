@@ -1,0 +1,2 @@
+source_id,path,sha256,document_source_date,date_basis,freshness,age_days,authority,notes
+dasqua.google_drive_inventory_list,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/داسکوا/لیست قیمت داسکوا +10 درصد.pdf,c589df1dc02df10f5405c6b98b5a5970b00db193891be082d7ae8406888478df,2026-05-02,in-PDF Jalali header 1405/02/12,STALE,157,REGISTERED_AVAILABILITY_AUTHORITY,DOCS/Price/Dasqua/2026-07-25_Dasqua_Price-List.pdf is byte-identical SHA; 2026-07-25 is receive/rename label not newer document date

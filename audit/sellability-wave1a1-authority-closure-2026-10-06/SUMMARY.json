@@ -1,0 +1,143 @@
+{
+  "status": "COMPLETE",
+  "verdict": "AUTHORITY_REFRESH_STILL_REQUIRED",
+  "APPLY_AUTHORIZED": "NO",
+  "WAVE_1B_APPLY_AUTHORIZED": "NO",
+  "OUT_OF_SCOPE": 0,
+  "snapshot_utc": "2026-10-06T10:59:37Z",
+  "origin_main_sha": "9fc607ab90170375069c0d5b11ec33f4f64ae9dd",
+  "pr_429": "MERGED",
+  "production_identity_proven": true,
+  "read_only_proven": true,
+  "transaction_read_only": "on",
+  "insize_trailing_a": {
+    "rule_id": "INSIZE_TRAILING_A_IDENTITY",
+    "rule_version": "insize_trailing_a_identity/1.0.0",
+    "owner_decision_status": "RESOLVED",
+    "policy_citation": "Owner-closed Wave 1A.1 INSIZE_TRAILING_A_IDENTITY (brand=INSIZE; X↔X+terminal A; unique base; fail closed → AMBIGUOUS)",
+    "prior_unknown": 37,
+    "resolved": 36,
+    "available_among_resolved": 8,
+    "unavailable_among_resolved": 28,
+    "still_unknown": 1,
+    "collision": 0,
+    "still_unknown_skus": [
+      "1205-1502"
+    ],
+    "unit_tests": "tests/test_insize_trailing_a_identity.py (9 tests OK)"
+  },
+  "insize_source": {
+    "SOURCE_YEAR": "SOURCE_YEAR_UNPROVEN",
+    "latest_authoritative_claimed_date": "2026-09-02",
+    "primary_sha256": "8cecb478a4e48166436b9c526ebace54430800925819e3e062e631ad56eee3a4",
+    "newer_inventory_found": false,
+    "CURRENT_ENOUGH_SOURCE_AVAILABLE": "NO",
+    "freshness_under_unproven_year": "UNKNOWN"
+  },
+  "stock_class_counts": {
+    "AVAILABLE": 18,
+    "UNKNOWN": 94,
+    "UNAVAILABLE": 218
+  },
+  "freshness_of_AVAILABLE": {
+    "STALE": 8,
+    "UNKNOWN": 10
+  },
+  "future_apply_candidates": {
+    "CURRENT_ENOUGH": 0,
+    "total_strict": 0
+  },
+  "unknown_reduction": {
+    "before": 130,
+    "after": 94,
+    "delta": -36
+  },
+  "sellable_current": 717,
+  "still_availability_blocked": 329,
+  "hesabfa": {
+    "semantics": "HESABFA_STOCK_SEMANTICS_UNPROVEN",
+    "policy_proposal": "HESABFA_STOCK_POLICY_PROPOSAL.md",
+    "usable_for_future_APPLY": false
+  },
+  "product_1789": {
+    "brand_id": null,
+    "is_available": true,
+    "mutation_performed": false
+  },
+  "safety": {
+    "PRODUCTION_MUTATION": "NO",
+    "DATABASE_MUTATION": "NO",
+    "HESABFA_MUTATION": "NO",
+    "DEPLOYMENT": "NO",
+    "CATALOG_APPLY": "NO",
+    "WAVE_1B_APPLY": "NO"
+  },
+  "brand_summary": [
+    {
+      "brand_key": "INSIZE",
+      "targets": 226,
+      "still_availability_blocked": 225,
+      "stock_AVAILABLE": 10,
+      "stock_UNAVAILABLE": 215,
+      "stock_UNKNOWN": 1,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "REGISTERED_AVAILABILITY_AUTHORITY_YEAR_UNPROVEN"
+    },
+    {
+      "brand_key": "ASTPOWER",
+      "targets": 53,
+      "still_availability_blocked": 53,
+      "stock_AVAILABLE": 0,
+      "stock_UNAVAILABLE": 0,
+      "stock_UNKNOWN": 53,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "STOCK_AUTHORITY_MISSING"
+    },
+    {
+      "brand_key": "SANOU",
+      "targets": 24,
+      "still_availability_blocked": 24,
+      "stock_AVAILABLE": 0,
+      "stock_UNAVAILABLE": 0,
+      "stock_UNKNOWN": 24,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "STOCK_AUTHORITY_MISSING"
+    },
+    {
+      "brand_key": "DASQUA",
+      "targets": 22,
+      "still_availability_blocked": 22,
+      "stock_AVAILABLE": 8,
+      "stock_UNAVAILABLE": 0,
+      "stock_UNKNOWN": 14,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "REGISTERED_AVAILABILITY_AUTHORITY_STALE"
+    },
+    {
+      "brand_key": "TERMA",
+      "targets": 4,
+      "still_availability_blocked": 4,
+      "stock_AVAILABLE": 0,
+      "stock_UNAVAILABLE": 3,
+      "stock_UNKNOWN": 1,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "REGISTERED_AVAILABILITY_AUTHORITY_FRESHNESS_UNKNOWN"
+    },
+    {
+      "brand_key": "MITUTOYO",
+      "targets": 1,
+      "still_availability_blocked": 1,
+      "stock_AVAILABLE": 0,
+      "stock_UNAVAILABLE": 0,
+      "stock_UNKNOWN": 1,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "MITUTOYO_STOCK_AUTHORITY_MISSING"
+    }
+  ]
+}
