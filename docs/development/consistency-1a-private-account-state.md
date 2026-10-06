@@ -18,4 +18,4 @@ Non-binding evidence for audit findings F01/F02. Does not change Accepted Canon.
 
 ## Limitations (unchanged by this patch)
 
-- Cart ownership (F03), server logout proof (F08), profile PATCH (F06), access refresh (F07), invoice snapshot rules remain separate.
+- Cart ownership (F03 — see Consistency 1B), server logout proof (F08), profile PATCH (F06), access refresh (F07), invoice snapshot rules remain separate.

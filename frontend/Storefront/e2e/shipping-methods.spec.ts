@@ -8,8 +8,12 @@ async function waitForCartPersisted(page: Page) {
       try {
         const raw = localStorage.getItem(key);
         if (!raw) return false;
-        const parsed = JSON.parse(raw) as { state?: { cart?: unknown[] } };
-        return (parsed.state?.cart?.length ?? 0) > 0;
+        const parsed = JSON.parse(raw) as {
+          state?: { stash?: { cart?: unknown[] }; cart?: unknown[] };
+        };
+        const stashLen = parsed.state?.stash?.cart?.length ?? 0;
+        const legacyLen = parsed.state?.cart?.length ?? 0;
+        return stashLen > 0 || legacyLen > 0;
       } catch {
         return false;
       }
