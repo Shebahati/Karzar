@@ -1,0 +1,54 @@
+{
+  "STATUS": "DRY_RUN_NO_UPDATES",
+  "workbook_sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "workbook_filename": "موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx",
+  "K6_rate": "2500000",
+  "price_rule": "ROUND_HALF_UP(USD×K6)/10 Toman; workbook already +20%",
+  "identity": {
+    "utc_timestamp": "2026-10-06T10:53:16.513540+00:00",
+    "host_proof": "42c1b9f1bbde",
+    "expected_host": "srv5944957438",
+    "expected_db": "karzar_staging",
+    "container_proof": "lathe_api",
+    "volume_proof": "karzar_postgres_data",
+    "current_database": "karzar_staging",
+    "git_sha": "UNKNOWN",
+    "app_env": "staging"
+  },
+  "identity_ok": true,
+  "identity_errors": [],
+  "matcher_direction": "WORKBOOK CODE ending A -> DB SKU without A",
+  "discovery": {
+    "previous_exact_aligned": 688,
+    "previous_unmatched": 171,
+    "exact_updates_required": 0,
+    "exact_invalid_workbook_price": 12,
+    "workbook_codes_ending_A": 1714,
+    "safe_workbook_a_to_db_no_a": 134,
+    "exact_match_wins": 0,
+    "non_a_workbook_collisions": 17,
+    "multiple_source_collisions": 0,
+    "source_na_excluded": 0,
+    "alias_sku_missing": 37,
+    "ambiguous": 0,
+    "remaining_genuine_unmatched": 37,
+    "alias_already_correct": 134,
+    "alias_requiring_update": 0
+  },
+  "gates": {
+    "ok": true,
+    "ambiguous_db": []
+  },
+  "canary": {
+    "sku": "1106-1002",
+    "usd": "526.8",
+    "rate": "2500000",
+    "toman": "131700000"
+  },
+  "artifacts": {
+    "dry_run": "/tmp/insize-price-20-trailing-a-audit/WORKBOOK_TRAILING_A_DRY_RUN.csv",
+    "ambiguous": "/tmp/insize-price-20-trailing-a-audit/WORKBOOK_TRAILING_A_AMBIGUOUS.csv",
+    "excluded": "/tmp/insize-price-20-trailing-a-audit/WORKBOOK_TRAILING_A_EXCLUDED.csv",
+    "remaining": "/tmp/insize-price-20-trailing-a-audit/REMAINING_UNMATCHED.csv"
+  }
+}

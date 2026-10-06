@@ -368,7 +368,7 @@ def content_ready(
 
 @dataclass
 class MatchResult:
-    method: str  # exact | ambiguous | unmatched
+    method: str  # exact | WORKBOOK_TRAILING_A_ALIAS | WORKBOOK_TRAILING_A_AMBIGUOUS | unmatched
     workbook_code: str | None = None
     candidates: list[str] = field(default_factory=list)
 
@@ -380,6 +380,71 @@ def match_exact(sku: str, workbook_by_code: dict[str, WorkbookRow]) -> MatchResu
     if key in workbook_by_code:
         return MatchResult(method="exact", workbook_code=workbook_by_code[key].code)
     return MatchResult(method="unmatched")
+
+
+def strip_exactly_one_terminal_workbook_A(code: str | None) -> str | None:
+    """Strip exactly one terminal ASCII ``A`` from a normalized workbook CODE.
+
+    INSIZE workbook-only alias direction: ``XA`` → ``X``.
+    Does not strip internal letters, prefixes, or more than one terminal ``A``.
+    Returns ``None`` when the code does not end with a single removable ``A``.
+    """
+    key = normalize_sku(code)
+    if len(key) < 2 or not key.endswith("A"):
+        return None
+    alias = key[:-1]
+    return alias or None
+
+
+def match_insize_workbook_terminal_a_alias(
+    sku: str,
+    workbook_by_code: dict[str, WorkbookRow],
+    *,
+    insize_db_skus: frozenset[str] | set[str],
+    brand_is_insize: bool = True,
+) -> MatchResult:
+    """INSIZE-only fallback after exact match fails: workbook ``XA`` → DB ``X``.
+
+    Collision gates (any failure → ``WORKBOOK_TRAILING_A_AMBIGUOUS`` / unmatched):
+    - brand must be INSIZE (caller sets ``brand_is_insize``);
+    - workbook ``XA`` has no exact Karzar ``XA`` product;
+    - workbook does not also contain exact non-A code ``X`` (Case C);
+    - exactly one candidate workbook ``XA`` row after normalize;
+    - alias ``X`` matches the requested DB SKU uniquely in the INSIZE set.
+    """
+    if not brand_is_insize:
+        return MatchResult(method="unmatched")
+
+    key = normalize_sku(sku)
+    if not key:
+        return MatchResult(method="unmatched")
+
+    # Exact always wins — caller should prefer match_exact first; defend here too.
+    if key in workbook_by_code:
+        return MatchResult(method="exact", workbook_code=workbook_by_code[key].code)
+
+    xa = key + "A"
+    wb = workbook_by_code.get(xa)
+    if wb is None:
+        return MatchResult(method="unmatched")
+
+    # Case B: workbook XA exact-matches DB XA → never alias to X.
+    if xa in insize_db_skus:
+        return MatchResult(
+            method="WORKBOOK_TRAILING_A_AMBIGUOUS",
+            workbook_code=wb.code,
+            candidates=[xa, key],
+        )
+
+    alias = strip_exactly_one_terminal_workbook_A(wb.code)
+    if alias != key:
+        return MatchResult(method="unmatched", workbook_code=wb.code)
+
+    return MatchResult(
+        method="WORKBOOK_TRAILING_A_ALIAS",
+        workbook_code=wb.code,
+        candidates=[alias],
+    )
 
 
 def duplicate_workbook_codes(rows: Iterable[WorkbookRow]) -> dict[str, int]:
