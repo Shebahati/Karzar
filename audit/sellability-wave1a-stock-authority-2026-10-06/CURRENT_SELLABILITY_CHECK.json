@@ -1,0 +1,47 @@
+{
+  "snapshot_utc": "2026-10-06T10:17:42Z",
+  "predicate": {
+    "LIVE": "deleted_at IS NULL",
+    "ACTIVE": "LIVE AND is_active",
+    "AVAILABLE": "LIVE AND is_available",
+    "PRICED": "LIVE AND base_price IS NOT NULL AND base_price > 0",
+    "IMAGED": "EXISTS non-placeholder product image URL",
+    "VISIBLE": "LIVE AND is_active AND IMAGED",
+    "SELLABLE": "VISIBLE AND is_available AND PRICED"
+  },
+  "counts": {
+    "live": 6536,
+    "active": 1585,
+    "available": 3756,
+    "priced": 4879,
+    "imaged": 1464,
+    "visible": 1368,
+    "sellable": 717,
+    "soft_deleted": 1
+  },
+  "wave0_sellable": 716,
+  "current_sellable": 717,
+  "delta_sellable": 1,
+  "delta_explanation_proven": [
+    {
+      "product_id": "1789",
+      "sku": "1114-150",
+      "historical_brand": "INSIZE | اینسایز",
+      "current_brand": "",
+      "commercial_drift_class": "IDENTITY_DRIFT",
+      "change": "historical ONLY_AVAILABILITY target now is_available=true and remains active+priced+imaged → explains +1 sellable; also brand_id NULL (empty brand) vs historical INSIZE → classified IDENTITY_DRIFT (exactly-one drift class), not ALREADY_AVAILABLE",
+      "historical_base_price": "6017760.00",
+      "current_base_price": "7980000.00"
+    }
+  ],
+  "other_count_deltas_vs_wave0": {
+    "live": 0,
+    "active": 0,
+    "available": 1,
+    "priced": 327,
+    "imaged": 0,
+    "visible": 0,
+    "sellable": 1
+  },
+  "priced_delta_note": "Global priced rose 4552→4879 (+327). Not attributed to a single audited mutation in this Wave 1A pass; sellable delta is separately proven via product_id 1789."
+}

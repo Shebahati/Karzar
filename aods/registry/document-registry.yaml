@@ -1277,6 +1277,25 @@ documents:
     notes: >
       Sellability Wave 0 final report (2026-10-03 snapshot). WAVE_1_APPLY_AUTHORIZED=NO.
 
+  - id: SELLABILITY-WAVE1A-STOCK-AUTHORITY-20261006
+    path: audit/sellability-wave1a-stock-authority-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only Sellability Wave 1A stock-authority reconciliation (2026-10-06).
+      Observational evidence only. WAVE_1B_APPLY_AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A-FINAL-REPORT-20261006
+    path: audit/sellability-wave1a-stock-authority-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Sellability Wave 1A final report (2026-10-06). WAVE_1B_APPLY_AUTHORIZED=NO.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE
