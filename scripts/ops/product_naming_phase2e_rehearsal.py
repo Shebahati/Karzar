@@ -205,10 +205,10 @@ def main(argv: list[str] | None = None) -> int:
         prestate,
     )
 
-    from scripts.phase2c_live_readonly_census import (  # noqa: PLC0415
+    from scripts.phase2c_live_readonly_census import (  # noqa: PLC0415,I001
+        _read_only_session_proof,
         collect_baseline,
         collect_runtime_identity,
-        _read_only_session_proof,
     )
 
     runtime = collect_runtime_identity(args.ssh_host)

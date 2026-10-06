@@ -6,7 +6,6 @@ import csv
 import hashlib
 import json
 import re
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
@@ -133,7 +132,7 @@ def validate_phase2d_freeze_manifest(manifest: dict[str, Any]) -> None:
         errors.append(f"SEO_impact_rows={manifest.get('SEO_impact_rows')}")
     written = manifest.get("written_candidate_file_sha256")
     if written != PHASE2D_CANDIDATE_SHA256:
-        errors.append(f"written_candidate_file_sha256 mismatch")
+        errors.append("written_candidate_file_sha256 mismatch")
     if errors:
         raise ValueError("phase2d_freeze_gate_failed: " + "; ".join(errors))
 

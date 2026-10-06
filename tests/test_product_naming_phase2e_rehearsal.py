@@ -4,12 +4,10 @@ from __future__ import annotations
 
 import csv
 import hashlib
-import json
 import re
 from pathlib import Path
 
 import pytest
-
 from app.domain.product_naming_phase2e import (
     HOLD_CANARY_MANUFACTURER_CODE,
     PHASE2D_CANDIDATE_SHA256,
