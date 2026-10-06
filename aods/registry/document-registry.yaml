@@ -1601,6 +1601,42 @@ documents:
     notes: >
       Canonical ownership preflight contract for Deploy Staging.
 
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-SCOPE-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/IMPLEMENTATION_SCOPE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Allowed/forbidden scope for ownership preflight PR.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-TESTS-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/TEST_MATRIX.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Test matrix for ownership preflight.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-REPRO-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/HISTORICAL_FAILURE_REPRODUCTION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Historical rsync failure class modelled for preflight.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-ORDER-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/WORKFLOW_ORDER_CHECK.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Deploy Staging workflow ordering and freeze safety for preflight.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE
