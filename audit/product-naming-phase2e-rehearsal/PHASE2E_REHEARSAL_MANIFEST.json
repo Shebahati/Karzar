@@ -1,11 +1,11 @@
 {
   "status": "READY_FOR_OWNER_APPLY_AUTHORIZATION",
-  "generated_at": "2026-10-06T07:44:10.653301+00:00",
+  "generated_at": "2026-10-06T07:47:01.514552+00:00",
   "main_sha": "83949bcfcc20d976a856a19f3d0a543a606bd817",
-  "rehearsal_logic_git_sha": "444fd0ab8bfb8be252db1caa7a9cf2e35ebda241",
+  "rehearsal_logic_git_sha": "5cb808ce6218e7a6c940a712e43908a63f7bfa86",
   "rehearsal_logic_file_sha256": {
-    "app/domain/product_naming_phase2e.py": "cf1a3988e099ca70a4536c0e085b4dee1225076f76edfcda68e36db4c969510a",
-    "scripts/ops/product_naming_phase2e_rehearsal.py": "442d456653a1fcbbf905b00ebad7573f450513799304e005d189b3de3d4d9610"
+    "app/domain/product_naming_phase2e.py": "52bf21cc66684fbc29ed79d43a967f55746c9f8d4f7b7ee984a5bf0fa9a97fb0",
+    "scripts/ops/product_naming_phase2e_rehearsal.py": "092a01827b046c9f3c827010473ac66f65c6e5475c88c80f58e11f73124d2544"
   },
   "phase2d_candidate_sha256": "25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff",
   "phase2d_candidate_rows": 47,
