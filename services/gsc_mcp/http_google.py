@@ -69,10 +69,16 @@ class GoogleHttpClient:
         url: str,
         *,
         json_body: dict[str, Any] | None = None,
+        form_body: dict[str, str] | None = None,
         params: dict[str, str] | None = None,
         skip_auth: bool = False,
         extra_headers: dict[str, str] | None = None,
     ) -> GoogleHttpResponse:
+        if json_body is not None and form_body is not None:
+            raise GscMcpError(
+                ErrorCode.INVALID_ARGUMENT,
+                "json_body and form_body are mutually exclusive",
+            )
         _validate_url(url)
         headers = {"User-Agent": self.user_agent, "Accept": "application/json"}
         if extra_headers:
@@ -88,7 +94,14 @@ class GoogleHttpClient:
             attempt += 1
             try:
                 with httpx.Client(timeout=self.timeout_seconds) as client:
-                    response = client.request(method, url, json=json_body, params=params, headers=headers)
+                    response = client.request(
+                        method,
+                        url,
+                        json=json_body,
+                        data=form_body,
+                        params=params,
+                        headers=headers,
+                    )
                 content = response.content
                 if len(content) > self.max_response_bytes:
                     raise GscMcpError(
