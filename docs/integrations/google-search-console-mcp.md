@@ -61,25 +61,34 @@ Placeholders only in repo; use secret storage in production.
 
 ## Google Cloud owner setup (one-time, manual)
 
+Doc authority (OAuth bootstrap hardening, 2026-10-03):
+
+- [OAuth 2.0 for desktop apps](https://developers.google.com/identity/protocols/oauth2/native-app) — loopback redirect, PKCE, system browser.
+- [Using OAuth 2.0 to access Google APIs](https://developers.google.com/identity/protocols/oauth2) — token endpoint uses `application/x-www-form-urlencoded`.
+- [Search Console API authorization](https://developers.google.com/webmaster-tools/v1/how-tos/authorizing) — readonly scope.
+
 1. Select or create a Google Cloud project.
 2. Enable **Google Search Console API**.
-3. Configure OAuth consent screen if required.
-4. Create OAuth client (desktop or web with `http://127.0.0.1:8765/oauth/callback` for bootstrap).
-5. Run local OAuth bootstrap (below) and sign in with the Google account that has access to `sc-domain:karzartools.com`.
-6. Store refresh token in server secret storage (not git).
-7. Optionally enable **Chrome UX Report API** and create an API key restricted to that API only.
-8. Never paste secrets into GitHub, chat, or CI logs.
+3. Configure the Google Auth consent screen if required.
+4. Create an OAuth client ID with application type **Desktop app** (not deprecated OOB).
+5. Download the client JSON locally (never commit).
+6. Run local OAuth bootstrap (below); the system browser opens, you approve **only** `webmasters.readonly`, and the loopback callback completes automatically.
+7. Credentials are written to `~/.config/karzar/gsc/credentials.json` with mode `0600`.
+8. Copy refresh token (and client id/secret if used) into server secret storage for production MCP runtime env vars.
+9. Optionally enable **Chrome UX Report API** and create an API key restricted to that API only.
+10. Never paste secrets into GitHub, chat, or CI logs.
+
+**No manual OOB copy/paste of authorization codes is required** for the default bootstrap flow.
 
 ## OAuth bootstrap (local only)
 
 ```bash
-export GOOGLE_GSC_CLIENT_ID=...
-export GOOGLE_GSC_CLIENT_SECRET=...
-python -m services.gsc_mcp.bootstrap_oauth
-# Or write to ~/.config/karzar/gsc/credentials.json (mode 0600)
+python -m services.gsc_mcp.bootstrap_oauth --credentials-file /path/to/client_secret_desktop.json
 ```
 
-Use `--print-refresh-token` only when you will copy the value directly into secret storage (warning: secret).
+Optional: `--no-browser` prints the authorization URL instead of opening a browser.
+
+Use `--print-refresh-token` only as an advanced option when copying directly into secret storage (warning: secret). It is not the normal path.
 
 ## Run locally
 
