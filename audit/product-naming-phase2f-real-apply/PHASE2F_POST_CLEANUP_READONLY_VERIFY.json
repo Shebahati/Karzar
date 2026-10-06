@@ -1,0 +1,13 @@
+{
+  "collected_at_utc": "2026-10-06T12:01:09.363096+00:00",
+  "mode": "read_only",
+  "mutation": false,
+  "proposed_names_persisted": 47,
+  "old_names_remaining": 0,
+  "phase2f_logs": 47,
+  "duplicate_logs": 0,
+  "hold_canary_manufacturer_code": "2223-153",
+  "hold_canary_name": "پرگار ساعتی داخل 55-153 میلی متری اینسایز (Insize) مدل 153-2223",
+  "hold_canary_untouched": true,
+  "pass": true
+}
