@@ -9,6 +9,8 @@ import re
 from pathlib import Path
 from typing import Any, Literal
 
+from app.domain.product_naming import normalize_persian_text
+
 PHASE2D_CANDIDATE_SHA256 = "25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff"
 PHASE2D_EXPECTED_READY_ROWS = 47
 HOLD_CANARY_MANUFACTURER_CODE = "2223-153"
@@ -39,6 +41,8 @@ FORBIDDEN_APPLY_FLAGS = frozenset(
 )
 
 COMMIT_RE = re.compile(r"(^|[^A-Z_])COMMIT(\s|;|$)", re.I)
+METRIC_RE = re.compile(r"^METRIC:([a-z_]+):(\d+)$")
+LOGROW_RE = re.compile(r"^LOGROW:(.+)$")
 
 REHEARSAL_LOGIC_FILES = (
     "app/domain/product_naming_phase2e.py",
@@ -63,6 +67,42 @@ PROTECTED_PRODUCT_COLUMNS = (
     "stock_quantity",
     "tax_percent",
 )
+
+REQUIRED_REHEARSAL_METRICS = (
+    "in_tx_identity_drift",
+    "in_tx_name_drift",
+    "in_tx_sku_drift",
+    "in_tx_manufacturer_code_drift",
+    "in_tx_brand_drift",
+    "in_tx_product_type_drift",
+    "in_tx_deleted_drift",
+    "updates_exact",
+    "old_names_remaining",
+    "target_protected_drift",
+    "rehearsal_logs_exact",
+    "actual_log_row_mismatches",
+    "exact_name_collisions",
+    "normalized_name_collisions",
+    "catalog_exact_collisions",
+    "catalog_normalized_collisions",
+    "non_target_name_changes",
+    "non_target_protected_changes",
+)
+
+FailureInjection = Literal[
+    "after_first_update",
+    "mid_cohort",
+    "after_all_updates",
+    "during_logs",
+    "after_all_logs",
+    "validation_failure",
+    "identity_drift_simulation",
+]
+
+
+def normalize_name_for_collision(name: str) -> str:
+    """Phase 2D comparison normalization (Persian display text)."""
+    return normalize_persian_text(name)
 
 
 def sha256_file(path: Path) -> str:
@@ -97,6 +137,13 @@ def sql_literal(value: str | None) -> str:
     if value is None:
         return "NULL"
     return "'" + str(value).replace("'", "''") + "'"
+
+
+def sql_int(value: str | None) -> str:
+    v = (value or "").strip()
+    if not v:
+        return "NULL"
+    return str(int(v))
 
 
 def rehearsal_logic_file_sha256(repo_root: Path) -> dict[str, str]:
@@ -204,6 +251,7 @@ def build_expected_prestate_rows(
                 "product_type_code": (cand.get("product_type_code") or "").strip(),
                 "expected_old_name": expected_old,
                 "proposed_name": proposed,
+                "proposed_name_norm": normalize_name_for_collision(proposed),
                 "meta_title_present": (audit.get("meta_title_present") or "").strip(),
                 "seo_title_impact": (audit.get("seo_title_impact") or "").strip(),
             }
@@ -247,6 +295,35 @@ def reconcile_live_row(
     return errors
 
 
+def collision_precheck_python(
+    prestate: list[dict[str, str]],
+    catalog: list[tuple[int, str]],
+) -> dict[str, int]:
+    """Pre-transaction collision scan using Phase 2D normalization."""
+    cohort_ids = {int(r["product_id"]) for r in prestate}
+    exact_names = [r["proposed_name"] for r in prestate]
+    norm_names = [r["proposed_name_norm"] for r in prestate]
+    cohort_exact = len(exact_names) - len(set(exact_names))
+    cohort_norm = len(norm_names) - len(set(norm_names))
+    catalog_exact = 0
+    catalog_norm = 0
+    exact_set = set(exact_names)
+    norm_set = set(norm_names)
+    for pid, name in catalog:
+        if pid in cohort_ids:
+            continue
+        if name in exact_set:
+            catalog_exact += 1
+        if normalize_name_for_collision(name) in norm_set:
+            catalog_norm += 1
+    return {
+        "cohort_exact_dup": cohort_exact,
+        "cohort_normalized_dup": cohort_norm,
+        "catalog_exact_hits": catalog_exact,
+        "catalog_normalized_hits": catalog_norm,
+    }
+
+
 def target_fingerprint_row(live: dict[str, Any]) -> str:
     parts = []
     for col in PROTECTED_PRODUCT_COLUMNS:
@@ -255,68 +332,204 @@ def target_fingerprint_row(live: dict[str, Any]) -> str:
     return "|".join(parts)
 
 
-def build_rehearsal_sql(prestate: list[dict[str, str]]) -> str:
+def non_target_fingerprint_sql(cohort_ids: list[int]) -> str:
+    id_csv = ",".join(str(i) for i in sorted(cohort_ids))
+    parts = [
+        "p.id::text",
+        "COALESCE(p.name,'')",
+        "COALESCE(p.sku,'')",
+        "COALESCE(p.slug,'')",
+        "COALESCE(p.manufacturer_code,'')",
+        "COALESCE(p.brand_id::text,'')",
+        "COALESCE(p.category_id::text,'')",
+        "COALESCE(p.product_type_id::text,'')",
+        "COALESCE(p.meta_title,'')",
+        "COALESCE(p.meta_description,'')",
+        "COALESCE(p.base_price::text,'')",
+        "COALESCE(p.original_price::text,'')",
+        "COALESCE(p.is_available::text,'')",
+        "COALESCE(p.is_active::text,'')",
+        "COALESCE(p.deleted_at::text,'')",
+        "COALESCE(p.stock_quantity::text,'')",
+        "COALESCE(p.tax_percent::text,'')",
+    ]
+    inner = " || '|' || ".join(parts)
+    return (
+        f"SELECT md5(COALESCE(string_agg({inner}, E'\\n' ORDER BY p.id), '')) "
+        f"FROM products p WHERE p.deleted_at IS NULL AND p.id NOT IN ({id_csv});"
+    )
+
+
+def _frozen_identity_values(prestate: list[dict[str, str]]) -> str:
+    rows = []
+    for r in prestate:
+        pid = int(r["product_id"])
+        rows.append(
+            f"({pid},{sql_literal(r['expected_old_name'])},{sql_literal(r['sku'])},"
+            f"{sql_literal(r['manufacturer_code'])},{sql_int(r['brand_id'])},"
+            f"{sql_int(r['product_type_id'])},{sql_literal(r['proposed_name'])},"
+            f"{sql_literal(r['proposed_name_norm'])})"
+        )
+    return ",\n  ".join(rows)
+
+
+def _catalog_norm_insert_sql(catalog_norm_rows: list[tuple[int, str]]) -> str:
+    if not catalog_norm_rows:
+        return (
+            "CREATE TEMP TABLE p2e_catalog_norm (product_id int PRIMARY KEY, norm_name text);\n"
+        )
+    chunks: list[str] = []
+    batch = 400
+    for i in range(0, len(catalog_norm_rows), batch):
+        part = catalog_norm_rows[i : i + batch]
+        values = ",\n  ".join(f"({pid},{sql_literal(norm)})" for pid, norm in part)
+        chunks.append(f"INSERT INTO p2e_catalog_norm (product_id, norm_name) VALUES\n  {values};")
+    return (
+        "CREATE TEMP TABLE p2e_catalog_norm (product_id int PRIMARY KEY, norm_name text);\n"
+        + "\n".join(chunks)
+        + "\n"
+    )
+
+
+def _coupled_update_sql(row: dict[str, str], reason: str) -> str:
+    pid = int(row["product_id"])
+    return f"""
+WITH gate AS (SELECT n FROM p2e_identity_gate),
+upd AS (
+  UPDATE products p
+  SET name = f.new_name
+  FROM p2e_frozen_identity f, gate
+  WHERE gate.n = 0
+    AND p.id = f.id
+    AND p.id = {pid}
+    AND p.name = f.old_name
+    AND p.sku = f.sku
+    AND COALESCE(p.manufacturer_code, '') = f.manufacturer_code
+    AND p.brand_id IS NOT DISTINCT FROM f.brand_id
+    AND p.product_type_id IS NOT DISTINCT FROM f.product_type_id
+    AND p.deleted_at IS NULL
+  RETURNING p.id, f.old_name, f.new_name
+)
+INSERT INTO product_change_logs (product_id, field_name, old_value, new_value, reason, actor_user_id)
+SELECT id, 'name', old_name, new_name, {sql_literal(reason)}, NULL FROM upd;
+"""
+
+
+def build_rehearsal_sql(
+    prestate: list[dict[str, str]],
+    *,
+    catalog_norm_rows: list[tuple[int, str]],
+    failure_injection: FailureInjection | None = None,
+) -> str:
     """Single SERIALIZABLE transaction; always ends with ROLLBACK."""
     ids = sorted(int(r["product_id"]) for r in prestate)
     id_csv = ",".join(str(i) for i in ids)
     reason = REHEARSAL_REASON
+    frozen_values = _frozen_identity_values(prestate)
+    catalog_sql = _catalog_norm_insert_sql(catalog_norm_rows)
+
     updates: list[str] = []
-    for row in prestate:
-        pid = int(row["product_id"])
-        old = row["expected_old_name"]
-        new = row["proposed_name"]
-        sku = row["sku"]
-        updates.append(
-            f"""
-UPDATE products SET name = {sql_literal(new)}
-WHERE id = {pid}
-  AND name = {sql_literal(old)}
-  AND sku = {sql_literal(sku)}
-  AND deleted_at IS NULL;
-"""
-        )
-        updates.append(
-            f"""
-INSERT INTO product_change_logs (product_id, field_name, old_value, new_value, reason, actor_user_id)
-VALUES ({pid}, 'name', {sql_literal(old)}, {sql_literal(new)}, {sql_literal(reason)}, NULL);
-"""
-        )
+    mid = len(prestate) // 2
+    for i, row in enumerate(prestate):
+        updates.append(_coupled_update_sql(row, reason))
+        if failure_injection == "after_first_update" and i == 0:
+            updates.append("SELECT 1/0;")
+        if failure_injection == "mid_cohort" and i == mid:
+            updates.append("SELECT 1/0;")
+        if failure_injection == "after_all_updates" and i == len(prestate) - 1:
+            updates.append("SELECT 1/0;")
+        if failure_injection == "during_logs" and i == 0:
+            updates.append(
+                "INSERT INTO product_change_logs (product_id, field_name, old_value, new_value, reason) "
+                "VALUES (-1, 'name', 'x', 'y', 'inject');"
+            )
     body = "\n".join(updates)
-    proposed_values = ",\n  ".join(
-        f"({int(r['product_id'])},{sql_literal(r['proposed_name'])})" for r in prestate
-    )
-    old_values = ",\n  ".join(
-        f"({int(r['product_id'])},{sql_literal(r['expected_old_name'])})" for r in prestate
-    )
+
+    identity_drift_block = """
+SELECT 'METRIC:in_tx_name_drift:' || COUNT(*)::text FROM products p
+  JOIN p2e_frozen_identity f ON p.id = f.id WHERE p.name IS DISTINCT FROM f.old_name;
+SELECT 'METRIC:in_tx_sku_drift:' || COUNT(*)::text FROM products p
+  JOIN p2e_frozen_identity f ON p.id = f.id WHERE p.sku IS DISTINCT FROM f.sku;
+SELECT 'METRIC:in_tx_manufacturer_code_drift:' || COUNT(*)::text FROM products p
+  JOIN p2e_frozen_identity f ON p.id = f.id
+  WHERE COALESCE(p.manufacturer_code, '') IS DISTINCT FROM f.manufacturer_code;
+SELECT 'METRIC:in_tx_brand_drift:' || COUNT(*)::text FROM products p
+  JOIN p2e_frozen_identity f ON p.id = f.id WHERE p.brand_id IS DISTINCT FROM f.brand_id;
+SELECT 'METRIC:in_tx_product_type_drift:' || COUNT(*)::text FROM products p
+  JOIN p2e_frozen_identity f ON p.id = f.id WHERE p.product_type_id IS DISTINCT FROM f.product_type_id;
+SELECT 'METRIC:in_tx_deleted_drift:' || COUNT(*)::text FROM products p
+  JOIN p2e_frozen_identity f ON p.id = f.id WHERE p.deleted_at IS NOT NULL;
+SELECT 'METRIC:in_tx_identity_drift:' || COUNT(*)::text FROM products p
+  JOIN p2e_frozen_identity f ON p.id = f.id
+  WHERE p.name IS DISTINCT FROM f.old_name
+     OR p.sku IS DISTINCT FROM f.sku
+     OR COALESCE(p.manufacturer_code, '') IS DISTINCT FROM f.manufacturer_code
+     OR p.brand_id IS DISTINCT FROM f.brand_id
+     OR p.product_type_id IS DISTINCT FROM f.product_type_id
+     OR p.deleted_at IS NOT NULL;
+CREATE TEMP TABLE p2e_identity_gate AS
+  SELECT COUNT(*)::int AS n FROM products p
+  JOIN p2e_frozen_identity f ON p.id = f.id
+  WHERE p.name IS DISTINCT FROM f.old_name
+     OR p.sku IS DISTINCT FROM f.sku
+     OR COALESCE(p.manufacturer_code, '') IS DISTINCT FROM f.manufacturer_code
+     OR p.brand_id IS DISTINCT FROM f.brand_id
+     OR p.product_type_id IS DISTINCT FROM f.product_type_id
+     OR p.deleted_at IS NOT NULL;
+"""
+
+    drift_sim = ""
+    if failure_injection == "identity_drift_simulation" and prestate:
+        first_id = int(prestate[0]["product_id"])
+        drift_sim = f"UPDATE products SET sku = sku || '-drift' WHERE id = {first_id};\n"
+
+    validation_fail = ""
+    if failure_injection == "validation_failure":
+        validation_fail = "SELECT 1/0;\n"
+
+    after_logs_fail = ""
+    if failure_injection == "after_all_logs":
+        after_logs_fail = "SELECT 1/0;\n"
+
     return f"""
 BEGIN ISOLATION LEVEL SERIALIZABLE;
 SELECT pg_advisory_xact_lock(hashtext({sql_literal(ADVISORY_LOCK_KEY)}));
-CREATE TEMP TABLE p2e_expected_old (id int PRIMARY KEY, old_name text);
-INSERT INTO p2e_expected_old (id, old_name) VALUES
-  {old_values};
-CREATE TEMP TABLE p2e_expected_new (id int PRIMARY KEY, new_name text);
-INSERT INTO p2e_expected_new (id, new_name) VALUES
-  {proposed_values};
+CREATE TEMP TABLE p2e_frozen_identity (
+  id int PRIMARY KEY,
+  old_name text NOT NULL,
+  sku text NOT NULL,
+  manufacturer_code text NOT NULL,
+  brand_id int,
+  product_type_id int,
+  new_name text NOT NULL,
+  new_name_norm text NOT NULL
+);
+INSERT INTO p2e_frozen_identity (
+  id, old_name, sku, manufacturer_code, brand_id, product_type_id, new_name, new_name_norm
+) VALUES
+  {frozen_values};
+{catalog_sql}
 CREATE TEMP TABLE p2e_before AS
   SELECT id, name, sku, slug, manufacturer_code, brand_id, category_id, product_type_id,
          meta_title, meta_description, base_price, original_price, is_available, is_active,
          deleted_at, stock_quantity, tax_percent
   FROM products WHERE id IN ({id_csv});
-CREATE TEMP TABLE p2e_all_names AS
-  SELECT id, name FROM products WHERE deleted_at IS NULL;
+CREATE TEMP TABLE p2e_nontarget_before AS
+  SELECT id, name, sku, slug, manufacturer_code, brand_id, category_id, product_type_id,
+         meta_title, meta_description, base_price, original_price, is_available, is_active,
+         deleted_at, stock_quantity, tax_percent
+  FROM products WHERE deleted_at IS NULL AND id NOT IN ({id_csv});
 SELECT id FROM products WHERE id IN ({id_csv}) ORDER BY id FOR UPDATE;
-SELECT 'METRIC:drift_in_tx:' || COUNT(*)::text FROM products p
-  JOIN p2e_expected_old e ON p.id = e.id
-  WHERE p.name IS DISTINCT FROM e.old_name
-     OR p.deleted_at IS NOT NULL;
+{drift_sim}
+{identity_drift_block}
 {body}
 SELECT 'METRIC:updates_exact:' || COUNT(*)::text FROM products p
-  JOIN p2e_expected_new e ON p.id = e.id
-  WHERE p.name IS NOT DISTINCT FROM e.new_name;
+  JOIN p2e_frozen_identity f ON p.id = f.id
+  WHERE p.name IS NOT DISTINCT FROM f.new_name;
 SELECT 'METRIC:old_names_remaining:' || COUNT(*)::text FROM products p
-  JOIN p2e_expected_old e ON p.id = e.id
-  WHERE p.name IS NOT DISTINCT FROM e.old_name;
-SELECT 'METRIC:protected_drift:' || COUNT(*)::text FROM products p
+  JOIN p2e_frozen_identity f ON p.id = f.id
+  WHERE p.name IS NOT DISTINCT FROM f.old_name;
+SELECT 'METRIC:target_protected_drift:' || COUNT(*)::text FROM products p
   JOIN p2e_before b ON p.id = b.id
   WHERE p.sku IS DISTINCT FROM b.sku
      OR p.slug IS DISTINCT FROM b.slug
@@ -333,57 +546,206 @@ SELECT 'METRIC:protected_drift:' || COUNT(*)::text FROM products p
      OR p.deleted_at IS DISTINCT FROM b.deleted_at
      OR p.stock_quantity IS DISTINCT FROM b.stock_quantity
      OR p.tax_percent IS DISTINCT FROM b.tax_percent;
-SELECT 'METRIC:rehearsal_logs:' || COUNT(*)::text FROM product_change_logs
+SELECT 'METRIC:rehearsal_logs_exact:' || COUNT(*)::text FROM product_change_logs
   WHERE reason = {sql_literal(reason)} AND field_name = 'name';
 SELECT 'METRIC:exact_name_collisions:' || COUNT(*)::text FROM (
-  SELECT name FROM products WHERE deleted_at IS NULL AND name IN (
-    SELECT new_name FROM p2e_expected_new
-  ) GROUP BY name HAVING COUNT(*) > 1
+  SELECT f.new_name FROM p2e_frozen_identity f
+  GROUP BY f.new_name HAVING COUNT(*) > 1
 ) s;
+SELECT 'METRIC:normalized_name_collisions:' || COUNT(*)::text FROM (
+  SELECT f.new_name_norm FROM p2e_frozen_identity f
+  GROUP BY f.new_name_norm HAVING COUNT(*) > 1
+) s;
+SELECT 'METRIC:catalog_exact_collisions:' || COUNT(*)::text FROM p2e_frozen_identity f
+  WHERE EXISTS (
+    SELECT 1 FROM products p
+    WHERE p.deleted_at IS NULL AND p.id <> f.id AND p.name = f.new_name
+  );
+SELECT 'METRIC:catalog_normalized_collisions:' || COUNT(*)::text FROM p2e_frozen_identity f
+  WHERE EXISTS (
+    SELECT 1 FROM p2e_catalog_norm cn
+    JOIN products p ON p.id = cn.product_id
+    WHERE p.deleted_at IS NULL AND cn.product_id <> f.id AND cn.norm_name = f.new_name_norm
+  );
 SELECT 'METRIC:non_target_name_changes:' || COUNT(*)::text FROM products p
-  JOIN p2e_all_names n ON p.id = n.id
-  WHERE p.id NOT IN ({id_csv}) AND p.name IS DISTINCT FROM n.name;
+  JOIN p2e_nontarget_before b ON p.id = b.id
+  WHERE p.name IS DISTINCT FROM b.name;
+SELECT 'METRIC:non_target_protected_changes:' || COUNT(*)::text FROM products p
+  JOIN p2e_nontarget_before b ON p.id = b.id
+  WHERE p.sku IS DISTINCT FROM b.sku
+     OR p.slug IS DISTINCT FROM b.slug
+     OR p.manufacturer_code IS DISTINCT FROM b.manufacturer_code
+     OR p.brand_id IS DISTINCT FROM b.brand_id
+     OR p.category_id IS DISTINCT FROM b.category_id
+     OR p.product_type_id IS DISTINCT FROM b.product_type_id
+     OR p.meta_title IS DISTINCT FROM b.meta_title
+     OR p.meta_description IS DISTINCT FROM b.meta_description
+     OR p.base_price IS DISTINCT FROM b.base_price
+     OR p.original_price IS DISTINCT FROM b.original_price
+     OR p.is_available IS DISTINCT FROM b.is_available
+     OR p.is_active IS DISTINCT FROM b.is_active
+     OR p.deleted_at IS DISTINCT FROM b.deleted_at
+     OR p.stock_quantity IS DISTINCT FROM b.stock_quantity
+     OR p.tax_percent IS DISTINCT FROM b.tax_percent;
+SELECT 'LOGROW:' || row_to_json(t)::text FROM (
+  SELECT id, product_id, field_name, old_value, new_value, reason, actor_user_id
+  FROM product_change_logs
+  WHERE reason = {sql_literal(reason)} AND field_name = 'name'
+  ORDER BY product_id, id
+) t;
+{after_logs_fail}
+{validation_fail}
 ROLLBACK;
 """
 
 
-def parse_rehearsal_metrics(stdout: str) -> dict[str, int]:
+def parse_rehearsal_stdout(stdout: str) -> tuple[dict[str, int], list[dict[str, Any]]]:
     metrics: dict[str, int] = {}
+    log_rows: list[dict[str, Any]] = []
     for line in stdout.splitlines():
-        m = re.match(r"^METRIC:([a-z_]+):(\d+)$", line.strip())
+        m = METRIC_RE.match(line.strip())
         if m:
             metrics[m.group(1)] = int(m.group(2))
-    required = (
-        "drift_in_tx",
-        "updates_exact",
-        "old_names_remaining",
-        "protected_drift",
-        "rehearsal_logs",
-        "exact_name_collisions",
-        "non_target_name_changes",
-    )
-    missing = [k for k in required if k not in metrics]
+            continue
+        lm = LOGROW_RE.match(line.strip())
+        if lm:
+            log_rows.append(json.loads(lm.group(1)))
+    missing = [k for k in REQUIRED_REHEARSAL_METRICS if k not in metrics and k != "actual_log_row_mismatches"]
     if missing:
-        raise RuntimeError(f"missing metrics {missing}: tail={stdout[-1200:]}")
+        raise RuntimeError(f"missing metrics {missing}: tail={stdout[-2000:]}")
+    return metrics, log_rows
+
+
+def parse_rehearsal_metrics(stdout: str) -> dict[str, int]:
+    metrics, _ = parse_rehearsal_stdout(stdout)
     return metrics
+
+
+def audit_rehearsal_logs(
+    prestate: list[dict[str, str]],
+    log_rows: list[dict[str, Any]],
+) -> tuple[dict[str, int], list[dict[str, Any]]]:
+    expected_by_pid = {
+        int(r["product_id"]): {
+            "product_id": int(r["product_id"]),
+            "field_name": "name",
+            "old_value": r["expected_old_name"],
+            "new_value": r["proposed_name"],
+            "reason": REHEARSAL_REASON,
+            "actor_user_id": None,
+        }
+        for r in prestate
+    }
+    cohort_ids = set(expected_by_pid)
+    actual_for_cohort = [r for r in log_rows if int(r["product_id"]) in cohort_ids]
+    non_target_logs = len(log_rows) - len(actual_for_cohort)
+    by_pid: dict[int, list[dict[str, Any]]] = {}
+    for row in actual_for_cohort:
+        by_pid.setdefault(int(row["product_id"]), []).append(row)
+
+    wrong_product = 0
+    wrong_field = 0
+    wrong_old = 0
+    wrong_new = 0
+    wrong_reason = 0
+    duplicates = 0
+    for pid, rows in by_pid.items():
+        if len(rows) > 1:
+            duplicates += len(rows) - 1
+        row = rows[0]
+        exp = expected_by_pid.get(pid)
+        if not exp:
+            wrong_product += 1
+            continue
+        if row.get("field_name") != "name":
+            wrong_field += 1
+        if (row.get("old_value") or "") != exp["old_value"]:
+            wrong_old += 1
+        if (row.get("new_value") or "") != exp["new_value"]:
+            wrong_new += 1
+        if (row.get("reason") or "") != REHEARSAL_REASON:
+            wrong_reason += 1
+
+    missing = len(cohort_ids - set(by_pid))
+    extra = max(0, len(actual_for_cohort) - len(by_pid))
+    mismatches = (
+        missing
+        + extra
+        + duplicates
+        + wrong_product
+        + wrong_field
+        + wrong_old
+        + wrong_new
+        + wrong_reason
+        + non_target_logs
+    )
+    summary = {
+        "actual_rows": len(log_rows),
+        "missing": missing,
+        "extra": extra,
+        "duplicates": duplicates,
+        "wrong_product_id": wrong_product,
+        "wrong_field_name": wrong_field,
+        "wrong_old_value": wrong_old,
+        "wrong_new_value": wrong_new,
+        "wrong_reason": wrong_reason,
+        "non_target_rehearsal_logs": non_target_logs,
+        "actual_log_row_mismatches": mismatches,
+    }
+    csv_rows: list[dict[str, Any]] = []
+    for row in sorted(log_rows, key=lambda r: (int(r["product_id"]), int(r.get("id") or 0))):
+        pid = int(row["product_id"])
+        exp = expected_by_pid.get(pid)
+        csv_rows.append(
+            {
+                "id": row.get("id"),
+                "product_id": pid,
+                "field_name": row.get("field_name"),
+                "old_value": row.get("old_value"),
+                "new_value": row.get("new_value"),
+                "reason": row.get("reason"),
+                "actor_user_id": row.get("actor_user_id"),
+                "expected_old_value": exp["old_value"] if exp else "",
+                "expected_new_value": exp["new_value"] if exp else "",
+                "match": (
+                    "yes"
+                    if exp
+                    and row.get("field_name") == "name"
+                    and (row.get("old_value") or "") == exp["old_value"]
+                    and (row.get("new_value") or "") == exp["new_value"]
+                    and (row.get("reason") or "") == REHEARSAL_REASON
+                    else "no"
+                ),
+            }
+        )
+    return summary, csv_rows
 
 
 def rehearsal_success_metrics(metrics: dict[str, int], expected_rows: int) -> list[str]:
     errors: list[str] = []
-    if metrics["drift_in_tx"] != 0:
-        errors.append("drift_in_tx")
-    if metrics["updates_exact"] != expected_rows:
-        errors.append("updates_exact")
-    if metrics["old_names_remaining"] != 0:
-        errors.append("old_names_remaining")
-    if metrics["protected_drift"] != 0:
-        errors.append("protected_drift")
-    if metrics["rehearsal_logs"] != expected_rows:
-        errors.append("rehearsal_logs")
-    if metrics["exact_name_collisions"] != 0:
-        errors.append("exact_name_collisions")
-    if metrics["non_target_name_changes"] != 0:
-        errors.append("non_target_name_changes")
+    checks = {
+        "in_tx_identity_drift": 0,
+        "in_tx_name_drift": 0,
+        "in_tx_sku_drift": 0,
+        "in_tx_manufacturer_code_drift": 0,
+        "in_tx_brand_drift": 0,
+        "in_tx_product_type_drift": 0,
+        "in_tx_deleted_drift": 0,
+        "updates_exact": expected_rows,
+        "old_names_remaining": 0,
+        "target_protected_drift": 0,
+        "rehearsal_logs_exact": expected_rows,
+        "actual_log_row_mismatches": 0,
+        "exact_name_collisions": 0,
+        "normalized_name_collisions": 0,
+        "catalog_exact_collisions": 0,
+        "catalog_normalized_collisions": 0,
+        "non_target_name_changes": 0,
+        "non_target_protected_changes": 0,
+    }
+    for key, expected in checks.items():
+        if metrics.get(key, -1) != expected:
+            errors.append(key)
     return errors
 
 

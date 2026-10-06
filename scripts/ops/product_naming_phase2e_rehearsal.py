@@ -22,11 +22,15 @@ from app.domain.product_naming_phase2e import (  # noqa: E402
     PHASE2D_CANDIDATE_SHA256,
     PHASE2D_EXPECTED_READY_ROWS,
     REHEARSAL_REASON,
+    audit_rehearsal_logs,
     build_expected_prestate_rows,
     build_rehearsal_sql,
+    collision_precheck_python,
     load_audit_ready_rows,
     load_freeze_manifest,
-    parse_rehearsal_metrics,
+    non_target_fingerprint_sql,
+    normalize_name_for_collision,
+    parse_rehearsal_stdout,
     prestate_csv_bytes,
     reconcile_live_row,
     rehearsal_logic_file_sha256,
@@ -120,19 +124,24 @@ WHERE product_id IN ({id_csv}) AND reason = '{REHEARSAL_REASON}';
     return int(_run_ssh_psql(sql, ssh_host=ssh_host).splitlines()[-1] or "0")
 
 
-def _collision_precheck(proposed_names: list[str], target_ids: list[int], ssh_host: str) -> dict[str, int]:
-    id_csv = ",".join(str(i) for i in target_ids)
-    # Exact duplicate proposed names within cohort
-    exact_dup = len(proposed_names) - len(set(proposed_names))
-    names_sql = ",".join("'" + n.replace("'", "''") + "'" for n in set(proposed_names))
-    catalog_sql = f"""
-SELECT COUNT(*) FROM (
-  SELECT name FROM products
-  WHERE deleted_at IS NULL AND name IN ({names_sql}) AND id NOT IN ({id_csv})
-) s;
+def _fetch_catalog_names(ssh_host: str) -> list[tuple[int, str]]:
+    sql = """
+SELECT row_to_json(t) FROM (
+  SELECT id, name FROM products WHERE deleted_at IS NULL ORDER BY id
+) t;
 """
-    catalog_hits = int(_run_ssh_psql(catalog_sql, ssh_host=ssh_host).splitlines()[-1] or "0")
-    return {"cohort_exact_dup": exact_dup, "catalog_name_hits": catalog_hits}
+    raw = _run_ssh_psql(sql, ssh_host=ssh_host)
+    rows: list[tuple[int, str]] = []
+    for line in raw.splitlines():
+        if not line.strip():
+            continue
+        obj = json.loads(line)
+        rows.append((int(obj["id"]), str(obj["name"])))
+    return rows
+
+
+def _non_target_fp(ssh_host: str, cohort_ids: list[int]) -> str:
+    return _run_ssh_psql(non_target_fingerprint_sql(cohort_ids), ssh_host=ssh_host).splitlines()[-1].strip()
 
 
 def _git_head() -> str:
@@ -220,9 +229,10 @@ def main(argv: list[str] | None = None) -> int:
     drift_errors: list[str] = []
     for row in prestate:
         drift_errors.extend(reconcile_live_row(row, live[row["product_id"]]))
-    collisions = _collision_precheck(
-        [r["proposed_name"] for r in prestate], ids, args.ssh_host
-    )
+    catalog_names = _fetch_catalog_names(args.ssh_host)
+    catalog_norm_rows = [(pid, normalize_name_for_collision(name)) for pid, name in catalog_names]
+    collisions = collision_precheck_python(prestate, catalog_names)
+    non_target_pre_fp = _non_target_fp(args.ssh_host, ids)
 
     target_rows = []
     name_fp_parts = []
@@ -267,6 +277,7 @@ def main(argv: list[str] | None = None) -> int:
         "target_prestate_sha256": target_prestate_sha,
         "live_drift_errors": drift_errors,
         "collision_precheck": collisions,
+        "non_target_prestate_sha256": non_target_pre_fp,
         "rehearsal_log_baseline": log_baseline,
         "runtime_identity": runtime,
         "read_only_proof": ro_proof,
@@ -275,7 +286,15 @@ def main(argv: list[str] | None = None) -> int:
     _write_json(out_dir / "PHASE2E_PRECHECK.json", precheck)
 
     status = "BLOCKED"
-    if drift_errors or collisions["cohort_exact_dup"] or collisions["catalog_name_hits"]:
+    collision_blocked = any(
+        collisions.get(k, 0) for k in (
+            "cohort_exact_dup",
+            "cohort_normalized_dup",
+            "catalog_exact_hits",
+            "catalog_normalized_hits",
+        )
+    )
+    if drift_errors or collision_blocked:
         _write_json(
             out_dir / "PHASE2E_REHEARSAL_REPORT.json",
             {"status": status, "precheck": precheck},
@@ -289,10 +308,12 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"status": status}, indent=2))
         return 0
 
-    sql = build_rehearsal_sql(prestate)
+    sql = build_rehearsal_sql(prestate, catalog_norm_rows=catalog_norm_rows)
     assert "COMMIT" not in sql.upper().replace("ROLLBACK", "")
     stdout = _run_ssh_psql_script(sql, ssh_host=args.ssh_host)
-    metrics = parse_rehearsal_metrics(stdout)
+    metrics, log_rows = parse_rehearsal_stdout(stdout)
+    log_audit_summary, log_audit_csv = audit_rehearsal_logs(prestate, log_rows)
+    metrics["actual_log_row_mismatches"] = log_audit_summary["actual_log_row_mismatches"]
     metric_errors = rehearsal_success_metrics(metrics, PHASE2D_EXPECTED_READY_ROWS)
 
     post_live = _fetch_live_targets(ids, args.ssh_host)
@@ -303,6 +324,7 @@ def main(argv: list[str] | None = None) -> int:
         if (post_live[row["product_id"]].get("name") or "").strip() == row["proposed_name"]:
             post_drift.append(f"proposed_stuck:{row['product_id']}")
     post_log = _log_baseline(ids, args.ssh_host)
+    non_target_post_fp = _non_target_fp(args.ssh_host, ids)
     post_protected_sha = sha256_bytes(
         "\n".join(
             f"{r['product_id']}:{target_fingerprint_row(post_live[r['product_id']])}"
@@ -324,20 +346,10 @@ def main(argv: list[str] | None = None) -> int:
         ["product_id", "expected_old_name", "proposed_name", "metrics"],
         in_tx_rows,
     )
-    log_audit = [
-        {
-            "product_id": r["product_id"],
-            "field_name": "name",
-            "old_value": r["expected_old_name"],
-            "new_value": r["proposed_name"],
-            "reason": REHEARSAL_REASON,
-        }
-        for r in prestate
-    ]
     _write_csv(
         out_dir / "PHASE2E_IN_TRANSACTION_LOG_AUDIT.csv",
-        ["product_id", "field_name", "old_value", "new_value", "reason"],
-        log_audit,
+        list(log_audit_csv[0].keys()) if log_audit_csv else ["product_id"],
+        log_audit_csv,
     )
     _write_csv(
         out_dir / "PHASE2E_POST_ROLLBACK_VERIFY.csv",
@@ -358,10 +370,22 @@ def main(argv: list[str] | None = None) -> int:
     )
     _write_json(
         out_dir / "PHASE2E_NON_TARGET_AUDIT.json",
-        {"non_target_mutations": metrics.get("non_target_name_changes", -1)},
+        {
+            "non_target_name_changes": metrics.get("non_target_name_changes", -1),
+            "non_target_protected_changes": metrics.get("non_target_protected_changes", -1),
+            "non_target_prestate_sha256": non_target_pre_fp,
+            "non_target_post_rollback_sha256": non_target_post_fp,
+            "non_target_fingerprint_equal": non_target_pre_fp == non_target_post_fp,
+            "log_audit": log_audit_summary,
+        },
     )
 
-    rollback_ok = not post_drift and post_log == log_baseline and post_protected_sha == target_prestate_sha
+    rollback_ok = (
+        not post_drift
+        and post_log == log_baseline
+        and post_protected_sha == target_prestate_sha
+        and non_target_pre_fp == non_target_post_fp
+    )
     if not metric_errors and rollback_ok:
         status = "READY_FOR_OWNER_APPLY_AUTHORIZATION"
     elif metric_errors:
@@ -386,7 +410,16 @@ def main(argv: list[str] | None = None) -> int:
         "target_prestate_sha256": target_prestate_sha,
         "post_rollback_prestate_sha256": post_protected_sha,
         "transient_product_name_updates": PHASE2D_EXPECTED_READY_ROWS,
-        "transient_product_change_log_inserts": metrics.get("rehearsal_logs", 0),
+        "transient_product_change_log_inserts": metrics.get("rehearsal_logs_exact", 0),
+        "collision_metrics": {
+            "exact_name_collisions": metrics.get("exact_name_collisions"),
+            "normalized_name_collisions": metrics.get("normalized_name_collisions"),
+            "catalog_exact_collisions": metrics.get("catalog_exact_collisions"),
+            "catalog_normalized_collisions": metrics.get("catalog_normalized_collisions"),
+        },
+        "non_target_prestate_sha256": non_target_pre_fp,
+        "non_target_post_rollback_sha256": non_target_post_fp,
+        "log_audit": log_audit_summary,
         "persistent_product_name_delta": 0 if rollback_ok else "nonzero",
         "persistent_rehearsal_log_delta": post_log - log_baseline,
         "metrics": metrics,
@@ -407,7 +440,9 @@ def main(argv: list[str] | None = None) -> int:
             "**REHEARSAL ONLY** — mandatory `ROLLBACK`; no Phase 2F authorization.\n\n"
             f"- Status: `{status}`\n"
             f"- Transient `Product.name` updates: **{PHASE2D_EXPECTED_READY_ROWS}**\n"
-            f"- Transient `product_change_logs` inserts: **{metrics.get('rehearsal_logs', 0)}**\n"
+            f"- Transient `product_change_logs` inserts: **{metrics.get('rehearsal_logs_exact', 0)}**\n"
+            f"- Actual DB log audit mismatches: **{log_audit_summary.get('actual_log_row_mismatches', -1)}**\n"
+            f"- Non-target protected fingerprint equal: **{non_target_pre_fp == non_target_post_fp}**\n"
             f"- Persistent `Product.name` delta after rollback: **{report['persistent_product_name_delta']}**\n"
             f"- Persistent rehearsal log delta: **{report['persistent_rehearsal_log_delta']}**\n"
             f"- Phase 2D candidate SHA256: `{cand_sha}`\n"
