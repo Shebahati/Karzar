@@ -33,7 +33,7 @@ def _dsn() -> str:
 
 async def _seed_products() -> tuple[list[dict[str, str]], list[tuple[int, str]]]:
     async with TestingSessionLocal() as session:
-        from app.db.models.category import Category
+        from app.db.models.product import Category
 
         cat = (await session.execute(select(Category).limit(1))).scalars().first()
         assert cat is not None
