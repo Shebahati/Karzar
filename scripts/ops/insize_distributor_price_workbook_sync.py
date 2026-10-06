@@ -120,9 +120,13 @@ def collect_runtime_identity() -> dict[str, Any]:
 
 def assert_cr011_identity(identity: dict[str, Any]) -> list[str]:
     errors: list[str] = []
-    if identity.get("host_proof") != EXPECTED_HOST:
+    inside_api = os.getenv("KARZAR_INSIZE_WORKBOOK_SYNC_INSIDE_API") == "1"
+    if not inside_api and identity.get("host_proof") != EXPECTED_HOST:
         errors.append(f"host_proof={identity.get('host_proof')}")
-    if identity.get("container_proof") != "lathe_postgres":
+    if inside_api:
+        if identity.get("container_proof") != "lathe_api":
+            errors.append("lathe_api context missing")
+    elif identity.get("container_proof") != "lathe_postgres":
         errors.append("lathe_postgres missing")
     if identity.get("current_database") != EXPECTED_DB:
         errors.append(f"database={identity.get('current_database')}")

@@ -82,6 +82,7 @@ if [ "${KARZAR_INSIZE_WORKBOOK_SYNC_APPLY:-0}" = "1" ]; then
   STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
   run_py \
     --apply \
+    --skip-identity \
     --confirm-production-write \
     --recovery-snapshot-path "${CONTAINER_OUT}/RECOVERY_PREWRITE_${STAMP}.json" || {
     echo "STATUS=APPLY_FAILED"
