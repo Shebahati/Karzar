@@ -86,7 +86,10 @@ async def update_product(
 ):
     try:
         product = await ProductService.update_product_with_validation(
-            db=db, product_id=product_id, update_data=product_in
+            db=db,
+            product_id=product_id,
+            update_data=product_in,
+            actor_user_id=current_user.id,
         )
         if not product:
             raise api_error(

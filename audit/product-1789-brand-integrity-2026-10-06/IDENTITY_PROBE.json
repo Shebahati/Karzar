@@ -1,0 +1,42 @@
+{
+  "captured_at_utc": "2026-10-06T12:01:09.709797+00:00",
+  "plane": {
+    "host": "srv5944957438",
+    "host_proof": "srv5944957438",
+    "db_container": "lathe_postgres",
+    "db_name": "karzar_staging",
+    "db_user": "karzar_staging",
+    "volume": "karzar_postgres_data",
+    "volume_proof": "karzar_postgres_data",
+    "transaction_read_only": "on",
+    "category": "A_investigation_plus_rollback_rehearsal"
+  },
+  "product": {
+    "product_id": 1789,
+    "sku": "1114-150",
+    "manufacturer_code": "1114-150",
+    "name": "کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فلزی (متال) مدل 150-1114",
+    "category_id": 57,
+    "brand_id": null,
+    "historical_brand_id": 3,
+    "historical_brand_name": "INSIZE | اینسایز",
+    "expected_brand_id": 3,
+    "expected_brand_name": "INSIZE",
+    "is_active": true,
+    "is_available": true,
+    "base_price": "7980000.00",
+    "deleted_at": null,
+    "updated_at": "2026-10-04 11:19:55.937259+00"
+  },
+  "trailing_a_identity": {
+    "supplier_code": "1114-150A",
+    "rule": "REGISTERED_INSIZE_TRAILING_A_IDENTITY",
+    "stock_inference": "FORBIDDEN",
+    "source": "audit/sellability-wave1a1-authority-closure-2026-10-06/INSIZE_TRAILING_A_RECONCILIATION.csv"
+  },
+  "EXPECTED_BRAND_ID": 3,
+  "EXPECTED_BRAND": "INSIZE",
+  "identity_proof": "PASS",
+  "REAL_REPAIR_AUTHORIZED": "NO",
+  "PERSISTENT_PRODUCT_MUTATION": 0
+}

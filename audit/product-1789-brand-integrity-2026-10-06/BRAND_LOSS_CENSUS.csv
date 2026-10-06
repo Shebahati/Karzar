@@ -1,0 +1,5 @@
+classification,product_id,sku,manufacturer_code,wave0_brand_id,live_brand_id,is_active,is_available,notes
+PROVEN_BRAND_LOSS,1789,1114-150,1114-150,3,NULL,true,true,Only row branded in Wave0 now NULL; unlogged
+KNOWN_LEGITIMATE_BRANDLESS,*,*,*,NULL,NULL,mostly inactive,false,295 products brandless in Wave0 and still brandless; not repaired here
+POTENTIAL_BRAND_LOSS,,,,,,,,0 additional vs Wave0 branded→NULL
+INSUFFICIENT_EVIDENCE,,,,,,,,0 (all live brandless present in Wave0)

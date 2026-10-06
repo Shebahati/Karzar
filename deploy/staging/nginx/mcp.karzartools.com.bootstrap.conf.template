@@ -1,0 +1,22 @@
+# Stage 1 — HTTP-only ACME bootstrap (install BEFORE certificate exists).
+# Install on VPS as /etc/nginx/sites-available/mcp.karzartools.com
+# Then: sudo ln -s /etc/nginx/sites-available/mcp.karzartools.com /etc/nginx/sites-enabled/
+#
+# Use ONLY until certbot webroot has issued a certificate, then replace with:
+#   deploy/staging/nginx/mcp.karzartools.com.conf.template
+#
+# No TLS vhost, no MCP proxy on the public internet.
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name mcp.karzartools.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 404;
+    }
+}
