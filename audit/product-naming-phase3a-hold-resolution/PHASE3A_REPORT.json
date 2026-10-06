@@ -1,0 +1,215 @@
+{
+  "status": "READY_FOR_WAVE_3B",
+  "generated_at_utc": "2026-10-06T14:09:00.015972+00:00",
+  "logic_git_sha": "90af8b9eabf1a5422e67fa13970264f9f58e245b",
+  "main_note": "discovery from branch HEAD; behind-main checked at PR time",
+  "holds_sha256": "f195fc04270e3d8fd1c1fc9a243688006c0d248828c5d7d627ed30b28043cf64",
+  "candidate_sha256": "25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff",
+  "standardized_persisted": 47,
+  "remaining_hold": 1303,
+  "reason_counts": {
+    "HOLD_MISSING_PRODUCT_TYPE": 778,
+    "HOLD_OEM_SEMANTIC_EVIDENCE_MISSING": 330,
+    "HOLD_PRODUCT_TYPE_NAMING_POLICY": 101,
+    "HOLD_PRODUCT_TYPE_AUTHORITY_CONFLICT": 3,
+    "HOLD_OWNER_CANONICAL_TITLE_REVIEW": 1,
+    "HOLD_MISSING_VARIANT_FACT": 58,
+    "HOLD_VARIANT_POLICY_UNDEFINED": 31,
+    "HOLD_MULTI_FUNCTION_IDENTITY_CONFLICT": 1
+  },
+  "brand_summary": {
+    "DASQUA": 396,
+    "INSIZE": 680,
+    "INSIZE_INFERRED": 1,
+    "TERMA": 226
+  },
+  "historical_missing_brand_rows": [
+    {
+      "product_id": "1789",
+      "manufacturer_code": "1114-150",
+      "hold_csv_brand": "",
+      "audit_brand_id": "",
+      "audit_brand_name": "",
+      "brand_bucket": "INSIZE_INFERRED",
+      "hold_reason": "HOLD_PRODUCT_TYPE_NAMING_POLICY",
+      "historical_missing_row": "yes"
+    }
+  ],
+  "lane_counts": {
+    "A_MISSING_PRODUCT_TYPE": 778,
+    "B_OEM_SEMANTIC_EVIDENCE": 330,
+    "C_NAMING_POLICY": 101,
+    "F_AUTHORITY_CONFLICT": 3,
+    "G_OWNER_TITLE": 1,
+    "E_VARIANT_FACT": 58,
+    "D_VARIANT_POLICY": 31,
+    "H_MULTI_FUNCTION": 1
+  },
+  "projected_unlock_counts": {
+    "SOURCE_EVIDENCE_REQUIRED": 1040,
+    "OWNER_DECISION_REQUIRED": 143,
+    "TWO_STEP_UNLOCK": 105,
+    "MULTI_STEP_UNLOCK": 14,
+    "DIRECT_UNLOCK": 1
+  },
+  "wave_plan": [
+    {
+      "wave": "WAVE_3B_GOVERNANCE_QUICK_WINS",
+      "rows": 132,
+      "direct_unlock": 1,
+      "two_step": 81,
+      "multi_step": 0,
+      "owner_decision_required": 50,
+      "source_evidence_required": 0,
+      "unresolved": 0,
+      "expected_unlock": 1,
+      "partial_progress_if_wave_gate_cleared": 82,
+      "cumulative_standardized_after_expected": 48,
+      "priority": "P0"
+    },
+    {
+      "wave": "WAVE_3C_VARIANT_FACTS",
+      "rows": 58,
+      "direct_unlock": 0,
+      "two_step": 0,
+      "multi_step": 0,
+      "owner_decision_required": 0,
+      "source_evidence_required": 58,
+      "unresolved": 0,
+      "expected_unlock": 0,
+      "partial_progress_if_wave_gate_cleared": 0,
+      "cumulative_standardized_after_expected": 48,
+      "priority": "P1"
+    },
+    {
+      "wave": "WAVE_3D_INSIZE_OEM_EVIDENCE",
+      "rows": 330,
+      "direct_unlock": 0,
+      "two_step": 0,
+      "multi_step": 0,
+      "owner_decision_required": 52,
+      "source_evidence_required": 278,
+      "unresolved": 0,
+      "expected_unlock": 0,
+      "partial_progress_if_wave_gate_cleared": 0,
+      "cumulative_standardized_after_expected": 48,
+      "priority": "P2"
+    },
+    {
+      "wave": "WAVE_3E_INSIZE_MISSING_PT",
+      "rows": 156,
+      "direct_unlock": 0,
+      "two_step": 24,
+      "multi_step": 14,
+      "owner_decision_required": 36,
+      "source_evidence_required": 82,
+      "unresolved": 0,
+      "expected_unlock": 0,
+      "partial_progress_if_wave_gate_cleared": 24,
+      "cumulative_standardized_after_expected": 48,
+      "priority": "P2"
+    },
+    {
+      "wave": "WAVE_3F_DASQUA_PT",
+      "rows": 396,
+      "direct_unlock": 0,
+      "two_step": 0,
+      "multi_step": 0,
+      "owner_decision_required": 0,
+      "source_evidence_required": 396,
+      "unresolved": 0,
+      "expected_unlock": 0,
+      "partial_progress_if_wave_gate_cleared": 0,
+      "cumulative_standardized_after_expected": 48,
+      "priority": "P2"
+    },
+    {
+      "wave": "WAVE_3G_TERMA_PT",
+      "rows": 226,
+      "direct_unlock": 0,
+      "two_step": 0,
+      "multi_step": 0,
+      "owner_decision_required": 0,
+      "source_evidence_required": 226,
+      "unresolved": 0,
+      "expected_unlock": 0,
+      "partial_progress_if_wave_gate_cleared": 0,
+      "cumulative_standardized_after_expected": 48,
+      "priority": "P2"
+    },
+    {
+      "wave": "WAVE_3H_MANUAL_EXCEPTIONS",
+      "rows": 5,
+      "direct_unlock": 0,
+      "two_step": 0,
+      "multi_step": 0,
+      "owner_decision_required": 5,
+      "source_evidence_required": 0,
+      "unresolved": 0,
+      "expected_unlock": 0,
+      "partial_progress_if_wave_gate_cleared": 0,
+      "cumulative_standardized_after_expected": 48,
+      "priority": "P3"
+    }
+  ],
+  "live_runtime_identity": {
+    "collected_at_utc": "2026-10-06T14:08:56.332456+00:00",
+    "collector_hostname": "hp-g2-450",
+    "vps_hostname": "srv5944957438",
+    "deployed_git_sha": "UNKNOWN",
+    "api_container": "lathe_api",
+    "postgres_container": "lathe_postgres",
+    "api_image": "karzar-app:staging",
+    "postgres_db_name": "karzar_staging",
+    "APP_ENV": "staging",
+    "alembic_current": "u4v5w6x7y8z9",
+    "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0"
+  },
+  "live_drift_summary": {
+    "NO_DRIFT": 1303
+  },
+  "read_only_proof": {
+    "mutation_sql_executed": 0,
+    "product_mutations": 0,
+    "product_type_mutations": 0,
+    "kb_mutations": 0,
+    "policy_mutations": 0,
+    "oem_authority_mutations": 0,
+    "phase2f_name_mutations": 0,
+    "deploy": false
+  },
+  "owner_title_options": [
+    {
+      "option_id": "G1",
+      "canonical_title_fa": "پرگار نشان‌گر داخلی با نوک‌های قابل تعویض",
+      "tradeoff": "Closest to OEM heading; longer retail title; preserves interchangeable-points identity."
+    },
+    {
+      "option_id": "G2",
+      "canonical_title_fa": "پرگار نشان‌گر داخلی",
+      "tradeoff": "Shorter governed INDICATING_CALIPER label; drops interchangeable-points qualifier."
+    },
+    {
+      "option_id": "G3",
+      "canonical_title_fa": "پرگار ساعتی داخل‌سنج",
+      "tradeoff": "Matches common Persian market wording; weaker OEM-literal fidelity."
+    }
+  ],
+  "multi_function_options": [
+    {
+      "option_id": "H1",
+      "proposal": "Keep MOISTURE_METER + require temperature qualifier in canonical title",
+      "tradeoff": "Retains current PT; forces dual-function title governance."
+    },
+    {
+      "option_id": "H2",
+      "proposal": "Introduce/select TEMPERATURE_HUMIDITY_METER Product Type",
+      "tradeoff": "Cleaner identity; requires PT taxonomy change."
+    },
+    {
+      "option_id": "H3",
+      "proposal": "Primary moisture PT + secondary temperature as non-title attribute",
+      "tradeoff": "Avoids title bloat; may under-represent OEM dual function in name."
+    }
+  ]
+}

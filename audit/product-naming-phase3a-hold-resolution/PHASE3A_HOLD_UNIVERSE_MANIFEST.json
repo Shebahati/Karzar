@@ -1,0 +1,10 @@
+{
+  "rows": 1303,
+  "holds_sha256": "f195fc04270e3d8fd1c1fc9a243688006c0d248828c5d7d627ed30b28043cf64",
+  "candidate_sha256": "25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff",
+  "applied_intersection": 0,
+  "unique_product_ids": 1303,
+  "generated_at_utc": "2026-10-06T14:08:59.699206+00:00",
+  "logic_git_sha": "90af8b9eabf1a5422e67fa13970264f9f58e245b",
+  "read_only": true
+}
