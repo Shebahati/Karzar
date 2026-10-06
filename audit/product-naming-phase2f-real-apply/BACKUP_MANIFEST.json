@@ -1,0 +1,12 @@
+{
+  "created": true,
+  "path": "/home/shebahati/karzar-backups/phase2f/karzar_staging_phase2f_20261006T112727Z.dump",
+  "timestamp_utc": "20261006T112727Z",
+  "size_bytes": 1849313,
+  "sha256": "eb7ade5cb036ebd63f2cac869aad497327b99b9da2af5e847ae9e09f517188b9",
+  "database_name": "karzar_staging",
+  "postgresql_version": "15.18",
+  "pg_restore_list_entries": 560,
+  "pg_restore_list_verification": "PASS",
+  "committed_to_git": false
+}

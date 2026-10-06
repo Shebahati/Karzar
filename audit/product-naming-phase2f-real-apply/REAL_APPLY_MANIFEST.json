@@ -1,0 +1,74 @@
+{
+  "status": "APPLIED_VERIFIED",
+  "owner_authorized": true,
+  "owner_scope": "47 products.name + 47 product_change_logs",
+  "latest_main_sha": "8a0ab9347968db1b7f4de4b36c0d86ed2cd6c8dc",
+  "apply_logic_sha": "8a0ab9347968db1b7f4de4b36c0d86ed2cd6c8dc",
+  "phase2d_candidate_sha256": "25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff",
+  "phase2e_prestate_sha256": "88ba82d203a0e51224cbbea81eb277cd15cb5f867470fdd7c367bad4098f43e5",
+  "runtime_identity": {
+    "collected_at_utc": "2026-10-06T11:27:24.023504+00:00",
+    "collector_hostname": "hp-g2-450",
+    "vps_hostname": "srv5944957438",
+    "deployed_git_sha": "UNKNOWN",
+    "api_container": "lathe_api",
+    "postgres_container": "lathe_postgres",
+    "api_image": "karzar-app:staging",
+    "postgres_db_name": "karzar_staging",
+    "APP_ENV": "staging",
+    "alembic_current": "u4v5w6x7y8z9",
+    "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0"
+  },
+  "health": {
+    "api_readiness": "PASS",
+    "database_readiness": "PASS",
+    "redis_readiness": "PASS",
+    "ready_http_status": 200,
+    "ready_body": {
+      "status": "ready",
+      "service": "Karzar Staging API",
+      "database": "ok",
+      "redis": "ok"
+    },
+    "redis_ping": "PONG",
+    "database_select_1": "1",
+    "all_pass": true
+  },
+  "backup": {
+    "created": true,
+    "path": "/home/shebahati/karzar-backups/phase2f/karzar_staging_phase2f_20261006T112727Z.dump",
+    "timestamp_utc": "20261006T112727Z",
+    "size_bytes": 1849313,
+    "sha256": "eb7ade5cb036ebd63f2cac869aad497327b99b9da2af5e847ae9e09f517188b9",
+    "database_name": "karzar_staging",
+    "postgresql_version": "15.18",
+    "pg_restore_list_entries": 560,
+    "pg_restore_list_verification": "PASS",
+    "committed_to_git": false
+  },
+  "transaction": {
+    "txid": 29255,
+    "metrics": {
+      "in_tx_name_drift": 0,
+      "in_tx_sku_drift": 0,
+      "in_tx_manufacturer_code_drift": 0,
+      "in_tx_brand_drift": 0,
+      "in_tx_product_type_drift": 0,
+      "in_tx_deleted_drift": 0,
+      "in_tx_identity_drift": 0,
+      "updates_exact": 47,
+      "old_names_remaining": 0,
+      "target_protected_drift": 0,
+      "apply_logs_exact": 47,
+      "exact_name_collisions": 0,
+      "normalized_name_collisions": 0,
+      "catalog_exact_collisions": 0,
+      "catalog_normalized_collisions": 0,
+      "non_target_name_changes": 0,
+      "non_target_protected_changes": 0,
+      "txid": 29255
+    }
+  },
+  "hesabfa_action": "NONE",
+  "deploy": "NO"
+}
