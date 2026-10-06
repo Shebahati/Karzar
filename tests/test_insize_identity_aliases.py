@@ -46,7 +46,10 @@ def test_registry_loads_proven_aliases_including_1205():
     assert aliases[normalize_sku("1205-1502")].authoritative_source_code == "1205-1502S"
     assert aliases[normalize_sku("1205-2002")].authoritative_source_code == "1205-2002S"
     assert aliases[normalize_sku("1205-3002")].authoritative_source_code == "1205-3002S"
-    assert len(aliases) == 7
+    assert aliases[normalize_sku("N8-4120")].authoritative_source_code == "4120-8N"
+    assert aliases[normalize_sku("N27-4120")].authoritative_source_code == "4120-27N"
+    assert aliases[normalize_sku("N30-4120")].authoritative_source_code == "4120-30N"
+    assert len(aliases) == 18
 
 
 def test_identity_alias_0213():
@@ -215,3 +218,52 @@ def test_1205_e_s_price_distinction_not_used_as_matcher():
     assert "1205-1502E" not in {
         a.authoritative_source_code for a in aliases.values()
     }
+
+
+def test_4120_nogo_reorder_family_and_csv():
+    from scripts.insize_sales_activation_lib import (
+        insize_4120_nogo_source_code_for_site,
+        match_insize_4120_nogo_reorder_alias,
+    )
+    wb = {
+        "4120-8": _wb("4120-8", Decimal("29.52")),
+        "4120-8N": _wb("4120-8N", Decimal("29.04")),
+        "4120-10": _wb("4120-10", Decimal("36")),
+        "4120-10N": _wb("4120-10N", Decimal("29.76")),
+        "4120-16N": _wb("4120-16N", Decimal("30")),
+        "4120-27": _wb("4120-27", Decimal("57.12")),
+        "4120-27N": _wb("4120-27N", Decimal("37.08")),
+        "4120-30N": _wb("4120-30N", Decimal("47.04")),
+        "4120-27EN": _wb("4120-27EN", Decimal("39.84")),
+    }
+    aliases = load_insize_identity_aliases(ALIAS_CSV)
+    db = frozenset({"N8-4120", "4120-8", "N10-4120", "4120-10", "N16-4120", "N27-4120", "4120-27", "N30-4120"})
+    assert insize_4120_nogo_source_code_for_site("N8-4120") == "4120-8N"
+    for site, src in (("N8-4120", "4120-8N"), ("N10-4120", "4120-10N"), ("N16-4120", "4120-16N"), ("N27-4120", "4120-27N"), ("N30-4120", "4120-30N")):
+        r = match_insize_identity_alias(site, wb, aliases=aliases, insize_db_skus=db)
+        assert r.method == "INSIZE_IDENTITY_ALIAS"
+        assert normalize_sku(r.workbook_code) == src
+    # GO sibling remains exact; not stolen by NO-GO alias
+    assert match_exact("4120-27", wb).method == "exact"
+    assert match_exact("4120-8", wb).method == "exact"
+    # Competing DB product owning 4120-27N blocks
+    blocked = match_insize_4120_nogo_reorder_alias(
+        "N27-4120", wb, insize_db_skus=db | {"4120-27N"}, brand_is_insize=True
+    )
+    assert blocked.method == "IDENTITY_ALIAS_AMBIGUOUS"
+    # Wrong brand
+    assert (
+        match_insize_4120_nogo_reorder_alias("N10-4120", wb, brand_is_insize=False).method
+        == "unmatched"
+    )
+    # Missing source
+    assert (
+        match_insize_4120_nogo_reorder_alias(
+            "N99-4120", wb, insize_db_skus=db, brand_is_insize=True
+        ).method
+        == "unmatched"
+    )
+    # Do not map to EN/HN via family rule
+    assert insize_4120_nogo_source_code_for_site("N27-4120") == "4120-27N"
+    # Generic N reorder must not apply to unrelated families
+    assert insize_4120_nogo_source_code_for_site("N10-9999") is None
