@@ -1442,6 +1442,34 @@ documents:
       Root cause ADMIN_PATH_DEFECT for unlogged brand_id clear on product 1789.
       Exact historical writer unproven. Repair not applied.
 
+  - id: PRODUCT-1789-BRAND-REPAIR-APPLY-20261006
+    path: audit/product-1789-brand-repair-apply-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner-authorized one-row Production brand_id repair apply evidence
+      (1789 NULL→3). No other Product fields mutated.
+
+  - id: PRODUCT-1789-BRAND-REPAIR-APPLY-FINAL-20261006
+    path: audit/product-1789-brand-repair-apply-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for Product 1789 brand repair APPLY. APPLIED_VERIFIED.
+
+  - id: PRODUCT-1789-BRAND-REPAIR-APPLY-AUTH-20261006
+    path: audit/product-1789-brand-repair-apply-2026-10-06/AUTHORIZATION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner authorization record for Product 1789 brand_id NULL→3 repair.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE

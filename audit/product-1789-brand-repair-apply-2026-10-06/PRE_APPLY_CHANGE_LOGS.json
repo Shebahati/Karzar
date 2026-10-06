@@ -1,0 +1,132 @@
+[
+  {
+    "id": 13,
+    "product_id": 1789,
+    "field_name": "base_price",
+    "old_value": "2600000.00",
+    "new_value": "5970000",
+    "reason": "product_update",
+    "actor_user_id": null,
+    "created_at": "2026-07-20T12:12:54.271709+00:00"
+  },
+  {
+    "id": 1176,
+    "product_id": 1789,
+    "field_name": "product_type_id",
+    "old_value": null,
+    "new_value": "1",
+    "reason": "INSIZE_WAVE_003 Prompt 116: assign GEN_CALIPER to SAFE allowlist SKU after EXACT unique-OEM suffix recheck",
+    "actor_user_id": 3,
+    "created_at": "2026-09-24T10:20:16.418861+00:00"
+  },
+  {
+    "id": 6989,
+    "product_id": 1789,
+    "field_name": "base_price",
+    "old_value": "5970000.00",
+    "new_value": "6686400.00",
+    "reason": "INSIZE +12% owner-authorized price update 2026-09-30",
+    "actor_user_id": null,
+    "created_at": "2026-09-30T08:42:20.634532+00:00"
+  },
+  {
+    "id": 8468,
+    "product_id": 1789,
+    "field_name": "base_price",
+    "old_value": "6686400.00",
+    "new_value": "6017760.00",
+    "reason": "INSIZE 10% storefront discount owner-authorized 2026-09-30",
+    "actor_user_id": null,
+    "created_at": "2026-09-30T14:00:01.746603+00:00"
+  },
+  {
+    "id": 8469,
+    "product_id": 1789,
+    "field_name": "original_price",
+    "old_value": null,
+    "new_value": "6686400.00",
+    "reason": "INSIZE 10% storefront discount owner-authorized 2026-09-30",
+    "actor_user_id": null,
+    "created_at": "2026-09-30T14:00:01.746603+00:00"
+  },
+  {
+    "id": 15816,
+    "product_id": 1789,
+    "field_name": "base_price",
+    "old_value": "6017760.00",
+    "new_value": "6686400.00",
+    "reason": "INSIZE 10% storefront discount removal owner-authorized 2026-10-03",
+    "actor_user_id": null,
+    "created_at": "2026-10-03T13:52:02.260015+00:00"
+  },
+  {
+    "id": 15817,
+    "product_id": 1789,
+    "field_name": "original_price",
+    "old_value": "6686400.00",
+    "new_value": null,
+    "reason": "INSIZE 10% storefront discount removal owner-authorized 2026-10-03",
+    "actor_user_id": null,
+    "created_at": "2026-10-03T13:52:02.260015+00:00"
+  },
+  {
+    "id": 17640,
+    "product_id": 1789,
+    "field_name": "manufacturer_code",
+    "old_value": null,
+    "new_value": "1114-150",
+    "reason": "Phase 2C owner-authorized manufacturer identity backfill; cohort_sha256=43620d24842b946652f8e2a0256aa75e45fbdf1b591b0374dcb84dea21417b03",
+    "actor_user_id": null,
+    "created_at": "2026-10-03T15:11:36.885726+00:00"
+  },
+  {
+    "id": 18104,
+    "product_id": 1789,
+    "field_name": "is_available",
+    "old_value": "False",
+    "new_value": "True",
+    "reason": "mark_available",
+    "actor_user_id": 3,
+    "created_at": "2026-10-04T11:11:45.364336+00:00"
+  },
+  {
+    "id": 18105,
+    "product_id": 1789,
+    "field_name": "is_available",
+    "old_value": "True",
+    "new_value": "False",
+    "reason": "mark_unavailable",
+    "actor_user_id": 3,
+    "created_at": "2026-10-04T11:11:48.929027+00:00"
+  },
+  {
+    "id": 18106,
+    "product_id": 1789,
+    "field_name": "is_available",
+    "old_value": "False",
+    "new_value": "True",
+    "reason": "mark_available",
+    "actor_user_id": 3,
+    "created_at": "2026-10-04T11:11:50.371601+00:00"
+  },
+  {
+    "id": 18107,
+    "product_id": 1789,
+    "field_name": "base_price",
+    "old_value": "6686400.00",
+    "new_value": "7900000",
+    "reason": "product_update",
+    "actor_user_id": null,
+    "created_at": "2026-10-04T11:13:04.312675+00:00"
+  },
+  {
+    "id": 18108,
+    "product_id": 1789,
+    "field_name": "base_price",
+    "old_value": "7900000.00",
+    "new_value": "7980000",
+    "reason": "product_update",
+    "actor_user_id": null,
+    "created_at": "2026-10-04T11:19:55.937259+00:00"
+  }
+]
