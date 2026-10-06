@@ -17,6 +17,7 @@ Modes:
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import os
 import socket
@@ -161,32 +162,38 @@ def assert_workbook_file(path: Path) -> tuple[str, Any]:
     return sha, catalog
 
 
-def _open_db_session():
-    url = os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URI")
-    if not url:
-        raise PilotGateError("DATABASE_URL not set (run inside lathe_api or export URL)")
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
+def _async_engine_and_sessionmaker():
+    from app.core.config import settings
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-    engine = create_engine(url)
-    return sessionmaker(bind=engine)(), engine
+    engine = create_async_engine(settings.ASYNC_DATABASE_URI)
+    session_factory = async_sessionmaker(engine, expire_on_commit=False)
+    return engine, session_factory
 
 
-def _load_insize_products(session: Any) -> list[Any]:
+async def _load_insize_products_async(session: Any) -> list[Any]:
     from app.db.models.product import Product
     from sqlalchemy import select
 
-    rows = (
-        session.execute(
-            select(Product).where(
-                Product.brand_id == INSIZE_BRAND_ID,
-                Product.deleted_at.is_(None),
-            )
+    result = await session.execute(
+        select(Product).where(
+            Product.brand_id == INSIZE_BRAND_ID,
+            Product.deleted_at.is_(None),
         )
-        .scalars()
-        .all()
     )
-    return list(rows)
+    return list(result.scalars().all())
+
+
+def _load_insize_products() -> list[Any]:
+    async def _run() -> list[Any]:
+        engine, session_factory = _async_engine_and_sessionmaker()
+        try:
+            async with session_factory() as session:
+                return await _load_insize_products_async(session)
+        finally:
+            await engine.dispose()
+
+    return asyncio.run(_run())
 
 
 def build_reconcile(
@@ -313,69 +320,67 @@ def _rows_public(updates: list[UpdateRow]) -> list[dict[str, Any]]:
     ]
 
 
-def apply_updates(
+async def _apply_updates_async(
     updates: list[UpdateRow],
     *,
     recovery_path: Path,
 ) -> dict[str, Any]:
     if not updates:
         return {"updated": 0, "skipped": 0}
-    session, engine = _open_db_session()
-    try:
-        from app.db.models.product import Product
-        from app.db.models.platform import ProductChangeLog
-        from sqlalchemy import select
+    from app.db.models.product import Product
+    from app.db.models.platform import ProductChangeLog
+    from sqlalchemy import select
 
+    engine, session_factory = _async_engine_and_sessionmaker()
+    try:
         ids = [u.product_id for u in updates]
         recovery_rows: list[dict[str, Any]] = []
-        with session.begin():
-            products = (
-                session.execute(
+        async with session_factory() as session:
+            async with session.begin():
+                result = await session.execute(
                     select(Product)
                     .where(Product.id.in_(ids), Product.brand_id == INSIZE_BRAND_ID)
                     .with_for_update()
                 )
-                .scalars()
-                .all()
-            )
-            by_id = {int(p.id): p for p in products}
-            if len(by_id) != len(ids):
-                raise PilotGateError("FOR UPDATE returned unexpected product count")
-            for u in updates:
-                p = by_id[u.product_id]
-                if normalize_sku(p.sku) != normalize_sku(u.sku):
-                    raise PilotGateError(f"SKU drift product_id={u.product_id}")
-                recovery_rows.append(
-                    {
-                        "product_id": u.product_id,
-                        "sku": u.sku,
-                        "old_base_price": None
-                        if p.base_price is None
-                        else str(p.base_price),
-                    }
-                )
-            snap_sha = write_recovery_snapshot(recovery_path, recovery_rows)
-            updated = 0
-            skipped = 0
-            for u in updates:
-                p = by_id[u.product_id]
-                old = p.base_price
-                old_str = None if old is None else str(old)
-                if old is not None and Decimal(str(old)) == u.new_base_price:
-                    skipped += 1
-                    continue
-                p.base_price = u.new_base_price
-                session.add(
-                    ProductChangeLog(
-                        product_id=u.product_id,
-                        field_name="base_price",
-                        old_value=old_str,
-                        new_value=str(u.new_base_price),
-                        reason=CHANGE_REASON,
-                        actor_user_id=None,
+                products = list(result.scalars().all())
+                by_id = {int(p.id): p for p in products}
+                if len(by_id) != len(ids):
+                    raise PilotGateError("FOR UPDATE returned unexpected product count")
+                for u in updates:
+                    p = by_id[u.product_id]
+                    if normalize_sku(p.sku) != normalize_sku(u.sku):
+                        raise PilotGateError(f"SKU drift product_id={u.product_id}")
+                    recovery_rows.append(
+                        {
+                            "product_id": u.product_id,
+                            "sku": u.sku,
+                            "old_base_price": None
+                            if p.base_price is None
+                            else str(p.base_price),
+                        }
                     )
-                )
-                updated += 1
+                snap_sha = write_recovery_snapshot(recovery_path, recovery_rows)
+                updated = 0
+                skipped = 0
+                for u in updates:
+                    p = by_id[u.product_id]
+                    old = p.base_price
+                    old_str = None if old is None else str(old)
+                    if old is not None and Decimal(str(old)) == u.new_base_price:
+                        skipped += 1
+                        continue
+                    p.base_price = u.new_base_price
+                    session.add(
+                        ProductChangeLog(
+                            product_id=u.product_id,
+                            field_name="base_price",
+                            old_value=old_str,
+                            new_value=str(u.new_base_price),
+                            reason=CHANGE_REASON,
+                            actor_user_id=None,
+                        )
+                    )
+                    updated += 1
         return {
             "updated": updated,
             "skipped_idempotent": skipped,
@@ -383,48 +388,60 @@ def apply_updates(
             "recovery_snapshot_sha256": snap_sha,
         }
     finally:
-        session.close()
-        engine.dispose()
+        await engine.dispose()
+
+
+def apply_updates(
+    updates: list[UpdateRow],
+    *,
+    recovery_path: Path,
+) -> dict[str, Any]:
+    return asyncio.run(_apply_updates_async(updates, recovery_path=recovery_path))
+
+
+async def _rollback_recovery_async(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    rows = payload.get("rows") or []
+    from app.db.models.product import Product
+    from app.db.models.platform import ProductChangeLog
+    from sqlalchemy import select
+
+    engine, session_factory = _async_engine_and_sessionmaker()
+    restored = 0
+    try:
+        async with session_factory() as session:
+            async with session.begin():
+                for row in rows:
+                    pid = int(row["product_id"])
+                    result = await session.execute(
+                        select(Product).where(Product.id == pid).with_for_update()
+                    )
+                    product = result.scalar_one()
+                    if normalize_sku(product.sku) != normalize_sku(row.get("sku")):
+                        raise PilotGateError(f"rollback SKU mismatch id={pid}")
+                    old_price = row.get("old_base_price")
+                    cur = product.base_price
+                    cur_str = None if cur is None else str(cur)
+                    new_val = None if old_price in (None, "") else Decimal(str(old_price))
+                    product.base_price = new_val
+                    session.add(
+                        ProductChangeLog(
+                            product_id=pid,
+                            field_name="base_price",
+                            old_value=cur_str,
+                            new_value=None if new_val is None else str(new_val),
+                            reason=f"rollback:{CHANGE_REASON}",
+                            actor_user_id=None,
+                        )
+                    )
+                    restored += 1
+        return {"restored": restored}
+    finally:
+        await engine.dispose()
 
 
 def rollback_recovery(path: Path) -> dict[str, Any]:
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    rows = payload.get("rows") or []
-    session, engine = _open_db_session()
-    restored = 0
-    try:
-        from app.db.models.product import Product
-        from app.db.models.platform import ProductChangeLog
-        from sqlalchemy import select
-
-        with session.begin():
-            for row in rows:
-                pid = int(row["product_id"])
-                product = session.execute(
-                    select(Product).where(Product.id == pid).with_for_update()
-                ).scalar_one()
-                if normalize_sku(product.sku) != normalize_sku(row.get("sku")):
-                    raise PilotGateError(f"rollback SKU mismatch id={pid}")
-                old_price = row.get("old_base_price")
-                cur = product.base_price
-                cur_str = None if cur is None else str(cur)
-                new_val = None if old_price in (None, "") else Decimal(str(old_price))
-                product.base_price = new_val
-                session.add(
-                    ProductChangeLog(
-                        product_id=pid,
-                        field_name="base_price",
-                        old_value=cur_str,
-                        new_value=None if new_val is None else str(new_val),
-                        reason=f"rollback:{CHANGE_REASON}",
-                        actor_user_id=None,
-                    )
-                )
-                restored += 1
-        return {"restored": restored}
-    finally:
-        session.close()
-        engine.dispose()
+    return asyncio.run(_rollback_recovery_async(path))
 
 
 def post_apply_reconcile_mismatches(catalog: Any, products: list[Any]) -> int:
@@ -500,12 +517,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, ensure_ascii=False))
         return 10
 
-    session, engine = _open_db_session()
-    try:
-        products = _load_insize_products(session)
-    finally:
-        session.close()
-        engine.dispose()
+    products = _load_insize_products()
 
     recon = build_reconcile(catalog, products)
     report["matching"] = recon["summary"]
@@ -536,12 +548,7 @@ def main(argv: list[str] | None = None) -> int:
     report["apply"] = apply_result
     report["STATUS"] = "APPLIED"
 
-    session, engine = _open_db_session()
-    try:
-        products_after = _load_insize_products(session)
-    finally:
-        session.close()
-        engine.dispose()
+    products_after = _load_insize_products()
     mismatch_count = post_apply_reconcile_mismatches(catalog, products_after)
     report["post_apply_mismatch_count"] = mismatch_count
     if mismatch_count:
