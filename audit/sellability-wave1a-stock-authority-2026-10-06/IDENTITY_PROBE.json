@@ -1,0 +1,35 @@
+{
+  "identity": {
+    "current_database": "karzar_staging",
+    "current_user": "karzar_staging",
+    "inet_server_addr": "",
+    "inet_server_port": "",
+    "version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "transaction_read_only": "on",
+    "alembic_revision": "u4v5w6x7y8z9",
+    "app_env": "staging",
+    "karzar_data_plane": null,
+    "karzar_allow_production_write": null,
+    "hostname_env": "srv5944957438",
+    "expected_host": "srv5944957438",
+    "expected_db": "karzar_staging",
+    "host_proof": "srv5944957438",
+    "container_proof": "lathe_postgres",
+    "volume_proof": "karzar_postgres_data",
+    "git_branch": "UNKNOWN",
+    "git_sha": "UNKNOWN",
+    "origin_main_sha": "4e5056de100c1f8ceb2900deac40ee8efb24216a",
+    "snapshot_utc": "2026-10-06T10:17:42Z",
+    "collector": "local_ssh_readonly_psql_docker_exec",
+    "collector_note": "Category A local SSH to karzar-vps; SET TRANSACTION READ ONLY; SHOW transaction_read_only=on before reads. inet_server_addr empty inside docker exec -At (host/DB/volume/RO proven)."
+  },
+  "ok": true,
+  "errors": [],
+  "safety": {
+    "PRODUCTION_MUTATION": "NO",
+    "HESABFA_MUTATION": "NO",
+    "DEPLOYMENT": "NO",
+    "CATALOG_APPLY": "NO",
+    "WAVE_1B_APPLY": "NO"
+  }
+}

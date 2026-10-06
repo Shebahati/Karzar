@@ -1,0 +1,29 @@
+{
+  "wave0_input_path": "audit/sellability-wave0-2026-10-03/READY_EXCEPT_AVAILABILITY.csv",
+  "wave0_input_sha256": "5ede063d908e1f8f1a85486b9cb4b21832543a2ab8c62656e4569b5ac5c50bd3",
+  "row_count": 330,
+  "sorted_product_id_sha256": "5dc3e6984661993c5832baa3c340e9ea9cd557822816f0197a290f011c15646a",
+  "sorted_sku_sha256": "70421d1f5ab11c89ce20dcd196600f7eac49e3da2f18603bd04e0f91411b4799",
+  "brand_distribution": {
+    "INSIZE | اینسایز": 226,
+    "ASTPOWER | ای اس تی پاور": 53,
+    "SAN OU | سانو": 24,
+    "Dasqua | داسکوا": 22,
+    "TERMA | ترما": 4,
+    "Mitutoyo | میتوتویو": 1
+  },
+  "brand_distribution_expected": {
+    "INSIZE | اینسایز": 226,
+    "ASTPOWER | ای اس تی پاور": 53,
+    "SAN OU | سانو": 24,
+    "Dasqua | داسکوا": 22,
+    "TERMA | ترما": 4,
+    "Mitutoyo | میتوتویو": 1
+  },
+  "brand_distribution_ok": true,
+  "rebuild_from_production": false,
+  "locked_at_utc": "2026-10-06T10:17:42Z",
+  "origin_main_sha": "4e5056de100c1f8ceb2900deac40ee8efb24216a",
+  "pr_421_merged": true,
+  "pr_421_merge_commit": "4e5056de100c1f8ceb2900deac40ee8efb24216a"
+}

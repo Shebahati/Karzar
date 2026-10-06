@@ -1,0 +1,2 @@
+product_id,sku,manufacturer_code,brand,brand_key,commercial_drift_class,eligible_wave1_availability_candidate,stock_class,identity_method,source_id,source_status_raw,source_quantity,source_date,freshness,future_apply_candidate,future_apply_freshness_bucket,notes
+2353,103-147,,Mitutoyo | میتوتویو,MITUTOYO,CURRENT_STILL_ONLY_AVAILABILITY_BLOCKED,YES,UNKNOWN,NO_STOCK_AUTHORITY,mitutoyo.catalog,,,,UNKNOWN,NO,,mitutoyo.catalog is catalog-only (REGISTERED but not stock authority).
