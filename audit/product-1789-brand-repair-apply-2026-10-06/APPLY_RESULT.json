@@ -1,0 +1,19 @@
+{
+  "status": "APPLIED_VERIFIED",
+  "commit_utc": "2026-10-06 12:48:07.607913",
+  "post_txn_row": "1789|1114-150|1114-150|3|true|7980000.00|true|2026-10-06 12:48:07.575987+00",
+  "audit_visible": "1",
+  "fresh_connection_ok": true,
+  "brand": {
+    "id": 3,
+    "name": "INSIZE | اینسایز"
+  },
+  "stdout_sha256": "d1715ea3e47a20e6744b897c33062167225325f6c9fb1984e5ea34ee5c1f4e95",
+  "reason": "owner_authorized_brand_integrity_repair",
+  "PRODUCT_ROWS_MUTATED": 1,
+  "PRODUCT_FIELDS_MUTATED": [
+    "brand_id"
+  ],
+  "AUDIT_ROWS_CREATED": 1,
+  "OTHER_PRODUCT_ROWS_MUTATED": 0
+}
