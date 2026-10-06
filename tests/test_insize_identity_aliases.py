@@ -36,14 +36,17 @@ def _wb(code: str, usd: Decimal | None = Decimal("10")) -> WorkbookRow:
     )
 
 
-def test_registry_loads_four_proven_aliases():
+def test_registry_loads_proven_aliases_including_1205():
     aliases = load_insize_identity_aliases(ALIAS_CSV, proven_only=True)
     assert normalize_sku("0213-500A") in aliases
     assert aliases[normalize_sku("0213-500A")].authoritative_source_code == "0213-A500"
     assert aliases[normalize_sku("6297-1A")].authoritative_source_code == "6297-1"
     assert aliases[normalize_sku("7527-1D")].authoritative_source_code == "7527-D1"
     assert aliases[normalize_sku("7527-2D")].authoritative_source_code == "7527-D2"
-    assert len(aliases) == 4
+    assert aliases[normalize_sku("1205-1502")].authoritative_source_code == "1205-1502S"
+    assert aliases[normalize_sku("1205-2002")].authoritative_source_code == "1205-2002S"
+    assert aliases[normalize_sku("1205-3002")].authoritative_source_code == "1205-3002S"
+    assert len(aliases) == 7
 
 
 def test_identity_alias_0213():
@@ -158,3 +161,57 @@ def test_exact_cohort_sku_unaffected():
         "1106-1002", wb, aliases=aliases, insize_db_skus=frozenset({"1106-1002"})
     )
     assert r.method == "exact"
+
+
+def test_1205_02_maps_to_02s_not_e_or_bare_s():
+    wb = {
+        "1205-1502S": _wb("1205-1502S", Decimal("25.92")),
+        "1205-1502E": _wb("1205-1502E", Decimal("30.24")),
+        "1205-150S": _wb("1205-150S", Decimal("25.92")),
+        "1205-2002S": _wb("1205-2002S", Decimal("39.24")),
+        "1205-2002E": _wb("1205-2002E", Decimal("45.48")),
+        "1205-200S": _wb("1205-200S", Decimal("39.36")),
+        "1205-3002S": _wb("1205-3002S", Decimal("65.76")),
+        "1205-3002E": _wb("1205-3002E", Decimal("78.48")),
+        "1205-300S": _wb("1205-300S", Decimal("66")),
+    }
+    aliases = load_insize_identity_aliases(ALIAS_CSV)
+    db = frozenset(
+        {
+            "1205-1502",
+            "1205-150S",
+            "1205-2002",
+            "1205-200S",
+            "1205-3002",
+            "1205-300S",
+        }
+    )
+    for site, source in (
+        ("1205-1502", "1205-1502S"),
+        ("1205-2002", "1205-2002S"),
+        ("1205-3002", "1205-3002S"),
+    ):
+        r = match_insize_identity_alias(site, wb, aliases=aliases, insize_db_skus=db)
+        assert r.method == "INSIZE_IDENTITY_ALIAS"
+        assert normalize_sku(r.workbook_code) == source
+    # Sibling *S remains exact; must not be rewritten by *02 alias
+    assert match_exact("1205-150S", wb).method == "exact"
+    assert match_exact("1205-200S", wb).method == "exact"
+    assert match_exact("1205-300S", wb).method == "exact"
+    # Competing DB product owning source SKU blocks alias
+    blocked = match_insize_identity_alias(
+        "1205-1502",
+        wb,
+        aliases=aliases,
+        insize_db_skus=db | {"1205-1502S"},
+    )
+    assert blocked.method == "IDENTITY_ALIAS_AMBIGUOUS"
+
+
+def test_1205_e_s_price_distinction_not_used_as_matcher():
+    # Registry chooses 02S explicitly; E remains a distinct unused source code.
+    aliases = load_insize_identity_aliases(ALIAS_CSV)
+    assert aliases[normalize_sku("1205-1502")].authoritative_source_code == "1205-1502S"
+    assert "1205-1502E" not in {
+        a.authoritative_source_code for a in aliases.values()
+    }
