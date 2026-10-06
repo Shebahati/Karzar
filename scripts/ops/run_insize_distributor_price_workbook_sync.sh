@@ -47,16 +47,27 @@ echo "sha256=${REMOTE_SHA}"
 export KARZAR_ALLOW_PRODUCTION_WRITE=1
 export KARZAR_INGESTION_CATEGORY=B
 
+CONTAINER_XLSX="/tmp/insize_distributor_workbook_65a92337.xlsx"
+CONTAINER_OUT="/tmp/insize-price-20-workbook-audit"
+
 run_py() {
+  docker cp "${ROOT}/scripts/ops/insize_distributor_price_workbook_sync.py" \
+    lathe_api:/app/scripts/ops/insize_distributor_price_workbook_sync.py
+  docker cp "$DEST" "lathe_api:${CONTAINER_XLSX}"
+  docker exec lathe_api mkdir -p "$CONTAINER_OUT"
   docker exec \
     -e KARZAR_ALLOW_PRODUCTION_WRITE=1 \
     -e KARZAR_INGESTION_CATEGORY=B \
     lathe_api \
-    python scripts/ops/insize_distributor_price_workbook_sync.py "$@"
+    python /app/scripts/ops/insize_distributor_price_workbook_sync.py \
+    --xlsx "$CONTAINER_XLSX" \
+    --out-dir "$CONTAINER_OUT" \
+    "$@"
+  docker cp "lathe_api:${CONTAINER_OUT}/." "$AUDIT_DIR/" 2>/dev/null || true
 }
 
 echo "=== DRY_RUN ==="
-run_py --xlsx "$DEST" --out-dir "$AUDIT_DIR" --skip-identity || {
+run_py --skip-identity || {
   echo "STATUS=BLOCKED_DRY_RUN"
   exit 20
 }
@@ -65,16 +76,14 @@ if [ "${KARZAR_INSIZE_WORKBOOK_SYNC_APPLY:-0}" = "1" ]; then
   echo "=== APPLY ==="
   STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
   run_py \
-    --xlsx "$DEST" \
-    --out-dir "$AUDIT_DIR" \
     --apply \
     --confirm-production-write \
-    --recovery-snapshot-path "${AUDIT_DIR}/RECOVERY_PREWRITE_${STAMP}.json" || {
+    --recovery-snapshot-path "${CONTAINER_OUT}/RECOVERY_PREWRITE_${STAMP}.json" || {
     echo "STATUS=APPLY_FAILED"
     exit 30
   }
   echo "=== IDEMPOTENT_RERUN ==="
-  run_py --xlsx "$DEST" --out-dir "$AUDIT_DIR" --skip-identity || true
+  run_py --skip-identity || true
 fi
 
 echo "STATUS=OK"
