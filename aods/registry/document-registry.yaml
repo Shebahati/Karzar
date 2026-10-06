@@ -1243,6 +1243,26 @@ documents:
     notes: >
       Phase 2D policy-level human review (canonical title + variant policy). Supersedes row-only sample for freeze.
 
+  - id: PRODUCT-NAMING-V1-PHASE-2E-POST-COMMIT-IMPACT
+    path: audit/product-naming-phase2e-rehearsal/PHASE2E_POST_COMMIT_IMPACT_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2e-transactional-rehearsal
+    notes: >
+      Phase 2E analysis-only post-commit impact plan. No deploy, cache, or external mutation in rehearsal.
+
+  - id: PRODUCT-NAMING-V1-PHASE-2E-REHEARSAL-REPORT
+    path: audit/product-naming-phase2e-rehearsal/PHASE2E_REHEARSAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/product-naming-phase2e-transactional-rehearsal
+    notes: >
+      Authoritative Phase 2E live transactional rehearsal summary (47 transient updates, mandatory rollback).
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE
@@ -1263,6 +1283,141 @@ documents:
     notes: >
       Product-status historical result report (2026-09-24 snapshot).
       Not current live catalog state.
+
+  - id: SELLABILITY-WAVE0-CENSUS-20261003
+    path: audit/sellability-wave0-2026-10-03/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Authoritative read-only Production sellability Wave 0 census snapshot from
+      2026-10-03; observational evidence only. Not Canon; does not authorize
+      sale-wave APPLY / availability / price / activation / image mutation.
+
+  - id: SELLABILITY-WAVE0-FINAL-REPORT-20261003
+    path: audit/sellability-wave0-2026-10-03/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Sellability Wave 0 final report (2026-10-03 snapshot). WAVE_1_APPLY_AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A-STOCK-AUTHORITY-20261006
+    path: audit/sellability-wave1a-stock-authority-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only Sellability Wave 1A stock-authority reconciliation (2026-10-06).
+      Observational evidence only. WAVE_1B_APPLY_AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A-FINAL-REPORT-20261006
+    path: audit/sellability-wave1a-stock-authority-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Sellability Wave 1A final report (2026-10-06). WAVE_1B_APPLY_AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A-HESABFA-SEMANTICS-20261006
+    path: audit/sellability-wave1a-stock-authority-2026-10-06/HESABFA_SEMANTICS_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A read-only Hesabfa stock semantics report. Evidence only;
+      HESABFA_STOCK_SEMANTICS_UNPROVEN; does not authorize APPLY.
+
+  - id: SELLABILITY-WAVE1A-OWNER-DECISIONS-20261006
+    path: audit/sellability-wave1a-stock-authority-2026-10-06/OWNER_AUTHORITY_DECISIONS_REQUIRED.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A Owner authority decisions required before Wave 1B design/APPLY.
+      Evidence only. WAVE_1B_APPLY_AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A1-AUTHORITY-CLOSURE-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only Sellability Wave 1A.1 authority closure + source refresh
+      (2026-10-06). Registers INSIZE trailing-A identity rule. APPLY AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A1-FINAL-REPORT-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Sellability Wave 1A.1 final report. Verdict AUTHORITY_REFRESH_STILL_REQUIRED;
+      APPLY AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A1-OWNER-DECISIONS-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/OWNER_DECISIONS_REMAINING.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A.1 remaining Owner decisions after trailing-A identity closure.
+      Evidence only. APPLY AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE1A1-INSIZE-PROVENANCE-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/INSIZE_SOURCE_PROVENANCE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A.1 INSIZE source-year provenance. SOURCE_YEAR_UNPROVEN; evidence only.
+
+  - id: SELLABILITY-WAVE1A1-HESABFA-POLICY-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/HESABFA_STOCK_POLICY_PROPOSAL.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A.1 Hesabfa stock policy proposal only. Semantics remain UNPROVEN;
+      does not authorize APPLY.
+
+  - id: SELLABILITY-WAVE1A1-PRODUCT-1789-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/PRODUCT_1789_INTEGRITY_INVESTIGATION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Wave 1A.1 read-only product 1789 integrity investigation. No repair performed.
+
+  - id: SELLABILITY-WAVE1A1-PROPOSED-ASTPOWER-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/PROPOSED_ASTPOWER_AUTHORITY_DECISION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Proposed ASTPOWER authority decision only. Not registered; targets remain UNKNOWN.
+
+  - id: SELLABILITY-WAVE1A1-PROPOSED-SANOU-20261006
+    path: audit/sellability-wave1a1-authority-closure-2026-10-06/PROPOSED_SANOU_AUTHORITY_DECISION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Proposed SAN OU authority decision only. Not registered; targets remain UNKNOWN.
 
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md

@@ -1,0 +1,89 @@
+{
+  "wave1a_dir": "audit/sellability-wave1a-stock-authority-2026-10-06",
+  "wave1a_pr": 429,
+  "wave1a_merged_at_sha": "9fc607ab90170375069c0d5b11ec33f4f64ae9dd",
+  "wave1a_summary_sha256": "5e76ee15b09e3dc9eddbc6f5cc8a331058cddc0f240893ed5edb82726b370258",
+  "wave1a_sha256sums_verified": true,
+  "wave1a_artifacts_unaltered": true,
+  "current_sellable": 717,
+  "still_availability_blocked": 329,
+  "wave1a_AVAILABLE": 10,
+  "wave1a_UNKNOWN": 130,
+  "wave1a_UNAVAILABLE": 190,
+  "wave1a_strict_CURRENT_ENOUGH_candidates": 0,
+  "wave1a_AGING_candidates": 2,
+  "brand_summary_from_wave1a": [
+    {
+      "brand_key": "INSIZE",
+      "historical_targets": 226,
+      "still_availability_blocked": 225,
+      "already_available": 0,
+      "stock_AVAILABLE": 2,
+      "stock_UNAVAILABLE": 187,
+      "stock_UNKNOWN": 37,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 2,
+      "authority_status": "REGISTERED_AVAILABILITY_AUTHORITY"
+    },
+    {
+      "brand_key": "ASTPOWER",
+      "historical_targets": 53,
+      "still_availability_blocked": 53,
+      "already_available": 0,
+      "stock_AVAILABLE": 0,
+      "stock_UNAVAILABLE": 0,
+      "stock_UNKNOWN": 53,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "STOCK_AUTHORITY_MISSING"
+    },
+    {
+      "brand_key": "SANOU",
+      "historical_targets": 24,
+      "still_availability_blocked": 24,
+      "already_available": 0,
+      "stock_AVAILABLE": 0,
+      "stock_UNAVAILABLE": 0,
+      "stock_UNKNOWN": 24,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "STOCK_AUTHORITY_MISSING"
+    },
+    {
+      "brand_key": "DASQUA",
+      "historical_targets": 22,
+      "still_availability_blocked": 22,
+      "already_available": 0,
+      "stock_AVAILABLE": 8,
+      "stock_UNAVAILABLE": 0,
+      "stock_UNKNOWN": 14,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "REGISTERED_AVAILABILITY_AUTHORITY_STALE"
+    },
+    {
+      "brand_key": "TERMA",
+      "historical_targets": 4,
+      "still_availability_blocked": 4,
+      "already_available": 0,
+      "stock_AVAILABLE": 0,
+      "stock_UNAVAILABLE": 3,
+      "stock_UNKNOWN": 1,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "REGISTERED_AVAILABILITY_AUTHORITY_FRESHNESS_UNKNOWN"
+    },
+    {
+      "brand_key": "MITUTOYO",
+      "historical_targets": 1,
+      "still_availability_blocked": 1,
+      "already_available": 0,
+      "stock_AVAILABLE": 0,
+      "stock_UNAVAILABLE": 0,
+      "stock_UNKNOWN": 1,
+      "stock_CONFLICT": 0,
+      "future_apply_candidates": 0,
+      "authority_status": "REGISTERED_CATALOG_ONLY_NOT_STOCK"
+    }
+  ]
+}

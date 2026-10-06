@@ -18,10 +18,14 @@ from pathlib import Path
 from typing import Any
 
 from catalog_target.core import canonicalize_brand, normalize_sku
+from catalog_target.insize_trailing_a_identity import (  # noqa: E402
+    MATCH_DETAIL as INSIZE_TRAILING_A_MATCH_DETAIL,
+    match_source_code_to_catalog_skus,
+)
 from catalog_target.xlsx import iter_xlsx_rows
 
 PARSER_VERSION = "supplier_stock/1.0.0"
-NORMALIZATION_POLICY_VERSION = "supplier_stock_norm/1.0.0"
+NORMALIZATION_POLICY_VERSION = "supplier_stock_norm/1.1.0"
 
 # Explicit stock freshness defaults (stricter than typical price aging).
 DEFAULT_CURRENT_ENOUGH_DAYS = 14
@@ -594,6 +598,7 @@ def map_stock_to_catalog(
     brand: str,
     allow_exact_model: bool = False,
     allow_dasqua_pack_a: bool = True,
+    allow_insize_trailing_a: bool = True,
 ) -> list[MapResultRow]:
     """Exact-only mapper. Fuzzy/substring forbidden. Does not mutate catalog."""
     want = canonicalize_brand(brand)
@@ -612,6 +617,13 @@ def map_stock_to_catalog(
                 dasqua_bases.setdefault(base, []).extend(prods)
             elif dasqua_is_base(sku):
                 dasqua_bases.setdefault(sku, []).extend(prods)
+
+    # INSIZE catalog index for trailing-A (Owner-closed deterministic rule)
+    insize_catalog_by_sku: dict[str, list[CatalogProduct]] = {}
+    if want == "INSIZE" and allow_insize_trailing_a:
+        for (b, sku), prods in by_sku.items():
+            if b == "INSIZE":
+                insize_catalog_by_sku.setdefault(sku, []).extend(prods)
 
     # Detect duplicate source identities
     source_groups: dict[str, list[StockRow]] = {}
@@ -702,6 +714,38 @@ def map_stock_to_catalog(
                     detail = "EXACT_NORMALIZED_SKU:dasqua_trailing_A"
                     product_id = pack_hits[0].product_id
                     catalog_sku = pack_hits[0].sku
+
+        # 2b) INSIZE trailing-A (Owner-closed; X ↔ XA terminal A only)
+        if (
+            match_class == "NOT_FOUND"
+            and want == "INSIZE"
+            and allow_insize_trailing_a
+            and r.manufacturer_sku
+        ):
+            # Multi-row same identity already flagged above when statuses conflict;
+            # still fail closed if multiple source rows share this CODE.
+            if len(group) > 1:
+                match_class = "AMBIGUOUS"
+                detail = "insize_trailing_a_multi_row_source"
+            else:
+                id_res = match_source_code_to_catalog_skus(
+                    brand="INSIZE",
+                    source_sku=r.manufacturer_sku,
+                    catalog_by_sku=insize_catalog_by_sku,
+                )
+                if id_res.outcome == "EXACT_MATCH" and id_res.detail == INSIZE_TRAILING_A_MATCH_DETAIL:
+                    hits = insize_catalog_by_sku.get(id_res.catalog_sku, [])
+                    if len(hits) == 1:
+                        match_class = "EXACT_MATCH"
+                        detail = INSIZE_TRAILING_A_MATCH_DETAIL
+                        product_id = hits[0].product_id
+                        catalog_sku = hits[0].sku
+                    else:
+                        match_class = "AMBIGUOUS"
+                        detail = "insize_trailing_a_catalog_ambiguous"
+                elif id_res.outcome == "AMBIGUOUS":
+                    match_class = "AMBIGUOUS"
+                    detail = id_res.detail or "insize_trailing_a_ambiguous"
 
         # 3) Exact model (opt-in)
         if match_class == "NOT_FOUND" and allow_exact_model and r.model:

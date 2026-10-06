@@ -1,0 +1,52 @@
+{
+  "expected_rows": 47,
+  "prestate_sha256": "88ba82d203a0e51224cbbea81eb277cd15cb5f867470fdd7c367bad4098f43e5",
+  "target_prestate_sha256": "be9e00bb4d57313c312201ebd7b05a0934e504eb7e9b15a9e07085b5053a8ad4",
+  "live_drift_errors": [],
+  "collision_precheck": {
+    "cohort_exact_dup": 0,
+    "cohort_normalized_dup": 0,
+    "catalog_exact_hits": 0,
+    "catalog_normalized_hits": 0
+  },
+  "non_target_prestate_sha256": "519b6f655a4c22a3bcd2d4480b47b62a",
+  "rehearsal_log_baseline": 0,
+  "runtime_identity": {
+    "collected_at_utc": "2026-10-06T08:18:43.308250+00:00",
+    "collector_hostname": "hp-g2-450",
+    "vps_hostname": "srv5944957438",
+    "deployed_git_sha": "UNKNOWN",
+    "api_container": "lathe_api",
+    "postgres_container": "lathe_postgres",
+    "api_image": "karzar-app:staging",
+    "postgres_db_name": "karzar_staging",
+    "APP_ENV": "staging",
+    "alembic_current": "u4v5w6x7y8z9",
+    "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0"
+  },
+  "read_only_proof": {
+    "transaction_read_only": "on",
+    "mutation_capable_statements_executed": "0"
+  },
+  "catalog_baseline": {
+    "total": 6537,
+    "deleted": 1,
+    "non_deleted": 6536,
+    "active": 1585,
+    "available": 3756,
+    "priced": 4552,
+    "imaged": 1464,
+    "storefront_public_approx": 1368,
+    "sellable_approx": 717,
+    "brandless": 296,
+    "categoryless": 0,
+    "manufacturer_code_non_null": 1350,
+    "manufacturer_code_null": 5186,
+    "manufacturer_code_distinct": 1350,
+    "product_type_id_non_null": 658,
+    "product_type_id_null": 5878,
+    "distinct_sku": 6536,
+    "distinct_slug": 6536,
+    "distinct_name": 6356
+  }
+}
