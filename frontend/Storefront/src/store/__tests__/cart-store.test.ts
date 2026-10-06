@@ -4,6 +4,7 @@ import {
   selectQuoteCount,
   useCartStore,
 } from "@/store/cart-store";
+import { resetCustomerSessionStateForTests } from "@/lib/customer-session";
 import type { ProductSummary } from "@/types/product";
 
 function product(id: number, price: string | null = "1000"): ProductSummary {
@@ -23,7 +24,8 @@ function product(id: number, price: string | null = "1000"): ProductSummary {
 
 describe("cart lanes", () => {
   beforeEach(() => {
-    useCartStore.setState({ cart: [], quote: [], lastSyncError: null });
+    resetCustomerSessionStateForTests();
+    useCartStore.setState({ stash: null, cart: [], quote: [], lastSyncError: null });
     localStorage.clear();
   });
 
@@ -36,6 +38,7 @@ describe("cart lanes", () => {
     expect(state.quote).toHaveLength(1);
     expect(selectCartCount(state)).toBe(2);
     expect(selectQuoteCount(state)).toBe(1);
+    expect(state.stash?.attribution.kind).toBe("guest");
   });
 
   it("upserts quantity in the same lane", () => {
