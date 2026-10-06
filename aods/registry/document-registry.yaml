@@ -893,6 +893,17 @@ documents:
       Owner-authorized INSIZE +12% base_price Category B APPLY evidence
       (2026-09-30); 487 priced rows; do not rerun.
 
+  - id: INSIZE-DISCOUNT-10-20260930-AUDIT
+    path: audit/insize-discount-10-20260930/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: cursor/insize-discount-10-3c54
+    notes: >
+      Owner-authorized INSIZE 10% storefront discount Category B APPLY evidence
+      (2026-09-30); original_price+base_price; 487 priced rows; do not rerun.
+
   - id: TAXONOMY-PHASE0B-AUDIT-20260927
     path: audit/taxonomy-phase0b/README.md
     class: EVIDENCE
