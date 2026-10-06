@@ -1,0 +1,13 @@
+{
+  "reason": "Phase 2F owner-authorized Product.name apply; cohort_sha256=25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff",
+  "actual_rows": 47,
+  "missing": 0,
+  "extra": 0,
+  "duplicates": 0,
+  "wrong_field_name": 0,
+  "wrong_old_value": 0,
+  "wrong_new_value": 0,
+  "wrong_reason": 0,
+  "non_target_apply_logs": 0,
+  "actual_log_row_mismatches": 0
+}

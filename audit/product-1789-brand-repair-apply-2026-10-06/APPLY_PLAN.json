@@ -1,0 +1,13 @@
+{
+  "OWNER_AUTHORIZED": "YES",
+  "authorization_quote": "مرج کردم، تعمیر 1789 را انجام بدهیم",
+  "TARGET_PRODUCT_ID": 1789,
+  "TARGET_SKU": "1114-150",
+  "AUTHORIZED_PRODUCT_CHANGE": "brand_id NULL → 3",
+  "AUTHORIZED_AUDIT_ROWS": 1,
+  "AUTHORIZED_OTHER_CHANGES": "NONE",
+  "manifest_sha": "c5c572b3aadc65ec13f0692e019c645a60cd4f09e87691ddf27da20b952821d8",
+  "apply_reason": "owner_authorized_brand_integrity_repair",
+  "mode": "REAL_APPLY",
+  "sql_summary": "UPDATE products SET brand_id=3 WHERE id=1789 AND brand_id IS NULL AND sku/mfg match; INSERT product_change_logs"
+}

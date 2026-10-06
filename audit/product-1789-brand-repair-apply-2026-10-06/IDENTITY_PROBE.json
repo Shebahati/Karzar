@@ -1,0 +1,25 @@
+{
+  "host_expected": "srv5944957438",
+  "host_proof": "srv5944957438",
+  "db_container_expected": "lathe_postgres",
+  "db_container_proof": "lathe_postgres",
+  "database_expected": "karzar_staging",
+  "database_proof": "karzar_staging",
+  "database_user_proof": "karzar_staging",
+  "volume_expected": "karzar_postgres_data",
+  "volume_proof": "karzar_postgres_data",
+  "APP_ENV": "staging",
+  "KARZAR_DATA_PLANE": null,
+  "alembic_revision": "u4v5w6x7y8z9",
+  "transaction_read_only": "on",
+  "utc": "2026-10-06 12:48:06.465336",
+  "captured_at_utc": "2026-10-06T12:48:06.578945+00:00",
+  "gates": {
+    "host_ok": true,
+    "container_ok": true,
+    "db_ok": true,
+    "user_ok": true,
+    "volume_ok": true,
+    "transaction_read_only_on": true
+  }
+}

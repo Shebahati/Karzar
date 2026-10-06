@@ -1,0 +1,14 @@
+{
+  "historical_manifest_unchanged": true,
+  "incorrect_field": "REAL_APPLY_MANIFEST.json.latest_main_sha",
+  "recorded_value": "8a0ab9347968db1b7f4de4b36c0d86ed2cd6c8dc",
+  "semantic_role_of_recorded_value": "PHASE2F_APPLY_LOGIC_SHA",
+  "actual_main_at_phase2f_branch_base": "9fc607ab90170375069c0d5b11ec33f4f64ae9dd",
+  "historical_apply_logic_sha": "8a0ab9347968db1b7f4de4b36c0d86ed2cd6c8dc",
+  "historical_evidence_commit": "80d3b0010ab9b6b8d8f7a40a7333d9b600d81d95",
+  "ancestry_proof": {
+    "merge_base_of_logic_sha_and_main_at_branch_base": "9fc607ab90170375069c0d5b11ec33f4f64ae9dd",
+    "equals_actual_main_at_phase2f_branch_base": true
+  },
+  "impact": "metadata labeling only; no impact on database transaction, candidate cohort, backup, logs, or post-commit verification"
+}

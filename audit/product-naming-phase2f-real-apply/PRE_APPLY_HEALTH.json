@@ -1,0 +1,15 @@
+{
+  "api_readiness": "PASS",
+  "database_readiness": "PASS",
+  "redis_readiness": "PASS",
+  "ready_http_status": 200,
+  "ready_body": {
+    "status": "ready",
+    "service": "Karzar Staging API",
+    "database": "ok",
+    "redis": "ok"
+  },
+  "redis_ping": "PONG",
+  "database_select_1": "1",
+  "all_pass": true
+}
