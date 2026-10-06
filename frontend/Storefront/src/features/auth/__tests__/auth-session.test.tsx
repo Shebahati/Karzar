@@ -135,8 +135,8 @@ describe("auth /me session cache (F02)", () => {
         full_name: "Late A Profile",
         company_name: null,
       });
+      await Promise.resolve();
     });
-    await waitUntil(() => result.current?.isIdle ?? true);
 
     const bScope = getCustomerSessionSnapshot();
     const cached = client.getQueryData(
