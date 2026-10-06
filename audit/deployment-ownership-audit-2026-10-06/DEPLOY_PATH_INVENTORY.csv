@@ -1,0 +1,20 @@
+path,purpose,expected_owner,expected_group,actual_owner,actual_group,mode,runner_read,runner_write,runner_execute,created_by,risk
+/opt/karzar,VPS Karzar root,root,root,root,root,755,YES,NO,YES,bootstrap-vps,EXPECTED_ROOT_OWNERSHIP
+/opt/karzar/incoming,deploy package handoff,github-runner,github-runner,github-runner,github-runner,2775,YES,YES,YES,prepare-self-hosted-dirs.sh,LOW
+/opt/karzar/workspace,runner package workspace,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,prepare-self-hosted-dirs.sh,LOW
+/opt/karzar/mirror,local git mirror,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,prepare-self-hosted-dirs.sh / ensure-git-mirror.sh,LOW
+/opt/karzar/logs(/deploy),deploy logs,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,prepare-self-hosted-dirs.sh,LOW
+/opt/karzar/actions-runner,GHA runner install,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,runner bootstrap,LOW
+/opt/karzar/Karzar,LIVE backend checkout (rsync dest),github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,deploy rsync,HIGH_IF_ROOT_DRIFT
+/opt/karzar/Karzar/app,API source,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,deploy rsync,HIGH_IF_ROOT_DRIFT
+/opt/karzar/Karzar/deploy,deploy scripts/templates,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,deploy rsync; was root@failure,HIGH_IF_ROOT_DRIFT
+/opt/karzar/Karzar/deploy/staging,staging deploy assets/nginx templates,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,deploy rsync; was root@failure,HIGH_IF_ROOT_DRIFT
+/opt/karzar/Karzar/services,sidecar services (gsc_mcp),github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,deploy rsync; was root@failure,HIGH_IF_ROOT_DRIFT
+/opt/karzar/Karzar/services/gsc_mcp,GSC MCP service tree,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,root docker compose ops then chown/rsync,HIGH_IF_ROOT_DRIFT
+/opt/karzar/Karzar/audit,tracked audit evidence,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,deploy rsync,MED_IF_ORPHANS
+/opt/karzar/Karzar/audit/insize-price-20-*,ORPHAN untracked ops artifacts (removed by success rsync),N/A_not_deploy_managed,N/A,root@failure / gone@success,root@failure,755@failure,YES,NO@failure,YES,root SSH ops CREATOR_UNPROVEN_exact_tool,HIGH
+/opt/karzar/frontend,LIVE frontend sync dest,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,deploy rsync frontend,HIGH_IF_ROOT_DRIFT
+/opt/karzar/Karzar/.env,runtime secrets (excluded from rsync),root,github-runner,root,github-runner,640,YES(group),NO,NO,host secrets,EXPECTED_ROOT_OWNERSHIP
+/opt/karzar/.deploy-secrets,deploy secrets (outside checkout),root,github-runner,root,github-runner,640,YES(group),NO,NO,host secrets,EXPECTED_ROOT_OWNERSHIP
+/opt/karzar/Karzar/backups,DB/upload backups (rsync excluded),github-runner_or_backup_actor,github-runner,github-runner,github-runner,775,YES,YES,YES,backup cron / host,LOW
+/opt/karzar/incoming/<sha>/tree,rsync SOURCE packaged tree,github-runner,github-runner,github-runner,github-runner,755,YES,YES,YES,package-incoming-local.sh,LOW

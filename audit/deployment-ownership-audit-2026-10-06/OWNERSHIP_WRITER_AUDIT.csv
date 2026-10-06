@@ -1,0 +1,11 @@
+source,command_or_path,execution_user,can_create_root_owned_files,expected_behavior,risk
+ssh karzar-vps default shell,interactive/agent SSH,root,YES,Any write under /opt/karzar/Karzar becomes root-owned,CRITICAL
+root bash: docker compose -f docker-compose.gsc-mcp.yml,/opt/karzar/Karzar,root,YES,Build/up from live checkout; confirmed in /root/.bash_history,HIGH
+root: nginx -t (2026-10-06T12:17:58Z),auth.log,root,MAYBE,Config test; related GSC nginx rollout as root,MED
+deploy-staging.yml Sync backend rsync -a --delete,.github/workflows/deploy-staging.yml,github-runner,NO (fails on root dest),Requires writable dest owned by runner,HIGH_IF_DEST_ROOT
+prepare-self-hosted-dirs.sh,deploy/staging/scripts,root (sudo once),YES but only incoming/workspace/mirror/logs,Does NOT harden live /opt/karzar/Karzar,GAP
+package-incoming-local.sh,deploy/staging/scripts,github-runner,NO,Writes incoming only,LOW
+install-backup-cron.sh / bootstrap-vps.sh,deploy/staging/scripts,root,YES,Host bootstrap; should not own app source long-term,MED
+frontend-image-lib.sh chown,deploy/staging/scripts,may sudo -u runner,narrow chown on image bundle,Incoming FE images only,LOW
+cleanup-incoming-source.sh selftest,deploy/staging/scripts,N/A,NO,Explicitly forbids live-tree chown/chmod 777,GOOD
+Cursor/agent Category B ops writing audit into live tree,operational practice,root via SSH,YES,If evidence written under /opt/karzar/Karzar/audit as root → orphans,HIGH

@@ -1,0 +1,5 @@
+directory,ownership,when,tracked_by_git,rsync_delete_attempted,originating_process,notes
+audit/insize-price-20-trailing-a,root:root@failure,2026-10-06 ~10:53Z mtime,NO_NOT_ON_MAIN,YES_delete_unlink_failed,CREATOR_UNPROVEN,Operational INSIZE trailing-A price work; not Git-tracked; present only on VPS live tree
+audit/insize-price-20-remaining-37,root:root@failure,2026-10-06,NO_NOT_ON_MAIN,YES_delete_failed,CREATOR_UNPROVEN,Same family of untracked ops artifacts
+audit/insize-price-20-four-likely,root:root@failure,2026-10-06,NO_NOT_ON_MAIN,YES_delete_failed,CREATOR_UNPROVEN,Same family
+audit/insize-price-20-1205-02s,root:root@failure,2026-10-06,NO_NOT_ON_MAIN,YES_delete_failed,CREATOR_UNPROVEN,Same family

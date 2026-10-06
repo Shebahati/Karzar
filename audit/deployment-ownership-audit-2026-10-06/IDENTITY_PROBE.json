@@ -1,0 +1,28 @@
+{
+  "host": "srv5944957438",
+  "ssh_login_user_observed": "root",
+  "runner_service_user": "github-runner",
+  "runner_uid_gid": "1000:1000",
+  "runner_home": "/home/github-runner",
+  "runner_unit": "actions.runner.Shebahati-Karzar.karzar-vps.service",
+  "runner_working_directory": "/opt/karzar/actions-runner",
+  "runner_exec": "/opt/karzar/actions-runner/runsvc.sh",
+  "PermitRootLogin": "yes",
+  "origin_main_sha": "59716cd779d3bf981be2ad8096c70d0bd9f080b1",
+  "latest_merged_pr": {
+    "number": 438,
+    "sha": "59716cd779d3bf981be2ad8096c70d0bd9f080b1"
+  },
+  "deployed_sha": "4e750eafb00f8b6e72c4dba9c539d409c0fd8a02",
+  "main_ahead_of_deployed": 8,
+  "failed_run": "https://github.com/Shebahati/Karzar/actions/runs/37468470923",
+  "success_run": "https://github.com/Shebahati/Karzar/actions/runs/37469215878",
+  "audit_mode": "READ_ONLY",
+  "captured_at_utc": "2026-10-06T13:36:58.950960+00:00",
+  "safety": {
+    "VPS_FILE_MUTATION": "NO",
+    "CHOWN": "NO",
+    "CHMOD": "NO",
+    "DEPLOY": "NO"
+  }
+}
