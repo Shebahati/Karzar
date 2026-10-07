@@ -1,0 +1,15 @@
+{
+  "executed": true,
+  "step": "Sync backend \u2192 /opt/karzar/Karzar",
+  "command": "rsync -a --delete (deploy-staging.yml excludes)",
+  "started_utc": "2026-10-07T09:37:25.4306691Z",
+  "step_success": true,
+  "exit_inferred": 0,
+  "unlink_permission_denied": 0,
+  "mkstemp_permission_denied": 0,
+  "chgrp_operation_not_permitted": 0,
+  "exit_23": false,
+  "AUTO_CHOWN_USED": false,
+  "AUTO_CHMOD_USED": false,
+  "note": "Dockerfile/image --chown during FE image build is not live-checkout ownership repair"
+}

@@ -1,0 +1,22 @@
+{
+  "api": "Image=karzar-app:staging Id=sha256:fd58fb4debf798dc33a1fbc30d911b2d4e7fa43672ecf78cd5b2ae1e7e541563 Started=2026-10-07T09:37:37.591392855Z",
+  "shop": "Image=karzar-shop:sha-076fb45cc2be7b71b169295508361b8336950ee8 Id=sha256:2c8a7ebd2c196a8b6886cb8bd1663e3d7a7c42199f0a8ac554b5f83b29826d93 Started=2026-10-07T09:37:59.306051204Z",
+  "admin": "Image=karzar-admin:sha-076fb45cc2be7b71b169295508361b8336950ee8 Id=sha256:dccd406cb097d9b8e065b72a552b536f4a2cf51df0cce390ebc07b53379ca60e Started=2026-10-07T09:37:59.925932706Z",
+  "alembic": "MEDIA ENV:    live\nWRITE POLICY: live_requires_adr012_category_b\nINFO  [alembic.runtime.migration] Context impl PostgresqlImpl.\nINFO  [alembic.runtime.migration] Will assume transactional DDL.\nu4v5w6x7y8z9 (head)",
+  "shop_image_has_target": true,
+  "admin_image_has_target": true,
+  "api_image_rebuilt": true,
+  "api_image_id_changed": true,
+  "deployed_sha_match": true,
+  "cleanup_roots_absent": {
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120": true,
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19": true,
+    "/opt/karzar/Karzar/_ops": true,
+    "/opt/karzar/Karzar/scripts/ops/insize_n4120_identity_alias_apply.py": true,
+    "/opt/karzar/Karzar/scripts/ops/run_insize_n4120_identity_alias_apply.sh": true,
+    "/opt/karzar/Karzar/scripts/ops/insize_remaining19_identity_alias_apply.py": true,
+    "/opt/karzar/Karzar/scripts/ops/run_insize_remaining19_identity_alias_apply.sh": true,
+    "/opt/karzar/Karzar/docs/architecture/specs/product-naming-v1/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv": true
+  },
+  "KARZAR_DEPLOY_FREEZE_host_env": "true"
+}

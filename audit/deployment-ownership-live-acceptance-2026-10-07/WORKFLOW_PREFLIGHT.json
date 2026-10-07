@@ -1,0 +1,13 @@
+{
+  "runner": "github-runner",
+  "uid": 1000,
+  "gid": 1000,
+  "managed_paths": 4,
+  "objects_checked": 3516,
+  "unexpected_ownership": 0,
+  "undeletable": 0,
+  "unreplaceable": 0,
+  "status": "PASS",
+  "source": "workflow log run 37601628972 Sync+rebuild / Ownership preflight step",
+  "timestamp_utc": "2026-10-07T09:37:25.4036902Z"
+}

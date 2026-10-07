@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "runner": "github-runner",
+  "uid": 1000,
+  "gid": 1000,
+  "managed_paths": 3,
+  "objects_checked": 1939,
+  "unexpected_ownership": 0,
+  "undeletable": 0,
+  "unreplaceable": 0,
+  "auto_chown": false,
+  "finding_count": 0
+}

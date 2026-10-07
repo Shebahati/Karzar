@@ -1,0 +1,26 @@
+{
+  "probes": {
+    "api_ready": {
+      "url": "https://api.karzartools.com/ready",
+      "status": 200,
+      "ok": true
+    },
+    "storefront": {
+      "url": "https://www.karzartools.com/",
+      "status": 200,
+      "ok": true
+    },
+    "admin": {
+      "url": "https://admin.karzartools.com/",
+      "status": 200,
+      "ok": true
+    },
+    "products": {
+      "url": "https://api.karzartools.com/api/v1/products/?limit=1",
+      "status": 200,
+      "ok": true
+    }
+  },
+  "critical_deploy_related_errors": 0,
+  "db_connectivity": "PASS (alembic current + async census)"
+}
