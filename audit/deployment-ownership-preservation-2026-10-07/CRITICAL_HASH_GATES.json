@@ -1,0 +1,32 @@
+{
+  "recovery": {
+    "expected": "0048f19c9ea5da3319acf54bf7f77cb9dae4afa900f8994492f7aa161f4b07a9",
+    "actual": "0048f19c9ea5da3319acf54bf7f77cb9dae4afa900f8994492f7aa161f4b07a9",
+    "PASS": true,
+    "destination_path": "/opt/karzar/preserve/insize-n4120-20261006/audit/RECOVERY_N4120_20261006T141319Z.json"
+  },
+  "rollback": {
+    "expected": "be8b4c55de397bed57904aa27e48b714417f58b5bd63c39d2c7df28dfef375c9",
+    "actual": "be8b4c55de397bed57904aa27e48b714417f58b5bd63c39d2c7df28dfef375c9",
+    "PASS": true,
+    "destination_path": "/opt/karzar/preserve/insize-n4120-20261006/audit/N4120_ROLLBACK.csv"
+  },
+  "workbook": {
+    "expected": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+    "actual": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+    "PASS": true,
+    "destination_path": "/opt/karzar/preserve/insize-workbook-20261006/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx"
+  },
+  "alias_csv": {
+    "expected": "0449ba50a46233e462b230478c8ca18d2cd4c86e21e521e7137e34afee81f696",
+    "actual": "0449ba50a46233e462b230478c8ca18d2cd4c86e21e521e7137e34afee81f696",
+    "PASS": true,
+    "destination_path": "/opt/karzar/preserve/insize-n4120-20261006/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv"
+  },
+  "all_pass": true,
+  "external_laptop_workbook": {
+    "path": "/home/shebahati/KaZar/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx",
+    "expected": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+    "status": "PASS"
+  }
+}

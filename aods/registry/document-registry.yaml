@@ -1614,6 +1614,153 @@ documents:
     notes: >
       Design for read-only ownership preflight before deploy rsync.
 
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Fail-closed deploy ownership preflight implementation evidence.
+      No VPS ownership mutation; current canary REMEDIATION_REQUIRED.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-FINAL-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for ownership preflight hardening (REMEDIATION_REQUIRED).
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-CONTRACT-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/PREFLIGHT_CONTRACT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Canonical ownership preflight contract for Deploy Staging.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-SCOPE-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/IMPLEMENTATION_SCOPE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Allowed/forbidden scope for ownership preflight PR.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-TESTS-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/TEST_MATRIX.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Test matrix for ownership preflight.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-REPRO-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/HISTORICAL_FAILURE_REPRODUCTION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Historical rsync failure class modelled for preflight.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-ORDER-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/WORKFLOW_ORDER_CHECK.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Deploy Staging workflow ordering and freeze safety for preflight.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVE-REQ-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/PRESERVATION_REQUIREMENTS.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only preservation requirements before any ownership chown.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVE-PLAN-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/REMEDIATION_EXECUTION_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Ordered Owner-authorized remediation plan; not executed.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVE-UPDATED-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/UPDATED_FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Updated final report after preservation gate (chown forbidden).
+
+  - id: DEPLOY-OWNERSHIP-CLEANUP-PLAN-C0-20261007
+    path: audit/deployment-ownership-preflight-2026-10-06/CLEANUP_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase C0 sync+#443 cleanup allowlist freeze; no VPS mutation.
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-20261007
+    path: audit/deployment-ownership-preservation-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase A+B Owner-authorized preserve+verify under /opt/karzar/preserve.
+      No live cleanup or chown.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-FINAL-20261007
+    path: audit/deployment-ownership-preservation-2026-10-07/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for Phase A+B preservation (PRESERVED_VERIFIED).
+
+
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-R19-20261007
+    path: audit/deployment-ownership-preservation-remaining19-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase A2+B2 remaining-19 preserve+verify under /opt/karzar/preserve.
+      No live cleanup or chown.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-R19-FINAL-20261007
+    path: audit/deployment-ownership-preservation-remaining19-2026-10-07/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for remaining-19 Phase A2+B2 (PRESERVED_VERIFIED).
+
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-R19-CONSIST-20261007
+    path: audit/deployment-ownership-preservation-remaining19-2026-10-07/REMAINING19_EVIDENCE_CONSISTENCY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Remaining-19 workbook family / apply consistency evidence.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE
@@ -1624,3 +1771,31 @@ documents:
       Read-only Production reconciliation of Hesabfa item activation on
       2026-09-29. Evidence only. Not Canon. Does not authorize item/save
       or activation APPLY.
+
+  - id: DEPLOY-OWNERSHIP-CLEANUP-README-20261007
+    path: audit/deployment-ownership-cleanup-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase C/D Owner-authorized exact-path cleanup closeout index.
+
+
+  - id: DEPLOY-OWNERSHIP-CLEANUP-AUTH-20261007
+    path: audit/deployment-ownership-cleanup-2026-10-07/AUTHORIZATION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner authorization record for Phase C/D exact-path cleanup.
+  - id: DEPLOY-OWNERSHIP-CLEANUP-CLOSEOUT-20261007
+    path: audit/deployment-ownership-cleanup-2026-10-07/CLOSEOUT_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase C/D cleanup closeout; ownership drift closed; no deploy/merge.
+

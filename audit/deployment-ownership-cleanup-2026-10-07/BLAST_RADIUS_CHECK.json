@@ -1,0 +1,20 @@
+{
+  "deleted_root_targets": 8,
+  "deleted_files_count": 26,
+  "deleted_dirs_count": 3,
+  "outside_allowlist_deletions": 0,
+  "unexpected_mutations": 0,
+  "parents_remain": {
+    "audit": true,
+    "scripts/ops": true,
+    "docs/.../product-naming-v1": true
+  },
+  "live_markers": {
+    "app": true,
+    "deploy/staging": true,
+    "services": true
+  },
+  "preserve_untouched": true,
+  "chown": 0,
+  "chmod": 0
+}
