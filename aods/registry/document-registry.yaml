@@ -1664,6 +1664,25 @@ documents:
     notes: >
       Updated final report after preservation gate (chown forbidden).
 
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-20261007
+    path: audit/deployment-ownership-preservation-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase A+B Owner-authorized preserve+verify under /opt/karzar/preserve.
+      No live cleanup or chown.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-FINAL-20261007
+    path: audit/deployment-ownership-preservation-2026-10-07/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for Phase A+B preservation (PRESERVED_VERIFIED).
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE
