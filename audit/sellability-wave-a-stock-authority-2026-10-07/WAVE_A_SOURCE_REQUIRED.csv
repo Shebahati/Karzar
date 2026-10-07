@@ -1,0 +1,116 @@
+product_id,sku,brand,brand_key,reason,normalized_availability,current_best_source,what_source_needed
+1044,1012-0010,Dasqua | داسکوا,DASQUA,STALE_SOURCE,AVAILABLE,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1221,2020-1005,Dasqua | داسکوا,DASQUA,STALE_SOURCE,AVAILABLE,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1234,2115-2305,Dasqua | داسکوا,DASQUA,STALE_SOURCE,AVAILABLE,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1244,2220-8105,Dasqua | داسکوا,DASQUA,STALE_SOURCE,AVAILABLE,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1482,4910-4105,Dasqua | داسکوا,DASQUA,STALE_SOURCE,AVAILABLE,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1513,5221-1129,Dasqua | داسکوا,DASQUA,STALE_SOURCE,AVAILABLE,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1518,5223-3105,Dasqua | داسکوا,DASQUA,STALE_SOURCE,AVAILABLE,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1560,5510-0005,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1561,5511-1100,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1562,5511-1105,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1563,5511-1110,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1564,5511-1115,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1566,5511-1121,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1567,5511-1130,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1568,5511-1135,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1569,5511-1140,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1570,5511-2105,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1571,5511-2110,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1572,5511-2115,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1573,5511-2120,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1574,5511-2130,Dasqua | داسکوا,DASQUA,STALE_SOURCE,UNKNOWN,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1614,5911-0002,Dasqua | داسکوا,DASQUA,STALE_SOURCE,AVAILABLE,dasqua.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1788,1111-100,INSIZE | اینسایز,INSIZE,UNKNOWN_DATE,AVAILABLE,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+1795,1120-150,INSIZE | اینسایز,INSIZE,UNKNOWN_DATE,AVAILABLE,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+2100,8601-100,INSIZE | اینسایز,INSIZE,UNKNOWN_DATE,AVAILABLE,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+2353,103-147,Mitutoyo | میتوتویو,MITUTOYO,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3292,AST-PRO/T65,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3293,AST-PRO/T150,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3303,AST-BS2-8,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3331,AST-SPARK3000,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3332,AST-SPARK600,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3349,AST-PRO/T100,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3350,AST-COR80,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3351,AST-COR355P,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3352,AST-COR255P,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3353,TU-TCOR205,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3354,TU-TCOR305,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3355,TU-TCOR255,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3356,TU-TCOR355,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3361,TU-D13E12,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3374,AST-COR100,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3429,FB620,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3431,FTV313,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3438,TS20,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3439,TS42,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3470,1205-1502,INSIZE | اینسایز,INSIZE,NOT_FOUND,UNKNOWN,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3483,2308-10,INSIZE | اینسایز,INSIZE,UNKNOWN_DATE,AVAILABLE,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3550,3109-25,INSIZE | اینسایز,INSIZE,UNKNOWN_DATE,AVAILABLE,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3556,3203-25,INSIZE | اینسایز,INSIZE,UNKNOWN_DATE,AVAILABLE,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3618,2310-30,INSIZE | اینسایز,INSIZE,UNKNOWN_DATE,AVAILABLE,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3620,2313-1,INSIZE | اینسایز,INSIZE,UNKNOWN_DATE,AVAILABLE,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+3763,2383-08,INSIZE | اینسایز,INSIZE,UNKNOWN_DATE,AVAILABLE,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4140,5042,INSIZE | اینسایز,INSIZE,UNKNOWN_DATE,AVAILABLE,insize.distributor.11shahrivar.65a92337,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4185,SO-13637,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4186,SO-13638,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4187,SO-13639,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4251,SO-13605,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4252,SO-13606,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4253,SO-13607,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4254,SO-13608,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4255,SO-13609,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4256,SO-13610,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4258,SO-13613,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4259,SO-13612,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4261,SO-13615,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4263,SO-13617,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4303,SO-13569,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4304,SO-13570,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4422,SO-13619,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4427,SO-13624,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4428,SO-13625,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4429,SO-13626,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4432,SO-13630,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4433,SO-13631,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4457,SO-13633,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4458,SO-13634,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4459,SO-13635,SAN OU | سانو,SAN_OU,PRICE_ONLY,UNKNOWN,sanou.price_list_2026-07-25,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4474,CDA100-300,TERMA | ترما,TERMA,TERMA_UNRESOLVED_EXCLUSION,UNAVAILABLE,terma.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4480,YDA100F-300,TERMA | ترما,TERMA,STATUS:UNKNOWN;UNKNOWN_DATE,UNKNOWN,terma.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4619,MA250H-200,TERMA | ترما,TERMA,TERMA_UNRESOLVED_EXCLUSION,UNAVAILABLE,terma.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+4625,MD710-25,TERMA | ترما,TERMA,TERMA_UNRESOLVED_EXCLUSION,UNAVAILABLE,terma.google_drive_inventory_list,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5880,2A-S5,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5881,2A-S7,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5882,2A-S8,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5883,2A-S10,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5884,2A-S12,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5885,2A-S16,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5886,3A-S5,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5887,3A-S7,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5888,3A-S10,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5889,3A-S12,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5890,3A-S16,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5891,33A-S5,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5892,33A-S7,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5893,33A-S10,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5894,33A-S12,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5895,33A-S16,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5896,4A-S5,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5897,4A-S7,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5898,4A-S10,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5899,4A-S12,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+5900,4A-S16,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6134,AST-BS1-8,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6137,AST-HV-6,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6139,AST-HV-10,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6141,AST-HV-14,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6143,AST-HV-20,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6144,AST-CS-6,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6151,AST-RAP6,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6153,AST-RAP10,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6155,AST-RAP14,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6532,SDC-DR230,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6533,CBN-DR230,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6534,CBN-DR313,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date
+6535,SDC-DR313,ASTPOWER | ای اس تی پاور,ASTPOWER,NO_SOURCE_FOUND,UNKNOWN,,fresh supplier stock export with manufacturer code + موجود/ناموجود or sellable qty + proven source_date

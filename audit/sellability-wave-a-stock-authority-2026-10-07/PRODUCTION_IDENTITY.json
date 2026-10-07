@@ -1,0 +1,23 @@
+{
+  "snapshot_utc": "2026-10-07T12:26:26Z",
+  "transaction_read_only": "on",
+  "database": "karzar_staging",
+  "db_user": "karzar_staging",
+  "alembic": "u4v5w6x7y8z9",
+  "host_expected": "srv5944957438",
+  "host": "srv5944957438",
+  "db_container": "lathe_postgres",
+  "api_container": "lathe_api",
+  "database_volume": "karzar_postgres_data",
+  "APP_ENV": "staging",
+  "origin_main": "1451b8e42406ba93704a891f5edde74f370a5497",
+  "branch": "audit/sellability-wave-a-stock-authority",
+  "HESABFA_STOCK_SEMANTICS": "UNPROVEN",
+  "mutation": {
+    "PRODUCTION_MUTATION": "NO",
+    "DATABASE_MUTATION": "NO",
+    "HESABFA_MUTATION": "NO",
+    "DEPLOYMENT": "NO",
+    "AVAILABILITY_APPLY": "NO"
+  }
+}
