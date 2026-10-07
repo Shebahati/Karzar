@@ -1,9 +1,9 @@
 {
   "phase": "3B2",
   "status": "READY_FOR_PHASE_3B3",
-  "generated_at_utc": "2026-10-07T08:54:15Z",
-  "logic_git_sha": "56bc64ce04c34057438f321f29984e59aa208c53",
-  "authoritative_replay_logic_sha": "56bc64ce04c34057438f321f29984e59aa208c53",
+  "generated_at_utc": "2026-10-07T08:59:12Z",
+  "logic_git_sha": "8a44b4afcefd858d087ca02b15f6be0213c92e11",
+  "authoritative_replay_logic_sha": "8a44b4afcefd858d087ca02b15f6be0213c92e11",
   "logic_committed_before_authoritative_replay": true,
   "owner_decision_sha256": "9fd833b764338786a44bcee2960dc0c5c4bd633b9188a08509d5a1479881919a",
   "source_phase3b1_merge_sha": "a8a75026a26ec528fc102c40333b1327c73962eb",
