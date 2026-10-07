@@ -13,6 +13,10 @@ import {
   getPendingInquiry,
   pendingInquiryToCartLines,
 } from "@/lib/inquiry-pending";
+import {
+  captureVerifiedCustomerSessionFence,
+  isCustomerSessionFenceCurrent,
+} from "@/lib/customer-session";
 import { useCartStore } from "@/store/cart-store";
 import { guestSchema, phoneSchema, type GuestValues } from "@/lib/validation";
 import { OTP_LENGTH } from "@/lib/otp";
@@ -66,18 +70,35 @@ export function AuthStep({
       try {
         const pending = getPendingInquiry(normalizedPhone);
         if (pending) {
-          const products = await catalogService.getProductsByIds(
-            pending.lines.map((l) => l.product_id),
-          );
-          const restored = pendingInquiryToCartLines(pending, products);
-          if (restored.length) {
-            useCartStore.getState().restoreQuote(restored);
-            sessionStorage.setItem("karzar.inquiry.restored", "1");
+          // Fence must be captured before the catalog await — late completion
+          // must not restore into B/guest after A is invalidated (F03).
+          const restoreFence = captureVerifiedCustomerSessionFence();
+          if (!restoreFence) {
+            // No verified owner → do not start restore or clear pending inquiry.
+          } else {
+            const products = await catalogService.getProductsByIds(
+              pending.lines.map((l) => l.product_id),
+            );
+            if (!isCustomerSessionFenceCurrent(restoreFence)) {
+              // Stale: do not claim restore, do not destroy A's pending inquiry.
+            } else {
+              const restored = pendingInquiryToCartLines(pending, products);
+              if (restored.length) {
+                const wrote = useCartStore
+                  .getState()
+                  .restoreQuote(restored, restoreFence);
+                if (wrote) {
+                  sessionStorage.setItem("karzar.inquiry.restored", "1");
+                  clearPendingInquiry(normalizedPhone);
+                }
+              } else if (isCustomerSessionFenceCurrent(restoreFence)) {
+                clearPendingInquiry(normalizedPhone);
+              }
+            }
           }
-          clearPendingInquiry(normalizedPhone);
         }
       } catch {
-        /* restore is best-effort */
+        /* restore is best-effort; stale/error must not clear pending inquiry */
       }
 
       window.dispatchEvent(new Event("karzar-auth-change"));

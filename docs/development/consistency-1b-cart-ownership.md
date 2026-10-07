@@ -19,12 +19,20 @@ Non-binding evidence for audit finding F03 only. Does not change Accepted Canon.
 
 ## Guest → customer transfer
 
-1. Capture guest stash attributed to G (must match the current guest token).
+1. Capture guest stash attributed to G (must match the current guest token) **before** awaits.
 2. Authenticate verified customer A (`getVerifiedCustomerId()` / Consistency 1A fence).
 3. `POST /cart/merge` with exact G.
-4. Only local-only lines proven under G participate in transfer.
-5. Active attribution becomes customer A; guest token cleared after successful merge.
-6. Same-owner reconcile follows under A.
+4. After each await, re-check session fence + source provenance still G (or mid-transfer A).
+5. Only local-only lines proven under G participate in transfer.
+6. Guest token retirement uses `clearCartTokenIfMatches(G)` — never clears a newer G2.
+7. Same-owner reconcile runs only while the transfer authorization remains current.
+8. A stale server-side merge for A is not locally compensated (not F04); local publication/upsert under a newer owner is refused.
+
+## Pending inquiry restore
+
+- `AuthStep` captures a verified-customer fence **before** `getProductsByIds`.
+- `restoreQuote(lines, fence)` is store-gated: stale fence / foreign customer stash → no write.
+- On stale completion: do not set `karzar.inquiry.restored`, do not `clearPendingInquiry`.
 
 ## Customer → customer switch (A → logout → B)
 

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  captureVerifiedCustomerSessionFence,
   establishVerifiedCustomer,
   invalidateCustomerSession,
   resetCustomerSessionStateForTests,
@@ -7,6 +8,7 @@ import {
 import {
   apiClient,
   clearCartToken,
+  clearCartTokenIfMatches,
   getCartToken,
   getOrCreateCartToken,
 } from "@/lib/api-client";
@@ -437,5 +439,95 @@ describe("F03 cart ownership", () => {
       guestToken: token,
     });
     expect(upsert.mock.calls.every((c) => c[0] === "purchase" || c[0] === "inquiry")).toBe(true);
+  });
+
+  it("T14: late G1→A merge cannot clear G2 or publish under newer owner", async () => {
+    const G1 = "1".repeat(32);
+    const G2 = "2".repeat(32);
+    seedGuestCart(G1, [{ product: product(51), quantity: 2 }]);
+
+    let releaseMerge!: () => void;
+    const mergeGate = new Promise<void>((resolve) => {
+      releaseMerge = resolve;
+    });
+    const merge = vi.spyOn(cartService, "merge").mockImplementation(async () => {
+      await mergeGate;
+      return [];
+    });
+    const upsert = vi.spyOn(cartService, "upsertItem").mockResolvedValue(emptyCart("purchase"));
+    vi.spyOn(cartService, "get").mockImplementation(async (lane = "purchase") => emptyCart(lane));
+
+    establishVerifiedCustomer(1, "otp");
+    const pending = useCartStore.getState().transferGuestCartToCustomer(G1, 1);
+
+    invalidateCustomerSession("guest");
+    useCartStore.getState().hidePublishedCart();
+    // Newer guest scope G2 (post-logout shopping).
+    localStorage.setItem("karzar.storefront.cart_token", G2);
+    useCartStore.setState({
+      stash: {
+        attribution: { kind: "guest", guestToken: G2 },
+        cart: [{ product: product(10), quantity: 1 }],
+        quote: [],
+      },
+      cart: [{ product: product(10), quantity: 1 }],
+      quote: [],
+      lastSyncError: null,
+    });
+
+    releaseMerge();
+    const late = await pending;
+    expect(late.ok).toBe(false);
+    expect(merge).toHaveBeenCalledWith(G1);
+    expect(getCartToken()).toBe(G2);
+    expect(useCartStore.getState().stash?.attribution).toEqual({
+      kind: "guest",
+      guestToken: G2,
+    });
+    expect(useCartStore.getState().cart.some((l) => l.product.id === 51)).toBe(false);
+    expect(useCartStore.getState().cart.some((l) => l.product.id === 10)).toBe(true);
+    expect(upsert).not.toHaveBeenCalledWith("purchase", 51, 2);
+  });
+
+  it("T15: clearCartTokenIfMatches retires only the expected token", () => {
+    const G1 = "a".repeat(32);
+    const G2 = "b".repeat(32);
+    localStorage.setItem("karzar.storefront.cart_token", G2);
+    expect(clearCartTokenIfMatches(G1)).toBe(false);
+    expect(getCartToken()).toBe(G2);
+
+    localStorage.setItem("karzar.storefront.cart_token", G1);
+    expect(clearCartTokenIfMatches(G1)).toBe(true);
+    expect(getCartToken()).toBeNull();
+  });
+
+  it("T13-store: restoreQuote rejects stale fence and foreign customer stash", () => {
+    establishVerifiedCustomer(1, "otp");
+    const fenceA = captureVerifiedCustomerSessionFence();
+    expect(fenceA).not.toBeNull();
+
+    invalidateCustomerSession("guest");
+    establishVerifiedCustomer(2, "otp");
+    useCartStore.setState({
+      stash: {
+        attribution: { kind: "customer", customerId: 2 },
+        cart: [],
+        quote: [],
+      },
+      cart: [],
+      quote: [],
+      lastSyncError: null,
+    });
+
+    const wrote = useCartStore.getState().restoreQuote(
+      [{ product: product(51, null), quantity: 2 }],
+      fenceA!,
+    );
+    expect(wrote).toBe(false);
+    expect(useCartStore.getState().quote).toHaveLength(0);
+    expect(useCartStore.getState().stash?.attribution).toEqual({
+      kind: "customer",
+      customerId: 2,
+    });
   });
 });

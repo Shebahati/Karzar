@@ -12,7 +12,11 @@ import {
   isCustomerSessionFenceCurrent,
   type CustomerSessionFence,
 } from "@/lib/customer-session";
-import { clearCartToken, getCartToken, getOrCreateCartToken } from "@/lib/api-client";
+import {
+  clearCartTokenIfMatches,
+  getCartToken,
+  getOrCreateCartToken,
+} from "@/lib/api-client";
 
 export interface CartLine {
   product: ProductSummary;
@@ -62,7 +66,11 @@ interface CartState {
   setQuoteQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
   clearQuote: () => void;
-  restoreQuote: (lines: CartLine[]) => void;
+  /**
+   * Restore inquiry lines under a captured verified-customer fence.
+   * Returns false (no write) when the fence is stale or owner mismatched.
+   */
+  restoreQuote: (lines: CartLine[], fence: CustomerSessionFence) => boolean;
   clearSyncError: () => void;
   /** Hide published lines without server mutations or relabeling attribution. */
   hidePublishedCart: () => void;
@@ -528,13 +536,33 @@ export const useCartStore = create<CartState>()(
         void clearServerCart("inquiry");
       },
 
-      restoreQuote: (lines) => {
-        const attribution = ensureMutationAttribution();
-        if (!attribution) return;
+      restoreQuote: (lines, fence) => {
+        // Store-level ownership gate — callers must pass the fence captured
+        // before any await that produced `lines`. Reading the current verified
+        // id alone is insufficient after an async boundary.
+        if (!isCustomerSessionFenceCurrent(fence)) return false;
+        const verified = getVerifiedCustomerId();
+        if (verified == null || verified !== fence.ownerId) return false;
+
+        const stash = get().stash;
+        // Never inject into a foreign customer stash.
+        if (
+          stash?.attribution.kind === "customer" &&
+          stash.attribution.customerId !== fence.ownerId
+        ) {
+          return false;
+        }
+
+        const attribution: CartAttribution = {
+          kind: "customer",
+          customerId: fence.ownerId,
+        };
         set((s) => ({
           quote: lines,
           stash: writeStash(attribution, s.cart, lines),
+          lastSyncError: null,
         }));
+        return true;
       },
 
       clearSyncError: () => set({ lastSyncError: null }),
@@ -599,20 +627,6 @@ export const useCartStore = create<CartState>()(
         if (!guestToken || guestToken.length < 32) {
           return { ok: false, error: SYNC_ERROR_MESSAGE, mergeFailed: true };
         }
-        if (env.USE_MOCK) {
-          const attr: CartAttribution = { kind: "customer", customerId };
-          const stash = get().stash;
-          const cart =
-            stash?.attribution.kind === "guest" && stash.attribution.guestToken === guestToken
-              ? stash.cart
-              : [];
-          const quote =
-            stash?.attribution.kind === "guest" && stash.attribution.guestToken === guestToken
-              ? stash.quote
-              : [];
-          applyPublishedAndStash(attr, cart, quote, null);
-          return { ok: true };
-        }
 
         const session = captureVerifiedCustomerSessionFence();
         if (!session || session.ownerId !== customerId) {
@@ -624,37 +638,105 @@ export const useCartStore = create<CartState>()(
           stash?.attribution.kind === "guest" && stash.attribution.guestToken === guestToken
             ? stash
             : null;
+        if (!guestOwned) {
+          // Authorization requires source provenance still be exact guest G.
+          return { ok: false, error: SYNC_ERROR_MESSAGE, mergeFailed: true };
+        }
 
-        // Capture guest-local lines before merge/token clear.
-        const guestLocalCart = guestOwned?.cart ?? [];
-        const guestLocalQuote = guestOwned?.quote ?? [];
+        // Capture authorized transfer candidate before awaits can reclassify it.
+        const authz = {
+          guestToken,
+          customerId,
+          session,
+          guestLocalCart: guestOwned.cart,
+          guestLocalQuote: guestOwned.quote,
+        };
 
-        try {
-          await cartService.merge(guestToken);
-          if (!isCustomerSessionFenceCurrent(session)) {
+        const sourceStillAuthorized = (): boolean => {
+          if (!isCustomerSessionFenceCurrent(authz.session)) return false;
+          if (getVerifiedCustomerId() !== authz.customerId) return false;
+          const current = get().stash;
+          // Source G may still be present, or we may already be mid-transfer as customer A.
+          if (
+            current?.attribution.kind === "guest" &&
+            current.attribution.guestToken === authz.guestToken
+          ) {
+            return true;
+          }
+          if (
+            current?.attribution.kind === "customer" &&
+            current.attribution.customerId === authz.customerId
+          ) {
+            return true;
+          }
+          // Replaced by G2 / foreign customer — refuse local publication.
+          return false;
+        };
+
+        if (env.USE_MOCK) {
+          if (!sourceStillAuthorized()) {
             return { ok: false, error: "CART_STALE_OWNER" };
           }
-          clearCartToken();
+          clearCartTokenIfMatches(authz.guestToken);
+          if (!sourceStillAuthorized()) {
+            return { ok: false, error: "CART_STALE_OWNER" };
+          }
+          const attr: CartAttribution = { kind: "customer", customerId: authz.customerId };
+          applyPublishedAndStash(attr, authz.guestLocalCart, authz.guestLocalQuote, null);
+          return { ok: true };
+        }
 
-          const attr: CartAttribution = { kind: "customer", customerId };
-          // Temporarily park transferred guest-local lines under customer for same-owner reconcile.
+        try {
+          await cartService.merge(authz.guestToken);
+          // Stale server merge for A is not locally reversible (not F04). Refuse local side effects.
+          if (!sourceStillAuthorized()) {
+            return { ok: false, error: "CART_STALE_OWNER" };
+          }
+          clearCartTokenIfMatches(authz.guestToken);
+          if (!sourceStillAuthorized()) {
+            return { ok: false, error: "CART_STALE_OWNER" };
+          }
+
+          const attr: CartAttribution = { kind: "customer", customerId: authz.customerId };
           set({
-            stash: writeStash(attr, guestLocalCart, guestLocalQuote),
-            cart: guestLocalCart,
-            quote: guestLocalQuote,
+            stash: writeStash(attr, authz.guestLocalCart, authz.guestLocalQuote),
+            cart: authz.guestLocalCart,
+            quote: authz.guestLocalQuote,
           });
 
+          if (!sourceStillAuthorized()) {
+            // Do not start reconcile that could upsert under a newer owner.
+            set({ cart: [], quote: [] });
+            return { ok: false, error: "CART_STALE_OWNER" };
+          }
+
           const result = await get().reconcileSameOwnerFromServer();
-          if (!isCustomerSessionFenceCurrent(session)) {
+          if (!sourceStillAuthorized()) {
+            set({ cart: [], quote: [] });
             return { ok: false, error: "CART_STALE_OWNER" };
           }
           return result;
         } catch {
-          if (isCustomerSessionFenceCurrent(session)) {
+          if (isCustomerSessionFenceCurrent(authz.session)) {
             // Do not relabel guest lines as customer on merge failure.
-            if (guestOwned) {
+            const current = get().stash;
+            if (
+              current?.attribution.kind === "guest" &&
+              current.attribution.guestToken === authz.guestToken
+            ) {
               set({
-                stash: guestOwned,
+                stash: current,
+                cart: [],
+                quote: [],
+                lastSyncError: "همگام‌سازی سبد با سرور ناموفق بود. سبد محلی حفظ شد.",
+              });
+            } else if (!current) {
+              set({
+                stash: {
+                  attribution: { kind: "guest", guestToken: authz.guestToken },
+                  cart: authz.guestLocalCart,
+                  quote: authz.guestLocalQuote,
+                },
                 cart: [],
                 quote: [],
                 lastSyncError: "همگام‌سازی سبد با سرور ناموفق بود. سبد محلی حفظ شد.",

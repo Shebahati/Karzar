@@ -141,6 +141,19 @@ export function clearCartToken(): void {
   window.localStorage.removeItem(CART_TOKEN_KEY);
 }
 
+/**
+ * Retire a guest cart token only when storage still holds that exact token.
+ * Prevents a stale G1→customer merge completion from clearing a newer G2.
+ */
+export function clearCartTokenIfMatches(expectedGuestToken: string): boolean {
+  if (typeof window === "undefined") return false;
+  if (!expectedGuestToken || expectedGuestToken.length < 32) return false;
+  const current = window.localStorage.getItem(CART_TOKEN_KEY);
+  if (current !== expectedGuestToken) return false;
+  window.localStorage.removeItem(CART_TOKEN_KEY);
+  return true;
+}
+
 export const tokenStorage = {
   getExpiresAt(): number | null {
     if (typeof window === "undefined") return null;
