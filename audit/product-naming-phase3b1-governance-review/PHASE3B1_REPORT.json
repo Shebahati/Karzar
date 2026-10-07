@@ -1,0 +1,185 @@
+{
+  "phase": "3B1",
+  "status": "READY_FOR_OWNER_POLICY_DECISION",
+  "generated_at_utc": "2026-10-07T07:50:12Z",
+  "logic_git_sha": "c73899eff625cb171a2754a856467ebc3a81b57a",
+  "scope": {
+    "wave_3b_rows": 132,
+    "naming_policy_rows": 101,
+    "variant_policy_rows": 31,
+    "phase2f_intersection": 0
+  },
+  "group_breakdown": {
+    "GEN_CALIPER": 65,
+    "BORE_GAUGE": 16,
+    "DIVIDER": 9,
+    "TAPER_GAUGE": 9,
+    "STRAIGHT_EDGE": 1,
+    "OPTICAL_EDGE_FINDER": 1,
+    "LEVEL": 16,
+    "DIGITAL_LEVEL": 3,
+    "SURFACE_PLATE": 6,
+    "PRECISION_VISE": 3,
+    "V_BLOCK": 3
+  },
+  "semantic_homogeneity": {
+    "verdicts": {
+      "HOMOGENEOUS_WITH_IDENTITY_QUALIFIERS": 1,
+      "REQUIRES_PT_REASSIGNMENT": 1,
+      "REQUIRES_PT_SPLIT": 3,
+      "REQUIRES_SOURCE_EVIDENCE": 3,
+      "OWNER_SEMANTIC_DECISION": 2,
+      "SEMANTICALLY_HOMOGENEOUS": 1
+    },
+    "safe_homogeneous_groups": [
+      "SURFACE_PLATE"
+    ],
+    "groups_needing_pt_split": [
+      "DIVIDER",
+      "TAPER_GAUGE",
+      "LEVEL"
+    ],
+    "groups_needing_pt_reassignment": [
+      "BORE_GAUGE"
+    ],
+    "groups_needing_source_evidence": [
+      "STRAIGHT_EDGE",
+      "OPTICAL_EDGE_FINDER",
+      "V_BLOCK"
+    ],
+    "owner_semantic_groups": [
+      "GEN_CALIPER",
+      "DIGITAL_LEVEL",
+      "PRECISION_VISE"
+    ]
+  },
+  "gen_caliper": {
+    "rows": 65,
+    "verdict": "HOMOGENEOUS_WITH_IDENTITY_QUALIFIERS",
+    "subfamilies": "LONG_JAW_CALIPER:22;DIGITAL_CALIPER:21;VERNIER_CALIPER:12;MINI_CALIPER:3;GENERIC_CALIPER_NAME_ONLY:3;CARBIDE_TIPPED_CALIPER:2;LARGE_FACE_CALIPER:1;FRACTION_READING_CALIPER:1",
+    "safe_canonical_title": false,
+    "pt_split_required": true,
+    "next_blocker": "PRODUCT_TYPE_SPLIT"
+  },
+  "bore_gauge": {
+    "rows": 16,
+    "verdict": "REQUIRES_PT_REASSIGNMENT",
+    "subfamilies": "CYLINDER_BORE_GAUGE:7;DIAL_BORE_GAUGE:6;DIGITAL_BORE_GAUGE:2;THREE_POINT_INTERNAL_MICROMETER:1",
+    "misassigned_rows": [
+      "3127-300"
+    ],
+    "safe_canonical_title": false,
+    "next_blocker": "PRODUCT_TYPE_REVIEW"
+  },
+  "optical_edge_finder": {
+    "manufacturer_code": "6566-2",
+    "historical_name": "مرکزیاب نوری اینسایز (Insize) مدل 2-6566",
+    "oem_evidence_status": "INSUFFICIENT",
+    "oem_heading": "",
+    "recommended_persian_title": "",
+    "direct_unlock_retained": false,
+    "result": "DOWNGRADED_TO_SOURCE_EVIDENCE_REQUIRED"
+  },
+  "taper_gauge": {
+    "verdict": "REQUIRES_PT_SPLIT",
+    "family_lists": {
+      "GAP_OR_TAPER_GAUGE": [
+        "4833-1",
+        "4833-2",
+        "4833-3",
+        "4833-4"
+      ],
+      "TAPER_GAUGE_SET": [
+        "4829-1",
+        "4837-1"
+      ],
+      "TAPER_BORE_GAUGE": [
+        "4852-15",
+        "4852-30",
+        "4852-3"
+      ]
+    }
+  },
+  "simulations": {
+    "BASELINE": {
+      "mode": "BASELINE",
+      "counts": {
+        "OWNER_DECISION_REQUIRED": 101,
+        "VARIANT_POLICY_UNDEFINED": 31
+      },
+      "new_READY": 0,
+      "moved_to_missing_variant_fact": 0,
+      "pt_review": 0,
+      "source_evidence": 0,
+      "owner_decision": 101,
+      "variant_policy_undefined": 31,
+      "new_property_required": 0,
+      "rows": 132,
+      "phase2f_identical": 47,
+      "phase2f_regression": 0,
+      "collisions": 0,
+      "reconciles_to_132": true
+    },
+    "SAFE_ONLY": {
+      "mode": "SAFE_ONLY",
+      "counts": {
+        "OWNER_DECISION_REQUIRED": 101,
+        "VARIANT_POLICY_UNDEFINED": 31
+      },
+      "new_READY": 0,
+      "moved_to_missing_variant_fact": 0,
+      "pt_review": 0,
+      "source_evidence": 0,
+      "owner_decision": 101,
+      "variant_policy_undefined": 31,
+      "new_property_required": 0,
+      "rows": 132,
+      "phase2f_identical": 47,
+      "phase2f_regression": 0,
+      "collisions": 0,
+      "reconciles_to_132": true
+    },
+    "RECOMMENDED_OWNER_OPTIONS": {
+      "mode": "RECOMMENDED",
+      "counts": {
+        "PRODUCT_TYPE_SPLIT": 83,
+        "PRODUCT_TYPE_REVIEW": 33,
+        "SOURCE_EVIDENCE_REQUIRED": 8,
+        "MISSING_VARIANT_FACT": 2,
+        "NEW_PROPERTY_REQUIRED": 6
+      },
+      "new_READY": 0,
+      "moved_to_missing_variant_fact": 2,
+      "pt_review": 116,
+      "source_evidence": 8,
+      "owner_decision": 0,
+      "variant_policy_undefined": 0,
+      "new_property_required": 6,
+      "rows": 132,
+      "phase2f_identical": 47,
+      "phase2f_regression": 0,
+      "collisions": 0,
+      "reconciles_to_132": true
+    }
+  },
+  "wave3c_expansion": {
+    "existing_wave3c_rows": 58,
+    "new_rows_entering_variant_fact_from_3b": 2,
+    "deduplicated_future_variant_fact_total": 60
+  },
+  "owner_decisions": 11,
+  "safe_recommendations": 0,
+  "read_only_proof": {
+    "db_mutations": 0,
+    "product_mutations": 0,
+    "product_type_mutations": 0,
+    "kb_mutations": 0,
+    "authoritative_policy_mutations": 0,
+    "oem_authority_mutations": 0,
+    "phase2f_mutations": 0,
+    "deploy": false,
+    "mutation_capable_sql_executed": 0,
+    "authoritative_policy_path": "docs/architecture/specs/product-naming-v1/PRODUCT_TYPE_CANONICAL_NAMING_POLICY.csv",
+    "authoritative_policy_sha256": "eedce0138018d06373382d7b98c0cc1b11d9084f68998224abd90b286adfa06b"
+  }
+}

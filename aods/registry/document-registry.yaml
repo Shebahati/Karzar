@@ -1324,6 +1324,27 @@ documents:
     notes: >
       Phase 3A owner decision options for title/multi-function/variant-policy HOLDs. No mutations.
 
+  - id: PRODUCT-NAMING-V1-PHASE-3B1-EXECUTIVE-SUMMARY
+    path: audit/product-naming-phase3b1-governance-review/PHASE3B1_EXECUTIVE_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3b1-governance-review
+    notes: >
+      Phase 3B1 read-only Wave 3B governance safety review executive summary (132 rows).
+      Proposal only; no Product.name / ProductType / KB / authoritative policy mutation.
+
+  - id: PRODUCT-NAMING-V1-PHASE-3B1-OWNER-DECISION-PACK
+    path: audit/product-naming-phase3b1-governance-review/PHASE3B1_OWNER_DECISION_PACK.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3b1-governance-review
+    notes: >
+      Phase 3B1 family-level owner decision pack before any Wave 3B policy apply.
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE

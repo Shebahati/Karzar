@@ -1,0 +1,6 @@
+property_code,semantic_definition,dimension,unit,formatter,source_authority,already_exists,pt_membership_exists,facts_exist,publication_required_later,applies_to,proposal_status,notes
+measurement_range,Instrument measuring span min–max,length,mm,measurement_range_mm,OEM catalog range,yes,partial,unknown,yes,GEN_CALIPER residual;BORE_GAUGE residual,EXISTING,Valid only for true measuring range — not body length/plate/vise
+body_length,Physical body/frame length of level or spring caliper,length,mm,body_length_mm,OEM catalog body length,no,no,no,yes,LEVEL residual;DIGITAL_LEVEL;DIVIDER after split,NEW_PROPERTY_REQUIRED,Must not be aliased to measurement_range
+plate_dimensions,Surface plate length × width × thickness,length_width_thickness,mm,plate_lwt_mm,OEM granite surface plate tables,no,no,no,yes,SURFACE_PLATE,NEW_PROPERTY_REQUIRED,Multi-dimensional; scalar measurement_range forbidden
+jaw_opening_capacity,Maximum jaw opening of precision vise,length,mm,jaw_opening_mm,OEM precision vise table (pending exact page),no,no,no,yes,PRECISION_VISE,NEW_PROPERTY_REQUIRED,Confirm vs jaw_width before apply; SKU pattern not authority
+block_dimensions,V-block overall L×W×H,length_width_height,mm,block_lwh_mm,OEM V-block table (pending),no,no,no,yes,V_BLOCK,NEW_PROPERTY_REQUIRED,Alternative diameter-range only if OEM proves buyer selects that way

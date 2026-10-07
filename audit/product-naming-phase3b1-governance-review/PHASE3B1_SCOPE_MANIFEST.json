@@ -1,0 +1,36 @@
+{
+  "phase": "3B1",
+  "wave": "WAVE_3B_GOVERNANCE_QUICK_WINS",
+  "generated_at_utc": "2026-10-07T07:50:12Z",
+  "logic_git_sha": "c73899eff625cb171a2754a856467ebc3a81b57a",
+  "wave_3b_rows": 132,
+  "naming_policy_rows": 101,
+  "variant_policy_rows": 31,
+  "phase2f_intersection": 0,
+  "expected": {
+    "wave_3b_rows": 132,
+    "naming_policy_rows": 101,
+    "variant_policy_rows": 31,
+    "phase2f_applied": 47
+  },
+  "group_counts": {
+    "GEN_CALIPER": 65,
+    "BORE_GAUGE": 16,
+    "STRAIGHT_EDGE": 1,
+    "LEVEL": 16,
+    "DIGITAL_LEVEL": 3,
+    "PRECISION_VISE": 3,
+    "V_BLOCK": 3,
+    "SURFACE_PLATE": 6,
+    "DIVIDER": 9,
+    "TAPER_GAUGE": 9,
+    "OPTICAL_EDGE_FINDER": 1
+  },
+  "matrix_sha256": "8ce12e4f9e0516e709092676bb2557837bb18677ee388c00a9e6261a83910857",
+  "policy_sha256_at_review": "eedce0138018d06373382d7b98c0cc1b11d9084f68998224abd90b286adfa06b",
+  "candidates_sha256": "25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff",
+  "oem_registry_sha256": "c609c78553a9962e1c409e30efd2e3f68bddf093f9f3db836bc64bdb31a19fc4",
+  "authoritative_policy_mutated": false,
+  "mutation_capable_sql_executed": 0,
+  "deploy": false
+}

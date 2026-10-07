@@ -1,0 +1,6 @@
+product_type_code,rows,verdict,proposed_variant_property,dimension,unit,formatter,measurement_range_forbidden_reason,proposal_status,owner_decision_id,notes
+LEVEL,16,REQUIRES_PT_SPLIT,body_length,length,mm,body_length_mm,body_length_not_range,REQUIRES_PT_SPLIT,D-LEVEL-01,body_length ≠ measurement_range; reassign first
+DIGITAL_LEVEL,3,OWNER_SEMANTIC_DECISION,body_length,length,mm,body_length_mm,body_length_not_range,OWNER_DECISION,D-DLEVEL-01,NEW_PROPERTY body_length if absent from KB
+SURFACE_PLATE,6,SEMANTICALLY_HOMOGENEOUS,plate_dimensions,length_width_thickness,mm,plate_lwt_mm,multi_dimensional,NEW_PROPERTY_REQUIRED,D-PLATE-01,Do not force scalar measurement_range
+PRECISION_VISE,3,OWNER_SEMANTIC_DECISION,jaw_opening_capacity,length,mm,jaw_opening_mm,unconfirmed_dimension,REQUIRES_SOURCE_EVIDENCE,D-VISE-01,Confirm jaw opening vs jaw width from catalog
+V_BLOCK,3,REQUIRES_SOURCE_EVIDENCE,block_dimensions,length_width_height,mm,block_lwh_mm,multi_dimensional,REQUIRES_SOURCE_EVIDENCE,D-VBLOCK-01,Hold 6890-702 separately
