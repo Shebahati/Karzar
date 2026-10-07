@@ -1,0 +1,7 @@
+brand,supplier_source_owner,required_source,required_fields,affected_products,potential_sellable_gain,current_best_source,current_best_source_date,blocker,priority
+INSIZE,INSIZE distributor / Owner,Fresh inventory export with proven source_date (calendar year),manufacturer CODE + وضعیت(موجود/ناموجود) or sellable qty + explicit source_date,476,up to +476 if AVAILABLE,موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx (SHA 65a92337…),UNPROVEN,SOURCE_YEAR_UNPROVEN / freshness UNKNOWN,1
+ASTPOWER,AST Power / Azar Sanat,Supplier stock/inventory list (not price PDF),exact SKU/mfr + availability or sellable qty + source_date,53,up to +53,DOCS/Price/AST-Power/*.pdf (PRICE_ONLY),2026-07-25 receive label,NO_STOCK_AUTHORITY,2
+SAN_OU,San-Ou supplier,Stock/inventory authority separate from price list,exact identity + stock status/qty + source_date,24,up to +24,2026-07-25_San-Ou_Price-List.pdf,2026-07-25 (price file),PRICE_ONLY,3
+DASQUA,Dasqua distributor,Fresh inventory list (adapter semantics OK; current PDF STALE),exact codes + inventory semantics + source_date ≤14d for strict,22,up to +22,لیست قیمت داسکوا +10 درصد.pdf,2026-05-02,STALE_SOURCE (>45d),4
+TERMA,Terma distributor,Fresh inventory list with proven source_date,exact codes + adapter semantics + source_date; keep exclusions,4,up to +1..4 after exclusions,لیست قیمت ترما +25درصد.pdf,UNPROVEN,UNKNOWN_DATE,5
+MITUTOYO,Mitutoyo supplier channel,Supplier inventory authority,exact SKU + stock status + source_date,1,up to +1,کاتالوگ میتوتویو.pdf,,CATALOG_ONLY,6

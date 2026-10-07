@@ -1903,3 +1903,63 @@ documents:
     notes: >
       Designed remediation waves only; does not authorize APPLY.
 
+  - id: SELLABILITY-WAVE-A-STOCK-AUTHORITY-20261007
+    path: audit/sellability-wave-a-stock-authority-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-wave-a-stock-authority
+    notes: >
+      Read-only Wave A stock-authority candidate construction for the frozen
+      580 CURRENT_ONLY_AVAILABILITY cohort. APPLY AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE-A-FINAL-20261007
+    path: audit/sellability-wave-a-stock-authority-2026-10-07/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-wave-a-stock-authority
+    notes: >
+      Wave A final report. STRICT_AVAILABLE_CANDIDATES=0; APPLY AUTHORIZED=NO.
+
+  - id: SELLABILITY-WAVE-A-INSIZE-20261007
+    path: audit/sellability-wave-a-stock-authority-2026-10-07/INSIZE_WAVE_A_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-wave-a-stock-authority
+    notes: >
+      INSIZE deep summary for Wave A (year UNPROVEN; strict=0).
+
+  - id: SELLABILITY-WAVE-A-HESABFA-20261007
+    path: audit/sellability-wave-a-stock-authority-2026-10-07/HESABFA_STOCK_SEMANTICS.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-wave-a-stock-authority
+    notes: >
+      Hesabfa stock semantics remain UNPROVEN; not availability authority.
+
+  - id: SELLABILITY-WAVE-A-PLUS100-20261007
+    path: audit/sellability-wave-a-stock-authority-2026-10-07/FASTEST_PLUS_100.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-wave-a-stock-authority
+    notes: >
+      Fastest +100 analysis; strict candidates 0.
+
+  - id: SELLABILITY-WAVE-A-PLUS500-20261007
+    path: audit/sellability-wave-a-stock-authority-2026-10-07/FASTEST_PLUS_500.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-wave-a-stock-authority
+    notes: >
+      Fastest +500 analysis; strict candidates 0.
