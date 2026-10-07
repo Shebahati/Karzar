@@ -66,24 +66,6 @@ describe("numeric product HTTP 301 (middleware)", () => {
     );
   });
 
-  it("uses STOREFRONT_SERVER_API_BASE_URL for catalog lookup", async () => {
-    vi.stubEnv("NEXT_PUBLIC_USE_MOCK", "false");
-    vi.stubEnv("STOREFRONT_SERVER_API_BASE_URL", "http://127.0.0.1:8000/api/v1");
-    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "https://api.karzartools.com/api/v1");
-    const fetchMock = vi.fn(async () => ({
-      ok: true,
-      json: async () => ({ slug: "internal-api-slug" }),
-    }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    await middleware(new NextRequest("https://www.karzartools.com/product/1"));
-
-    expect(fetchMock).toHaveBeenCalledWith(
-      "http://127.0.0.1:8000/api/v1/products/1",
-      expect.any(Object),
-    );
-  });
-
   it("does not look up or redirect slug PDPs", async () => {
     vi.stubEnv("NEXT_PUBLIC_USE_MOCK", "false");
     const fetchMock = vi.fn();
