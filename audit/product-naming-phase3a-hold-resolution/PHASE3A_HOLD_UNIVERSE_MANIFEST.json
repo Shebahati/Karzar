@@ -4,7 +4,10 @@
   "candidate_sha256": "25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff",
   "applied_intersection": 0,
   "unique_product_ids": 1303,
-  "generated_at_utc": "2026-10-06T14:08:59.699206+00:00",
-  "logic_git_sha": "90af8b9eabf1a5422e67fa13970264f9f58e245b",
-  "read_only": true
+  "generated_at_utc": "2026-10-07T06:47:32.899701+00:00",
+  "logic_git_sha": "10ae85128e47ddfb2c11ddb6288c6ddafd7899d7",
+  "read_only": true,
+  "original_logic_commit": "c3de13de5de2c5b6fc8d5e8a8382dc09dbdd096c",
+  "authoritative_replay_logic_sha": "10ae85128e47ddfb2c11ddb6288c6ddafd7899d7",
+  "logic_byte_identical_since_original_commit": true
 }

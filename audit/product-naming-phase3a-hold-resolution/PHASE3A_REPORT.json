@@ -1,7 +1,7 @@
 {
   "status": "READY_FOR_WAVE_3B",
-  "generated_at_utc": "2026-10-06T14:09:00.015972+00:00",
-  "logic_git_sha": "90af8b9eabf1a5422e67fa13970264f9f58e245b",
+  "generated_at_utc": "2026-10-07T06:47:33.085677+00:00",
+  "logic_git_sha": "10ae85128e47ddfb2c11ddb6288c6ddafd7899d7",
   "main_note": "discovery from branch HEAD; behind-main checked at PR time",
   "holds_sha256": "f195fc04270e3d8fd1c1fc9a243688006c0d248828c5d7d627ed30b28043cf64",
   "candidate_sha256": "25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff",
@@ -153,7 +153,7 @@
     }
   ],
   "live_runtime_identity": {
-    "collected_at_utc": "2026-10-06T14:08:56.332456+00:00",
+    "collected_at_utc": "2026-10-07T06:47:29.974289+00:00",
     "collector_hostname": "hp-g2-450",
     "vps_hostname": "srv5944957438",
     "deployed_git_sha": "UNKNOWN",
@@ -211,5 +211,9 @@
       "proposal": "Primary moisture PT + secondary temperature as non-title attribute",
       "tradeoff": "Avoids title bloat; may under-represent OEM dual function in name."
     }
-  ]
+  ],
+  "original_logic_commit": "c3de13de5de2c5b6fc8d5e8a8382dc09dbdd096c",
+  "authoritative_replay_logic_sha": "10ae85128e47ddfb2c11ddb6288c6ddafd7899d7",
+  "logic_byte_identical_since_original_commit": true,
+  "provenance_note": "logic_git_sha is the authoritative replay HEAD (byte-identical Phase 3A logic). original_logic_commit introduced the logic; 90af8b9 was a prior mislabeled main base."
 }
