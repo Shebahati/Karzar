@@ -128,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     write_csv(out / "PHASE3B2_PRODUCT_TYPE_ROUTING.csv", pack["routing"])
-    write_csv(out / "PHASE3B2_NEW_PRODUCT_TYPE_PROPOSALS.csv", pack["new_pt_rows"])
+    write_csv(out / "PHASE3B2_PT_DEFINITION_PROPOSALS.csv", pack["new_pt_rows"])
     write_csv(out / "PHASE3B2_PROPERTY_DEFINITION_PROPOSALS.csv", pack["props"])
     write_csv(out / "PHASE3B2_PROPERTY_MEMBERSHIP_PLAN.csv", pack["membership"])
     write_csv(out / "PHASE3B2_SOURCE_EVIDENCE_CLOSURE.csv", pack["evidence"])

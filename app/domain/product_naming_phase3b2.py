@@ -719,20 +719,20 @@ def build_policy_delta(
 ) -> list[dict[str, str]]:
     deltas: list[dict[str, str]] = []
     # New PTs
-    for code, prop in NEW_PT_CATALOG.items():
+    for code, pt_def in NEW_PT_CATALOG.items():
         deltas.append(
             {
                 "product_type_code": code,
                 "action": "ADD",
                 "old_canonical_title_fa": "",
-                "new_canonical_title_fa": prop.persian_title,
+                "new_canonical_title_fa": pt_def.persian_title,
                 "old_variant_policy": "",
-                "new_variant_policy": prop.variant_policy_concept,
+                "new_variant_policy": pt_def.variant_policy_concept,
                 "old_primary_variant_property": "",
-                "new_primary_variant_property": prop.primary_variant_property,
+                "new_primary_variant_property": pt_def.primary_variant_property,
                 "reason": "Owner-approved new PT from Phase 3B2 routing",
-                "decision_id": prop.decision_ids,
-                "evidence_basis": prop.oem_evidence_basis,
+                "decision_id": pt_def.decision_ids,
+                "evidence_basis": pt_def.oem_evidence_basis,
             }
         )
     # Updates
@@ -837,7 +837,7 @@ def build_policy_delta(
             "HOLD",
         ),
     ]
-    for code, title, vp, prop, did, reason, action in updates:
+    for code, title, vp, variant_prop, did, reason, action in updates:
         old = policy_by_code.get(code, {})
         deltas.append(
             {
@@ -848,7 +848,7 @@ def build_policy_delta(
                 "old_variant_policy": old.get("variant_policy", ""),
                 "new_variant_policy": vp,
                 "old_primary_variant_property": old.get("primary_variant_property", ""),
-                "new_primary_variant_property": prop,
+                "new_primary_variant_property": variant_prop,
                 "reason": reason,
                 "decision_id": did,
                 "evidence_basis": "owner_freeze+OEM",
