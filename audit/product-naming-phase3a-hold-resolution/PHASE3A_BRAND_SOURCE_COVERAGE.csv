@@ -1,0 +1,4 @@
+brand,hold_rows,authoritative_local_sources,source_authority_quality,code_coverage_note,product_type_inferability,variant_fact_coverage,likely_automatic_resolution,manual_or_ambiguous,missing_source
+INSIZE,681,108A.pdf;108B.pdf;INSIZE_OEM_PRODUCT_IDENTITY_REGISTRY.csv,HIGH_STRUCTURED_OEM,Identity registry covers subset; accessory-only is common,PARTIAL,PARTIAL_FOR_READY_FAMILIES,106,143,418
+DASQUA,396,Dasqua-Catalogue-2025-mirror.pdf (external catalogs tree); no structured OEM identity registry in-repo,MEDIUM_UNSTRUCTURED_PDF,No Phase-2D OEM semantic registry coverage,LOW_WITHOUT_EXTRACTION,UNKNOWN,0,0,396
+TERMA,226,کاتالوگ ترما.pdf; price list PDF (external Product and Data Complete),MEDIUM_UNSTRUCTURED_PDF,No Phase-2D OEM semantic registry coverage,LOW_WITHOUT_EXTRACTION,UNKNOWN,0,0,226

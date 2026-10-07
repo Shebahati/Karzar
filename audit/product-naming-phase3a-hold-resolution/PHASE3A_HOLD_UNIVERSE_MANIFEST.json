@@ -1,0 +1,13 @@
+{
+  "rows": 1303,
+  "holds_sha256": "f195fc04270e3d8fd1c1fc9a243688006c0d248828c5d7d627ed30b28043cf64",
+  "candidate_sha256": "25d586e371431cc371b6ce6432abba6c2da5b1f15102cac9ed187f78ef0052ff",
+  "applied_intersection": 0,
+  "unique_product_ids": 1303,
+  "generated_at_utc": "2026-10-07T06:47:32.899701+00:00",
+  "logic_git_sha": "10ae85128e47ddfb2c11ddb6288c6ddafd7899d7",
+  "read_only": true,
+  "original_logic_commit": "c3de13de5de2c5b6fc8d5e8a8382dc09dbdd096c",
+  "authoritative_replay_logic_sha": "10ae85128e47ddfb2c11ddb6288c6ddafd7899d7",
+  "logic_byte_identical_since_original_commit": true
+}

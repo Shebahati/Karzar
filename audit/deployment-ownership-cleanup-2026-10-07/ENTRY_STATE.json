@@ -1,0 +1,39 @@
+{
+  "origin_main": "c73899eff625cb171a2754a856467ebc3a81b57a",
+  "pr443_head_at_entry": "0327baa15ccc0a3796adffc0c8b4dce1a57b4ede",
+  "pr442": {
+    "state": "OPEN",
+    "merged": false,
+    "head": "d594a4c3c47e19cdbc0bcd2933a125e38c47eaa2"
+  },
+  "pr444": {
+    "state": "OPEN",
+    "merged": false,
+    "head": "95c5e9a6eb1975dc00c4dca5241b382d5f75e354"
+  },
+  "host": "srv5944957438",
+  "execution_utc": "2026-10-07T08:35:57Z",
+  "effective_user": "root",
+  "pathset_sha": "ac89a419a56b40faa241f3a435cbf4dd54d46e6d64555d4d8f3490a7e3a18aa5",
+  "DELETE_ROOT_COUNT": 8,
+  "CHOWN_PATH_COUNT": 0,
+  "repository_gate": {
+    "status": "PASS",
+    "issues": [],
+    "main": "c73899eff625cb171a2754a856467ebc3a81b57a",
+    "pr443_head": "0327baa15ccc0a3796adffc0c8b4dce1a57b4ede"
+  },
+  "allowlist_gate": {
+    "status": "PASS"
+  },
+  "main_absence": {
+    "TRACKED_CURRENT_MAIN": 0,
+    "tracked": [],
+    "PASS": true
+  },
+  "authorization": "Owner-authorized Phase C/D exact 8 delete roots; chown/chmod forbidden",
+  "post_closeout_resync": {
+    "latest_main": "a8a75026a26ec528fc102c40333b1327c73962eb",
+    "note": "main advanced via #446 during closeout CI; #443 re-synced; #442/#444 still OPEN unmerged"
+  }
+}

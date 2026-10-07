@@ -1311,6 +1311,47 @@ documents:
       Additive metadata correction for REAL_APPLY_MANIFEST.latest_main_sha labeling.
       Immutable original JSON evidence is unchanged; no re-apply.
 
+  - id: PRODUCT-NAMING-V1-PHASE-3A-EXECUTIVE-SUMMARY
+    path: audit/product-naming-phase3a-hold-resolution/PHASE3A_EXECUTIVE_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3a-hold-resolution
+    notes: >
+      Phase 3A read-only HOLD resolution discovery executive summary (1303 HOLD rows).
+
+  - id: PRODUCT-NAMING-V1-PHASE-3A-OWNER-DECISIONS
+    path: audit/product-naming-phase3a-hold-resolution/PHASE3A_OWNER_DECISIONS_REQUIRED.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3a-hold-resolution
+    notes: >
+      Phase 3A owner decision options for title/multi-function/variant-policy HOLDs. No mutations.
+
+  - id: PRODUCT-NAMING-V1-PHASE-3B1-EXECUTIVE-SUMMARY
+    path: audit/product-naming-phase3b1-governance-review/PHASE3B1_EXECUTIVE_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3b1-governance-review
+    notes: >
+      Phase 3B1 read-only Wave 3B governance safety review executive summary (132 rows).
+      Proposal only; no Product.name / ProductType / KB / authoritative policy mutation.
+
+  - id: PRODUCT-NAMING-V1-PHASE-3B1-OWNER-DECISION-PACK
+    path: audit/product-naming-phase3b1-governance-review/PHASE3B1_OWNER_DECISION_PACK.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3b1-governance-review
+    notes: >
+      Phase 3B1 family-level owner decision pack before any Wave 3B policy apply.
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE
@@ -1525,6 +1566,208 @@ documents:
     notes: >
       Owner authorization record for Product 1789 brand_id NULL→3 repair.
 
+  - id: DEPLOY-OWNERSHIP-AUDIT-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only VPS deployment ownership / rsync permission audit after
+      2026-10-06 Deploy Staging failure. No ownership mutation in this pack.
+
+  - id: DEPLOY-OWNERSHIP-AUDIT-FINAL-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for deployment ownership audit (ROOT_CAUSE_PARTIALLY_PROVEN).
+
+  - id: DEPLOY-OWNERSHIP-AUDIT-RSYNC-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/RSYNC_FAILURE_RECONSTRUCTION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Reconstruction of failed rsync in Deploy Staging run 37468470923.
+
+  - id: DEPLOY-OWNERSHIP-AUDIT-MODEL-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/CANONICAL_OWNERSHIP_MODEL.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Desired owner/group model for deployment-managed paths.
+
+  - id: DEPLOY-OWNERSHIP-AUDIT-REMEDIATION-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/REMEDIATION_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Proposed durable fix; not executed. MUTATION AUTHORIZED=NO.
+
+  - id: DEPLOY-OWNERSHIP-AUDIT-PREFLIGHT-20261006
+    path: audit/deployment-ownership-audit-2026-10-06/PREFLIGHT_DESIGN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Design for read-only ownership preflight before deploy rsync.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Fail-closed deploy ownership preflight implementation evidence.
+      No VPS ownership mutation; current canary REMEDIATION_REQUIRED.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-FINAL-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for ownership preflight hardening (REMEDIATION_REQUIRED).
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-CONTRACT-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/PREFLIGHT_CONTRACT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Canonical ownership preflight contract for Deploy Staging.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-SCOPE-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/IMPLEMENTATION_SCOPE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Allowed/forbidden scope for ownership preflight PR.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-TESTS-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/TEST_MATRIX.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Test matrix for ownership preflight.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-REPRO-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/HISTORICAL_FAILURE_REPRODUCTION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Historical rsync failure class modelled for preflight.
+
+  - id: DEPLOY-OWNERSHIP-PREFLIGHT-ORDER-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/WORKFLOW_ORDER_CHECK.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Deploy Staging workflow ordering and freeze safety for preflight.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVE-REQ-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/PRESERVATION_REQUIREMENTS.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only preservation requirements before any ownership chown.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVE-PLAN-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/REMEDIATION_EXECUTION_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Ordered Owner-authorized remediation plan; not executed.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVE-UPDATED-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/UPDATED_FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Updated final report after preservation gate (chown forbidden).
+
+  - id: DEPLOY-OWNERSHIP-CLEANUP-PLAN-C0-20261007
+    path: audit/deployment-ownership-preflight-2026-10-06/CLEANUP_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase C0 sync+#443 cleanup allowlist freeze; no VPS mutation.
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-20261007
+    path: audit/deployment-ownership-preservation-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase A+B Owner-authorized preserve+verify under /opt/karzar/preserve.
+      No live cleanup or chown.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-FINAL-20261007
+    path: audit/deployment-ownership-preservation-2026-10-07/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for Phase A+B preservation (PRESERVED_VERIFIED).
+
+
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-R19-20261007
+    path: audit/deployment-ownership-preservation-remaining19-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase A2+B2 remaining-19 preserve+verify under /opt/karzar/preserve.
+      No live cleanup or chown.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-R19-FINAL-20261007
+    path: audit/deployment-ownership-preservation-remaining19-2026-10-07/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final report for remaining-19 Phase A2+B2 (PRESERVED_VERIFIED).
+
+  - id: DEPLOY-OWNERSHIP-PRESERVATION-R19-CONSIST-20261007
+    path: audit/deployment-ownership-preservation-remaining19-2026-10-07/REMAINING19_EVIDENCE_CONSISTENCY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Remaining-19 workbook family / apply consistency evidence.
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE
@@ -1535,3 +1778,92 @@ documents:
       Read-only Production reconciliation of Hesabfa item activation on
       2026-09-29. Evidence only. Not Canon. Does not authorize item/save
       or activation APPLY.
+
+  - id: DEPLOY-OWNERSHIP-CLEANUP-README-20261007
+    path: audit/deployment-ownership-cleanup-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase C/D Owner-authorized exact-path cleanup closeout index.
+
+
+  - id: DEPLOY-OWNERSHIP-CLEANUP-AUTH-20261007
+    path: audit/deployment-ownership-cleanup-2026-10-07/AUTHORIZATION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner authorization record for Phase C/D exact-path cleanup.
+  - id: DEPLOY-OWNERSHIP-CLEANUP-CLOSEOUT-20261007
+    path: audit/deployment-ownership-cleanup-2026-10-07/CLOSEOUT_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase C/D cleanup closeout; ownership drift closed; no deploy/merge.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Read-only global product-by-product sellability root-cause audit (2026-10-07).
+      Observational evidence only. SELLABILITY_MUTATION_AUTHORIZED=NO.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-FINAL-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Global sellability root-cause final report. APPLY/Wave remediation not authorized.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-CONTRACT-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/CODE_SELLABILITY_CONTRACT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Code vs historical sellability contract for the 2026-10-07 global audit.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-RECONCILE-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/ROOT_CAUSE_RECONCILIATION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Blocker and root-cause class reconciliation to LIVE universe.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-HIST-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/HISTORICAL_RECONCILIATION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Fresh census vs Wave 0/1A anchors and historical 330 cohort.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-WAVES-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/REMEDIATION_WAVE_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Designed remediation waves only; does not authorize APPLY.
+

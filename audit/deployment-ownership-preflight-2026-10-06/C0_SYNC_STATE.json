@@ -1,0 +1,43 @@
+{
+  "old_main": "c73899eff625cb171a2754a856467ebc3a81b57a",
+  "latest_main": "c73899eff625cb171a2754a856467ebc3a81b57a",
+  "old_443_head": "d162a685af8bab1ef96fe57d00dac5c3cad11be9",
+  "new_443_head_pre_evidence": "6929dabea0dcc85942478d737fec5fd53ffd06c6",
+  "merge_base": "c73899eff625cb171a2754a856467ebc3a81b57a",
+  "behind": 0,
+  "ahead": 6,
+  "conflicts": 0,
+  "pathset_sha256": "ac89a419a56b40faa241f3a435cbf4dd54d46e6d64555d4d8f3490a7e3a18aa5",
+  "pr442": {
+    "state": "OPEN",
+    "merged": false,
+    "head": "d594a4c3c47e19cdbc0bcd2933a125e38c47eaa2"
+  },
+  "pr444": {
+    "state": "OPEN",
+    "merged": false,
+    "head": "95c5e9a6eb1975dc00c4dca5241b382d5f75e354"
+  },
+  "preservation": {
+    "n4120_manifest": "b599f88b32467dc6f21e67375ca5c85a937dcd6af6a75431abf0d77ee95247c0",
+    "remaining19_manifest": "a9a97301bf84518841c709c3585f3b6179c02fd42600c415e27638ad4de07bb4",
+    "workbook": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+    "PASS": true
+  },
+  "disposition_counts": {
+    "DELETE_PRESERVED_UNTRACKED": 8,
+    "NO_ACTION_CHILD_OF_DELETE_ROOT": 22
+  },
+  "delete_roots": [
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19",
+    "/opt/karzar/Karzar/_ops",
+    "/opt/karzar/Karzar/scripts/ops/insize_n4120_identity_alias_apply.py",
+    "/opt/karzar/Karzar/scripts/ops/run_insize_n4120_identity_alias_apply.sh",
+    "/opt/karzar/Karzar/scripts/ops/insize_remaining19_identity_alias_apply.py",
+    "/opt/karzar/Karzar/scripts/ops/run_insize_remaining19_identity_alias_apply.sh",
+    "/opt/karzar/Karzar/docs/architecture/specs/product-naming-v1/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv"
+  ],
+  "chown_paths": [],
+  "OUT_OF_SCOPE": 0
+}

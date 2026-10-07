@@ -138,6 +138,25 @@ jobs:
           test -f "$IN/frontend-images/frontend-images.sha256"
           bash "$IN/tree/deploy/staging/scripts/load-incoming-frontend-images.sh"
 
+      # Fail-closed ownership/writability gate. Must run after incoming verify and
+      # before any live rsync or container rebuild. Does NOT chown/chmod.
+      - name: Ownership preflight (fail-closed before rsync)
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          IN="/opt/karzar/incoming/${GITHUB_SHA}"
+          PRE="${IN}/tree/deploy/staging/scripts/deploy_ownership_preflight.py"
+          test -f "$PRE"
+          # Read-only checks only. Exit nonzero must abort before Sync backend.
+          python3 "$PRE" \
+            --expected-user github-runner \
+            --live-root /opt/karzar/Karzar \
+            --frontend-root /opt/karzar/frontend \
+            --incoming-base /opt/karzar/incoming \
+            --source-tree "${IN}/tree" \
+            --github-sha "${GITHUB_SHA}"
+
       - name: Sync backend → /opt/karzar/Karzar
         run: |
           set -euo pipefail

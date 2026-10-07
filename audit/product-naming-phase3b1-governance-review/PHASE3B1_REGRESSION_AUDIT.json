@@ -1,0 +1,9 @@
+{
+  "phase2f_expected": 47,
+  "baseline_identical": 47,
+  "safe_only_identical": 47,
+  "recommended_identical": 47,
+  "regression_count": 0,
+  "result": "47/47 identical",
+  "collisions_involving_47": 0
+}

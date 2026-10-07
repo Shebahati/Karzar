@@ -1,0 +1,24 @@
+{
+  "origin_main": "d74f8365c164087686ddd88a4796c8e97eb986f3",
+  "pr_443_head_at_start": "ad29c7acf7b4b759529c7248e2d5d6a0b1aaee60",
+  "pr_443_state": "OPEN",
+  "plan_sha256": "fe0f538525b6429f902f3df68880df367330e825e73f0d7281e41ce4f70bf2a6",
+  "plan_drift": false,
+  "host": {
+    "hostname": "srv5944957438",
+    "hostname_ok": true,
+    "effective_user": "root",
+    "uid": 0,
+    "gid": 0,
+    "utc": "2026-10-07T07:11:29Z"
+  },
+  "authorization": "PHASE_A_COPY + PHASE_B_VERIFY only",
+  "forbidden": [
+    "delete",
+    "move_source",
+    "chown_source",
+    "chmod_source",
+    "deploy",
+    "merge_443"
+  ]
+}

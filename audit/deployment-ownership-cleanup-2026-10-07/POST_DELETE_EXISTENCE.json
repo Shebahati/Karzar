@@ -1,0 +1,13 @@
+{
+  "all_8_absent": true,
+  "post_delete_exists": {
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120": false,
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19": false,
+    "/opt/karzar/Karzar/_ops": false,
+    "/opt/karzar/Karzar/scripts/ops/insize_n4120_identity_alias_apply.py": false,
+    "/opt/karzar/Karzar/scripts/ops/run_insize_n4120_identity_alias_apply.sh": false,
+    "/opt/karzar/Karzar/scripts/ops/insize_remaining19_identity_alias_apply.py": false,
+    "/opt/karzar/Karzar/scripts/ops/run_insize_remaining19_identity_alias_apply.sh": false,
+    "/opt/karzar/Karzar/docs/architecture/specs/product-naming-v1/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv": false
+  }
+}

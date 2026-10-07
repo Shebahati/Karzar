@@ -1,0 +1,15 @@
+source_path,destination_path,method,authorized
+/opt/karzar/Karzar/audit/insize-price-20-n4120/FREEZE.json,/opt/karzar/preserve/insize-n4120-20261006/audit/FREEZE.json,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/audit/insize-price-20-n4120/N4120_PROOF_MATRIX.csv,/opt/karzar/preserve/insize-n4120-20261006/audit/N4120_PROOF_MATRIX.csv,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/audit/insize-price-20-n4120/APPLY_REPORT.json,/opt/karzar/preserve/insize-n4120-20261006/audit/APPLY_REPORT.json,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/audit/insize-price-20-n4120/RECOVERY_N4120_20261006T141319Z.json,/opt/karzar/preserve/insize-n4120-20261006/audit/RECOVERY_N4120_20261006T141319Z.json,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/audit/insize-price-20-n4120/SYNC_REPORT.json,/opt/karzar/preserve/insize-n4120-20261006/audit/SYNC_REPORT.json,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/audit/insize-price-20-n4120/N4120_ROLLBACK.csv,/opt/karzar/preserve/insize-n4120-20261006/audit/N4120_ROLLBACK.csv,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/audit/insize-price-20-n4120/N4120_WORKBOOK_FAMILY.csv,/opt/karzar/preserve/insize-n4120-20261006/audit/N4120_WORKBOOK_FAMILY.csv,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/audit/insize-price-20-n4120/N4120_BASELINE.csv,/opt/karzar/preserve/insize-n4120-20261006/audit/N4120_BASELINE.csv,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/audit/insize-price-20-n4120/N4120_PRICE_DRY_RUN.csv,/opt/karzar/preserve/insize-n4120-20261006/audit/N4120_PRICE_DRY_RUN.csv,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/audit/insize-price-20-n4120/LOCKED_TRAILING_A_SKUS.txt,/opt/karzar/preserve/insize-n4120-20261006/audit/LOCKED_TRAILING_A_SKUS.txt,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/docs/architecture/specs/product-naming-v1/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv,/opt/karzar/preserve/insize-n4120-20261006/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/scripts/ops/insize_n4120_identity_alias_apply.py,/opt/karzar/preserve/insize-n4120-20261006/insize_n4120_identity_alias_apply.py,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/scripts/ops/run_insize_n4120_identity_alias_apply.sh,/opt/karzar/preserve/insize-n4120-20261006/run_insize_n4120_identity_alias_apply.sh,shutil.copy2 / copytree,YES
+/opt/karzar/Karzar/_ops/input/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx,/opt/karzar/preserve/insize-workbook-20261006/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx,shutil.copy2 / copytree,YES

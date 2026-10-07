@@ -1,0 +1,7 @@
+product_type_code,rows,verdict,current_policy_title,proposed_title_fa,proposal_status,safe_recommendation,owner_decision_id,notes
+GEN_CALIPER,65,HOMOGENEOUS_WITH_IDENTITY_QUALIFIERS,,,REQUIRES_PT_SPLIT,no,D-GENCAL-01,Do not approve کولیس alone; long-jaw needs PT split; digital/vernier need governed identity qualifiers; none map to HOOK/POINT/BLADE/OFFSET from OEM
+BORE_GAUGE,16,REQUIRES_PT_REASSIGNMENT,,,REQUIRES_PT_REASSIGNMENT,no,D-BORE-01,Reassign 3127-300 to INSIDE_MICROMETER; residual bore gauges need one synonym-free Persian title after split — no slash labels
+DIVIDER,9,REQUIRES_PT_SPLIT,,,REQUIRES_PT_SPLIT,no,D-DIVIDER-01,OEM headings are INSIDE/OUTSIDE SPRING CALIPERS; decide PT split vs DIVIDER+identity qualifier — do not destroy inside/outside identity
+TAPER_GAUGE,9,REQUIRES_PT_SPLIT,,,REQUIRES_PT_SPLIT,no,D-TAPER-01,Split GAP/TAPER GAUGES vs TAPER BORE GAUGES vs sets; do not unify as گیج مخروطی
+STRAIGHT_EDGE,1,REQUIRES_SOURCE_EVIDENCE,,,REQUIRES_SOURCE_EVIDENCE,no,D-STRAIGHT-01,OEM identity insufficient for 4700-200; terminology options only after source page proof — current Product.name is not authority
+OPTICAL_EDGE_FINDER,1,REQUIRES_SOURCE_EVIDENCE,,,REQUIRES_SOURCE_EVIDENCE,no,D-OPTICAL-01,Downgrade DIRECT_UNLOCK; registry evidence not EXACT_PRODUCT_IDENTITY; do not approve مرکزیاب نوری from Product.name alone

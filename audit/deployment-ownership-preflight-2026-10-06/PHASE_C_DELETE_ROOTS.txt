@@ -1,0 +1,8 @@
+/opt/karzar/Karzar/audit/insize-price-20-n4120
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19
+/opt/karzar/Karzar/_ops
+/opt/karzar/Karzar/scripts/ops/insize_n4120_identity_alias_apply.py
+/opt/karzar/Karzar/scripts/ops/run_insize_n4120_identity_alias_apply.sh
+/opt/karzar/Karzar/scripts/ops/insize_remaining19_identity_alias_apply.py
+/opt/karzar/Karzar/scripts/ops/run_insize_remaining19_identity_alias_apply.sh
+/opt/karzar/Karzar/docs/architecture/specs/product-naming-v1/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv
