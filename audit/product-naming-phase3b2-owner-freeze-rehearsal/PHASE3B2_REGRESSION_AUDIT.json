@@ -1,0 +1,9 @@
+{
+  "phase2f_expected": 47,
+  "phase2f_identical": 47,
+  "phase2f_regression": 0,
+  "slug_drift": 0,
+  "manufacturer_code_drift": 0,
+  "product_type_intersection_with_47": 0,
+  "result": "47/47 identical (no Phase 3B2 name mutation)"
+}

@@ -1,0 +1,6 @@
+product_type_code,property_code,membership_action,decision_id,status
+LEVEL,body_length,CREATE,D-LEVEL-01,PROPOSED
+DIGITAL_LEVEL,body_length,CREATE,D-DLEVEL-01,PROPOSED
+INSIDE_SPRING_CALIPER,body_length,CREATE,D-DIVIDER-01,PROPOSED
+OUTSIDE_SPRING_CALIPER,body_length,CREATE,D-DIVIDER-01,PROPOSED
+SURFACE_PLATE,plate_dimensions,CREATE,D-PLATE-01,PROPOSED

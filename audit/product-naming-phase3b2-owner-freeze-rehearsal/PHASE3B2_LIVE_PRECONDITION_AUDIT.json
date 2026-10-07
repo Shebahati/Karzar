@@ -1,0 +1,25 @@
+{
+  "routing_precondition_mismatch": 0,
+  "routing_mismatches": [],
+  "new_pt_code_collision": 0,
+  "new_pt_code_collisions": [],
+  "property_status": {
+    "body_length": {
+      "exact": "absent",
+      "semantic_equivalent": "none_observed",
+      "code_collision": "no",
+      "status": "absent"
+    },
+    "plate_dimensions": {
+      "exact": "absent",
+      "semantic_equivalent": "none_observed",
+      "code_collision": "no",
+      "status": "absent"
+    }
+  },
+  "property_collision": 0,
+  "unsafe_identity_drift_count": 0,
+  "name_drift_informational": 0,
+  "plan_still_valid": true,
+  "result": "PASS"
+}

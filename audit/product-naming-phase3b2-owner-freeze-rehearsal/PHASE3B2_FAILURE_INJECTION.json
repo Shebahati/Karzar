@@ -1,0 +1,38 @@
+{
+  "after_first_pt_create": {
+    "status": "ROLLED_BACK_AFTER_FAILURE",
+    "persistent_mutations": 0,
+    "error": "injected:after_first_pt_create",
+    "rollback_ok": true
+  },
+  "mid_pt_routing": {
+    "status": "ROLLED_BACK_AFTER_FAILURE",
+    "persistent_mutations": 0,
+    "error": "injected:mid_pt_routing",
+    "rollback_ok": true
+  },
+  "after_pt_routing": {
+    "status": "ROLLED_BACK_AFTER_FAILURE",
+    "persistent_mutations": 0,
+    "error": "injected:after_pt_routing",
+    "rollback_ok": true
+  },
+  "property_create": {
+    "status": "ROLLED_BACK_AFTER_FAILURE",
+    "persistent_mutations": 0,
+    "error": "injected:property_create",
+    "rollback_ok": true
+  },
+  "property_membership": {
+    "status": "ROLLED_BACK_AFTER_FAILURE",
+    "persistent_mutations": 0,
+    "error": "injected:property_membership",
+    "rollback_ok": true
+  },
+  "validation_failure": {
+    "status": "ROLLED_BACK_AFTER_FAILURE",
+    "persistent_mutations": 0,
+    "error": "injected:validation_failure",
+    "rollback_ok": true
+  }
+}
