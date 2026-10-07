@@ -1,0 +1,331 @@
+product_id,sku,still_live,current_sellable,still_only_availability_blocked,current_blockers,current_available,current_active,current_priced,current_imaged,brand_name,base_price
+1044,1012-0010,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,30354000.0
+1221,2020-1005,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,18774000.0
+1234,2115-2305,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,7548000.0
+1244,2220-8105,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,23454000.0
+1482,4910-4105,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,32586000.0
+1513,5221-1129,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,17280000.0
+1518,5223-3105,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,14058000.0
+1560,5510-0005,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,27144000.0
+1561,5511-1100,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,66630000.0
+1562,5511-1105,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,19458000.0
+1563,5511-1110,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,18048000.0
+1564,5511-1115,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,14082000.0
+1566,5511-1121,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,14082000.0
+1567,5511-1130,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,13842000.0
+1568,5511-1135,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,20250000.0
+1569,5511-1140,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,22110000.0
+1570,5511-2105,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,41958000.0
+1571,5511-2110,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,39486000.0
+1572,5511-2115,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,32082000.0
+1573,5511-2120,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,30102000.0
+1574,5511-2130,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,32082000.0
+1614,5911-0002,True,False,True,UNAVAILABLE,False,True,True,True,Dasqua | داسکوا,4596000.0
+1775,1106-301,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,66600000.0
+1776,1106-302,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,74100000.0
+1778,1106-502,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,102300000.0
+1779,1106-503,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,135900000.0
+1780,1106-505,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,189000000.0
+1781,1106-601,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,53700000.0
+1782,1106-602,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,137100000.0
+1783,1106-603,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,164700000.0
+1784,1106-802,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,162300000.0
+1788,1111-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,8760000.0
+1789,1114-150,True,True,False,NONE,True,True,True,True,INSIZE | اینسایز,7980000.0
+1795,1120-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,22410000.0
+1798,1120-500,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,133200000.0
+1799,1121-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,45900000.0
+1800,1122-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,77400000.0
+1801,1123-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,42000000.0
+1803,1135-601,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,108300000.0
+1804,1136-501,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,85500000.0
+1805,1136-502,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,117000000.0
+1806,1136-503,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,143700000.0
+1807,1136-601,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,99300000.0
+1808,1140-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,42900000.0
+1809,1140-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,50100000.0
+1814,1142-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,23940000.0
+1817,1144-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,25470000.0
+1822,1150-600,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,123300000.0
+1823,1151-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,130800000.0
+1825,1156-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,92400000.0
+1826,1156-600,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,140700000.0
+1827,1161-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,42000000.0
+1828,1169-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,24750000.0
+1829,1170-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,39600000.0
+1830,1172-200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,88500000.0
+1832,1176-200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,73800000.0
+1833,1178-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,79200000.0
+1834,1183-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,24660000.0
+1835,1185-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,33000000.0
+1836,1186-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,52500000.0
+1839,1187-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,30000000.0
+1840,1188-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,25950000.0
+1842,1208-511,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,57000000.0
+1843,1208-524,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,69300000.0
+1844,1208-824,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,139500000.0
+1847,1215-1032,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,156600000.0
+1848,1215-1052,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,284400000.0
+1849,1215-322,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,40800000.0
+1850,1215-392,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,24480000.0
+1851,1215-522,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,53700000.0
+1852,1215-532,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,64800000.0
+1853,1215-622,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,62700000.0
+1854,1215-822,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,132600000.0
+1855,1217-3001,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,53400000.0
+1856,1236-394,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,52800000.0
+1857,1236-524,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,104700000.0
+1858,1250-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,49500000.0
+1859,1250-600,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,81900000.0
+1860,1311-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,13140000.0
+1863,1312-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,10110000.0
+1866,1316-500,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,60600000.0
+1867,1340-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,13170000.0
+1868,1340-200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,14340000.0
+1869,1340-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,18240000.0
+1870,1520-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,37500000.0
+1871,1530-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,102300000.0
+1873,2112-101,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,31500000.0
+1874,2112-251,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,44100000.0
+1875,2112-501,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,96000000.0
+1876,2122-160,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,72900000.0
+1877,2141-202,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,59700000.0
+1878,2142-101,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,33000000.0
+1879,2142-102,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,33900000.0
+1881,2172-360,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,48600000.0
+1883,2174-225,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,30600000.0
+1884,2175-360,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,19980000.0
+1885,2176-200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,6030000.0
+1888,2222-301,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,47400000.0
+1889,2223-153,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,54000000.0
+1892,2281-360,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,2922000.0
+1893,2307-105,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,7680000.0
+1897,2333-201,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,57900000.0
+1898,2341-101,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,20100000.0
+1899,2342-202,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,35700000.0
+1900,2343-102,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,16770000.0
+1902,2373-360,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,34500000.0
+1903,2374-320,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,24810000.0
+1905,2711-165,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,22500000.0
+1906,2711-216,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,24930000.0
+1907,2771-360,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,48600000.0
+1908,2825-160,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,51000000.0
+1911,2841-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,85800000.0
+1912,2841-500,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,95100000.0
+1913,2862-102,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,17400000.0
+1915,3101-225,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,66600000.0
+1917,3101-275,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,78900000.0
+1918,3101-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,84900000.0
+1919,3108-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,32100000.0
+1920,3109-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,23100000.0
+1927,3109-275,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,54900000.0
+1929,3127-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,144600000.0
+1930,3127-123,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,283200000.0
+1931,3127-125,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,157500000.0
+1932,3127-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,179400000.0
+1933,3127-175,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,207000000.0
+1934,3127-200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,237600000.0
+1935,3127-202,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,195000000.0
+1936,3127-225,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,275400000.0
+1937,3127-250,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,335100000.0
+1938,3127-275,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,381600000.0
+1939,3127-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,447900000.0
+1940,3127-504,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,409500000.0
+1953,3205-1000,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,241500000.0
+1954,3205-1200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,532200000.0
+1955,3205-1400,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,576600000.0
+1956,3205-1600,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,681300000.0
+1957,3205-1800,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,705900000.0
+1959,3205-500,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,94500000.0
+1960,3205-600,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,112200000.0
+1961,3205-700,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,154200000.0
+1962,3205-800,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,183300000.0
+1963,3205-900,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,216000000.0
+1964,3206-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,43800000.0
+1968,3210-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,10140000.0
+1969,3220-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,27240000.0
+1970,3222-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,34200000.0
+1972,3222-600,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,46200000.0
+1973,3225-2100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,223500000.0
+1974,3227-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,95700000.0
+1975,3227-123,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,177600000.0
+1976,3227-125,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,111000000.0
+1977,3227-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,132000000.0
+1978,3227-175,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,168600000.0
+1979,3227-200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,201900000.0
+1980,3227-202,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,84600000.0
+1981,3227-504,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,237900000.0
+1982,3232-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,51600000.0
+1983,3240-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,22380000.0
+1984,3240-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,26940000.0
+1985,3240-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,39900000.0
+1986,3282-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,30000000.0
+1987,3290-153,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,47700000.0
+1990,3293-131,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,26760000.0
+1991,3506-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,64800000.0
+1996,3520-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,81600000.0
+1997,3521-2000,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,314400000.0
+1998,3540-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,61500000.0
+1999,3540-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,110400000.0
+2001,4100-187,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,117300000.0
+2002,4100-232,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,26730000.0
+2003,4100-247,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,38400000.0
+2004,4100-287,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,60900000.0
+2005,4141-400,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,123000000.0
+2010,4166-411,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,40800000.0
+2011,4166-511,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,55200000.0
+2012,4166-512,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,90900000.0
+2013,4166-513,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,144300000.0
+2015,4605-202,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,4620000.0
+2017,4700-200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,10560000.0
+2018,4707-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,13470000.0
+2019,4707-500,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,32100000.0
+2020,4745-1150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,9570000.0
+2021,4745-1200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,13110000.0
+2022,4796-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,2049000.0
+2023,4796-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,2688000.0
+2024,4796-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,9150000.0
+2025,4799-1120,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,6690000.0
+2030,4810-601,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,1203000.0
+2031,4810-602,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,1380000.0
+2032,4820-230,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,2688000.0
+2033,4820-452,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,2718000.0
+2035,4860-212,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,20130000.0
+2036,4860-245,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,27810000.0
+2037,4902-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,39300000.0
+2038,4902-200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,41100000.0
+2039,4902-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,63900000.0
+2043,4910-400,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,9690000.0
+2044,4910-600,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,14640000.0
+2045,4911-600,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,6720000.0
+2048,4918-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,3330000.0
+2049,4918-600,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,3630000.0
+2064,6511-241,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,81600000.0
+2066,6801-1201,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,29610000.0
+2067,6801-1202,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,32400000.0
+2068,6862-1002,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,80100000.0
+2069,6866-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,113700000.0
+2071,6900-132,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,30300000.0
+2072,6900-142,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,41400000.0
+2073,6900-153,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,81000000.0
+2074,6900-164,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,100500000.0
+2075,6900-185,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,187200000.0
+2077,7110-150,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,423000.0
+2078,7110-200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,621000.0
+2079,7110-300,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,759000.0
+2084,7114-950,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,4230000.0
+2088,7205-200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,21450000.0
+2098,7350-160,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,8190000.0
+2100,8601-100,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,1064000.0
+2104,9351-130,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,22780800.0
+2105,9721-250,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,1119000.0
+2353,103-147,True,False,True,UNAVAILABLE,False,True,True,True,Mitutoyo | میتوتویو,42804000.0
+3292,AST-PRO/T65,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,244200000.0
+3293,AST-PRO/T150,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,413820000.0
+3303,AST-BS2-8,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,241032000.0
+3331,AST-SPARK3000,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,547011960.0
+3332,AST-SPARK600,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,190901700.0
+3349,AST-PRO/T100,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,360676800.0
+3350,AST-COR80,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,109718400.0
+3351,AST-COR355P,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,206665800.0
+3352,AST-COR255P,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,147668400.0
+3353,TU-TCOR205,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,80163600.0
+3354,TU-TCOR305,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,143418000.0
+3355,TU-TCOR255,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,97072800.0
+3356,TU-TCOR355,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,166610400.0
+3361,TU-D13E12,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,193820220.0
+3374,AST-COR100,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,122364000.0
+3429,FB620,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,20832000.0
+3431,FTV313,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,19800000.0
+3438,TS20,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,173184000.0
+3439,TS42,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,33432000.0
+3468,1201-1003,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,5010000.0
+3470,1205-1502,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,6480000.0
+3483,2308-10,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,6360000.0
+3512,2364-1,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,31500000.0
+3550,3109-25,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,14130000.0
+3556,3203-25,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,5940000.0
+3570,4621-80,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,5310000.0
+3606,7114-2200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,5190000.0
+3618,2310-30,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,15900000.0
+3620,2313-1,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,15810000.0
+3657,4605-20,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,2439000.0
+3667,4801-16,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,2760000.0
+3695,ISH-SAM,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,25470000.0
+3697,ISH-SDM,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,43500000.0
+3702,HDT-LP200B,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,163800000.0
+3705,ISM-PM200SA,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,64500000.0
+3706,ISM-PM200SB,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,66900000.0
+3718,6566-3,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,24060000.0
+3802,6282-1203,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,7320000.0
+3820,7230,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,1188000.0
+3828,HDT-LP200,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,96600000.0
+3833,ISH-STAC,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,68700000.0
+3834,ISH-STD,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,85800000.0
+3839,ISU-100D,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,117000000.0
+3907,1205-300S,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,16500000.0
+4094,7515-10,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,2142000.0
+4115,9315-CF210,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,18990000.0
+4140,5042,True,False,True,UNAVAILABLE,False,True,True,True,INSIZE | اینسایز,25080000.0
+4185,SO-13637,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,1426800.0
+4186,SO-13638,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,1760400.0
+4187,SO-13639,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,3360000.0
+4251,SO-13605,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,574800.0
+4252,SO-13606,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,601200.0
+4253,SO-13607,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,626400.0
+4254,SO-13608,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,546000.0
+4255,SO-13609,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,574800.0
+4256,SO-13610,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,601200.0
+4258,SO-13613,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,654000.0
+4259,SO-13612,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,626400.0
+4261,SO-13615,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,626400.0
+4263,SO-13617,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,681600.0
+4303,SO-13569,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,1305600.0
+4304,SO-13570,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,2239200.0
+4422,SO-13619,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,574800.0
+4427,SO-13624,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,1054800.0
+4428,SO-13625,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,2692800.0
+4429,SO-13626,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,2289600.0
+4432,SO-13630,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,6320400.0
+4433,SO-13631,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,5998800.0
+4457,SO-13633,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,6320400.0
+4458,SO-13634,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,6888000.0
+4459,SO-13635,True,False,True,UNAVAILABLE,False,True,True,True,SAN OU | سانو,8904000.0
+4474,CDA100-300,True,False,True,UNAVAILABLE,False,True,True,True,TERMA | ترما,25988400.0
+4480,YDA100F-300,True,False,True,UNAVAILABLE,False,True,True,True,TERMA | ترما,63608400.0
+4619,MA250H-200,True,False,True,UNAVAILABLE,False,True,True,True,TERMA | ترما,256162500.0
+4625,MD710-25,True,False,True,UNAVAILABLE,False,True,True,True,TERMA | ترما,13118400.0
+5880,2A-S5,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,141636000.0
+5881,2A-S7,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,141636000.0
+5882,2A-S8,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,206448000.0
+5883,2A-S10,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,188760000.0
+5884,2A-S12,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,229878000.0
+5885,2A-S16,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,288750000.0
+5886,3A-S5,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,175692000.0
+5887,3A-S7,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,175692000.0
+5888,3A-S10,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,265135200.0
+5889,3A-S12,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,297567600.0
+5890,3A-S16,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,350922000.0
+5891,33A-S5,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,250456800.0
+5892,33A-S7,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,250456800.0
+5893,33A-S10,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,282849600.0
+5894,33A-S12,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,330000000.0
+5895,33A-S16,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,411265800.0
+5896,4A-S5,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,282876000.0
+5897,4A-S7,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,314952000.0
+5898,4A-S10,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,335834400.0
+5899,4A-S12,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,411265800.0
+5900,4A-S16,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,550888800.0
+6134,AST-BS1-8,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,111757800.0
+6137,AST-HV-6,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,35712600.0
+6139,AST-HV-10,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,68508000.0
+6141,AST-HV-14,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,157700400.0
+6143,AST-HV-20,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,727762200.0
+6144,AST-CS-6,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,151074000.0
+6151,AST-RAP6,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,16680000.0
+6153,AST-RAP10,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,34698000.0
+6155,AST-RAP14,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,50664000.0
+6532,SDC-DR230,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,32887800.0
+6533,CBN-DR230,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,32858760.0
+6534,CBN-DR313,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,13706880.0
+6535,SDC-DR313,True,False,True,UNAVAILABLE,False,True,True,True,ASTPOWER | ای اس تی پاور,13706880.0
