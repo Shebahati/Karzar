@@ -1684,6 +1684,14 @@ documents:
     notes: >
       Updated final report after preservation gate (chown forbidden).
 
+  - id: DEPLOY-OWNERSHIP-CLEANUP-PLAN-C0-20261007
+    path: audit/deployment-ownership-preflight-2026-10-06/CLEANUP_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase C0 sync+#443 cleanup allowlist freeze; no VPS mutation.
   - id: DEPLOY-OWNERSHIP-PRESERVATION-20261007
     path: audit/deployment-ownership-preservation-2026-10-07/README.md
     class: EVIDENCE

@@ -118,3 +118,7 @@ merge #443 = NO
 
 Owner-authorize one Phase C/D execution using **only** these exact-path allowlists.
 After cleanup, re-run ownership preflight and require `unexpected_ownership=0` before merging #443.
+
+## Naming note
+
+AODS reserved-token `final` forbids `FINAL_*` filenames. Artifacts are frozen as `CLEANUP_*` / `PHASE_C_*` / `PHASE_D_*` / `C0_SYNC_STATE.json` (same content/intent as the Phase C0 mission filenames).
