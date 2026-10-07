@@ -1,0 +1,17 @@
+{
+  "previous_exact_aligned": 688,
+  "previous_unmatched": 171,
+  "exact_updates_required": 0,
+  "exact_invalid_workbook_price": 12,
+  "workbook_codes_ending_A": 1714,
+  "safe_workbook_a_to_db_no_a": 134,
+  "exact_match_wins": 0,
+  "non_a_workbook_collisions": 17,
+  "multiple_source_collisions": 0,
+  "source_na_excluded": 0,
+  "alias_sku_missing": 37,
+  "ambiguous": 0,
+  "remaining_genuine_unmatched": 37,
+  "alias_already_correct": 134,
+  "alias_requiring_update": 0
+}
