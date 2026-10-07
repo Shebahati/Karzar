@@ -23,7 +23,6 @@ import {
   savePendingPayment,
   savePendingPaymentPreservingOwner,
 } from "@/lib/pending-payment";
-import { getVerifiedCustomerId } from "@/lib/customer-session";
 import type { CheckoutPayload } from "@/types/checkout";
 
 type Step = "auth" | "details";
@@ -125,8 +124,20 @@ export function CheckoutView() {
       ? useCartStore.getState().quote
       : useCartStore.getState().cart;
 
-    // Capture ownership before async submit — stale success must not clear a newer owner.
+    // Capture ownership BEFORE async submit — never re-read live identity in onSuccess.
     const submitOwnershipFence = captureOwnershipFence();
+    let purchaseOwnerId: number | null = null;
+    if (!isInquiry) {
+      if (
+        !submitOwnershipFence ||
+        submitOwnershipFence.kind !== "customer"
+      ) {
+        setCheckoutError("هویت تأییدشده برای پرداخت در دسترس نیست. لطفاً دوباره وارد شوید.");
+        setStep("auth");
+        return;
+      }
+      purchaseOwnerId = submitOwnershipFence.session.ownerId;
+    }
 
     const payload: CheckoutPayload = {
       mode: isInquiry ? "inquiry" : "purchase",
@@ -159,15 +170,17 @@ export function CheckoutView() {
           return;
         }
 
+        // Immutable submit-time owner — A→B mid-flight must not relabel A's order as B.
+        const ownerId = purchaseOwnerId;
+        if (ownerId == null) {
+          setPaying(false);
+          setCheckoutError("هویت سفارش برای پرداخت در دسترس نیست. لطفاً دوباره وارد شوید.");
+          setStep("auth");
+          return;
+        }
+
         try {
           setPaying(true);
-          const ownerId = getVerifiedCustomerId();
-          if (ownerId == null) {
-            setPaying(false);
-            setCheckoutError("هویت تأییدشده برای پرداخت در دسترس نیست. لطفاً دوباره وارد شوید.");
-            setStep("auth");
-            return;
-          }
           savePendingPayment(res.order_id, res.tracking_code, ownerId);
 
           let paymentUrl = res.payment_url;
@@ -192,14 +205,11 @@ export function CheckoutView() {
             setStep("auth");
             return;
           }
-          const ownerId = getVerifiedCustomerId();
-          if (ownerId != null) {
-            setPendingPayOrder({
-              order_id: res.order_id,
-              tracking_code: res.tracking_code,
-              customer_id: ownerId,
-            });
-          }
+          setPendingPayOrder({
+            order_id: res.order_id,
+            tracking_code: res.tracking_code,
+            customer_id: ownerId,
+          });
           setCheckoutError(
             `سفارش با کد ${res.tracking_code} ثبت شد اما اتصال به درگاه ناموفق بود. می‌توانید پرداخت را دوباره امتحان کنید.`,
           );

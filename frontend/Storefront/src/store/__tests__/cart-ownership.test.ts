@@ -9,6 +9,7 @@ import {
 import * as apiClientModule from "@/lib/api-client";
 import {
   apiClient,
+  guestCartClient,
   clearCartToken,
   clearCartTokenIfMatches,
   getCartToken,
@@ -184,8 +185,9 @@ describe("F03 cart ownership", () => {
     });
     expect(useCartStore.getState().cart.some((l) => l.product.id === 51)).toBe(true);
     expect(useCartStore.getState().quote.some((l) => l.product.id === 77)).toBe(true);
-    expect(upsert).toHaveBeenCalledWith("purchase", 51, 2);
-    expect(upsert).toHaveBeenCalledWith("inquiry", 77, 1);
+    // After merge, same-owner reconcile upserts under verified customer transport.
+    expect(upsert).toHaveBeenCalledWith("purchase", 51, 2, "customer");
+    expect(upsert).toHaveBeenCalledWith("inquiry", 77, 1, "customer");
   });
 
   it("T03: same-owner reload publishes only after verified A; no guest merge from token alone", async () => {
@@ -309,7 +311,7 @@ describe("F03 cart ownership", () => {
     expect(merge).toHaveBeenCalledTimes(1);
     expect(useCartStore.getState().cart.some((l) => l.product.id === 51)).toBe(false);
     expect(useCartStore.getState().cart.some((l) => l.product.id === 10)).toBe(true);
-    expect(upsert).toHaveBeenCalledWith("purchase", 10, 1);
+    expect(upsert).toHaveBeenCalledWith("purchase", 10, 1, "customer");
     expect(upsert).not.toHaveBeenCalledWith("purchase", 51, 2);
   });
 
@@ -555,7 +557,7 @@ describe("F03 cart ownership", () => {
     expect(result.ok).toBe(true);
     expect(useCartStore.getState().cart.some((l) => l.product.id === 21)).toBe(true);
     // Live same-owner reconcile may upsert local-only lines under exact guest G.
-    expect(upsert).toHaveBeenCalledWith("purchase", 21, 3);
+    expect(upsert).toHaveBeenCalledWith("purchase", 21, 3, "guest");
 
     // Mismatch: stash G1 + storage G2 must NOT publish.
     const G1 = "1".repeat(32);
@@ -647,7 +649,7 @@ describe("F03 cart ownership", () => {
     expect(state.stash?.cart.map((l) => l.product.id)).toEqual([70]);
     expect(state.cart.some((l) => l.product.id === 61)).toBe(false);
     expect(state.stash?.quote).toEqual([]);
-    expect(upsert).toHaveBeenCalledWith("purchase", 70, 1);
+    expect(upsert).toHaveBeenCalledWith("purchase", 70, 1, "customer");
     expect(upsert).not.toHaveBeenCalledWith("purchase", 61, 2);
   });
 
@@ -808,6 +810,99 @@ describe("F03 cart ownership", () => {
     expect(useCartStore.getState().stash).toEqual(before);
     expect(useCartStore.getState().cart.map((l) => l.product.id)).toEqual([70]);
     expect(clear).not.toHaveBeenCalled();
+  });
+
+  it("T28: failed logout cannot route guest mutation into A via credentialed client", async () => {
+    seedCustomerCart(1, [{ product: product(51), quantity: 2 }]);
+    establishVerifiedCustomer(1, "otp");
+    const aStashBefore = structuredClone(useCartStore.getState().stash);
+
+    // Simulate F08: server logout fails; frontend still becomes guest.
+    vi.spyOn(apiClient, "post").mockImplementation(async (url) => {
+      if (String(url).includes("/auth/logout")) {
+        throw new Error("network failed logout");
+      }
+      return { data: { ok: true } };
+    });
+    await authService.logout();
+
+    expect(useCartStore.getState().cart).toHaveLength(0);
+    expect(useCartStore.getState().stash).toEqual(aStashBefore);
+
+    const guestPut = vi.spyOn(guestCartClient, "put").mockResolvedValue({
+      data: emptyCart("purchase"),
+    } as never);
+    const apiPut = vi.spyOn(apiClient, "put").mockResolvedValue({
+      data: emptyCart("purchase"),
+    } as never);
+
+    useCartStore.getState().addToCart(product(99), 1);
+
+    expect(useCartStore.getState().stash?.attribution.kind).toBe("guest");
+    expect(useCartStore.getState().stash?.attribution).not.toMatchObject({
+      kind: "customer",
+      customerId: 1,
+    });
+    // Guest server upsert must use credential-free transport, not A's apiClient.
+    await vi.waitFor(() => expect(guestPut).toHaveBeenCalled());
+    expect(apiPut).not.toHaveBeenCalled();
+    expect(guestCartClient.defaults.withCredentials).toBe(false);
+    // Hidden A customer stash must not be rewritten into guest attribution.
+    expect(useCartStore.getState().stash?.attribution.kind).toBe("guest");
+  });
+
+  it("T29: unknown + no soft marker does not authorize credentialed guest HTTP", async () => {
+    const G = "g".repeat(32);
+    seedGuestCart(G, [{ product: product(51), quantity: 1 }]);
+    useCartStore.setState({ cart: [], quote: [] });
+    resetCustomerSessionStateForTests(); // phase unknown
+    vi.spyOn(apiClientModule, "isLoggedIn").mockReturnValue(false);
+
+    expect(guestCartClient.defaults.withCredentials).toBe(false);
+    expect(cartService.resolveTransportClient("guest")).toBe(guestCartClient);
+    expect(cartService.resolveTransportClient("customer")).toBe(apiClient);
+
+    const guestGet = vi.spyOn(guestCartClient, "get").mockResolvedValue({
+      data: emptyCart("purchase"),
+    } as never);
+    const apiGet = vi.spyOn(apiClient, "get").mockResolvedValue({
+      data: emptyCart("purchase"),
+    } as never);
+
+    expect(useCartStore.getState().publishStashForCurrentGuestIfMatches()).toBe(true);
+    await useCartStore.getState().reconcileSameOwnerFromServer();
+
+    expect(guestGet).toHaveBeenCalled();
+    expect(apiGet).not.toHaveBeenCalled();
+  });
+
+  it("T30: verified customer cart still uses authenticated transport", async () => {
+    seedCustomerCart(1, [{ product: product(51), quantity: 1 }]);
+    establishVerifiedCustomer(1, "otp");
+
+    expect(cartService.resolveTransportClient("customer")).toBe(apiClient);
+    expect(apiClient.defaults.withCredentials).toBe(true);
+
+    const apiPut = vi.spyOn(apiClient, "put").mockResolvedValue({
+      data: emptyCart("purchase"),
+    } as never);
+    const guestPut = vi.spyOn(guestCartClient, "put").mockResolvedValue({
+      data: emptyCart("purchase"),
+    } as never);
+
+    useCartStore.getState().setCartQuantity(51, 3);
+    await vi.waitFor(() => expect(apiPut).toHaveBeenCalled());
+    expect(guestPut).not.toHaveBeenCalled();
+
+    const apiGet = vi.spyOn(apiClient, "get").mockResolvedValue({
+      data: emptyCart("purchase"),
+    } as never);
+    const guestGet = vi.spyOn(guestCartClient, "get").mockResolvedValue({
+      data: emptyCart("purchase"),
+    } as never);
+    await useCartStore.getState().reconcileSameOwnerFromServer();
+    expect(apiGet).toHaveBeenCalled();
+    expect(guestGet).not.toHaveBeenCalled();
   });
 
 });

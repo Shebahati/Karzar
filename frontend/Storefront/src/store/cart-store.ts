@@ -3,7 +3,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { ProductSummary } from "@/types/product";
-import { cartService, type CartItemResponse, type CartLane } from "@/services/cart";
+import {
+  cartService,
+  type CartItemResponse,
+  type CartLane,
+  type CartTransport,
+} from "@/services/cart";
 import { env } from "@/config/env";
 import {
   captureVerifiedCustomerSessionFence,
@@ -166,14 +171,25 @@ function attributionEquals(a: CartAttribution | null | undefined, b: CartAttribu
 }
 
 /**
- * Guest cart publication/mutation/network is allowed only when guest scope is trustworthy.
- * `verifiedCustomerId == null` alone is NOT sufficient (auth-pending checking/unknown+logged-in).
+ * LOCAL guest UX eligibility only.
+ * Does NOT prove the backend will see the request as guest, and does NOT authorize
+ * credentialed apiClient cart traffic (F08 logout may leave HttpOnly cookies).
+ * Remote guest cart must use CartTransport "guest" (guestCartClient).
  */
-export function isGuestCartScopeAllowed(): boolean {
+export function isLocalGuestCartScopeAllowed(): boolean {
   const snap = getCustomerSessionSnapshot();
   if (snap.phase === "guest") return true;
   if (snap.phase === "unknown" && !isLoggedIn()) return true;
   return false;
+}
+
+/** @deprecated Prefer isLocalGuestCartScopeAllowed — name clarifies LOCAL-only semantics. */
+export function isGuestCartScopeAllowed(): boolean {
+  return isLocalGuestCartScopeAllowed();
+}
+
+function transportForAttribution(attribution: CartAttribution): CartTransport {
+  return attribution.kind === "guest" ? "guest" : "customer";
 }
 
 function captureCartOpFence(attribution: CartAttribution): CartOpFence | null {
@@ -182,7 +198,7 @@ function captureCartOpFence(attribution: CartAttribution): CartOpFence | null {
     if (!session || session.ownerId !== attribution.customerId) return null;
     return { kind: "customer", session };
   }
-  if (!isGuestCartScopeAllowed()) return null;
+  if (!isLocalGuestCartScopeAllowed()) return null;
   const snap = getCustomerSessionSnapshot();
   const token = getCartToken();
   // Guest fence requires exact storage token match (G1 stash + G2 token fails closed).
@@ -199,7 +215,7 @@ function isCartOpFenceCurrent(fence: CartOpFence | null): boolean {
   if (fence.kind === "customer") {
     return isCustomerSessionFenceCurrent(fence.session);
   }
-  if (!isGuestCartScopeAllowed()) return false;
+  if (!isLocalGuestCartScopeAllowed()) return false;
   const snap = getCustomerSessionSnapshot();
   if (snap.generation !== fence.generation) return false;
   const stash = useCartStore.getState().stash;
@@ -244,7 +260,7 @@ function ensureMutationAttribution(): CartAttribution | null {
   }
 
   // Auth-pending (checking / unknown+logged-in) must not fabricate guest identity.
-  if (!isGuestCartScopeAllowed()) return null;
+  if (!isLocalGuestCartScopeAllowed()) return null;
 
   // Guest scope — token must be created under an explicit guest attribution.
   const token = getOrCreateCartToken();
@@ -277,7 +293,7 @@ function resolveExistingMutationAttribution(): CartAttribution | null {
     }
     return null;
   }
-  if (!isGuestCartScopeAllowed()) return null;
+  if (!isLocalGuestCartScopeAllowed()) return null;
   const token = getCartToken();
   if (
     token &&
@@ -297,8 +313,9 @@ async function syncServerCart(lane: CartLane, productId: number, lines: CartLine
   if (!fence) return;
   const line = lines.find((l) => l.product.id === productId);
   if (!line) return;
+  const transport = transportForAttribution(attribution);
   try {
-    await cartService.upsertItem(lane, productId, line.quantity);
+    await cartService.upsertItem(lane, productId, line.quantity, transport);
     if (!isCartOpFenceCurrent(fence)) return;
     setSyncError(null);
   } catch {
@@ -313,8 +330,9 @@ async function removeServerCartItem(lane: CartLane, productId: number) {
   if (!attribution) return;
   const fence = captureCartOpFence(attribution);
   if (!fence) return;
+  const transport = transportForAttribution(attribution);
   try {
-    await cartService.removeItem(lane, productId);
+    await cartService.removeItem(lane, productId, transport);
     if (!isCartOpFenceCurrent(fence)) return;
     setSyncError(null);
   } catch {
@@ -329,8 +347,9 @@ async function clearServerCart(lane: CartLane) {
   if (!attribution) return;
   const fence = captureCartOpFence(attribution);
   if (!fence) return;
+  const transport = transportForAttribution(attribution);
   try {
-    await cartService.clear(lane);
+    await cartService.clear(lane, transport);
     if (!isCartOpFenceCurrent(fence)) return;
     setSyncError(null);
   } catch {
@@ -339,13 +358,13 @@ async function clearServerCart(lane: CartLane) {
   }
 }
 
-async function fetchServerLanes(): Promise<{
+async function fetchServerLanes(transport: CartTransport): Promise<{
   purchaseLines: CartLine[];
   inquiryLines: CartLine[];
 }> {
   const [purchase, inquiry] = await Promise.all([
-    cartService.get("purchase"),
-    cartService.get("inquiry"),
+    cartService.get("purchase", transport),
+    cartService.get("inquiry", transport),
   ]);
 
   const ids = [
@@ -763,9 +782,10 @@ export const useCartStore = create<CartState>()(
         // Local-only candidates must already belong to this attribution.
         const localCart = get().stash?.cart ?? get().cart;
         const localQuote = get().stash?.quote ?? get().quote;
+        const transport = transportForAttribution(attribution);
 
         try {
-          const { purchaseLines, inquiryLines } = await fetchServerLanes();
+          const { purchaseLines, inquiryLines } = await fetchServerLanes(transport);
           if (!isCartOpFenceCurrent(fence)) {
             return { ok: false, error: "CART_STALE_OWNER" };
           }
@@ -781,15 +801,19 @@ export const useCartStore = create<CartState>()(
 
           for (const line of localOnlyCart) {
             if (!isCartOpFenceCurrent(fence)) break;
-            void cartService.upsertItem("purchase", line.product.id, line.quantity).catch(() => {
-              if (isCartOpFenceCurrent(fence)) setSyncError(SYNC_ERROR_MESSAGE);
-            });
+            void cartService
+              .upsertItem("purchase", line.product.id, line.quantity, transport)
+              .catch(() => {
+                if (isCartOpFenceCurrent(fence)) setSyncError(SYNC_ERROR_MESSAGE);
+              });
           }
           for (const line of localOnlyQuote) {
             if (!isCartOpFenceCurrent(fence)) break;
-            void cartService.upsertItem("inquiry", line.product.id, line.quantity).catch(() => {
-              if (isCartOpFenceCurrent(fence)) setSyncError(SYNC_ERROR_MESSAGE);
-            });
+            void cartService
+              .upsertItem("inquiry", line.product.id, line.quantity, transport)
+              .catch(() => {
+                if (isCartOpFenceCurrent(fence)) setSyncError(SYNC_ERROR_MESSAGE);
+              });
           }
 
           return { ok: true };
@@ -952,7 +976,7 @@ export const useCartStore = create<CartState>()(
         }
 
         try {
-          const { purchaseLines, inquiryLines } = await fetchServerLanes();
+          const { purchaseLines, inquiryLines } = await fetchServerLanes("customer");
           if (!isCustomerSessionFenceCurrent(session)) {
             return { ok: false, error: "CART_STALE_OWNER" };
           }

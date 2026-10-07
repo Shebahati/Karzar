@@ -133,6 +133,6 @@ describe("auth login cart ownership (F03 intercepted)", () => {
     expect(merge).toHaveBeenCalledWith(G);
     expect(getCartToken()).toBeNull();
     expect(useCartStore.getState().cart.some((l) => l.product.id === 51)).toBe(true);
-    expect(upsert).toHaveBeenCalledWith("purchase", 51, 2);
+    expect(upsert).toHaveBeenCalledWith("purchase", 51, 2, "customer");
   });
 });

@@ -1,13 +1,21 @@
 /**
  * Server cart facade — dual-lane (purchase | inquiry).
- * Guest identity via X-Cart-Token (auto-attached by api-client).
- * Local Zustand cart remains the UX source; this syncs when live API is on.
+ *
+ * Transport identity:
+ * - `customer` → credentialed apiClient (cookies + optional Bearer)
+ * - `guest` → guestCartClient (X-Cart-Token only; withCredentials:false)
+ *
+ * Merge is always authenticated (verified customer target).
  */
 
-import { apiClient, getOrCreateCartToken } from "@/lib/api-client";
+import { apiClient, guestCartClient, getOrCreateCartToken } from "@/lib/api-client";
 import { env } from "@/config/env";
+import type { AxiosInstance } from "axios";
 
 export type CartLane = "purchase" | "inquiry";
+
+/** Explicit wire identity for cart HTTP — never infer from soft login markers. */
+export type CartTransport = "customer" | "guest";
 
 export interface CartItemResponse {
   product_id: number;
@@ -23,15 +31,29 @@ export interface CartResponse {
   item_count: number;
 }
 
+function clientFor(transport: CartTransport): AxiosInstance {
+  return transport === "guest" ? guestCartClient : apiClient;
+}
+
 export const cartService = {
   ensureGuestToken(): string {
     return getOrCreateCartToken();
   },
 
-  async get(lane: CartLane = "purchase"): Promise<CartResponse> {
+  /** Inspectable for tests — proves guest vs credentialed selection. */
+  resolveTransportClient(transport: CartTransport): AxiosInstance {
+    return clientFor(transport);
+  },
+
+  async get(
+    lane: CartLane = "purchase",
+    transport: CartTransport = "customer",
+  ): Promise<CartResponse> {
     if (env.USE_MOCK) return { lane, items: [], item_count: 0 };
-    this.ensureGuestToken();
-    const { data } = await apiClient.get<CartResponse>("/cart", { params: { lane } });
+    if (transport === "guest") this.ensureGuestToken();
+    const { data } = await clientFor(transport).get<CartResponse>("/cart", {
+      params: { lane },
+    });
     return data;
   },
 
@@ -39,12 +61,13 @@ export const cartService = {
     lane: CartLane,
     productId: number,
     quantity: number,
+    transport: CartTransport = "customer",
   ): Promise<CartResponse> {
     if (env.USE_MOCK) {
       return { lane, items: [{ product_id: productId, quantity }], item_count: 1 };
     }
-    this.ensureGuestToken();
-    const { data } = await apiClient.put<CartResponse>("/cart/items", {
+    if (transport === "guest") this.ensureGuestToken();
+    const { data } = await clientFor(transport).put<CartResponse>("/cart/items", {
       lane,
       product_id: productId,
       quantity,
@@ -52,21 +75,30 @@ export const cartService = {
     return data;
   },
 
-  async removeItem(lane: CartLane, productId: number): Promise<CartResponse> {
+  async removeItem(
+    lane: CartLane,
+    productId: number,
+    transport: CartTransport = "customer",
+  ): Promise<CartResponse> {
     if (env.USE_MOCK) return { lane, items: [], item_count: 0 };
-    this.ensureGuestToken();
-    const { data } = await apiClient.delete<CartResponse>(`/cart/items/${productId}`, {
-      params: { lane },
-    });
+    if (transport === "guest") this.ensureGuestToken();
+    const { data } = await clientFor(transport).delete<CartResponse>(
+      `/cart/items/${productId}`,
+      { params: { lane } },
+    );
     return data;
   },
 
-  async clear(lane: CartLane): Promise<void> {
+  async clear(lane: CartLane, transport: CartTransport = "customer"): Promise<void> {
     if (env.USE_MOCK) return;
-    this.ensureGuestToken();
-    await apiClient.delete("/cart", { params: { lane } });
+    if (transport === "guest") this.ensureGuestToken();
+    await clientFor(transport).delete("/cart", { params: { lane } });
   },
 
+  /**
+   * Authenticated transition only — verified customer fence required by caller.
+   * Never uses guestCartClient.
+   */
   async merge(guestToken: string, lane?: CartLane): Promise<CartResponse[]> {
     if (env.USE_MOCK) return [];
     const { data } = await apiClient.post<CartResponse[]>("/cart/merge", {
