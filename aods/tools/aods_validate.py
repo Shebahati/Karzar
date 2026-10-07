@@ -114,6 +114,8 @@ NAMING_ALLOW = {
     "audit/deployment-ownership-audit-2026-10-06/FINAL_REPORT.md",
     # Deployment ownership preflight implementation evidence contract.
     "audit/deployment-ownership-preflight-2026-10-06/FINAL_REPORT.md",
+    # Preservation-gate update before ownership remediation.
+    "audit/deployment-ownership-preflight-2026-10-06/UPDATED_FINAL_REPORT.md",
 }
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 MD_LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")

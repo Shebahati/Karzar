@@ -1637,6 +1637,33 @@ documents:
     notes: >
       Deploy Staging workflow ordering and freeze safety for preflight.
 
+  - id: DEPLOY-OWNERSHIP-PRESERVE-REQ-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/PRESERVATION_REQUIREMENTS.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only preservation requirements before any ownership chown.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVE-PLAN-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/REMEDIATION_EXECUTION_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Ordered Owner-authorized remediation plan; not executed.
+
+  - id: DEPLOY-OWNERSHIP-PRESERVE-UPDATED-20261006
+    path: audit/deployment-ownership-preflight-2026-10-06/UPDATED_FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Updated final report after preservation gate (chown forbidden).
+
   - id: HESABFA-ACTIVATION-RECONCILE-20260929
     path: audit/hesabfa-activation-reconcile-2026-09-29/README.md
     class: EVIDENCE
