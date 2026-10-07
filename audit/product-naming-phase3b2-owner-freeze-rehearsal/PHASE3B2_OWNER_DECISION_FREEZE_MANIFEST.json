@@ -1,0 +1,26 @@
+{
+  "phase": "3B2",
+  "decision_count": 11,
+  "covered_wave3b_rows": 132,
+  "duplicate_decision_ids": 0,
+  "unapproved_decisions": 0,
+  "owner_decision_sha256": "9fd833b764338786a44bcee2960dc0c5c4bd633b9188a08509d5a1479881919a",
+  "source_phase3b1_merge_sha": "a8a75026a26ec528fc102c40333b1327c73962eb",
+  "source_phase3b1_decision_pack_sha256": "4093efb7484355dd35c5643c4ea6df3623db205ecfbf9b63dd40f45b3af4c0c5",
+  "phase3b1_input_sha256": {
+    "PHASE3B1_SCOPE.csv": "50b3960f120b6160a5b60b5a5abdc14e5080b26ace04d4f85cff063f17c9d648",
+    "PHASE3B1_OWNER_DECISION_MATRIX.csv": "3d064e2f1cd4a33207ac93c0f3a4982dd5dd6faaf91b72e2a263608b54793c1e",
+    "PHASE3B1_OWNER_DECISION_PACK.md": "4093efb7484355dd35c5643c4ea6df3623db205ecfbf9b63dd40f45b3af4c0c5",
+    "PHASE3B1_SEMANTIC_HOMOGENEITY.csv": "6f9837afc05e45a32d2f82ded03d35ee7e8a5f9c85abcd8d63506c3a4ece6568",
+    "PHASE3B1_GEN_CALIPER_SPLIT_ANALYSIS.csv": "71c8d7ab1ed2ba3e3883d64820e11ec13ced5b6c47ee31a44580ea4dd5636abf",
+    "PHASE3B1_BORE_GAUGE_ANALYSIS.csv": "e1c41bbb216425dc788c9002ca53035a3a5cfd8a0bdc1dedd239f48c6225d211",
+    "PHASE3B1_LEVEL_FAMILY_ANALYSIS.csv": "23b6b5cfe1d50b1c6ca904c01e06bd2441ec76249958a7d3ead1539f55e92aed",
+    "PHASE3B1_PROPERTY_REQUIREMENTS.csv": "1866d583c88c6e2aca280a5a43bac3863ef9f8f56ccb1cad8d272197fe57b995",
+    "PHASE3B1_POST_POLICY_BLOCKERS.csv": "eb1e1ffc70dd86ad4ecfd7226824088f3b6479ff0f7f6cdfb32783c6f1c59759",
+    "PHASE3B1_REPORT.json": "c3ee813aed80dc50374ee8fdbb1baee4bae850c523c92f444d71b20644324768"
+  },
+  "logic_git_sha": "b2f53bf7220c5dda0e5b0ea545b840afb4411882",
+  "authoritative_replay_logic_sha": "b2f53bf7220c5dda0e5b0ea545b840afb4411882",
+  "logic_committed_before_authoritative_replay": true,
+  "generated_at_utc": "2026-10-07T10:51:07Z"
+}

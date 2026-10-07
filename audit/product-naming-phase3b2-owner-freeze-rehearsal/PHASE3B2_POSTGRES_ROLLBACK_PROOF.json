@@ -1,0 +1,13 @@
+{
+  "classification": "SCHEMA_FAITHFUL_POSTGRES_REHEARSAL",
+  "persistent_mutations": 0,
+  "prestate_fingerprint": "0f3e06b0087382ea66ac9c8eb3c215cd2449dbb475fb89c800695da02567817a",
+  "post_rollback_fingerprint": "0f3e06b0087382ea66ac9c8eb3c215cd2449dbb475fb89c800695da02567817a",
+  "fresh_connection_pt_creates": 0,
+  "fresh_connection_property_creates": 0,
+  "fresh_connection_memberships": 0,
+  "fresh_connection_pt_reassign_drift": 0,
+  "failure_injection_all_rollback_ok": true,
+  "product_name_actions": 0,
+  "result": "PASS"
+}

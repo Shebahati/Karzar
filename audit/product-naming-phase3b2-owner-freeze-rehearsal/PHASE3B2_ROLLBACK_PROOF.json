@@ -1,0 +1,9 @@
+{
+  "classification": "UNIT_LEVEL_REHEARSAL",
+  "production_equivalent": false,
+  "persistent_mutations": 0,
+  "prestate_fingerprint": "6d73010cd61c18eb95b6251e6252b7780100daf0e4c8d28357defd43e9487b8e",
+  "post_rollback_fingerprint": "6d73010cd61c18eb95b6251e6252b7780100daf0e4c8d28357defd43e9487b8e",
+  "failure_injection_all_rollback_ok": true,
+  "product_name_actions": 0
+}

@@ -1,0 +1,12 @@
+{
+  "classification": "SCHEMA_FAITHFUL_POSTGRES_REHEARSAL",
+  "db_engine": "postgresql",
+  "db_version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "alembic_revision": "u4v5w6x7y8z9",
+  "schema_source": "alembic upgrade head (u4v5w6x7y8z9)",
+  "fixture_source": "live_readonly_dump_mutation_sensitive_fields",
+  "fixture_fingerprint": "02d0153f66869952e956ca02c5562e1898ce58d2bd99c4ccdd7902e5b9b1678d",
+  "production_data_used": false,
+  "fingerprint": "0f3e06b0087382ea66ac9c8eb3c215cd2449dbb475fb89c800695da02567817a",
+  "isolation": "SERIALIZABLE + ROLLBACK"
+}

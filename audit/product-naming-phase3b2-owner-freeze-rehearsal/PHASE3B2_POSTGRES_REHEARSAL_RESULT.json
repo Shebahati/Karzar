@@ -1,0 +1,41 @@
+{
+  "db_engine": "postgresql",
+  "db_version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "alembic_revision": "u4v5w6x7y8z9",
+  "creation_method": "disposable_postgres_alembic_head_fixture",
+  "schema_source": "alembic upgrade head (u4v5w6x7y8z9)",
+  "production_data_used": false,
+  "fixture_source": "live_readonly_dump_mutation_sensitive_fields",
+  "isolation": "SERIALIZABLE + ROLLBACK",
+  "prestate_fingerprint": "0f3e06b0087382ea66ac9c8eb3c215cd2449dbb475fb89c800695da02567817a",
+  "post_rollback_fingerprint": "0f3e06b0087382ea66ac9c8eb3c215cd2449dbb475fb89c800695da02567817a",
+  "persistent_mutations": 0,
+  "fresh_connection_pt_creates": 0,
+  "fresh_connection_property_creates": 0,
+  "fresh_connection_memberships": 0,
+  "fresh_connection_pt_reassign_drift": 0,
+  "product_name_actions": 0,
+  "tx": {
+    "status": "VALIDATED_READY_FOR_ROLLBACK",
+    "error": null,
+    "created_pts": [
+      "GAP_TAPER_GAUGE",
+      "INSIDE_SPRING_CALIPER",
+      "LASER_LEVEL",
+      "LONG_JAW_CALIPER",
+      "OUTSIDE_SPRING_CALIPER",
+      "TAPER_BORE_GAUGE",
+      "TAPER_GAUGE_SET"
+    ],
+    "props_created": [
+      "body_length",
+      "plate_dimensions"
+    ],
+    "memberships": 5,
+    "reassigned": 44
+  },
+  "fail_at": null,
+  "result": "PASS",
+  "classification": "SCHEMA_FAITHFUL_POSTGRES_REHEARSAL",
+  "fixture_fingerprint": "02d0153f66869952e956ca02c5562e1898ce58d2bd99c4ccdd7902e5b9b1678d"
+}

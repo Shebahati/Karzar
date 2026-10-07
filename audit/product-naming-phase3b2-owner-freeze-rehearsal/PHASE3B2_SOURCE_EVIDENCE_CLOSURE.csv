@@ -1,0 +1,9 @@
+manufacturer_code,product_type_code,decision_id,oem_evidence_status,oem_heading,occurrence_class,closure_classification,governance_eligible,product_name_used_as_authority,sku_used_as_authority,notes
+4700-200,STRAIGHT_EDGE,D-STRAIGHT-01,INSUFFICIENT,,INDEX_ONLY_OR_ABSENT,NOT_FOUND,no,no,no,Local INSIZE registry only; no fake PDF pages
+6566-2,OPTICAL_EDGE_FINDER,D-OPTICAL-01,INSUFFICIENT,,INDEX_ONLY_OR_ABSENT,AMBIGUOUS,no,no,no,Local INSIZE registry only; no fake PDF pages
+6520-67,PRECISION_VISE,D-VISE-01,INSUFFICIENT,PRECISION VISES,PRODUCT_HEADING,AMBIGUOUS,no,no,no,Local INSIZE registry only; no fake PDF pages
+6520-87,PRECISION_VISE,D-VISE-01,INSUFFICIENT,PRECISION VISES,PRODUCT_HEADING,AMBIGUOUS,no,no,no,Local INSIZE registry only; no fake PDF pages
+6520-102,PRECISION_VISE,D-VISE-01,INSUFFICIENT,PRECISION VISES,PRODUCT_HEADING,AMBIGUOUS,no,no,no,Local INSIZE registry only; no fake PDF pages
+6801-1201,V_BLOCK,D-VBLOCK-01,INSUFFICIENT,,INDEX_ONLY_OR_ABSENT,AMBIGUOUS,no,no,no,Local INSIZE registry only; no fake PDF pages
+6801-1202,V_BLOCK,D-VBLOCK-01,INSUFFICIENT,,INDEX_ONLY_OR_ABSENT,AMBIGUOUS,no,no,no,Local INSIZE registry only; no fake PDF pages
+6890-702,V_BLOCK,D-VBLOCK-01,INSUFFICIENT,,INDEX_ONLY_OR_ABSENT,NOT_FOUND,no,no,no,Local INSIZE registry only; no fake PDF pages
