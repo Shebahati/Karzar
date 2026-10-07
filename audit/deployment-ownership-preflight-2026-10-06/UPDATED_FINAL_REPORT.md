@@ -70,3 +70,8 @@ NEW top-level invent: NO
 ## Next Owner-authorized mutation (single plan)
 
 See `REMEDIATION_EXECUTION_PLAN.md` Phases A→H. First concrete action: approve/create preserve subdirs under `/opt/karzar/preserve` and copy PRESERVE_REQUIRED set with SHA256 verification — **not** chown.
+## Phase C0 — cleanup allowlist freeze
+
+See `FINAL_CLEANUP_PLAN.md`. Status: **READY_FOR_OWNER_CLEANUP**.
+`PHASE_C_DELETE_ROOTS` = 8 exact paths; `PHASE_D_CHOWN_PATHS` = 0.
+No VPS mutation performed in C0.
