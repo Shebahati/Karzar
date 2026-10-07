@@ -1,0 +1,25 @@
+{
+  "phase": "3B1",
+  "authoritative_replay_logic_sha": "c20b2eef791aaa2d4d3a743ed4d435be963aa04e",
+  "logic_committed_before_authoritative_replay": true,
+  "files": [
+    {
+      "path": "app/domain/product_naming_phase3b1.py",
+      "sha256": "f885b58a496ea3c3269fe4775c071a313bd9476fa95985e95094247bd60ce513",
+      "git_blob": "d05865a38188f4a1c26df01a678dfdeb9ad89c00",
+      "byte_identical_to_logic_sha": true
+    },
+    {
+      "path": "scripts/ops/product_naming_phase3b1_governance_review.py",
+      "sha256": "b513b1a313b6b6de60af82c75edbbc12068304e4d61137f022ad42ebac76bff2",
+      "git_blob": "d7eb86732a5d62f4e55a9f51bc77180a6d7cba8c",
+      "byte_identical_to_logic_sha": true
+    },
+    {
+      "path": "tests/test_product_naming_phase3b1_governance_review.py",
+      "sha256": "996f072d2b59fdd55dee1e0daaa515784971705df359da35cbe274fc23f148d6",
+      "git_blob": "4610a85e0687f3c05e5d5f9064c3df396741da8f",
+      "byte_identical_to_logic_sha": true
+    }
+  ]
+}
