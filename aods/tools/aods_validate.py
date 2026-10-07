@@ -119,6 +119,8 @@ NAMING_ALLOW = {
     # Phase A+B VPS preserve+verify evidence contract.
     "audit/deployment-ownership-preservation-2026-10-07/FINAL_REPORT.md",
     "audit/deployment-ownership-preservation-remaining19-2026-10-07/FINAL_REPORT.md",
+    # Global sellability root-cause audit evidence contract.
+    "audit/sellability-global-root-cause-2026-10-07/FINAL_REPORT.md",
 
 }
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")

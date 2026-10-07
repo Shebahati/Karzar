@@ -1842,3 +1842,64 @@ documents:
     notes: >
       Phase C/D cleanup closeout; ownership drift closed; no deploy/merge.
 
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Read-only global product-by-product sellability root-cause audit (2026-10-07).
+      Observational evidence only. SELLABILITY_MUTATION_AUTHORIZED=NO.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-FINAL-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Global sellability root-cause final report. APPLY/Wave remediation not authorized.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-CONTRACT-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/CODE_SELLABILITY_CONTRACT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Code vs historical sellability contract for the 2026-10-07 global audit.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-RECONCILE-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/ROOT_CAUSE_RECONCILIATION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Blocker and root-cause class reconciliation to LIVE universe.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-HIST-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/HISTORICAL_RECONCILIATION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Fresh census vs Wave 0/1A anchors and historical 330 cohort.
+
+  - id: SELLABILITY-GLOBAL-ROOT-CAUSE-WAVES-20261007
+    path: audit/sellability-global-root-cause-2026-10-07/REMEDIATION_WAVE_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/sellability-global-root-cause
+    notes: >
+      Designed remediation waves only; does not authorize APPLY.
+
