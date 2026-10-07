@@ -1,0 +1,8 @@
+wave,rows,direct_unlock,two_step,multi_step,owner_decision_required,source_evidence_required,unresolved,expected_unlock,partial_progress_if_wave_gate_cleared,cumulative_standardized_after_expected,priority
+WAVE_3B_GOVERNANCE_QUICK_WINS,132,1,81,0,50,0,0,1,82,48,P0
+WAVE_3C_VARIANT_FACTS,58,0,0,0,0,58,0,0,0,48,P1
+WAVE_3D_INSIZE_OEM_EVIDENCE,330,0,0,0,52,278,0,0,0,48,P2
+WAVE_3E_INSIZE_MISSING_PT,156,0,24,14,36,82,0,0,24,48,P2
+WAVE_3F_DASQUA_PT,396,0,0,0,0,396,0,0,0,48,P2
+WAVE_3G_TERMA_PT,226,0,0,0,0,226,0,0,0,48,P2
+WAVE_3H_MANUAL_EXCEPTIONS,5,0,0,0,5,0,0,0,0,48,P3
