@@ -1750,3 +1750,22 @@ documents:
       Read-only Production reconciliation of Hesabfa item activation on
       2026-09-29. Evidence only. Not Canon. Does not authorize item/save
       or activation APPLY.
+
+  - id: DEPLOY-OWNERSHIP-CLEANUP-README-20261007
+    path: audit/deployment-ownership-cleanup-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase C/D Owner-authorized exact-path cleanup closeout index.
+
+  - id: DEPLOY-OWNERSHIP-CLEANUP-CLOSEOUT-20261007
+    path: audit/deployment-ownership-cleanup-2026-10-07/CLOSEOUT_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase C/D cleanup closeout; ownership drift closed; no deploy/merge.
+
