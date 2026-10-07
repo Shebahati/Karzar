@@ -1,0 +1,60 @@
+{
+  "after_first_pt_create": {
+    "status": "FAILED",
+    "error": "injected:after_first_pt_create",
+    "persistent_mutations": 0,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "mid_pt_creation": {
+    "status": "FAILED",
+    "error": "injected:mid_pt_creation",
+    "persistent_mutations": 0,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "after_all_pt_creation": {
+    "status": "FAILED",
+    "error": "injected:after_all_pt_creation",
+    "persistent_mutations": 0,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "after_first_property_create": {
+    "status": "FAILED",
+    "error": "injected:after_first_property_create",
+    "persistent_mutations": 0,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "after_memberships": {
+    "status": "FAILED",
+    "error": "injected:after_memberships",
+    "persistent_mutations": 0,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "mid_reassignment": {
+    "status": "FAILED",
+    "error": "injected:mid_reassignment",
+    "persistent_mutations": 0,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "after_all_reassignments": {
+    "status": "FAILED",
+    "error": "injected:after_all_reassignments",
+    "persistent_mutations": 0,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "validation_failure": {
+    "status": "FAILED",
+    "error": "injected:validation_failure",
+    "persistent_mutations": 0,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "all_rollback_ok": true,
+  "result": "PASS"
+}

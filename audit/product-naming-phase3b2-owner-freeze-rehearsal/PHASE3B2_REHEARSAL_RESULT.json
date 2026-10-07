@@ -1,0 +1,28 @@
+{
+  "status": "ROLLED_BACK_OK",
+  "error": null,
+  "prestate_fingerprint": "6d73010cd61c18eb95b6251e6252b7780100daf0e4c8d28357defd43e9487b8e",
+  "post_rollback_fingerprint": "6d73010cd61c18eb95b6251e6252b7780100daf0e4c8d28357defd43e9487b8e",
+  "persistent_mutations": 0,
+  "created_pts_in_tx": [
+    "GAP_TAPER_GAUGE",
+    "INSIDE_SPRING_CALIPER",
+    "LASER_LEVEL",
+    "LONG_JAW_CALIPER",
+    "OUTSIDE_SPRING_CALIPER",
+    "TAPER_BORE_GAUGE",
+    "TAPER_GAUGE_SET"
+  ],
+  "reassigned_in_tx": 44,
+  "props_created_in_tx": 2,
+  "memberships_in_tx": 5,
+  "product_name_actions": 0,
+  "db_engine": "sqlite3",
+  "db_version": "3.46.1",
+  "alembic_revision": "n/a_fixture_schema",
+  "creation_method": "in_memory_sqlite_minimal_fixture",
+  "isolation": "BEGIN/ROLLBACK (manual)",
+  "classification": "UNIT_LEVEL_REHEARSAL",
+  "production_equivalent": false,
+  "not_production_equivalent": true
+}
