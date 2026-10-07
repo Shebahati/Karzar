@@ -144,7 +144,10 @@ function CustomerSessionBoundary() {
  */
 function PersistRehydrate() {
   useEffect(() => {
-    void useCartStore.persist.rehydrate();
+    void Promise.resolve(useCartStore.persist.rehydrate()).then(() => {
+      // Guest stash may republish after mount when token matches; customer stash stays hidden.
+      useCartStore.getState().publishStashForCurrentGuestIfMatches();
+    });
     void useAddressStore.persist.rehydrate();
   }, []);
   return null;

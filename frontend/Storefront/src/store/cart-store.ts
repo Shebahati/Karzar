@@ -40,9 +40,12 @@ const PERSIST_FORMAT_VERSION = 2;
 const SYNC_ERROR_MESSAGE =
   "همگام‌سازی سبد با سرور ناموفق بود. سبد محلی حفظ شد؛ می‌توانید ادامه دهید.";
 
-type CartOpFence =
+/** Captured before async cart mutations; publish/clear only while still current. */
+export type CartOwnershipFence =
   | { kind: "customer"; session: CustomerSessionFence }
   | { kind: "guest"; guestToken: string; generation: number };
+
+type CartOpFence = CartOwnershipFence;
 
 /**
  * Two carts coexist per the storefront "two-lane purchase" strategy:
@@ -66,6 +69,10 @@ interface CartState {
   setQuoteQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
   clearQuote: () => void;
+  /** Clear quote only if the captured ownership fence is still current. */
+  clearQuoteIfOwnershipCurrent: (fence: CartOwnershipFence) => boolean;
+  /** Clear purchase cart only if the captured ownership fence is still current. */
+  clearCartIfOwnershipCurrent: (fence: CartOwnershipFence) => boolean;
   /**
    * Restore inquiry lines under a captured verified-customer fence.
    * Returns false (no write) when the fence is stale or owner mismatched.
@@ -76,6 +83,13 @@ interface CartState {
   hidePublishedCart: () => void;
   /** Publish stash only when attribution matches verified customer. */
   publishStashForVerifiedCustomer: (customerId: number) => void;
+  /**
+   * Republish guest stash after rehydrate when token matches exactly.
+   * Never publishes customer stash. Safe after mount only.
+   */
+  publishStashForCurrentGuestIfMatches: () => boolean;
+  /** Capture ownership fence for the currently attributable active stash. */
+  captureOwnershipFence: () => CartOwnershipFence | null;
   /**
    * Same-owner reconcile: merge server lanes with local-only lines that share
    * the active attribution; upsert those local-only lines under the same owner.
@@ -154,6 +168,9 @@ function captureCartOpFence(attribution: CartAttribution): CartOpFence | null {
   const snap = getCustomerSessionSnapshot();
   // Guest ops are blocked while a verified customer owns the session.
   if (snap.phase === "verified" && snap.verifiedCustomerId != null) return null;
+  const token = getCartToken();
+  // Guest fence requires exact storage token match (G1 stash + G2 token fails closed).
+  if (!token || token !== attribution.guestToken) return null;
   return {
     kind: "guest",
     guestToken: attribution.guestToken,
@@ -170,10 +187,16 @@ function isCartOpFenceCurrent(fence: CartOpFence | null): boolean {
   if (snap.generation !== fence.generation) return false;
   if (snap.phase === "verified" && snap.verifiedCustomerId != null) return false;
   const stash = useCartStore.getState().stash;
+  const token = getCartToken();
   return (
     stash?.attribution.kind === "guest" &&
-    stash.attribution.guestToken === fence.guestToken
+    stash.attribution.guestToken === fence.guestToken &&
+    token === fence.guestToken
   );
+}
+
+export function isCartOwnershipFenceCurrent(fence: CartOwnershipFence | null): boolean {
+  return isCartOpFenceCurrent(fence);
 }
 
 function writeStash(
@@ -184,6 +207,11 @@ function writeStash(
   return { attribution, cart, quote };
 }
 
+/**
+ * Establish attribution for a NEW mutation under the current identity.
+ * On cross-attribution transition, never copy unproven visible lines —
+ * start empty lanes, then apply only the new mutation.
+ */
 function ensureMutationAttribution(): CartAttribution | null {
   const verified = getVerifiedCustomerId();
   if (verified != null) {
@@ -191,7 +219,9 @@ function ensureMutationAttribution(): CartAttribution | null {
     const state = useCartStore.getState();
     if (!attributionEquals(state.stash?.attribution, next)) {
       useCartStore.setState({
-        stash: writeStash(next, state.cart, state.quote),
+        stash: writeStash(next, [], []),
+        cart: [],
+        quote: [],
       });
     }
     return next;
@@ -204,10 +234,39 @@ function ensureMutationAttribution(): CartAttribution | null {
   if (!attributionEquals(state.stash?.attribution, next)) {
     // New guest scope replaces any prior customer/foreign stash (fail closed).
     useCartStore.setState({
-      stash: writeStash(next, state.cart, state.quote),
+      stash: writeStash(next, [], []),
+      cart: [],
+      quote: [],
     });
   }
   return next;
+}
+
+/**
+ * Existing-stash mutations (remove/set/clear) require the stash to already
+ * belong to the current active identity. Never reuse a foreign attribution.
+ */
+function resolveExistingMutationAttribution(): CartAttribution | null {
+  const verified = getVerifiedCustomerId();
+  const stash = useCartStore.getState().stash;
+  if (verified != null) {
+    if (
+      stash?.attribution.kind === "customer" &&
+      stash.attribution.customerId === verified
+    ) {
+      return stash.attribution;
+    }
+    return null;
+  }
+  const token = getCartToken();
+  if (
+    token &&
+    stash?.attribution.kind === "guest" &&
+    stash.attribution.guestToken === token
+  ) {
+    return stash.attribution;
+  }
+  return null;
 }
 
 async function syncServerCart(lane: CartLane, productId: number, lines: CartLine[]) {
@@ -420,6 +479,31 @@ export const useCartStore = create<CartState>()(
         set({ cart: [], quote: [] });
       },
 
+      publishStashForCurrentGuestIfMatches: () => {
+        if (getVerifiedCustomerId() != null) return false;
+        const token = getCartToken();
+        const stash = get().stash;
+        if (
+          !token ||
+          stash?.attribution.kind !== "guest" ||
+          stash.attribution.guestToken !== token
+        ) {
+          return false;
+        }
+        set({
+          cart: stash.cart,
+          quote: stash.quote,
+          lastSyncError: null,
+        });
+        return true;
+      },
+
+      captureOwnershipFence: () => {
+        const stash = get().stash;
+        if (!stash) return null;
+        return captureCartOpFence(stash.attribution);
+      },
+
       addToCart: (product, quantity = 1) => {
         const attribution = ensureMutationAttribution();
         if (!attribution) return;
@@ -447,7 +531,7 @@ export const useCartStore = create<CartState>()(
       },
 
       removeFromCart: (productId) => {
-        const attribution = get().stash?.attribution ?? ensureMutationAttribution();
+        const attribution = resolveExistingMutationAttribution();
         if (!attribution) return;
         set((s) => {
           const cart = s.cart.filter((l) => l.product.id !== productId);
@@ -460,7 +544,7 @@ export const useCartStore = create<CartState>()(
       },
 
       removeFromQuote: (productId) => {
-        const attribution = get().stash?.attribution ?? ensureMutationAttribution();
+        const attribution = resolveExistingMutationAttribution();
         if (!attribution) return;
         set((s) => {
           const quote = s.quote.filter((l) => l.product.id !== productId);
@@ -477,7 +561,7 @@ export const useCartStore = create<CartState>()(
           get().removeFromCart(productId);
           return;
         }
-        const attribution = get().stash?.attribution ?? ensureMutationAttribution();
+        const attribution = resolveExistingMutationAttribution();
         if (!attribution) return;
         set((s) => {
           const cart = s.cart.map((l) =>
@@ -496,7 +580,7 @@ export const useCartStore = create<CartState>()(
           get().removeFromQuote(productId);
           return;
         }
-        const attribution = get().stash?.attribution ?? ensureMutationAttribution();
+        const attribution = resolveExistingMutationAttribution();
         if (!attribution) return;
         set((s) => {
           const quote = s.quote.map((l) =>
@@ -511,8 +595,9 @@ export const useCartStore = create<CartState>()(
       },
 
       clearCart: () => {
-        const attribution = get().stash?.attribution ?? ensureMutationAttribution();
+        const attribution = resolveExistingMutationAttribution();
         if (!attribution) {
+          // Fail closed: may clear published surface only; never rewrite foreign stash.
           set({ cart: [] });
           return;
         }
@@ -524,7 +609,7 @@ export const useCartStore = create<CartState>()(
       },
 
       clearQuote: () => {
-        const attribution = get().stash?.attribution ?? ensureMutationAttribution();
+        const attribution = resolveExistingMutationAttribution();
         if (!attribution) {
           set({ quote: [] });
           return;
@@ -534,6 +619,56 @@ export const useCartStore = create<CartState>()(
           stash: writeStash(attribution, s.cart, []),
         }));
         void clearServerCart("inquiry");
+      },
+
+      clearQuoteIfOwnershipCurrent: (fence) => {
+        if (!isCartOpFenceCurrent(fence)) return false;
+        const attribution = resolveExistingMutationAttribution();
+        if (!attribution) return false;
+        if (fence.kind === "customer") {
+          if (
+            attribution.kind !== "customer" ||
+            attribution.customerId !== fence.session.ownerId
+          ) {
+            return false;
+          }
+        } else if (
+          attribution.kind !== "guest" ||
+          attribution.guestToken !== fence.guestToken
+        ) {
+          return false;
+        }
+        set((s) => ({
+          quote: [],
+          stash: writeStash(attribution, s.cart, []),
+        }));
+        void clearServerCart("inquiry");
+        return true;
+      },
+
+      clearCartIfOwnershipCurrent: (fence) => {
+        if (!isCartOpFenceCurrent(fence)) return false;
+        const attribution = resolveExistingMutationAttribution();
+        if (!attribution) return false;
+        if (fence.kind === "customer") {
+          if (
+            attribution.kind !== "customer" ||
+            attribution.customerId !== fence.session.ownerId
+          ) {
+            return false;
+          }
+        } else if (
+          attribution.kind !== "guest" ||
+          attribution.guestToken !== fence.guestToken
+        ) {
+          return false;
+        }
+        set((s) => ({
+          cart: [],
+          stash: writeStash(attribution, [], s.quote),
+        }));
+        void clearServerCart("purchase");
+        return true;
       },
 
       restoreQuote: (lines, fence) => {
@@ -568,18 +703,22 @@ export const useCartStore = create<CartState>()(
       clearSyncError: () => set({ lastSyncError: null }),
 
       reconcileSameOwnerFromServer: async () => {
-        if (env.USE_MOCK) {
-          set({ lastSyncError: null });
-          return { ok: true };
-        }
-
         const attribution = get().stash?.attribution;
         if (!attribution) {
           return { ok: false, error: SYNC_ERROR_MESSAGE };
         }
+        // Guest path requires exact token match at capture (G1 stash / G2 token fails closed).
         const fence = captureCartOpFence(attribution);
         if (!fence) {
           return { ok: false, error: SYNC_ERROR_MESSAGE };
+        }
+
+        if (env.USE_MOCK) {
+          if (!isCartOpFenceCurrent(fence)) {
+            return { ok: false, error: "CART_STALE_OWNER" };
+          }
+          set({ lastSyncError: null });
+          return { ok: true };
         }
 
         // Local-only candidates must already belong to this attribution.
@@ -633,6 +772,10 @@ export const useCartStore = create<CartState>()(
           return { ok: false, error: SYNC_ERROR_MESSAGE };
         }
 
+        // Transfer source requires stash G AND current storage token G at capture.
+        if (getCartToken() !== guestToken) {
+          return { ok: false, error: SYNC_ERROR_MESSAGE, mergeFailed: true };
+        }
         const stash = get().stash;
         const guestOwned =
           stash?.attribution.kind === "guest" && stash.attribution.guestToken === guestToken
@@ -661,7 +804,8 @@ export const useCartStore = create<CartState>()(
             current?.attribution.kind === "guest" &&
             current.attribution.guestToken === authz.guestToken
           ) {
-            return true;
+            // Token-only race: stash still G1 but storage already G2 → refuse.
+            return getCartToken() === authz.guestToken;
           }
           if (
             current?.attribution.kind === "customer" &&
@@ -677,26 +821,26 @@ export const useCartStore = create<CartState>()(
           if (!sourceStillAuthorized()) {
             return { ok: false, error: "CART_STALE_OWNER" };
           }
-          clearCartTokenIfMatches(authz.guestToken);
-          if (!sourceStillAuthorized()) {
-            return { ok: false, error: "CART_STALE_OWNER" };
-          }
           const attr: CartAttribution = { kind: "customer", customerId: authz.customerId };
           applyPublishedAndStash(attr, authz.guestLocalCart, authz.guestLocalQuote, null);
+          clearCartTokenIfMatches(authz.guestToken);
+          if (!sourceStillAuthorized()) {
+            set({ cart: [], quote: [] });
+            return { ok: false, error: "CART_STALE_OWNER" };
+          }
           return { ok: true };
         }
 
         try {
           await cartService.merge(authz.guestToken);
           // Stale server merge for A is not locally reversible (not F04). Refuse local side effects.
-          if (!sourceStillAuthorized()) {
-            return { ok: false, error: "CART_STALE_OWNER" };
-          }
-          clearCartTokenIfMatches(authz.guestToken);
+          // While stash is still guest G, storage token must still equal G (token-only race).
           if (!sourceStillAuthorized()) {
             return { ok: false, error: "CART_STALE_OWNER" };
           }
 
+          // Adopt customer ownership BEFORE retiring the guest token so the
+          // post-clear authorization check uses the customer path (token N/A).
           const attr: CartAttribution = { kind: "customer", customerId: authz.customerId };
           set({
             stash: writeStash(attr, authz.guestLocalCart, authz.guestLocalQuote),
@@ -704,6 +848,7 @@ export const useCartStore = create<CartState>()(
             quote: authz.guestLocalQuote,
           });
 
+          clearCartTokenIfMatches(authz.guestToken);
           if (!sourceStillAuthorized()) {
             // Do not start reconcile that could upsert under a newer owner.
             set({ cart: [], quote: [] });
@@ -790,11 +935,7 @@ export const useCartStore = create<CartState>()(
       },
 
       reconcileActiveScopeFromServer: async () => {
-        if (env.USE_MOCK) {
-          set({ lastSyncError: null });
-          return { ok: true };
-        }
-
+        // Ownership/publication first — USE_MOCK may skip HTTP, never skip publication.
         const verified = getVerifiedCustomerId();
         if (verified != null) {
           const stash = get().stash;
@@ -809,21 +950,13 @@ export const useCartStore = create<CartState>()(
           return get().replaceFromServerForCustomer(verified);
         }
 
-        const token = getCartToken();
-        const stash = get().stash;
-        if (
-          token &&
-          stash?.attribution.kind === "guest" &&
-          stash.attribution.guestToken === token
-        ) {
-          // Guest same-token recovery.
-          set({ cart: stash.cart, quote: stash.quote });
-          return get().reconcileSameOwnerFromServer();
+        const published = get().publishStashForCurrentGuestIfMatches();
+        if (!published) {
+          // Mismatched guest token or customer stash while unverified — keep hidden.
+          set({ cart: [], quote: [], lastSyncError: null });
+          return { ok: true };
         }
-
-        // No trustworthy guest attribution — do not invent ownership.
-        set({ cart: [], quote: [], lastSyncError: null });
-        return { ok: true };
+        return get().reconcileSameOwnerFromServer();
       },
 
       reconcileFromServer: async () => get().reconcileActiveScopeFromServer(),

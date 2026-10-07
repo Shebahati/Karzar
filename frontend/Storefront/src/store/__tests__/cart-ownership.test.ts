@@ -530,4 +530,192 @@ describe("F03 cart ownership", () => {
       customerId: 2,
     });
   });
+
+
+  it("T17: guest stash republishes after rehydrate/full navigation when token matches", async () => {
+    const G = "g".repeat(32);
+    const lines = [{ product: product(21), quantity: 3 }];
+    seedGuestCart(G, lines);
+    // Persist merge hides published lanes (skipHydration rehydrate shape).
+    useCartStore.setState({ cart: [], quote: [], lastSyncError: null });
+    expect(useCartStore.getState().cart).toHaveLength(0);
+
+    const published = useCartStore.getState().publishStashForCurrentGuestIfMatches();
+    expect(published).toBe(true);
+    expect(useCartStore.getState().cart.map((l) => l.product.id)).toEqual([21]);
+    expect(useCartStore.getState().cart[0]?.quantity).toBe(3);
+
+    // Active-scope entry also republishes before HTTP.
+    useCartStore.setState({ cart: [], quote: [] });
+    vi.spyOn(cartService, "get").mockResolvedValue(emptyCart("purchase"));
+    const upsert = vi.spyOn(cartService, "upsertItem").mockResolvedValue(emptyCart("purchase"));
+    const result = await useCartStore.getState().reconcileActiveScopeFromServer();
+    expect(result.ok).toBe(true);
+    expect(useCartStore.getState().cart.some((l) => l.product.id === 21)).toBe(true);
+    // Live same-owner reconcile may upsert local-only lines under exact guest G.
+    expect(upsert).toHaveBeenCalledWith("purchase", 21, 3);
+
+    // Mismatch: stash G1 + storage G2 must NOT publish.
+    const G1 = "1".repeat(32);
+    const G2 = "2".repeat(32);
+    seedGuestCart(G1, [{ product: product(22), quantity: 1 }]);
+    localStorage.setItem("karzar.storefront.cart_token", G2);
+    useCartStore.setState({ cart: [], quote: [] });
+    expect(useCartStore.getState().publishStashForCurrentGuestIfMatches()).toBe(false);
+    expect(useCartStore.getState().cart).toHaveLength(0);
+    expect(useCartStore.getState().stash?.attribution).toEqual({
+      kind: "guest",
+      guestToken: G1,
+    });
+  });
+
+  it("T18: late A inquiry clearQuote cannot wipe B after ownership switch", async () => {
+    seedCustomerCart(1, [], [{ product: product(31, null), quantity: 1 }]);
+    establishVerifiedCustomer(1, "otp");
+    const fenceA = useCartStore.getState().captureOwnershipFence();
+    expect(fenceA).not.toBeNull();
+    expect(fenceA?.kind).toBe("customer");
+
+    const clearSpy = vi.spyOn(cartService, "clear").mockResolvedValue(undefined);
+
+    invalidateCustomerSession("guest");
+    useCartStore.getState().hidePublishedCart();
+    establishVerifiedCustomer(2, "otp");
+    seedCustomerCart(2, [], [{ product: product(32, null), quantity: 2 }]);
+
+    const cleared = useCartStore.getState().clearQuoteIfOwnershipCurrent(fenceA!);
+    expect(cleared).toBe(false);
+    expect(useCartStore.getState().quote.map((l) => l.product.id)).toEqual([32]);
+    expect(useCartStore.getState().stash?.quote.map((l) => l.product.id)).toEqual([32]);
+    expect(useCartStore.getState().stash?.attribution).toEqual({
+      kind: "customer",
+      customerId: 2,
+    });
+    expect(clearSpy).not.toHaveBeenCalled();
+  });
+
+  it("T19: guest mutations cannot rewrite hidden customer A stash", () => {
+    seedCustomerCart(
+      1,
+      [{ product: product(41), quantity: 2 }],
+      [{ product: product(42, null), quantity: 1 }],
+    );
+    establishVerifiedCustomer(1, "otp");
+    invalidateCustomerSession("guest");
+    useCartStore.getState().hidePublishedCart();
+    expect(useCartStore.getState().cart).toHaveLength(0);
+    expect(useCartStore.getState().stash?.attribution).toEqual({
+      kind: "customer",
+      customerId: 1,
+    });
+
+    const before = structuredClone(useCartStore.getState().stash);
+    useCartStore.getState().removeFromCart(41);
+    useCartStore.getState().removeFromQuote(42);
+    useCartStore.getState().setCartQuantity(41, 9);
+    useCartStore.getState().setQuoteQuantity(42, 9);
+    useCartStore.getState().clearCart();
+    useCartStore.getState().clearQuote();
+
+    expect(useCartStore.getState().stash).toEqual(before);
+    expect(useCartStore.getState().stash?.cart.map((l) => l.product.id)).toEqual([41]);
+    expect(useCartStore.getState().stash?.quote.map((l) => l.product.id)).toEqual([42]);
+  });
+
+  it("T20: verified B cannot adopt stale published A lines into B stash", () => {
+    // Defense-in-depth: stash A + stale visible A lines while verified as B.
+    useCartStore.setState({
+      stash: {
+        attribution: { kind: "customer", customerId: 1 },
+        cart: [{ product: product(61), quantity: 2 }],
+        quote: [{ product: product(62, null), quantity: 1 }],
+      },
+      cart: [{ product: product(61), quantity: 2 }],
+      quote: [{ product: product(62, null), quantity: 1 }],
+      lastSyncError: null,
+    });
+    establishVerifiedCustomer(2, "otp");
+    const upsert = vi.spyOn(cartService, "upsertItem").mockResolvedValue(emptyCart("purchase"));
+
+    useCartStore.getState().addToCart(product(70), 1);
+
+    const state = useCartStore.getState();
+    expect(state.stash?.attribution).toEqual({ kind: "customer", customerId: 2 });
+    expect(state.cart.map((l) => l.product.id)).toEqual([70]);
+    expect(state.stash?.cart.map((l) => l.product.id)).toEqual([70]);
+    expect(state.cart.some((l) => l.product.id === 61)).toBe(false);
+    expect(state.stash?.quote).toEqual([]);
+    expect(upsert).toHaveBeenCalledWith("purchase", 70, 1);
+    expect(upsert).not.toHaveBeenCalledWith("purchase", 61, 2);
+  });
+
+  it("T21: G1 stash / G2 token same-owner reconcile fails closed", async () => {
+    const G1 = "1".repeat(32);
+    const G2 = "2".repeat(32);
+    seedGuestCart(G1, [{ product: product(51), quantity: 2 }]);
+    localStorage.setItem("karzar.storefront.cart_token", G2);
+
+    const get = vi.spyOn(cartService, "get").mockResolvedValue(emptyCart("purchase"));
+    const upsert = vi.spyOn(cartService, "upsertItem").mockResolvedValue(emptyCart("purchase"));
+
+    // Start from rehydrate shape (hidden publication) before same-owner reconcile.
+    useCartStore.setState({ cart: [], quote: [], lastSyncError: null });
+
+    const result = await useCartStore.getState().reconcileSameOwnerFromServer();
+    expect(result.ok).toBe(false);
+    expect(get).not.toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+    expect(useCartStore.getState().stash?.attribution).toEqual({
+      kind: "guest",
+      guestToken: G1,
+    });
+    expect(useCartStore.getState().stash?.cart.map((l) => l.product.id)).toEqual([51]);
+    // Must not publish/relabel under G2.
+    expect(useCartStore.getState().cart).toHaveLength(0);
+    expect(useCartStore.getState().stash?.attribution.kind).not.toBe("customer");
+  });
+
+  it("T22: token-only G1→G2 race refuses stale G1→A merge publication", async () => {
+    const G1 = "1".repeat(32);
+    const G2 = "2".repeat(32);
+    seedGuestCart(G1, [{ product: product(51), quantity: 2 }]);
+
+    let releaseMerge!: () => void;
+    const mergeGate = new Promise<void>((resolve) => {
+      releaseMerge = resolve;
+    });
+    const merge = vi.spyOn(cartService, "merge").mockImplementation(async () => {
+      await mergeGate;
+      return [];
+    });
+    const upsert = vi.spyOn(cartService, "upsertItem").mockResolvedValue(emptyCart("purchase"));
+    vi.spyOn(cartService, "get").mockImplementation(async (lane = "purchase") => emptyCart(lane));
+
+    establishVerifiedCustomer(1, "otp");
+    const pending = useCartStore.getState().transferGuestCartToCustomer(G1, 1);
+
+    // Token-only race: stash remains G1, storage flips to G2.
+    localStorage.setItem("karzar.storefront.cart_token", G2);
+    expect(useCartStore.getState().stash?.attribution).toEqual({
+      kind: "guest",
+      guestToken: G1,
+    });
+
+    releaseMerge();
+    const late = await pending;
+    expect(late.ok).toBe(false);
+    expect(merge).toHaveBeenCalledWith(G1);
+    expect(getCartToken()).toBe(G2);
+    // Stale completion must not adopt customer A or reconcile/upsert under A.
+    expect(useCartStore.getState().stash?.attribution).toEqual({
+      kind: "guest",
+      guestToken: G1,
+    });
+    expect(useCartStore.getState().stash?.attribution).not.toEqual({
+      kind: "customer",
+      customerId: 1,
+    });
+    expect(upsert).not.toHaveBeenCalled();
+    expect(getCartToken()).toBe(G2);
+  });
 });

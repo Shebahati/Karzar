@@ -31,8 +31,10 @@ export function CheckoutView() {
 
   const cart = useCartStore((s) => s.cart);
   const quote = useCartStore((s) => s.quote);
-  const clearCart = useCartStore((s) => s.clearCart);
-  const clearQuote = useCartStore((s) => s.clearQuote);
+  const clearQuoteIfOwnershipCurrent = useCartStore(
+    (s) => s.clearQuoteIfOwnershipCurrent,
+  );
+  const captureOwnershipFence = useCartStore((s) => s.captureOwnershipFence);
   const reconcileActiveScopeFromServer = useCartStore(
     (s) => s.reconcileActiveScopeFromServer,
   );
@@ -118,6 +120,9 @@ export function CheckoutView() {
       ? useCartStore.getState().quote
       : useCartStore.getState().cart;
 
+    // Capture ownership before async submit — stale success must not clear a newer owner.
+    const submitOwnershipFence = captureOwnershipFence();
+
     const payload: CheckoutPayload = {
       mode: isInquiry ? "inquiry" : "purchase",
       customer: {
@@ -142,7 +147,9 @@ export function CheckoutView() {
             created_at: res.created_at,
             lines: currentLines.map((l) => ({ product_id: l.product.id, quantity: l.quantity })),
           });
-          clearQuote();
+          if (submitOwnershipFence) {
+            clearQuoteIfOwnershipCurrent(submitOwnershipFence);
+          }
           router.push(`/checkout/success?ref=${res.tracking_code}&mode=inquiry`);
           return;
         }

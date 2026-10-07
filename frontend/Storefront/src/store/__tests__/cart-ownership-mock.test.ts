@@ -33,6 +33,7 @@ describe("F03 cart ownership — mock mode (T12)", () => {
   beforeEach(() => {
     resetCustomerSessionStateForTests();
     localStorage.clear();
+    vi.restoreAllMocks();
     useCartStore.setState({ stash: null, cart: [], quote: [], lastSyncError: null });
   });
 
@@ -48,4 +49,27 @@ describe("F03 cart ownership — mock mode (T12)", () => {
     expect(upsert).not.toHaveBeenCalled();
     expect(get).not.toHaveBeenCalled();
   });
+
+  it("T17: USE_MOCK republishes guest stash after rehydrate without HTTP", async () => {
+    const G = "m".repeat(32);
+    localStorage.setItem("karzar.storefront.cart_token", G);
+    useCartStore.setState({
+      stash: {
+        attribution: { kind: "guest", guestToken: G },
+        cart: [{ product: product(21), quantity: 3 }],
+        quote: [],
+      },
+      cart: [],
+      quote: [],
+      lastSyncError: null,
+    });
+    const get = vi.spyOn(cartService, "get");
+    const upsert = vi.spyOn(cartService, "upsertItem");
+    const result = await useCartStore.getState().reconcileActiveScopeFromServer();
+    expect(result.ok).toBe(true);
+    expect(useCartStore.getState().cart.map((l) => l.product.id)).toEqual([21]);
+    expect(get).not.toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+  });
 });
+

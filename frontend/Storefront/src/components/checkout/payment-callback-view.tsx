@@ -20,7 +20,8 @@ type VerifyState = "loading" | "success" | "failed" | "need_tracking";
 export function PaymentCallbackView() {
   const router = useRouter();
   const sp = useSearchParams();
-  const clearCart = useCartStore((s) => s.clearCart);
+  const clearCartIfOwnershipCurrent = useCartStore((s) => s.clearCartIfOwnershipCurrent);
+  const captureOwnershipFence = useCartStore((s) => s.captureOwnershipFence);
   const [state, setState] = useState<VerifyState>("loading");
   const [message, setMessage] = useState("در حال تأیید پرداخت…");
   const [trackingCode, setTrackingCode] = useState<string | null>(null);
@@ -31,6 +32,7 @@ export function PaymentCallbackView() {
   const gatewayStatus = sp.get("Status") ?? sp.get("status") ?? "";
 
   async function runVerify(pending: { order_id?: number; tracking_code?: string } | null) {
+    const ownershipFence = captureOwnershipFence();
     const result = await paymentService.verify({
       order_id: pending?.order_id,
       authority,
@@ -42,7 +44,9 @@ export function PaymentCallbackView() {
 
     if (result.success) {
       const ref = pending?.tracking_code || result.tracking_code;
-      clearCart();
+      if (ownershipFence) {
+        clearCartIfOwnershipCurrent(ownershipFence);
+      }
       setState("success");
       setTrackingCode(ref);
       setMessage(result.message);
