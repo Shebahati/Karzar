@@ -30,11 +30,11 @@ class LegacyNumericPdpAcceptanceTests(unittest.TestCase):
     def test_expected_slug_url_encodes_once(self) -> None:
         import urllib.parse
 
-        url = expected_slug_url("https://www.karzartools.com", "مدل-تست")
+        url = expected_slug_url("https://shop.example", "مدل-تست")
         self.assertIn(urllib.parse.quote("مدل-تست", safe=""), url)
 
     def test_verify_required_301_ok(self) -> None:
-        site = "https://www.karzartools.com"
+        site = "https://shop.example"
         slug = "my-slug"
         expected = expected_slug_url(site, slug)
         probe = RedirectProbe(
@@ -48,12 +48,12 @@ class LegacyNumericPdpAcceptanceTests(unittest.TestCase):
         self.assertEqual(verify_required_301(site, "1", slug, probe), [])
 
     def test_verify_rejects_308(self) -> None:
-        site = "https://www.karzartools.com"
+        site = "https://shop.example"
         probe = RedirectProbe(status=308, location="", final_status=200)
         self.assertIn("BAD_STATUS", verify_required_301(site, "1", "x", probe))
 
     def test_verify_redirect_loop(self) -> None:
-        site = "https://www.karzartools.com"
+        site = "https://shop.example"
         a = f"{site}/product/1"
         probe = RedirectProbe(status=301, location=a, hops=[a, a], final_status=200, canonical=a)
         self.assertIn("REDIRECT_LOOP", verify_required_301(site, "1", "x", probe))

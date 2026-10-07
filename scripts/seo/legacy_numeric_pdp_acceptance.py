@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import re
 import sys
 import urllib.error
@@ -13,8 +14,6 @@ import urllib.request
 from dataclasses import dataclass, field
 from typing import Iterable
 
-DEFAULT_SITE = "https://www.karzartools.com"
-DEFAULT_API = "https://api.karzartools.com/api/v1"
 MAX_REDIRECT_HOPS = 10
 USER_AGENT = "Karzar-Legacy-PDP-Acceptance/1.0"
 
@@ -235,9 +234,19 @@ def hard_pass(counts: dict[str, int]) -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Legacy numeric PDP 301 acceptance gate")
     parser.add_argument("csv_path", help="legacy_96_preflight.csv or cohort CSV")
-    parser.add_argument("--site", default=DEFAULT_SITE)
-    parser.add_argument("--api-base", default=DEFAULT_API)
+    parser.add_argument(
+        "--site",
+        default=os.environ.get("KARZAR_ACCEPTANCE_SITE", "").strip(),
+        help="Public storefront origin (or set KARZAR_ACCEPTANCE_SITE)",
+    )
+    parser.add_argument(
+        "--api-base",
+        default=os.environ.get("KARZAR_ACCEPTANCE_API_BASE", "").strip(),
+        help="Public catalog API base (or set KARZAR_ACCEPTANCE_API_BASE)",
+    )
     args = parser.parse_args()
+    if not args.site or not args.api_base:
+        parser.error("--site and --api-base are required (or set KARZAR_ACCEPTANCE_SITE / KARZAR_ACCEPTANCE_API_BASE)")
     with open(args.csv_path, newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     counts = run_acceptance(rows, args.site, args.api_base)
