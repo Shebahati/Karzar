@@ -4,6 +4,7 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+
 SEO_DIR = Path(__file__).resolve().parent
 if str(SEO_DIR) not in sys.path:
     sys.path.insert(0, str(SEO_DIR))
@@ -12,11 +13,14 @@ from legacy_numeric_pdp_acceptance import (  # noqa: E402
     MAX_REDIRECT_HOPS,
     ApiProduct,
     RedirectProbe,
+    absolute_url,
     classify_api,
+    classification_accounting_ok,
     expected_slug_url,
     extract_canonical,
     hard_pass,
     probe_numeric_redirect,
+    run_acceptance,
     verify_required_301,
     walk_redirect_chain,
 )
@@ -29,6 +33,40 @@ class LegacyNumericPdpAcceptanceTests(unittest.TestCase):
         self.assertEqual(classify_api("99", ApiProduct(200, "99")), "NUMERIC_CANONICAL")
         self.assertEqual(classify_api("1", ApiProduct(200, "real-slug")), "REQUIRED_301")
         self.assertEqual(classify_api("1", ApiProduct(500, None)), "OTHER")
+        self.assertEqual(classify_api("1", ApiProduct(0, None, error_class="URLError")), "OTHER")
+
+    def test_absolute_url_path_absolute_location(self) -> None:
+        base = "https://shop.example/product/1314"
+        loc = "/product/4111-8105"
+        self.assertEqual(
+            absolute_url(base, loc),
+            "https://shop.example/product/4111-8105",
+        )
+
+    def test_absolute_url_absolute_location(self) -> None:
+        url = "https://shop.example/product/4111-8105"
+        self.assertEqual(absolute_url("https://shop.example/product/1314", url), url)
+
+    def test_absolute_url_relative_reference(self) -> None:
+        import urllib.parse
+
+        base = "https://shop.example/product/1314"
+        self.assertEqual(
+            absolute_url(base, "4111-8105"),
+            urllib.parse.urljoin(base, "4111-8105"),
+        )
+
+    def test_absolute_url_query_only(self) -> None:
+        import urllib.parse
+
+        base = "https://shop.example/product/1314"
+        self.assertEqual(absolute_url(base, "?foo=bar"), urllib.parse.urljoin(base, "?foo=bar"))
+
+    def test_absolute_url_root(self) -> None:
+        self.assertEqual(
+            absolute_url("https://shop.example/product/1314", "/"),
+            "https://shop.example/",
+        )
 
     def test_expected_slug_url_encodes_once(self) -> None:
         import urllib.parse
@@ -89,6 +127,8 @@ class LegacyNumericPdpAcceptanceTests(unittest.TestCase):
                 {
                     "REQUIRED_301": 1,
                     "HTTP_301_OK": 0,
+                    "OTHER": 0,
+                    "CLASSIFICATION_ACCOUNTING_ERROR": 0,
                     "BAD_STATUS": 0,
                     "BAD_LOCATION": 0,
                     "REDIRECT_LOOP": 0,
@@ -99,6 +139,72 @@ class LegacyNumericPdpAcceptanceTests(unittest.TestCase):
                 }
             )
         )
+
+    def test_hard_pass_fails_when_other_positive(self) -> None:
+        self.assertFalse(
+            hard_pass(
+                {
+                    "REQUIRED_301": 0,
+                    "HTTP_301_OK": 0,
+                    "OTHER": 1,
+                    "CLASSIFICATION_ACCOUNTING_ERROR": 0,
+                    "BAD_STATUS": 0,
+                    "BAD_LOCATION": 0,
+                    "REDIRECT_LOOP": 0,
+                    "BAD_FINAL_STATUS": 0,
+                    "BAD_FINAL_CANONICAL": 0,
+                    "BAD_REDIRECT_CHAIN": 0,
+                    "BAD_FINAL_URL": 0,
+                }
+            )
+        )
+
+    def test_classification_accounting_ok(self) -> None:
+        counts = {
+            "TOTAL_INPUT": 4,
+            "HISTORICAL_NOT_FOUND": 1,
+            "NO_SLUG": 1,
+            "NUMERIC_CANONICAL": 1,
+            "REQUIRED_301": 1,
+            "OTHER": 0,
+        }
+        self.assertTrue(classification_accounting_ok(counts))
+
+    def test_classification_accounting_fails(self) -> None:
+        counts = {
+            "TOTAL_INPUT": 4,
+            "HISTORICAL_NOT_FOUND": 1,
+            "REQUIRED_301": 1,
+            "OTHER": 0,
+        }
+        self.assertFalse(classification_accounting_ok(counts))
+
+    def test_run_acceptance_sets_accounting_error(self) -> None:
+        result = run_acceptance(
+            [{"numeric_id": "1"}, {"numeric_id": "2"}],
+            site="https://shop.example",
+            api_base="https://api.example/api/v1",
+        )
+        self.assertEqual(result.counts["TOTAL_INPUT"], 2)
+        self.assertGreaterEqual(result.counts.get("OTHER", 0), 0)
+
+    def test_walk_301_path_absolute_location_live_shape(self) -> None:
+        site = "https://shop.example"
+        slug = "4111-8105"
+        numeric = f"{site}/product/1314"
+        expected = expected_slug_url(site, slug)
+        html = f'<html><head><link rel="canonical" href="{expected}"></head></html>'
+
+        def fake_fetch(url: str, _timeout: float) -> tuple[int, dict[str, str], bytes]:
+            if url == numeric:
+                return 301, {"Location": "/product/4111-8105"}, b""
+            if url == expected:
+                return 200, {}, html.encode()
+            return 404, {}, b""
+
+        probe = walk_redirect_chain(numeric, 5.0, fetch=fake_fetch)
+        self.assertEqual(probe.final_url, expected)
+        self.assertEqual(verify_required_301(site, "1314", slug, probe), [])
 
     def test_walk_301_to_expected_200_pass(self) -> None:
         site = "https://shop.example"
@@ -203,6 +309,8 @@ class LegacyNumericPdpAcceptanceTests(unittest.TestCase):
                 {
                     "REQUIRED_301": 2,
                     "HTTP_301_OK": 2,
+                    "OTHER": 0,
+                    "CLASSIFICATION_ACCOUNTING_ERROR": 0,
                     "BAD_STATUS": 0,
                     "BAD_LOCATION": 0,
                     "REDIRECT_LOOP": 0,
