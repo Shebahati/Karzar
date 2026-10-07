@@ -31,5 +31,9 @@
     "tracked": [],
     "PASS": true
   },
-  "authorization": "Owner-authorized Phase C/D exact 8 delete roots; chown/chmod forbidden"
+  "authorization": "Owner-authorized Phase C/D exact 8 delete roots; chown/chmod forbidden",
+  "post_closeout_resync": {
+    "latest_main": "a8a75026a26ec528fc102c40333b1327c73962eb",
+    "note": "main advanced via #446 during closeout CI; #443 re-synced; #442/#444 still OPEN unmerged"
+  }
 }
