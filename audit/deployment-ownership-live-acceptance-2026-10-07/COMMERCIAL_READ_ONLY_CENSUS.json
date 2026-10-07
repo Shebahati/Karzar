@@ -1,0 +1,21 @@
+{
+  "method": "read-only async SQL via API container Session; public list total_count from GET /api/v1/products/",
+  "timing": "post-deploy",
+  "pre_deploy_sql_census": "not captured (pre-deploy SessionLocal path unavailable); no write authorization in this task",
+  "post_deploy": {
+    "live_total": 6537,
+    "active": 1585,
+    "available": 3757,
+    "priced": 4927,
+    "imaged": 1465,
+    "visible": 717,
+    "sellable": 717,
+    "public_list_total_count": 1368
+  },
+  "unexpected_deployment_caused_delta": "NO_EVIDENCE \u2014 deploy path has no catalog/price/availability writers; alembic remained u4v5w6x7y8z9 (head)",
+  "Product_mutation": false,
+  "availability_mutation": false,
+  "price_mutation": false,
+  "Hesabfa_mutation": false,
+  "Sellability_Wave_mutation": false
+}

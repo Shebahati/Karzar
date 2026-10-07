@@ -1799,3 +1799,21 @@ documents:
     notes: >
       Phase C/D cleanup closeout; ownership drift closed; no deploy/merge.
 
+  - id: DEPLOY-OWNERSHIP-LIVE-ACCEPT-README-20261007
+    path: audit/deployment-ownership-live-acceptance-2026-10-07/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final live Deploy Staging acceptance index for ownership preflight.
+
+  - id: DEPLOY-OWNERSHIP-LIVE-ACCEPT-CLOSEOUT-20261007
+    path: audit/deployment-ownership-live-acceptance-2026-10-07/CLOSEOUT_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Final live acceptance closeout; ownership incident closed.
+

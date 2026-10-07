@@ -1,0 +1,10 @@
+{
+  "PR443_merged": true,
+  "PR443_merge_sha": "076fb45cc2be7b71b169295508361b8336950ee8",
+  "origin_main": "076fb45cc2be7b71b169295508361b8336950ee8",
+  "target_deploy_sha": "076fb45cc2be7b71b169295508361b8336950ee8",
+  "host": "srv5944957438",
+  "execution_utc": "2026-10-07T09:33:48Z",
+  "intervening_commits_after_443_merge": [],
+  "authorization": "Owner-authorized one normal Deploy Staging + read-only acceptance; no catalog/price/availability/Hesabfa/Sellability mutation; no manual chown/chmod"
+}

@@ -1,0 +1,24 @@
+{
+  "workflow": "Deploy Staging",
+  "run_id": 37601628972,
+  "url": "https://github.com/Shebahati/Karzar/actions/runs/37601628972",
+  "event": "workflow_dispatch",
+  "head_sha": "076fb45cc2be7b71b169295508361b8336950ee8",
+  "created_at": "2026-10-07T09:35:12Z",
+  "updated_at": "2026-10-07T09:38:29Z",
+  "conclusion": "success",
+  "jobs": [
+    "Deployment freeze gate: success",
+    "Self-hosted package + FE images: success",
+    "Sync + rebuild staging: success",
+    "Cleanup incoming package: success"
+  ],
+  "freeze_handling": {
+    "initial": "true",
+    "cleared_for_window": true,
+    "cleared_at_utc": "2026-10-07T09:35:09Z",
+    "restored_at_utc": "2026-10-07T09:38:56Z",
+    "final": "true",
+    "contract": "docs/OPERATIONS.md: set false only for window; restore true immediately"
+  }
+}

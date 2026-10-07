@@ -1,0 +1,44 @@
+{
+  "health": {
+    "api_ready": {
+      "url": "https://api.karzartools.com/ready",
+      "status": 200,
+      "ok": true
+    },
+    "storefront": {
+      "url": "https://www.karzartools.com/",
+      "status": 200,
+      "ok": true
+    },
+    "admin": {
+      "url": "https://admin.karzartools.com/",
+      "status": 200,
+      "ok": true
+    },
+    "products": {
+      "url": "https://api.karzartools.com/api/v1/products?limit=1",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found",
+      "ok": false
+    }
+  },
+  "freeze_host_env": "true",
+  "cleanup_roots_absent": {
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120": true,
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19": true,
+    "/opt/karzar/Karzar/_ops": true,
+    "/opt/karzar/Karzar/scripts/ops/insize_n4120_identity_alias_apply.py": true,
+    "/opt/karzar/Karzar/scripts/ops/run_insize_n4120_identity_alias_apply.sh": true,
+    "/opt/karzar/Karzar/scripts/ops/insize_remaining19_identity_alias_apply.py": true,
+    "/opt/karzar/Karzar/scripts/ops/run_insize_remaining19_identity_alias_apply.sh": true,
+    "/opt/karzar/Karzar/docs/architecture/specs/product-naming-v1/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv": true
+  },
+  "api_inspect_pre": "Image=karzar-app:staging Id=sha256:cc7fa9bd2f71da8e4398c1eabebf7379c24442eb57b37ee96bca213d2284cce2 Started=2026-10-06T13:29:43.634931336Z Labels={\"com.docker.compose.config-hash\":\"92ad7fae62572d9218befbd4059eb7ef7f6df79a0ca8c8ee2b24338f1e02d121\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"redis:service_healthy:false,db:service_healthy:false\",\"com.docker.compose.image\":\"sha256:cc7fa9bd2f71da8e4398c1eabebf7379c24442eb57b37ee96bca213d2284cce2\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"karzar\",\"com.docker.compose.project.config_files\":\"/opt/karzar/Karzar/docker-compose.yml,/opt/karzar/Karzar/docker-compose.staging.yml,/opt/karzar/Karzar/docker-compose.image.yml\",\"com.docker.compose.project.working_dir\":\"/opt/karzar/Karzar\",\"com.docker.compose.replace\":\"lathe_api\",\"com.docker.compose.service\":\"app\",\"com.docker.compose.version\":\"5.3.1\"}",
+  "shop_inspect_pre": "Image=karzar-shop:sha-4e750eafb00f8b6e72c4dba9c539d409c0fd8a02 Id=sha256:7491b7f176426a70669e55a7957737eadd22cdeb19a7896e17d878de76e4e187 Started=2026-10-06T13:30:00.530421217Z",
+  "admin_inspect_pre": "Image=karzar-admin:sha-4e750eafb00f8b6e72c4dba9c539d409c0fd8a02 Id=sha256:d564a8f476724f67ed7940e896572ed3160aac4de4b55aac4355968aed490dcc Started=2026-10-06T13:30:01.166557292Z",
+  "alembic_pre": [
+    "INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.",
+    "INFO  [alembic.runtime.migration] Will assume transactional DDL.",
+    "u4v5w6x7y8z9 (head)"
+  ]
+}

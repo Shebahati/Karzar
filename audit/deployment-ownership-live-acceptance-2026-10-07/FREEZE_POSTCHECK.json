@@ -1,0 +1,7 @@
+{
+  "github_actions_variable_KARZAR_DEPLOY_FREEZE": "true",
+  "host_dotenv": "true",
+  "api_container_env": "true",
+  "restored": true,
+  "PASS": true
+}
