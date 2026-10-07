@@ -1,8 +1,8 @@
 {
   "phase": "3B1",
   "wave": "WAVE_3B_GOVERNANCE_QUICK_WINS",
-  "generated_at_utc": "2026-10-07T07:50:12Z",
-  "logic_git_sha": "c73899eff625cb171a2754a856467ebc3a81b57a",
+  "generated_at_utc": "2026-10-07T08:27:38Z",
+  "logic_git_sha": "c20b2eef791aaa2d4d3a743ed4d435be963aa04e",
   "wave_3b_rows": 132,
   "naming_policy_rows": 101,
   "variant_policy_rows": 31,
@@ -32,5 +32,7 @@
   "oem_registry_sha256": "c609c78553a9962e1c409e30efd2e3f68bddf093f9f3db836bc64bdb31a19fc4",
   "authoritative_policy_mutated": false,
   "mutation_capable_sql_executed": 0,
-  "deploy": false
+  "deploy": false,
+  "authoritative_replay_logic_sha": "c20b2eef791aaa2d4d3a743ed4d435be963aa04e",
+  "logic_committed_before_authoritative_replay": true
 }
