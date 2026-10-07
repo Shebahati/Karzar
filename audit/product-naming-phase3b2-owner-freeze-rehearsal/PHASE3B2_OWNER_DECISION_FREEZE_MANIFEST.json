@@ -19,8 +19,8 @@
     "PHASE3B1_POST_POLICY_BLOCKERS.csv": "eb1e1ffc70dd86ad4ecfd7226824088f3b6479ff0f7f6cdfb32783c6f1c59759",
     "PHASE3B1_REPORT.json": "c3ee813aed80dc50374ee8fdbb1baee4bae850c523c92f444d71b20644324768"
   },
-  "logic_git_sha": "8a44b4afcefd858d087ca02b15f6be0213c92e11",
-  "authoritative_replay_logic_sha": "8a44b4afcefd858d087ca02b15f6be0213c92e11",
+  "logic_git_sha": "dd5d0e97150e6e169ba01e2ea730e20a83015d64",
+  "authoritative_replay_logic_sha": "dd5d0e97150e6e169ba01e2ea730e20a83015d64",
   "logic_committed_before_authoritative_replay": true,
-  "generated_at_utc": "2026-10-07T08:59:12Z"
+  "generated_at_utc": "2026-10-07T10:47:56Z"
 }

@@ -1,16 +1,38 @@
 {
   "phase": "3B2",
   "status": "READY_FOR_PHASE_3B3",
-  "generated_at_utc": "2026-10-07T08:59:12Z",
-  "logic_git_sha": "8a44b4afcefd858d087ca02b15f6be0213c92e11",
-  "authoritative_replay_logic_sha": "8a44b4afcefd858d087ca02b15f6be0213c92e11",
+  "status_blockers": [],
+  "generated_at_utc": "2026-10-07T10:47:56Z",
+  "logic_git_sha": "dd5d0e97150e6e169ba01e2ea730e20a83015d64",
+  "authoritative_replay_logic_sha": "dd5d0e97150e6e169ba01e2ea730e20a83015d64",
   "logic_committed_before_authoritative_replay": true,
   "owner_decision_sha256": "9fd833b764338786a44bcee2960dc0c5c4bd633b9188a08509d5a1479881919a",
   "source_phase3b1_merge_sha": "a8a75026a26ec528fc102c40333b1327c73962eb",
   "scope": {
     "wave_3b_rows": 132,
     "phase2f_intersection": 0,
-    "live_drift": "not_fetched_used_phase3b1_snapshot"
+    "live_drift": {
+      "collected_at_utc": "2026-10-07T10:32:47Z",
+      "host": "srv5944957438",
+      "database": "karzar_staging",
+      "APP_ENV": "staging",
+      "alembic_revision": "u4v5w6x7y8z9",
+      "postgres_version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+      "transaction_read_only": "on",
+      "rows_requested": 132,
+      "rows_found": 132,
+      "missing_ids": [],
+      "duplicate_ids": [],
+      "NO_DRIFT": 132,
+      "NAME_DRIFT": 0,
+      "SKU_DRIFT": 0,
+      "MANUFACTURER_CODE_DRIFT": 0,
+      "PRODUCT_TYPE_DRIFT": 0,
+      "BRAND_DRIFT": 0,
+      "DELETED": 0,
+      "mutation_sql_executed": 0,
+      "result": "PASS"
+    }
   },
   "routing_actions": {
     "KEEP_EXISTING_PT": 76,
@@ -326,14 +348,18 @@
     "PT_APPLY_REQUIRED": 44,
     "SOURCE_EVIDENCE_HOLD": 11,
     "PROPERTY_APPLY_REQUIRED": 21,
-    "SEMANTIC_HOLD": 1
+    "SEMANTIC_HOLD": 1,
+    "READY_FOR_VARIANT_FACT": 0,
+    "OTHER_EXPLICIT_HOLD": 0
   },
   "wave3c": {
     "existing_wave3c_rows": 58,
     "new_rows_entering_variant_fact_from_3b": 120,
-    "deduplicated_future_variant_fact_total": 178
+    "deduplicated_future_variant_fact_total": 178,
+    "duplicate_rows_within_new_from_3b": 0,
+    "overlap_existing_wave3c_assumed_outside_wave3b": true
   },
-  "rehearsal": {
+  "sqlite_rehearsal": {
     "status": "ROLLED_BACK_OK",
     "error": null,
     "prestate_fingerprint": "6d73010cd61c18eb95b6251e6252b7780100daf0e4c8d28357defd43e9487b8e",
@@ -356,9 +382,12 @@
     "db_version": "3.46.1",
     "alembic_revision": "n/a_fixture_schema",
     "creation_method": "in_memory_sqlite_minimal_fixture",
-    "isolation": "BEGIN/ROLLBACK (manual)"
+    "isolation": "BEGIN/ROLLBACK (manual)",
+    "classification": "UNIT_LEVEL_REHEARSAL",
+    "production_equivalent": false,
+    "not_production_equivalent": true
   },
-  "failure_injection": {
+  "sqlite_failure_injection": {
     "after_first_pt_create": {
       "status": "ROLLED_BACK_AFTER_FAILURE",
       "persistent_mutations": 0,
@@ -396,12 +425,141 @@
       "rollback_ok": true
     }
   },
+  "postgres_rehearsal": {
+    "db_engine": "postgresql",
+    "db_version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "alembic_revision": "u4v5w6x7y8z9",
+    "creation_method": "disposable_postgres_alembic_head_fixture",
+    "schema_source": "alembic upgrade head (u4v5w6x7y8z9)",
+    "production_data_used": false,
+    "fixture_source": "live_readonly_dump_mutation_sensitive_fields",
+    "isolation": "SERIALIZABLE + ROLLBACK",
+    "prestate_fingerprint": "0f3e06b0087382ea66ac9c8eb3c215cd2449dbb475fb89c800695da02567817a",
+    "post_rollback_fingerprint": "0f3e06b0087382ea66ac9c8eb3c215cd2449dbb475fb89c800695da02567817a",
+    "persistent_mutations": 0,
+    "fresh_connection_pt_creates": 0,
+    "fresh_connection_property_creates": 0,
+    "fresh_connection_memberships": 0,
+    "fresh_connection_pt_reassign_drift": 0,
+    "product_name_actions": 0,
+    "tx": {
+      "status": "VALIDATED_READY_FOR_ROLLBACK",
+      "error": null,
+      "created_pts": [
+        "GAP_TAPER_GAUGE",
+        "INSIDE_SPRING_CALIPER",
+        "LASER_LEVEL",
+        "LONG_JAW_CALIPER",
+        "OUTSIDE_SPRING_CALIPER",
+        "TAPER_BORE_GAUGE",
+        "TAPER_GAUGE_SET"
+      ],
+      "props_created": [
+        "body_length",
+        "plate_dimensions"
+      ],
+      "memberships": 5,
+      "reassigned": 44
+    },
+    "fail_at": null,
+    "result": "PASS",
+    "classification": "SCHEMA_FAITHFUL_POSTGRES_REHEARSAL",
+    "fixture_fingerprint": "02d0153f66869952e956ca02c5562e1898ce58d2bd99c4ccdd7902e5b9b1678d"
+  },
+  "postgres_failure_injection": {
+    "after_first_pt_create": {
+      "status": "FAILED",
+      "error": "injected:after_first_pt_create",
+      "persistent_mutations": 0,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "mid_pt_creation": {
+      "status": "FAILED",
+      "error": "injected:mid_pt_creation",
+      "persistent_mutations": 0,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "after_all_pt_creation": {
+      "status": "FAILED",
+      "error": "injected:after_all_pt_creation",
+      "persistent_mutations": 0,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "after_first_property_create": {
+      "status": "FAILED",
+      "error": "injected:after_first_property_create",
+      "persistent_mutations": 0,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "after_memberships": {
+      "status": "FAILED",
+      "error": "injected:after_memberships",
+      "persistent_mutations": 0,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "mid_reassignment": {
+      "status": "FAILED",
+      "error": "injected:mid_reassignment",
+      "persistent_mutations": 0,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "after_all_reassignments": {
+      "status": "FAILED",
+      "error": "injected:after_all_reassignments",
+      "persistent_mutations": 0,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "validation_failure": {
+      "status": "FAILED",
+      "error": "injected:validation_failure",
+      "persistent_mutations": 0,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "all_rollback_ok": true,
+    "result": "PASS"
+  },
+  "live_precondition": {
+    "routing_precondition_mismatch": 0,
+    "routing_mismatches": [],
+    "new_pt_code_collision": 0,
+    "new_pt_code_collisions": [],
+    "property_status": {
+      "body_length": {
+        "exact": "absent",
+        "semantic_equivalent": "none_observed",
+        "code_collision": "no",
+        "status": "absent"
+      },
+      "plate_dimensions": {
+        "exact": "absent",
+        "semantic_equivalent": "none_observed",
+        "code_collision": "no",
+        "status": "absent"
+      }
+    },
+    "property_collision": 0,
+    "unsafe_identity_drift_count": 0,
+    "name_drift_informational": 0,
+    "plan_still_valid": true,
+    "result": "PASS"
+  },
   "read_only_proof": {
     "live_product_mutations": 0,
     "live_product_type_mutations": 0,
     "live_kb_mutations": 0,
     "authoritative_policy_mutations": 0,
     "product_name_mutations": 0,
-    "deploy": false
-  }
+    "deploy": false,
+    "live_mutation_sql_executed": 0
+  },
+  "readiness_basis": "LIVE_READONLY_PRESTATE + POSTGRES_SCHEMA_REHEARSAL",
+  "prior_ready_note": "Initial READY_FOR_PHASE_3B3 on SQLite-only evidence was provisional; final readiness requires live prestate + Postgres schema rehearsal."
 }

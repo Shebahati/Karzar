@@ -14,8 +14,8 @@
     "TAPER_GAUGE": 9,
     "OPTICAL_EDGE_FINDER": 1
   },
-  "logic_git_sha": "8a44b4afcefd858d087ca02b15f6be0213c92e11",
-  "authoritative_replay_logic_sha": "8a44b4afcefd858d087ca02b15f6be0213c92e11",
+  "logic_git_sha": "dd5d0e97150e6e169ba01e2ea730e20a83015d64",
+  "authoritative_replay_logic_sha": "dd5d0e97150e6e169ba01e2ea730e20a83015d64",
   "source_phase3b1_merge_sha": "a8a75026a26ec528fc102c40333b1327c73962eb",
-  "generated_at_utc": "2026-10-07T08:59:12Z"
+  "generated_at_utc": "2026-10-07T10:47:56Z"
 }

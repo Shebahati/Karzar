@@ -21,5 +21,8 @@
   "db_version": "3.46.1",
   "alembic_revision": "n/a_fixture_schema",
   "creation_method": "in_memory_sqlite_minimal_fixture",
-  "isolation": "BEGIN/ROLLBACK (manual)"
+  "isolation": "BEGIN/ROLLBACK (manual)",
+  "classification": "UNIT_LEVEL_REHEARSAL",
+  "production_equivalent": false,
+  "not_production_equivalent": true
 }

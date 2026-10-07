@@ -1,5 +1,7 @@
 {
   "collisions": 0,
   "proposed_title_slash_count": 0,
+  "new_pt_code_collision": 0,
+  "property_collision": 0,
   "ok": true
 }

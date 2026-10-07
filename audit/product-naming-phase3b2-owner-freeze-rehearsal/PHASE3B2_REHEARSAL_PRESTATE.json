@@ -1,4 +1,6 @@
 {
+  "classification": "UNIT_LEVEL_REHEARSAL",
+  "production_equivalent": false,
   "db_engine": "sqlite3",
   "db_version": "3.46.1",
   "alembic_revision": "n/a_fixture_schema",

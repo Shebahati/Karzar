@@ -1,0 +1,22 @@
+{
+  "collected_at_utc": "2026-10-07T10:32:47Z",
+  "host": "srv5944957438",
+  "database": "karzar_staging",
+  "APP_ENV": "staging",
+  "alembic_revision": "u4v5w6x7y8z9",
+  "postgres_version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "transaction_read_only": "on",
+  "rows_requested": 132,
+  "rows_found": 132,
+  "missing_ids": [],
+  "duplicate_ids": [],
+  "NO_DRIFT": 132,
+  "NAME_DRIFT": 0,
+  "SKU_DRIFT": 0,
+  "MANUFACTURER_CODE_DRIFT": 0,
+  "PRODUCT_TYPE_DRIFT": 0,
+  "BRAND_DRIFT": 0,
+  "DELETED": 0,
+  "mutation_sql_executed": 0,
+  "result": "PASS"
+}
