@@ -1,0 +1,71 @@
+{
+  "snapshot_utc": "2026-10-07T10:16:05Z",
+  "live": 6536,
+  "soft_deleted": 1,
+  "active": 1585,
+  "available": 3756,
+  "priced": 4926,
+  "technically_price_non_null": 4926,
+  "imaged": 1464,
+  "visible": 1368,
+  "sellable": 717,
+  "non_sellable": 5819,
+  "blocker_count_distribution": {
+    "0": 717,
+    "1": 580,
+    "2": 3408,
+    "3": 307,
+    "4": 1524
+  },
+  "one_blocker_cohorts": {
+    "ONLY_ACTIVE": 0,
+    "ONLY_AVAILABILITY": 580,
+    "ONLY_PRICE": 0,
+    "ONLY_IMAGE": 0
+  },
+  "root_cause_counts": {
+    "inactive": {
+      "INACTIVE_SOURCE_UNKNOWN": 3419,
+      "INACTIVE_MISSING_COMMERCIAL_DATA": 1237,
+      "INACTIVE_IDENTITY_UNCERTAIN": 295
+    },
+    "availability": {
+      "NO_AUTHORITY": 2780
+    },
+    "price": {
+      "PRICE_LEGACY_NULL": 790,
+      "PRICE_SOURCE_MISSING": 820
+    },
+    "image": {
+      "IMAGE_ROW_MISSING": 5072
+    }
+  },
+  "identity": {
+    "snapshot_utc": "2026-10-07T10:16:05Z",
+    "transaction_read_only": "on",
+    "database": "karzar_staging",
+    "db_user": "karzar_staging",
+    "server_addr": "172.18.0.2",
+    "alembic": "u4v5w6x7y8z9"
+  },
+  "read_only_proven": true,
+  "historical_330": {
+    "membership_preserved": true,
+    "still_live": 330,
+    "now_sellable": 1,
+    "still_only_availability_blocked": 329,
+    "new_blockers": 0
+  },
+  "root_cause_coverage": {
+    "non_sellable": 5819,
+    "has_root_cause_summary": 5819,
+    "inactive_source_unknown": 3419,
+    "availability_no_authority": 2780,
+    "fully_classified_deterministic": 2400,
+    "notes": "INACTIVE_SOURCE_UNKNOWN and NO_AUTHORITY are explicit classified residual classes, not silent gaps",
+    "fully_classified": 2400,
+    "partially_classified": 3419,
+    "unknown": 0,
+    "classification_coverage_pct": 100.0
+  }
+}

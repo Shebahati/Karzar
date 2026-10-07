@@ -1,0 +1,12 @@
+{
+  "SELLABLE_NOW": 717,
+  "EVIDENCE_COMPLETE_UPPER_BOUND": 717,
+  "EVIDENCE_COMPLETE_NOTE": "0 additional \u2014 this audit did not attach fresh in-DB supplier stock/price/image source matches as AUTO_SAFE evidence",
+  "SOURCE_REFRESH_UPPER_BOUND": 1297,
+  "SOURCE_REFRESH_ASSUMPTION": "SELLABLE_NOW + CURRENT_ONLY_AVAILABILITY (580) if fresh exact stock authority classifies them AVAILABLE; if source says UNAVAILABLE/UNKNOWN, gain is lower",
+  "OWNER_DECISION_UPPER_BOUND": 1297,
+  "THEORETICAL_UPPER_BOUND": 5012,
+  "THEORETICAL_ASSUMPTION": "live minus ARCHIVAL_CATALOG 4-blocker cohort (1524); remaining blockers assumed resolvable with sources+Owner policy; identity conflicts may still reduce",
+  "OWNER_DECISION_NOTE": "Owner decisions alone do not unlock without sources; bound equals source-refresh for one-blocker availability cohort after Owner authorizes source use",
+  "ARCHIVAL_EXCLUDED": 1524
+}
