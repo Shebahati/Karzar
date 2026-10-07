@@ -129,14 +129,8 @@ def build_live_prestate_artifacts(
                 }
             )
             continue
-        frozen_for_compare = {
-            "manufacturer_code": scope.get("manufacturer_code", ""),
-            "historical_name": scope.get("historical_name", ""),
-            "product_type_code": scope.get("product_type_code", "")
-            or routing.get("current_pt_code", ""),
-            "brand_id": live.get("brand_id", ""),  # brand not in frozen scope — skip false BRAND_DRIFT
-        }
         # Name drift vs phase3b1 snapshot historical_name
+        # brand not in frozen scope — skip false BRAND_DRIFT
         flags = []
         if live.get("deleted_at"):
             flags.append("DELETED")
@@ -692,14 +686,6 @@ async def run_postgres_rehearsal(
             )
             if code != p["product_type_code"]:
                 drift_rows += 1
-        name_changed = await fresh.fetchval(
-            """
-            SELECT count(*) FROM products p
-            JOIN (SELECT unnest($1::int[]) AS id) x ON x.id = p.id
-            WHERE p.name NOT IN (SELECT name FROM products WHERE false)
-            """,
-            product_ids,
-        )
         # compare names to dump
         name_mismatch = 0
         for p in dump["products"]:
