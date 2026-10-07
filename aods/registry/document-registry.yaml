@@ -1304,6 +1304,26 @@ documents:
       Additive metadata correction for REAL_APPLY_MANIFEST.latest_main_sha labeling.
       Immutable original JSON evidence is unchanged; no re-apply.
 
+  - id: PRODUCT-NAMING-V1-PHASE-3A-EXECUTIVE-SUMMARY
+    path: audit/product-naming-phase3a-hold-resolution/PHASE3A_EXECUTIVE_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3a-hold-resolution
+    notes: >
+      Phase 3A read-only HOLD resolution discovery executive summary (1303 HOLD rows).
+
+  - id: PRODUCT-NAMING-V1-PHASE-3A-OWNER-DECISIONS
+    path: audit/product-naming-phase3a-hold-resolution/PHASE3A_OWNER_DECISIONS_REQUIRED.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3a-hold-resolution
+    notes: >
+      Phase 3A owner decision options for title/multi-function/variant-policy HOLDs. No mutations.
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE
