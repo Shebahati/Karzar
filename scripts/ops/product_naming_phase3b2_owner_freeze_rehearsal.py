@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import csv
 import json
+import os
 import subprocess
 import sys
 from collections import Counter
@@ -26,8 +28,16 @@ from app.domain.product_naming_phase3b2 import (  # noqa: E402
     reject_mutation_flags,
     sha256_file,
 )
+from app.domain.product_naming_phase3b2_closure import (  # noqa: E402
+    build_live_prestate_artifacts,
+    fixture_fingerprint,
+    load_live_dump,
+    run_postgres_failure_injections,
+    run_postgres_rehearsal,
+)
 
 OUT_DIR = ROOT / "audit" / "product-naming-phase3b2-owner-freeze-rehearsal"
+LIVE_DUMP_REL = OUT_DIR / "PHASE3B2_LIVE_DUMP.json"
 
 
 def _git_head() -> str:
@@ -70,6 +80,22 @@ def main(argv: list[str] | None = None) -> int:
     reject_mutation_flags(argv)
     parser = argparse.ArgumentParser(description="Phase 3B2 freeze + rehearsal (no live mutation)")
     parser.add_argument("--out-dir", type=Path, default=OUT_DIR)
+    parser.add_argument(
+        "--live-dump",
+        type=Path,
+        default=LIVE_DUMP_REL,
+        help="Path to PHASE3B2_LIVE_DUMP.json from read-only VPS fetch",
+    )
+    parser.add_argument(
+        "--postgres-dsn",
+        default=os.environ.get("PHASE3B2_PG_DSN", ""),
+        help="Disposable Postgres DSN for schema-faithful rehearsal",
+    )
+    parser.add_argument(
+        "--skip-postgres",
+        action="store_true",
+        help="Skip Postgres rehearsal (status cannot be READY_FOR_PHASE_3B3)",
+    )
     args = parser.parse_args(argv)
 
     pack = build_phase3b2_pack(ROOT)
@@ -134,22 +160,76 @@ def main(argv: list[str] | None = None) -> int:
     write_csv(out / "PHASE3B2_SOURCE_EVIDENCE_CLOSURE.csv", pack["evidence"])
     write_csv(out / "PHASE3B2_CANONICAL_POLICY_DELTA_PROPOSED.csv", pack["policy_delta"])
     write_csv(out / "PHASE3B2_FUTURE_MUTATION_PLAN.csv", pack["mutation_plan"])
-    write_csv(out / "PHASE3B2_LIVE_PRESTATE.csv", pack["live_prestate"])
     write_csv(out / "PHASE3B2_POST_GOVERNANCE_STATE.csv", pack["post_states"])
 
+    enter_ids = pack["w3c"]["product_ids_entering"]
     w3c_rows = [
         {
             "product_id": pid,
+            "cohort": "new_from_wave3b",
             "enters_wave3c_variant_fact": "yes",
+            "unique_within_new_from_3b": "yes",
             "basis": "projected_after_future_3B3_governance_apply",
         }
-        for pid in pack["w3c"]["product_ids_entering"]
+        for pid in enter_ids
     ]
     write_csv(out / "PHASE3B2_WAVE3C_RECONCILIATION.csv", w3c_rows)
+    write_json(
+        out / "PHASE3B2_WAVE3C_RECONCILIATION_MANIFEST.json",
+        {
+            "existing_wave3c_rows": pack["w3c"]["existing_wave3c_rows"],
+            "new_rows_entering_variant_fact_from_3b": pack["w3c"][
+                "new_rows_entering_variant_fact_from_3b"
+            ],
+            "deduplicated_future_variant_fact_total": pack["w3c"][
+                "deduplicated_future_variant_fact_total"
+            ],
+            "duplicate_rows_within_new_from_3b": pack["w3c"][
+                "duplicate_rows_within_new_from_3b"
+            ],
+            "unique_new_product_ids": len(set(enter_ids)),
+            "overlap_existing_wave3c_assumed_outside_wave3b": pack["w3c"][
+                "overlap_existing_wave3c_assumed_outside_wave3b"
+            ],
+            "result": (
+                "PASS"
+                if (
+                    pack["w3c"]["duplicate_rows_within_new_from_3b"] == 0
+                    and len(set(enter_ids))
+                    == pack["w3c"]["new_rows_entering_variant_fact_from_3b"]
+                    and pack["w3c"]["deduplicated_future_variant_fact_total"]
+                    == pack["w3c"]["existing_wave3c_rows"]
+                    + pack["w3c"]["new_rows_entering_variant_fact_from_3b"]
+                )
+                else "FAIL"
+            ),
+        },
+    )
 
+    # --- Live read-only prestate ---
+    if not args.live_dump.is_file():
+        raise SystemExit(f"missing live dump: {args.live_dump}")
+    dump = load_live_dump(args.live_dump)
+    # keep dump copy in out dir
+    if args.live_dump.resolve() != (out / "PHASE3B2_LIVE_DUMP.json").resolve():
+        write_json(out / "PHASE3B2_LIVE_DUMP.json", dump)
+
+    live_art = build_live_prestate_artifacts(
+        dump=dump,
+        scope_rows=pack["scope"],
+        routing_rows=pack["routing"],
+        mutation_plan=pack["mutation_plan"],
+    )
+    write_csv(out / "PHASE3B2_LIVE_PRESTATE.csv", live_art["prestate_rows"])
+    write_json(out / "PHASE3B2_LIVE_PRESTATE_MANIFEST.json", live_art["manifest"])
+    write_json(out / "PHASE3B2_LIVE_PRECONDITION_AUDIT.json", live_art["precondition"])
+
+    # --- SQLite unit-level rehearsal (kept, relabeled) ---
     write_json(
         out / "PHASE3B2_REHEARSAL_PRESTATE.json",
         {
+            "classification": "UNIT_LEVEL_REHEARSAL",
+            "production_equivalent": False,
             "db_engine": pack["rehearsal"]["db_engine"],
             "db_version": pack["rehearsal"]["db_version"],
             "alembic_revision": pack["rehearsal"]["alembic_revision"],
@@ -164,6 +244,8 @@ def main(argv: list[str] | None = None) -> int:
     write_json(
         out / "PHASE3B2_ROLLBACK_PROOF.json",
         {
+            "classification": "UNIT_LEVEL_REHEARSAL",
+            "production_equivalent": False,
             "persistent_mutations": pack["rehearsal"]["persistent_mutations"],
             "prestate_fingerprint": pack["rehearsal"]["prestate_fingerprint"],
             "post_rollback_fingerprint": pack["rehearsal"]["post_rollback_fingerprint"],
@@ -174,6 +256,71 @@ def main(argv: list[str] | None = None) -> int:
         },
     )
 
+    # --- Postgres schema-faithful rehearsal ---
+    pg_result: dict[str, Any] | None = None
+    pg_inj: dict[str, Any] | None = None
+    pg_dsn = (args.postgres_dsn or "").strip()
+    if not args.skip_postgres:
+        if not pg_dsn:
+            raise SystemExit("PHASE3B2_PG_DSN / --postgres-dsn required (or pass --skip-postgres)")
+        fx = fixture_fingerprint(dump)
+        pg_result = asyncio.run(
+            run_postgres_rehearsal(
+                pg_dsn,
+                dump=dump,
+                routing_rows=pack["routing"],
+                mutation_plan=pack["mutation_plan"],
+            )
+        )
+        pg_result["fixture_fingerprint"] = fx
+        write_json(
+            out / "PHASE3B2_POSTGRES_REHEARSAL_PRESTATE.json",
+            {
+                "classification": "SCHEMA_FAITHFUL_POSTGRES_REHEARSAL",
+                "db_engine": pg_result["db_engine"],
+                "db_version": pg_result["db_version"],
+                "alembic_revision": pg_result["alembic_revision"],
+                "schema_source": pg_result["schema_source"],
+                "fixture_source": pg_result["fixture_source"],
+                "fixture_fingerprint": fx,
+                "production_data_used": False,
+                "fingerprint": pg_result["prestate_fingerprint"],
+                "isolation": pg_result["isolation"],
+            },
+        )
+        write_json(out / "PHASE3B2_POSTGRES_REHEARSAL_RESULT.json", pg_result)
+        pg_inj = asyncio.run(
+            run_postgres_failure_injections(
+                pg_dsn,
+                dump=dump,
+                routing_rows=pack["routing"],
+                mutation_plan=pack["mutation_plan"],
+            )
+        )
+        write_json(out / "PHASE3B2_POSTGRES_FAILURE_INJECTION.json", pg_inj)
+        write_json(
+            out / "PHASE3B2_POSTGRES_ROLLBACK_PROOF.json",
+            {
+                "classification": "SCHEMA_FAITHFUL_POSTGRES_REHEARSAL",
+                "persistent_mutations": pg_result["persistent_mutations"],
+                "prestate_fingerprint": pg_result["prestate_fingerprint"],
+                "post_rollback_fingerprint": pg_result["post_rollback_fingerprint"],
+                "fresh_connection_pt_creates": pg_result["fresh_connection_pt_creates"],
+                "fresh_connection_property_creates": pg_result["fresh_connection_property_creates"],
+                "fresh_connection_memberships": pg_result["fresh_connection_memberships"],
+                "fresh_connection_pt_reassign_drift": pg_result["fresh_connection_pt_reassign_drift"],
+                "failure_injection_all_rollback_ok": pg_inj.get("all_rollback_ok", False),
+                "product_name_actions": pg_result["product_name_actions"],
+                "result": (
+                    "PASS"
+                    if pg_result["persistent_mutations"] == 0
+                    and pg_result["result"] == "PASS"
+                    and pg_inj.get("all_rollback_ok")
+                    else "FAIL"
+                ),
+            },
+        )
+
     phase2f_names = {r["product_id"]: r["proposed_name"] for r in pack["candidates"]}
     write_json(
         out / "PHASE3B2_REGRESSION_AUDIT.json",
@@ -182,29 +329,91 @@ def main(argv: list[str] | None = None) -> int:
             "phase2f_identical": len(phase2f_names),
             "phase2f_regression": 0,
             "slug_drift": 0,
-            "manufacturer_code_drift": 0,
+            "manufacturer_code_drift": live_art["manifest"].get("MANUFACTURER_CODE_DRIFT", 0),
             "product_type_intersection_with_47": 0,
             "result": "47/47 identical (no Phase 3B2 name mutation)",
         },
     )
     write_json(
         out / "PHASE3B2_COLLISION_AUDIT.json",
-        {"collisions": 0, "proposed_title_slash_count": 0, "ok": True},
+        {
+            "collisions": 0,
+            "proposed_title_slash_count": 0,
+            "new_pt_code_collision": live_art["precondition"]["new_pt_code_collision"],
+            "property_collision": live_art["precondition"]["property_collision"],
+            "ok": live_art["precondition"]["new_pt_code_collision"] == 0
+            and live_art["precondition"]["property_collision"] == 0,
+        },
     )
-
-    status = "READY_FOR_PHASE_3B3"
-    if pack["rehearsal"]["persistent_mutations"] != 0:
-        status = "BLOCKED"
-    if not all(v["rollback_ok"] for v in pack["injections"].values()):
-        status = "BLOCKED"
-    if any(r["entity_type"] == "Product.name" for r in pack["mutation_plan"]):
-        status = "BLOCKED"
 
     ac = pack["action_counts"]
     sc = pack["state_counts"]
+    mut_summary = {
+        "ProductType_creates": sum(
+            1
+            for r in pack["mutation_plan"]
+            if r["entity_type"] == "ProductType" and r["action"] == "CREATE"
+        ),
+        "ProductType_reassignments": sum(
+            1 for r in pack["mutation_plan"] if r["entity_type"] == "Product.product_type_id"
+        ),
+        "property_creates": sum(
+            1 for r in pack["mutation_plan"] if r["entity_type"] == "Property"
+        ),
+        "pt_property_memberships": sum(
+            1
+            for r in pack["mutation_plan"]
+            if r["entity_type"] == "ProductTypePropertyMembership"
+        ),
+        "kb_actions": 0,
+        "Product_name_actions": 0,
+    }
+
+    status = "READY_FOR_PHASE_3B3"
+    blockers: list[str] = []
+    if live_art["manifest"]["result"] != "PASS":
+        status = "PARTIAL"
+        blockers.append("live_prestate")
+    if live_art["precondition"]["result"] != "PASS":
+        status = "PARTIAL"
+        blockers.append("live_precondition")
+    if pack["rehearsal"]["persistent_mutations"] != 0:
+        status = "BLOCKED"
+        blockers.append("sqlite_rehearsal")
+    if not all(v["rollback_ok"] for v in pack["injections"].values()):
+        status = "BLOCKED"
+        blockers.append("sqlite_injection")
+    if any(r["entity_type"] == "Product.name" for r in pack["mutation_plan"]):
+        status = "BLOCKED"
+        blockers.append("product_name_plan")
+    if args.skip_postgres or pg_result is None:
+        if status == "READY_FOR_PHASE_3B3":
+            status = "PARTIAL"
+        blockers.append("postgres_skipped")
+    else:
+        if pg_result.get("result") != "PASS" or pg_result.get("persistent_mutations", 1) != 0:
+            status = "BLOCKED"
+            blockers.append("postgres_rehearsal")
+        if not (pg_inj or {}).get("all_rollback_ok"):
+            status = "BLOCKED"
+            blockers.append("postgres_injection")
+        if mut_summary["ProductType_creates"] != 7:
+            status = "BLOCKED"
+            blockers.append("pt_create_count")
+        if mut_summary["ProductType_reassignments"] != 44:
+            status = "BLOCKED"
+            blockers.append("reassign_count")
+        if mut_summary["property_creates"] != 2:
+            status = "BLOCKED"
+            blockers.append("property_count")
+        if mut_summary["pt_property_memberships"] != 5:
+            status = "BLOCKED"
+            blockers.append("membership_count")
+
     report = {
         "phase": "3B2",
         "status": status,
+        "status_blockers": blockers,
         "generated_at_utc": ts,
         "logic_git_sha": head,
         "authoritative_replay_logic_sha": head,
@@ -214,7 +423,7 @@ def main(argv: list[str] | None = None) -> int:
         "scope": {
             "wave_3b_rows": EXPECTED_WAVE_3B_ROWS,
             "phase2f_intersection": 0,
-            "live_drift": "not_fetched_used_phase3b1_snapshot",
+            "live_drift": live_art["manifest"],
         },
         "routing_actions": ac,
         "new_product_types": pack["new_pt_rows"],
@@ -223,34 +432,14 @@ def main(argv: list[str] | None = None) -> int:
         "policy_delta_counts": pack["delta_counts"],
         "authoritative_policy_mutated": False,
         "authoritative_policy_sha256": pack["policy_sha256"],
-        "mutation_plan_summary": {
-            "ProductType_creates": sum(
-                1
-                for r in pack["mutation_plan"]
-                if r["entity_type"] == "ProductType" and r["action"] == "CREATE"
-            ),
-            "ProductType_reassignments": sum(
-                1
-                for r in pack["mutation_plan"]
-                if r["entity_type"] == "Product.product_type_id"
-            ),
-            "property_creates": sum(
-                1 for r in pack["mutation_plan"] if r["entity_type"] == "Property"
-            ),
-            "pt_property_memberships": sum(
-                1
-                for r in pack["mutation_plan"]
-                if r["entity_type"] == "ProductTypePropertyMembership"
-            ),
-            "kb_actions": 0,
-            "Product_name_actions": 0,
-        },
+        "mutation_plan_summary": mut_summary,
         "post_governance_state_counts": sc,
-        "wave3c": {
-            k: v for k, v in pack["w3c"].items() if k != "product_ids_entering"
-        },
-        "rehearsal": pack["rehearsal"],
-        "failure_injection": pack["injections"],
+        "wave3c": {k: v for k, v in pack["w3c"].items() if k != "product_ids_entering"},
+        "sqlite_rehearsal": pack["rehearsal"],
+        "sqlite_failure_injection": pack["injections"],
+        "postgres_rehearsal": pg_result,
+        "postgres_failure_injection": pg_inj,
+        "live_precondition": live_art["precondition"],
         "read_only_proof": {
             "live_product_mutations": 0,
             "live_product_type_mutations": 0,
@@ -258,19 +447,43 @@ def main(argv: list[str] | None = None) -> int:
             "authoritative_policy_mutations": 0,
             "product_name_mutations": 0,
             "deploy": False,
+            "live_mutation_sql_executed": dump.get("mutation_sql_executed", 0),
         },
+        "readiness_basis": "LIVE_READONLY_PRESTATE + POSTGRES_SCHEMA_REHEARSAL",
+        "prior_ready_note": (
+            "Initial READY_FOR_PHASE_3B3 on SQLite-only evidence was provisional; "
+            "final readiness requires live prestate + Postgres schema rehearsal."
+        ),
     }
     write_json(out / "PHASE3B2_REPORT.json", report)
 
+    pg_line = (
+        f"- Postgres: **{pg_result.get('result') if pg_result else 'SKIPPED'}** "
+        f"(persistent={pg_result.get('persistent_mutations') if pg_result else 'n/a'})"
+    )
     exec_md = f"""# PHASE 3B2 — EXECUTIVE SUMMARY
 
 **STATUS:** {status}
+
+## Readiness basis
+`LIVE_READONLY_PRESTATE + POSTGRES_SCHEMA_REHEARSAL`
+
+Initial SQLite-only `READY_FOR_PHASE_3B3` was **provisional**.
 
 ## Owner decision freeze
 - Decision groups: **{EXPECTED_DECISION_COUNT}** — all APPROVED
 - Covered products: **{EXPECTED_WAVE_3B_ROWS}**
 - Decision SHA256: `{pack["freeze_sha"]}`
-- Conditional: D-OPTICAL-01, D-VISE-01 (gates not met → HOLD)
+
+## Live prestate
+- Host/DB: `{dump.get("host")}` / `{dump.get("database")}`
+- APP_ENV: `{dump.get("APP_ENV")}` Alembic: `{dump.get("alembic_revision")}`
+- transaction_read_only: `{dump.get("transaction_read_only")}`
+- rows: {live_art["manifest"]["rows_found"]}/132
+- NO_DRIFT: {live_art["manifest"]["NO_DRIFT"]}
+- routing_precondition_mismatch: {live_art["precondition"]["routing_precondition_mismatch"]}
+- PT code collision: {live_art["precondition"]["new_pt_code_collision"]}
+- property collision: {live_art["precondition"]["property_collision"]}
 
 ## Product Type routing
 | Action | Count |
@@ -282,16 +495,16 @@ def main(argv: list[str] | None = None) -> int:
 | SEMANTIC_HOLD | {ac.get("SEMANTIC_HOLD", 0)} |
 | **Total** | **{sum(ac.values())}** |
 
-## New Product Types
-""" + "\n".join(
-        f"- `{r['code']}` ({r['affected_rows']}): {r['persian_canonical_title']}"
-        for r in pack["new_pt_rows"]
-    ) + f"""
+## Mutation plan
+- PT creates: {mut_summary["ProductType_creates"]}
+- PT reassignments: {mut_summary["ProductType_reassignments"]}
+- Property creates: {mut_summary["property_creates"]}
+- Memberships: {mut_summary["pt_property_memberships"]}
+- Product.name / KB: 0 / 0
 
-## Disposable rehearsal
-- Engine: SQLite in-memory fixture (not production-equivalent)
-- Persistent post-rollback mutations: **{pack["rehearsal"]["persistent_mutations"]}**
-- Failure injections: all rollback OK
+## Rehearsal
+- SQLite: UNIT_LEVEL_REHEARSAL (not production-equivalent); persistent={pack["rehearsal"]["persistent_mutations"]}
+{pg_line}
 
 ## Post-governance state
 {json.dumps(sc, ensure_ascii=False, indent=2)}
@@ -299,19 +512,26 @@ def main(argv: list[str] | None = None) -> int:
 ## Live safety
 No live Product / ProductType / KB / authoritative policy / Product.name mutations. Deploy=false.
 
-## Next
-READY_FOR_PHASE_3B3 requires separate apply authorization. No Product.name apply in 3B2/3B3 without later phase.
+## Blockers
+{json.dumps(blockers, ensure_ascii=False)}
 """
     (out / "PHASE3B2_EXECUTIVE_SUMMARY.md").write_text(exec_md, encoding="utf-8")
 
     write_sha256sums(out)
-    # Prove authoritative policy unchanged
     if sha256_file(ROOT / POLICY_REL) != pack["policy_sha256"]:
         raise SystemExit("authoritative policy mutated during 3B2 run")
 
     print(
         json.dumps(
-            {"status": status, "out_dir": str(out), "logic_git_sha": head, "freeze_sha": pack["freeze_sha"]},
+            {
+                "status": status,
+                "blockers": blockers,
+                "out_dir": str(out),
+                "logic_git_sha": head,
+                "freeze_sha": pack["freeze_sha"],
+                "live_prestate": live_art["manifest"]["result"],
+                "postgres": None if pg_result is None else pg_result.get("result"),
+            },
             indent=2,
         )
     )

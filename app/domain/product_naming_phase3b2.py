@@ -1106,6 +1106,9 @@ def run_disposable_rehearsal(
         "alembic_revision": "n/a_fixture_schema",
         "creation_method": "in_memory_sqlite_minimal_fixture",
         "isolation": "BEGIN/ROLLBACK (manual)",
+        "classification": "UNIT_LEVEL_REHEARSAL",
+        "production_equivalent": False,
+        "not_production_equivalent": True,
     }
     conn.close()
     return result
@@ -1252,7 +1255,18 @@ def build_phase3b2_pack(root: Path) -> dict[str, Any]:
                 "decision_id": r["approved_decision_id"],
             }
         )
+    required_states = (
+        "READY_FOR_VARIANT_FACT",
+        "READY_FOR_POLICY_APPLY_ONLY",
+        "PT_APPLY_REQUIRED",
+        "PROPERTY_APPLY_REQUIRED",
+        "SOURCE_EVIDENCE_HOLD",
+        "SEMANTIC_HOLD",
+        "OTHER_EXPLICIT_HOLD",
+    )
     state_counts = Counter(r["post_governance_state"] for r in post_states)
+    for key in required_states:
+        state_counts.setdefault(key, 0)
     if sum(state_counts.values()) != 132:
         raise ValueError("post state reconcile")
 
@@ -1270,12 +1284,17 @@ def build_phase3b2_pack(root: Path) -> dict[str, Any]:
         }:
             # After apply, most need variant facts (measurement_range or body_length or plate_dimensions)
             enter_variant.append(r["product_id"])
+    unique_enter = sorted(set(enter_variant), key=int)
+    if len(unique_enter) != len(enter_variant):
+        raise ValueError("wave3c new-from-3b product_id duplicates")
     # Deduped future total vs historical Wave 3C (outside Wave 3B)
     w3c = {
         "existing_wave3c_rows": EXISTING_WAVE3C_ROWS,
-        "new_rows_entering_variant_fact_from_3b": len(enter_variant),
-        "deduplicated_future_variant_fact_total": EXISTING_WAVE3C_ROWS + len(enter_variant),
-        "product_ids_entering": sorted(enter_variant, key=int),
+        "new_rows_entering_variant_fact_from_3b": len(unique_enter),
+        "deduplicated_future_variant_fact_total": EXISTING_WAVE3C_ROWS + len(unique_enter),
+        "duplicate_rows_within_new_from_3b": 0,
+        "overlap_existing_wave3c_assumed_outside_wave3b": True,
+        "product_ids_entering": unique_enter,
     }
 
     rehearsal = run_disposable_rehearsal(routing, mutation_plan)

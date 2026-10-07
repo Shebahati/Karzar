@@ -1366,6 +1366,28 @@ documents:
     notes: >
       Canonical owner authorization freeze for 11 Wave 3B decision groups (132 products).
 
+  - id: PRODUCT-NAMING-V1-PHASE-3B2-LIVE-PRESTATE
+    path: audit/product-naming-phase3b2-owner-freeze-rehearsal/PHASE3B2_LIVE_PRESTATE_MANIFEST.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3b2-owner-freeze-rehearsal
+    notes: >
+      Phase 3B2 live/staging read-only prestate for 132 Wave 3B products.
+      transaction_read_only=on; mutation SQL executed=0.
+
+  - id: PRODUCT-NAMING-V1-PHASE-3B2-POSTGRES-REHEARSAL
+    path: audit/product-naming-phase3b2-owner-freeze-rehearsal/PHASE3B2_POSTGRES_REHEARSAL_RESULT.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3b2-owner-freeze-rehearsal
+    notes: >
+      Schema-faithful PostgreSQL disposable rehearsal (SERIALIZABLE+ROLLBACK).
+      Not a live apply authorization.
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE

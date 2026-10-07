@@ -188,6 +188,30 @@ def test_collisions_zero(pack):
 def test_rehearsal_rollback(pack):
     assert pack["rehearsal"]["persistent_mutations"] == 0
     assert pack["rehearsal"]["product_name_actions"] == 0
+    assert pack["rehearsal"]["classification"] == "UNIT_LEVEL_REHEARSAL"
+    assert pack["rehearsal"]["production_equivalent"] is False
+
+
+def test_post_governance_required_buckets(pack):
+    required = {
+        "READY_FOR_VARIANT_FACT",
+        "READY_FOR_POLICY_APPLY_ONLY",
+        "PT_APPLY_REQUIRED",
+        "PROPERTY_APPLY_REQUIRED",
+        "SOURCE_EVIDENCE_HOLD",
+        "SEMANTIC_HOLD",
+        "OTHER_EXPLICIT_HOLD",
+    }
+    assert required <= set(pack["state_counts"])
+    assert sum(pack["state_counts"].values()) == 132
+
+
+def test_wave3c_new_ids_unique(pack):
+    ids = pack["w3c"]["product_ids_entering"]
+    assert len(ids) == len(set(ids))
+    assert pack["w3c"]["duplicate_rows_within_new_from_3b"] == 0
+    assert pack["w3c"]["new_rows_entering_variant_fact_from_3b"] == 120
+    assert pack["w3c"]["deduplicated_future_variant_fact_total"] == 178
 
 
 def test_failure_injections_rollback(pack):
