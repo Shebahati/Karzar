@@ -357,7 +357,11 @@
     "new_rows_entering_variant_fact_from_3b": 120,
     "deduplicated_future_variant_fact_total": 178,
     "duplicate_rows_within_new_from_3b": 0,
-    "overlap_existing_wave3c_assumed_outside_wave3b": true
+    "existing_wave3c_unique_ids": 58,
+    "new_from_wave3b_unique_ids": 120,
+    "intersection_count": 0,
+    "intersection_proven": true,
+    "union_count": 178
   },
   "sqlite_rehearsal": {
     "status": "ROLLED_BACK_OK",
@@ -561,5 +565,14 @@
     "live_mutation_sql_executed": 0
   },
   "readiness_basis": "LIVE_READONLY_PRESTATE + POSTGRES_SCHEMA_REHEARSAL",
-  "prior_ready_note": "Initial READY_FOR_PHASE_3B3 on SQLite-only evidence was provisional; final readiness requires live prestate + Postgres schema rehearsal."
+  "prior_ready_note": "Initial READY_FOR_PHASE_3B3 on SQLite-only evidence was provisional; final readiness requires live prestate + Postgres schema rehearsal.",
+  "evidence_reuse_after_unrelated_main_resync": {
+    "live_evidence_reused": true,
+    "postgres_evidence_reused": true,
+    "justification": "Phase 3B2 logic/schema/mutation plan byte-identical",
+    "authoritative_logic_sha": "b2f53bf7220c5dda0e5b0ea545b840afb4411882",
+    "main_resync_to": "1451b8e42406ba93704a891f5edde74f370a5497",
+    "naming_schema_semantic_impact": false
+  },
+  "wave3c_intersection_proof_path": "PHASE3B2_WAVE3C_INTERSECTION_PROOF.json"
 }

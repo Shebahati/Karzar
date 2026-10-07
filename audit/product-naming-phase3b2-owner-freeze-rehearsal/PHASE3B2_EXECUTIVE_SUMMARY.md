@@ -54,6 +54,17 @@ Initial SQLite-only `READY_FOR_PHASE_3B3` was **provisional**.
   "OTHER_EXPLICIT_HOLD": 0
 }
 
+## Wave 3C exact intersection
+- Existing Wave 3C (Phase 3A): **58** unique product IDs
+- New from Wave 3B (post-governance projection): **120** unique product IDs
+- Intersection: **0**
+- Union: **178**
+- Proof: `PHASE3B2_WAVE3C_INTERSECTION_PROOF.json` (no assumption)
+
+## Evidence reuse after unrelated main resync
+- Live prestate reused: **YES** (logic/schema/mutation plan byte-identical)
+- Postgres rehearsal reused: **YES** (logic/schema/mutation plan byte-identical)
+
 ## Live safety
 No live Product / ProductType / KB / authoritative policy / Product.name mutations. Deploy=false.
 

@@ -1,9 +1,12 @@
 {
   "existing_wave3c_rows": 58,
   "new_rows_entering_variant_fact_from_3b": 120,
+  "existing_wave3c_unique_ids": 58,
+  "new_from_wave3b_unique_ids": 120,
+  "intersection_count": 0,
+  "intersection_proven": true,
+  "intersection_proof_path": "PHASE3B2_WAVE3C_INTERSECTION_PROOF.json",
   "deduplicated_future_variant_fact_total": 178,
   "duplicate_rows_within_new_from_3b": 0,
-  "unique_new_product_ids": 120,
-  "overlap_existing_wave3c_assumed_outside_wave3b": true,
   "result": "PASS"
 }
