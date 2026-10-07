@@ -185,10 +185,9 @@ export const authService = {
       establishVerifiedCustomer(normalized.customer.id, "otp");
     }
 
-    let cart_sync_error: string | null = null;
-    if (!env.USE_MOCK) {
-      cart_sync_error = await syncCartAfterLogin();
-    }
+    // Ownership transfer/replace must run in mock too — onSessionVerified hides
+    // non-matching guest stash; without sync, checkout loses the cart after OTP.
+    const cart_sync_error = await syncCartAfterLogin();
 
     return { ...normalized, cart_sync_error };
   },

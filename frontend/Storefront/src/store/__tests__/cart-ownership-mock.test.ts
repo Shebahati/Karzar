@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { resetCustomerSessionStateForTests } from "@/lib/customer-session";
+import {
+  registerCustomerSessionHandlers,
+  resetCustomerSessionStateForTests,
+} from "@/lib/customer-session";
 import { cartService } from "@/services/cart";
+import { authService } from "@/services/auth";
 import { useCartStore } from "@/store/cart-store";
 import type { ProductSummary } from "@/types/product";
 
@@ -71,5 +75,36 @@ describe("F03 cart ownership — mock mode (T12)", () => {
     expect(get).not.toHaveBeenCalled();
     expect(upsert).not.toHaveBeenCalled();
   });
-});
 
+  it("T23: USE_MOCK OTP still transfers guest stash after onSessionVerified hide", async () => {
+    // Mirror providers CustomerSessionBoundary: verified session hides non-matching stash.
+    registerCustomerSessionHandlers({
+      onSessionInvalidated: () => {
+        useCartStore.getState().hidePublishedCart();
+      },
+      onSessionVerified: (ownerId) => {
+        useCartStore.getState().publishStashForVerifiedCustomer(ownerId);
+      },
+    });
+
+    const G = "m".repeat(32);
+    localStorage.setItem("karzar.storefront.cart_token", G);
+    useCartStore.setState({
+      stash: {
+        attribution: { kind: "guest", guestToken: G },
+        cart: [{ product: product(21), quantity: 3 }],
+        quote: [],
+      },
+      cart: [{ product: product(21), quantity: 3 }],
+      quote: [],
+      lastSyncError: null,
+    });
+
+    const result = await authService.verifyOtp({ phone: "09123456789", code: "111111" });
+    expect(result.cart_sync_error).toBeNull();
+    expect(useCartStore.getState().cart.map((l) => l.product.id)).toEqual([21]);
+    expect(useCartStore.getState().stash?.attribution.kind).toBe("customer");
+    expect(useCartStore.getState().cart).not.toHaveLength(0);
+  });
+
+});
