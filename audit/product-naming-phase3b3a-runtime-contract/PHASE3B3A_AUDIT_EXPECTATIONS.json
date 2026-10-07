@@ -1,0 +1,25 @@
+{
+  "product_type_create": {
+    "AdminAuditLog": "yes (product_type.create)",
+    "ProductChangeLog": "no"
+  },
+  "product_type_activate": {
+    "AdminAuditLog": "yes (product_type.activate path)",
+    "ProductChangeLog": "no"
+  },
+  "property_dictionary_import": {
+    "AdminAuditLog": "no (current service emits none)",
+    "ProductChangeLog": "no",
+    "note": "do not invent audit; document gap"
+  },
+  "product_type_definition_activate": {
+    "AdminAuditLog": "no (current activate_definition emits none)",
+    "ProductChangeLog": "no",
+    "note": "do not invent audit; document gap"
+  },
+  "assign_product_type": {
+    "AdminAuditLog": "yes (product_type.assign|reassign|clear)",
+    "ProductChangeLog": "yes (field_name=product_type_id)",
+    "expected_product_change_log_rows_for_service_eligible": 0
+  }
+}
