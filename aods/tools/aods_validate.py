@@ -121,6 +121,8 @@ NAMING_ALLOW = {
     "audit/deployment-ownership-preservation-remaining19-2026-10-07/FINAL_REPORT.md",
     # Global sellability root-cause audit evidence contract.
     "audit/sellability-global-root-cause-2026-10-07/FINAL_REPORT.md",
+    # Sellability Wave A stock-authority evidence contract.
+    "audit/sellability-wave-a-stock-authority-2026-10-07/FINAL_REPORT.md",
 
 }
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")

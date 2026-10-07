@@ -1,0 +1,11 @@
+{
+  "pr_461_state": "MERGED",
+  "pr_461_merge_sha": "1451b8e42406ba93704a891f5edde74f370a5497",
+  "origin_main": "1451b8e42406ba93704a891f5edde74f370a5497",
+  "branch": "audit/sellability-wave-a-stock-authority",
+  "baseline_audit": "audit/sellability-global-root-cause-2026-10-07",
+  "baseline_sellable": 717,
+  "baseline_only_availability": 580,
+  "wave_a_snapshot_utc": "2026-10-07T12:26:26Z",
+  "mutation": "NO"
+}
