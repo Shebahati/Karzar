@@ -25,6 +25,15 @@ FetchFn = Callable[[str, float], tuple[int, dict[str, str], bytes]]
 class ApiProduct:
     status: int
     slug: str | None
+    error_class: str = ""
+
+CLASSIFICATION_BUCKETS = (
+    "HISTORICAL_NOT_FOUND",
+    "NO_SLUG",
+    "NUMERIC_CANONICAL",
+    "REQUIRED_301",
+    "OTHER",
+)
 
 
 @dataclass
@@ -89,8 +98,8 @@ def fetch_api_product(api_base: str, product_id: str, timeout: float = 30.0) -> 
             return ApiProduct(status=resp.status, slug=slug)
     except urllib.error.HTTPError as exc:
         return ApiProduct(status=exc.code, slug=None)
-    except Exception:
-        return ApiProduct(status=0, slug=None)
+    except Exception as exc:
+        return ApiProduct(status=0, slug=None, error_class=exc.__class__.__name__)
 
 
 def expected_slug_url(site: str, slug: str) -> str:
@@ -129,9 +138,13 @@ def header_location(headers: dict[str, str]) -> str:
 def absolute_url(base: str, location: str) -> str:
     if not location:
         return ""
-    if urllib.parse.urlparse(location).netloc:
-        return location
-    return urllib.parse.urljoin(base if base.endswith("/") else base + "/", location.lstrip("/"))
+    return urllib.parse.urljoin(base, location)
+
+
+def classification_accounting_ok(counts: dict[str, int]) -> bool:
+    total = counts.get("TOTAL_INPUT", 0)
+    classified = sum(counts.get(bucket, 0) for bucket in CLASSIFICATION_BUCKETS)
+    return classified == total
 
 
 def walk_redirect_chain(
@@ -248,12 +261,18 @@ def verify_required_301(site: str, product_id: str, slug: str, probe: RedirectPr
     return errors
 
 
+@dataclass
+class AcceptanceResult:
+    counts: dict[str, int]
+    other_details: list[dict[str, str | int]]
+
+
 def run_acceptance(
     rows: Iterable[dict[str, str]],
     site: str,
     api_base: str,
     id_column: str = "numeric_id",
-) -> dict[str, int]:
+) -> AcceptanceResult:
     counts: dict[str, int] = {
         "TOTAL_INPUT": 0,
         "HISTORICAL_NOT_FOUND": 0,
@@ -269,7 +288,9 @@ def run_acceptance(
         "BAD_FINAL_CANONICAL": 0,
         "BAD_REDIRECT_CHAIN": 0,
         "BAD_FINAL_URL": 0,
+        "CLASSIFICATION_ACCOUNTING_ERROR": 0,
     }
+    other_details: list[dict[str, str | int]] = []
     seen: set[str] = set()
     for row in rows:
         pid = (row.get(id_column) or row.get("product_identifier") or "").strip()
@@ -280,6 +301,17 @@ def run_acceptance(
         api = fetch_api_product(api_base, pid)
         bucket = classify_api(pid, api)
         counts[bucket] = counts.get(bucket, 0) + 1
+        if bucket == "OTHER":
+            err = api.error_class or ("http_error" if api.status else "unknown")
+            other_details.append(
+                {
+                    "product_id": pid,
+                    "api_status": api.status,
+                    "classification": bucket,
+                    "error_class": err,
+                }
+            )
+            continue
         if bucket != "REQUIRED_301":
             continue
         probe = probe_numeric_redirect(site, pid)
@@ -288,13 +320,17 @@ def run_acceptance(
             counts["HTTP_301_OK"] += 1
         for e in errs:
             counts[e] = counts.get(e, 0) + 1
-    return counts
+    if not classification_accounting_ok(counts):
+        counts["CLASSIFICATION_ACCOUNTING_ERROR"] = 1
+    return AcceptanceResult(counts=counts, other_details=other_details)
 
 
 def hard_pass(counts: dict[str, int]) -> bool:
     required = counts.get("REQUIRED_301", 0)
     return (
-        counts.get("HTTP_301_OK", 0) == required
+        counts.get("OTHER", 0) == 0
+        and counts.get("CLASSIFICATION_ACCOUNTING_ERROR", 0) == 0
+        and counts.get("HTTP_301_OK", 0) == required
         and counts.get("BAD_STATUS", 0) == 0
         and counts.get("BAD_LOCATION", 0) == 0
         and counts.get("REDIRECT_LOOP", 0) == 0
@@ -323,9 +359,11 @@ def main() -> int:
         parser.error("--site and --api-base are required (or set KARZAR_ACCEPTANCE_SITE / KARZAR_ACCEPTANCE_API_BASE)")
     with open(args.csv_path, newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
-    counts = run_acceptance(rows, args.site, args.api_base)
-    print(json.dumps(counts, indent=2))
-    return 0 if hard_pass(counts) else 1
+    result = run_acceptance(rows, args.site, args.api_base)
+    for detail in result.other_details:
+        print(json.dumps({"other_row": detail}), file=sys.stderr)
+    print(json.dumps(result.counts, indent=2))
+    return 0 if hard_pass(result.counts) else 1
 
 
 if __name__ == "__main__":
