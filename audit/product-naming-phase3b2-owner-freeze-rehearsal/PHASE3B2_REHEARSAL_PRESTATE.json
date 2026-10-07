@@ -1,0 +1,9 @@
+{
+  "db_engine": "sqlite3",
+  "db_version": "3.46.1",
+  "alembic_revision": "n/a_fixture_schema",
+  "creation_method": "in_memory_sqlite_minimal_fixture",
+  "fingerprint": "6d73010cd61c18eb95b6251e6252b7780100daf0e4c8d28357defd43e9487b8e",
+  "product_count": 132,
+  "not_production_equivalent": true
+}

@@ -1345,6 +1345,27 @@ documents:
     notes: >
       Phase 3B1 family-level owner decision pack before any Wave 3B policy apply.
 
+  - id: PRODUCT-NAMING-V1-PHASE-3B2-EXECUTIVE-SUMMARY
+    path: audit/product-naming-phase3b2-owner-freeze-rehearsal/PHASE3B2_EXECUTIVE_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3b2-owner-freeze-rehearsal
+    notes: >
+      Phase 3B2 owner decision freeze and disposable governance rehearsal executive summary.
+      No live ProductType / KB / policy / Product.name mutation.
+
+  - id: PRODUCT-NAMING-V1-PHASE-3B2-OWNER-DECISION-FREEZE
+    path: audit/product-naming-phase3b2-owner-freeze-rehearsal/PHASE3B2_OWNER_DECISION_FREEZE_MANIFEST.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3b2-owner-freeze-rehearsal
+    notes: >
+      Canonical owner authorization freeze for 11 Wave 3B decision groups (132 products).
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE

@@ -1,0 +1,21 @@
+{
+  "wave_3b_rows": 132,
+  "phase2f_intersection": 0,
+  "group_counts": {
+    "GEN_CALIPER": 65,
+    "BORE_GAUGE": 16,
+    "STRAIGHT_EDGE": 1,
+    "LEVEL": 16,
+    "DIGITAL_LEVEL": 3,
+    "PRECISION_VISE": 3,
+    "V_BLOCK": 3,
+    "SURFACE_PLATE": 6,
+    "DIVIDER": 9,
+    "TAPER_GAUGE": 9,
+    "OPTICAL_EDGE_FINDER": 1
+  },
+  "logic_git_sha": "56bc64ce04c34057438f321f29984e59aa208c53",
+  "authoritative_replay_logic_sha": "56bc64ce04c34057438f321f29984e59aa208c53",
+  "source_phase3b1_merge_sha": "a8a75026a26ec528fc102c40333b1327c73962eb",
+  "generated_at_utc": "2026-10-07T08:54:15Z"
+}

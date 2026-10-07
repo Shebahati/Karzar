@@ -1,0 +1,133 @@
+product_id,manufacturer_code,current_product_type_code,current_name,brand,deleted_at,kb_facts,property_membership,prestate_source,live_identity_drift
+1772,1103-150,GEN_CALIPER,کولیس دیجیتال 15سانت اینسایز مدل 1103-150,,,,,phase3b1_scope_snapshot,not_fetched
+1773,1103-200,GEN_CALIPER,کولیس دیجیتال 20سانت اینسایز مدل 1103-200,,,,,phase3b1_scope_snapshot,not_fetched
+1774,1103-300,GEN_CALIPER,کولیس دیجیتال 30سانت اینسایز مدل 1103-300,,,,,phase3b1_scope_snapshot,not_fetched
+1775,1106-301,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 30 سانتی‌ متری فک بلند مدل 301-1106,,,,,phase3b1_scope_snapshot,not_fetched
+1776,1106-302,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 302-1106,,,,,phase3b1_scope_snapshot,not_fetched
+1777,1106-501,GEN_CALIPER,کولیس دیجیتال 50سانت اینسایز مدل 1106-501,,,,,phase3b1_scope_snapshot,not_fetched
+1778,1106-502,GEN_CALIPER,کولیس دیجیتال اینسایز(insize) 50 سانتی متر فک بلند 15 سانت مدل 502-1106,,,,,phase3b1_scope_snapshot,not_fetched
+1779,1106-503,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 503-1106,,,,,phase3b1_scope_snapshot,not_fetched
+1780,1106-505,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 30 سانت مدل 505-1106,,,,,phase3b1_scope_snapshot,not_fetched
+1781,1106-601,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر مدل 601-1106,,,,,phase3b1_scope_snapshot,not_fetched
+1782,1106-602,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 602-1106,,,,,phase3b1_scope_snapshot,not_fetched
+1783,1106-603,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 20 سانت مدل 603-1106,,,,,phase3b1_scope_snapshot,not_fetched
+1784,1106-802,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 802-1106,,,,,phase3b1_scope_snapshot,not_fetched
+1785,1108-150,GEN_CALIPER,کولیس دیجیتال 15سانت اینسایز مدل 1108-150,,,,,phase3b1_scope_snapshot,not_fetched
+1786,1108-200,GEN_CALIPER,کولیس دیجیتال 20سانت اینسایز مدل 1108-200,,,,,phase3b1_scope_snapshot,not_fetched
+1787,1108-300,GEN_CALIPER,کولیس دیجیتال 30سانت اینسایز مدل 1108-300,,,,,phase3b1_scope_snapshot,not_fetched
+1788,1111-100,GEN_CALIPER,کولیس دیجیتال 10 سانتی متری اینسایز (Insize) مدل 100-1111,,,,,phase3b1_scope_snapshot,not_fetched
+1789,1114-150,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 15 سانتی متر فلزی (متال) مدل 150-1114,,,,,phase3b1_scope_snapshot,not_fetched
+1790,1114-200,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 20 سانتی متر فلزی (متال) مدل 200-1114,,,,,phase3b1_scope_snapshot,not_fetched
+1791,1114-300,GEN_CALIPER,کولیس دیجیتال 30 سانتی فلزی (متال) اینسایز(Insize) مدل 300-1114,,,,,phase3b1_scope_snapshot,not_fetched
+1803,1135-601,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر دو فک مدل 601-1135,,,,,phase3b1_scope_snapshot,not_fetched
+1804,1136-501,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر دو فک مدل 501-1136,,,,,phase3b1_scope_snapshot,not_fetched
+1805,1136-502,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 15 سانت مدل 502-1136,,,,,phase3b1_scope_snapshot,not_fetched
+1806,1136-503,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) دو فک 50 سانت فک 20 سانت مدل 503-1136,,,,,phase3b1_scope_snapshot,not_fetched
+1807,1136-601,GEN_CALIPER,کولیس دو فک اینسایز (Insize) دیجیتال 60 سانتی متر مدل 601-1136,,,,,phase3b1_scope_snapshot,not_fetched
+1829,1170-300,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 300-1170,,,,,phase3b1_scope_snapshot,not_fetched
+1830,1172-200,GEN_CALIPER,کولیس دیجیتال اینسایز( Insize) 20 سانتی متر فک پهن مدل 200-1172,,,,,phase3b1_scope_snapshot,not_fetched
+1841,1196-300,GEN_CALIPER,کولیس دیجیتال 30سانت اینسایز مدل 1196-300,,,,,phase3b1_scope_snapshot,not_fetched
+1842,1208-511,GEN_CALIPER,کولیس 50 سانت اینسایز (Insize) یک تکه فک 10 سانت مدل 511-1208,,,,,phase3b1_scope_snapshot,not_fetched
+1843,1208-524,GEN_CALIPER,کولیس 50 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 524-1208,,,,,phase3b1_scope_snapshot,not_fetched
+1844,1208-824,GEN_CALIPER,کولیس 80 سانت اینسایز (Insize) یک تکه فک 15 سانت مدل 824-1208,,,,,phase3b1_scope_snapshot,not_fetched
+1845,1214-500,GEN_CALIPER,کولیس استن استیل معمولی 50سانت اینسایز مدل 1214-500,,,,,phase3b1_scope_snapshot,not_fetched
+1846,1214-600,GEN_CALIPER,کولیس استن استیل معمولی 60سانت اینسایز مدل 1214-600,,,,,phase3b1_scope_snapshot,not_fetched
+1847,1215-1032,GEN_CALIPER,کولیس اینسایز (Insize) 1 متری فک بلند مدل 1032-1215,,,,,phase3b1_scope_snapshot,not_fetched
+1848,1215-1052,GEN_CALIPER,کولیس ورنیه اینسایز( Insize) 100 سانتی متر فک بلند مدل 1052-1215,,,,,phase3b1_scope_snapshot,not_fetched
+1849,1215-322,GEN_CALIPER,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 15 سانت مدل 322-1215,,,,,phase3b1_scope_snapshot,not_fetched
+1850,1215-392,GEN_CALIPER,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 9 سانت مدل 392-1215,,,,,phase3b1_scope_snapshot,not_fetched
+1851,1215-522,GEN_CALIPER,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 15 سانت مدل 522-1215,,,,,phase3b1_scope_snapshot,not_fetched
+1852,1215-532,GEN_CALIPER,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 532-1215,,,,,phase3b1_scope_snapshot,not_fetched
+1853,1215-622,GEN_CALIPER,کولیس معمولی اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 622-1215,,,,,phase3b1_scope_snapshot,not_fetched
+1854,1215-822,GEN_CALIPER,کولیس معمولی اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 822-1215,,,,,phase3b1_scope_snapshot,not_fetched
+1855,1217-3001,GEN_CALIPER,کولیس اینسایز (Insize) 30 سانتی متر دو فک مدل 3001-1217,,,,,phase3b1_scope_snapshot,not_fetched
+1856,1236-394,GEN_CALIPER,کولیس معمولی اینسایز (Insize) 30 سانت دو فک فک بلند 9 سانت مدل 394-1236,,,,,phase3b1_scope_snapshot,not_fetched
+1857,1236-524,GEN_CALIPER,کولیس معمولی اینسایز (Insize) 50 سانت دو فک فک بلند 15سانت مدل 524-1236,,,,,phase3b1_scope_snapshot,not_fetched
+1876,2122-160,BORE_GAUGE,گیج داخل سیلندر اینسایز (Insize) دیجیتال 160-50 میلی متری مدل 160-2122,,,,,phase3b1_scope_snapshot,not_fetched
+1894,2322-160,BORE_GAUGE,بورگیج داخل سیلندر اینسایز (Insize) 160-50 میلی متری مدل 160-2322,,,,,phase3b1_scope_snapshot,not_fetched
+1895,2322-250,BORE_GAUGE,بورگیج داخل سیلندر اینسایز (Insize) 250-160 میلی متری مدل 250-2322,,,,,phase3b1_scope_snapshot,not_fetched
+1896,2322-450,BORE_GAUGE,بورگیج داخل سیلندر اینسایز (Insize) 450-250 میلی متری مدل 450-2322,,,,,phase3b1_scope_snapshot,not_fetched
+1908,2825-160,BORE_GAUGE,گیج داخل سیلندر ساعتی اینسایز (Insize) 50-160 میلیمتر مدل 160-2825,,,,,phase3b1_scope_snapshot,not_fetched
+1909,2827-160,BORE_GAUGE,گیج داخل سیلندر اینسایز (Insize) 160-50 مدل 160-2827,,,,,phase3b1_scope_snapshot,not_fetched
+1939,3127-300,BORE_GAUGE,میکرومتر دیجیتال اینسایز (Insize) 275-300 میلی متر داخل سنج سه فک مدل 300-3127,,,,,phase3b1_scope_snapshot,not_fetched
+2017,4700-200,STRAIGHT_EDGE,خط کش مویی 20 سانتی اینسایز (insize) مدل 200-4700,,,,,phase3b1_scope_snapshot,not_fetched
+2037,4902-150,LEVEL,تراز چهار گوش اینسایز 15 سانتی (Insize) مدل 150-4902,,,,,phase3b1_scope_snapshot,not_fetched
+2038,4902-200,LEVEL,تراز چهار گوش اینسایز 20 سانتی (Insize) مدل 200-4902,,,,,phase3b1_scope_snapshot,not_fetched
+2039,4902-300,LEVEL,تراز صنعتی چهار گوش اینسایز (Insize) مدل 300-4902,,,,,phase3b1_scope_snapshot,not_fetched
+2040,4903-150,LEVEL,تراز صنعتی تخت اینسایز 15 سانتی (Insize) مدل 150-4903,,,,,phase3b1_scope_snapshot,not_fetched
+2041,4903-200,LEVEL,تراز صنعتی تخت 20 سانتی اینسایز (Insize) مدل 200-4903,,,,,phase3b1_scope_snapshot,not_fetched
+2042,4903-300,LEVEL,تراز صنعتی تخت 30 سانتی اینسایز (Insize) مدل 300-4903,,,,,phase3b1_scope_snapshot,not_fetched
+2043,4910-400,DIGITAL_LEVEL,شیب سنج دیجیتال اینسایز (Insize) 40 سانت مدل 400-4910,,,,,phase3b1_scope_snapshot,not_fetched
+2044,4910-600,DIGITAL_LEVEL,شیب سنج دیجیتال اینسایز (Insize) 60 سانت مدل 600-4910,,,,,phase3b1_scope_snapshot,not_fetched
+2045,4911-600,LEVEL,تراز اینسایز (Insize) 60 سانت آلومینیومی (بدون مگنت) مدل 600-4911,,,,,phase3b1_scope_snapshot,not_fetched
+2046,4912-100,LEVEL,تراز مگنتی 10سانت اینسایز مدل 4912-100,,,,,phase3b1_scope_snapshot,not_fetched
+2047,4913-250,LEVEL,تراز مگنتی 25سانت اینسایز مدل 4913-250,,,,,phase3b1_scope_snapshot,not_fetched
+2048,4918-300,LEVEL,تراز اینسایز (Insize) 30 سانت مگنت دار مدل 300-4918,,,,,phase3b1_scope_snapshot,not_fetched
+2049,4918-600,LEVEL,تراز اینسایز (Insize) 60 سانت مگنت دار مدل 600-4918,,,,,phase3b1_scope_snapshot,not_fetched
+2050,4921-230,LEVEL,تراز 3طرفه 23سانتی اینسایز مدل 4921-230,,,,,phase3b1_scope_snapshot,not_fetched
+2051,4922-100,LEVEL,تراز 2طرفه دستی اینسایز مدل 4922-100,,,,,phase3b1_scope_snapshot,not_fetched
+2052,4922-150,LEVEL,تراز 3طرفه دستی 15سانت اینسایز مدل 4922-150,,,,,phase3b1_scope_snapshot,not_fetched
+2065,6520-102,PRECISION_VISE,گیره دقیق اینسایز (Insize) 0-102 مدل 102-6520,,,,,phase3b1_scope_snapshot,not_fetched
+2066,6801-1201,V_BLOCK,وی بلوک مگنتی اینسایز (Insize) 95*70*80 میلیمتر مدل 1201-6801,,,,,phase3b1_scope_snapshot,not_fetched
+2067,6801-1202,V_BLOCK,وی بلوک مگنتی اینسایز (Insize) 95*70*100 میلیمتر مدل 1202-6801,,,,,phase3b1_scope_snapshot,not_fetched
+2070,6890-702,V_BLOCK,میلیمتر اینسایز مدل 6890-702,,,,,phase3b1_scope_snapshot,not_fetched
+2071,6900-132,SURFACE_PLATE,صفحه صافی گرانیتی اینسایز (Insize) مدل 132-6900,,,,,phase3b1_scope_snapshot,not_fetched
+2072,6900-142,SURFACE_PLATE,صفحه صافی گرانیتی اینسایز (Insize) 250-400 میلی‌ متر مدل 142-6900,,,,,phase3b1_scope_snapshot,not_fetched
+2073,6900-153,SURFACE_PLATE,صفحه صافی گرانیت 70*315*500 میلی متری اینسایز (insize) مدل 153-6900,,,,,phase3b1_scope_snapshot,not_fetched
+2074,6900-164,SURFACE_PLATE,صفحه صافی گرانیت 80*400*630 میلی متری اینسایز (insize) مدل 164-6900,,,,,phase3b1_scope_snapshot,not_fetched
+2075,6900-185,SURFACE_PLATE,صفحه صافی گرانیت 100*500*800 میلی متری اینسایز (insize) مدل 185-6900,,,,,phase3b1_scope_snapshot,not_fetched
+2089,7247-150,DIVIDER,پرگار مستقیم 15سانت اینسایز مدل 7247-150,,,,,phase3b1_scope_snapshot,not_fetched
+2090,7247-200,DIVIDER,پرگار مستقیم 20سانت اینسایز مدل 7247-200,,,,,phase3b1_scope_snapshot,not_fetched
+2091,7247-300,DIVIDER,پرگار مستقیم 30سانت اینسایز مدل 7247-300,,,,,phase3b1_scope_snapshot,not_fetched
+2092,7261-150,DIVIDER,پرگار داخل 15سانت اینسایز مدل 7261-150,,,,,phase3b1_scope_snapshot,not_fetched
+2093,7261-200,DIVIDER,پرگار داخل 20سانت اینسایز مدل 7261-200,,,,,phase3b1_scope_snapshot,not_fetched
+2094,7261-300,DIVIDER,پرگار داخل 30سانت اینسایز مدل 7261-300,,,,,phase3b1_scope_snapshot,not_fetched
+2095,7262-150,DIVIDER,پرگار خارج 15سانت اینسایز مدل 7262-150,,,,,phase3b1_scope_snapshot,not_fetched
+2096,7262-200,DIVIDER,پرگار خارج 20سانت اینسایز مدل 7262-200,,,,,phase3b1_scope_snapshot,not_fetched
+2097,7262-300,DIVIDER,پرگار خارج 30سانت اینسایز مدل 7262-300,,,,,phase3b1_scope_snapshot,not_fetched
+3468,1201-1003,GEN_CALIPER,کولیس اینسایز (Insize) 10 سانتی متر مدل 1003-1201,,,,,phase3b1_scope_snapshot,not_fetched
+3469,1204-70,GEN_CALIPER,کولیس اینسایز (Insize) 7 سانتی متر مدل 70-1204,,,,,phase3b1_scope_snapshot,not_fetched
+3470,1205-1502,GEN_CALIPER,کولیس اینسایز (Insize) 15 سانتی متر مدل 1502-1205,,,,,phase3b1_scope_snapshot,not_fetched
+3471,1111-75,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 7.5 سانتی متر مدل 75-1111,,,,,phase3b1_scope_snapshot,not_fetched
+3472,1205-2002,GEN_CALIPER,کولیس اینسایز (Insize) 20 سانتی متر مدل 2002-1205,,,,,phase3b1_scope_snapshot,not_fetched
+3473,1205-3002,GEN_CALIPER,کولیس اینسایز (Insize) 30 سانتی متر مدل 3002-1205,,,,,phase3b1_scope_snapshot,not_fetched
+3474,1106-1002,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 1 متری مدل 1002-1106,,,,,phase3b1_scope_snapshot,not_fetched
+3475,1214-1000,GEN_CALIPER,کولیس اینسایز (Insize) 1 متری مدل 1000-1214,,,,,phase3b1_scope_snapshot,not_fetched
+3476,1214-1500,GEN_CALIPER,کولیس اینسایز (Insize) 1.5 متری مدل 1500-1214,,,,,phase3b1_scope_snapshot,not_fetched
+3478,1106-2003,GEN_CALIPER,کولیس دیجیتال 2 متری اینسایز (Insize) مدل 2003-1106,,,,,phase3b1_scope_snapshot,not_fetched
+3479,1106-1502,GEN_CALIPER,کولیس دیجیتال اینسایز (insize) 1.5 متری مدل 1502-1106,,,,,phase3b1_scope_snapshot,not_fetched
+3628,2852-10,BORE_GAUGE,بورگیج داخل سیلندر اینسایز (insize) 10-6 میلیمتر مدل 10-2852,,,,,phase3b1_scope_snapshot,not_fetched
+3629,2322-35,BORE_GAUGE,بورگیج داخل سیلندر اینسایز (Insize) 35-18 میلی متری مدل 35-2322,,,,,phase3b1_scope_snapshot,not_fetched
+3630,2322-60,BORE_GAUGE,بورگیج داخل سیلندر اینسایز (Insize) 60-35 میلی متری مدل 60-2322,,,,,phase3b1_scope_snapshot,not_fetched
+3631,2852-18,BORE_GAUGE,گیج داخل سیلندر اینسایز مدل 2852-18,,,,,phase3b1_scope_snapshot,not_fetched
+3633,1203-1003,GEN_CALIPER,کولیس 10 سانتی متر اینسایز مدل 1203-1003,,,,,phase3b1_scope_snapshot,not_fetched
+3634,1214-2000,GEN_CALIPER,کولیس معمولی اینسایز (Insize) 2 متری استنلیس استیل مدل 2000-1214,,,,,phase3b1_scope_snapshot,not_fetched
+3676,4833-1,TAPER_GAUGE,گپ سنج 0.8 - 15میلیمتر اینسایز مدل 4833-1,,,,,phase3b1_scope_snapshot,not_fetched
+3688,6900-1106,SURFACE_PLATE,صفحه صافی گرانیت 140*630*1000 میلی متری اینسایز (insize) مدل 1106-6900,,,,,phase3b1_scope_snapshot,not_fetched
+3896,1106-1005,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 100 سانتی‌ متر فک بلند مدل 1005-1106,,,,,phase3b1_scope_snapshot,not_fetched
+3897,1106-1503,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) فک بلند مدل 1503-1106,,,,,phase3b1_scope_snapshot,not_fetched
+3898,1106-2002,GEN_CALIPER,کولیس دیجیتال اینسایز (Insize) 200 سانتی‌ متری فک بلند مدل 2002-1106,,,,,phase3b1_scope_snapshot,not_fetched
+3899,1110-150A,GEN_CALIPER,کولیس دیجیتال 15 سانت با فک الماس اینسایز مدل 1110-150A,,,,,phase3b1_scope_snapshot,not_fetched
+3900,1110-300A,GEN_CALIPER,کولیس دیجیتال 30 سانت با فک الماس اینسایز مدل 1110-300A,,,,,phase3b1_scope_snapshot,not_fetched
+3904,1205-150S,GEN_CALIPER,کولیس استنلس استیل معمولی اینسایز (Insize) 15 سانت مدل 150S-1205,,,,,phase3b1_scope_snapshot,not_fetched
+3905,1205-200S,GEN_CALIPER,کولیس استنلس استیل معمولی 20 سانت اینسایز مدل 1205-200S,,,,,phase3b1_scope_snapshot,not_fetched
+3907,1205-300S,GEN_CALIPER,کولیس استنلس استیل معمولی اینسایز (Insize) 30 سانت مدل 300S-1205,,,,,phase3b1_scope_snapshot,not_fetched
+3913,2122-60,BORE_GAUGE,گیج داخل سیلندر اینسایز (Insize) دیجیتال 60-35 میلی متری مدل 60-2122,,,,,phase3b1_scope_snapshot,not_fetched
+3915,2153-10,BORE_GAUGE,گیج داخل سیلندر اینسایز (Insize) 6-10 میلی متری مدل 10-2153,,,,,phase3b1_scope_snapshot,not_fetched
+3919,2198-2,LEVEL,شیب سنج و سطح سنج دیجیتال اینسایز (Insize) مدل 2-2198,,,,,phase3b1_scope_snapshot,not_fetched
+3920,2199-1,DIGITAL_LEVEL,متر دیجیتال و ژیروسکوپ 2 محوره اینسایز (Insize) مدل 1-2199,,,,,phase3b1_scope_snapshot,not_fetched
+3923,2825-60,BORE_GAUGE,گیج داخل سیلندر ساعتی اینسایز (Insize) 35-60 میلیمتر مدل 60-2825,,,,,phase3b1_scope_snapshot,not_fetched
+3924,2825-35,BORE_GAUGE,گیج داخل سیلندر ساعتی اینسایز (Insize) 18-35 میلیمتر مدل 35-2825,,,,,phase3b1_scope_snapshot,not_fetched
+3925,2827-60,BORE_GAUGE,گیج داخل سیلندر اینسایز (Insize) 60-35 مدل 60-2827,,,,,phase3b1_scope_snapshot,not_fetched
+4033,4829-1,TAPER_GAUGE,گپ گیج با خط کش 0.8 - 15طول خط کش 15سانت اینسایز مدل 4829-1,,,,,phase3b1_scope_snapshot,not_fetched
+4037,4833-2,TAPER_GAUGE,گپ سنج اینسایز (Insize) 30-15 میلی متر مدل 2-4833,,,,,phase3b1_scope_snapshot,not_fetched
+4039,4833-3,TAPER_GAUGE,گپ سنج اینسایز (Insize) 30-45 میلی متر مدل 3-4833,,,,,phase3b1_scope_snapshot,not_fetched
+4040,4833-4,TAPER_GAUGE,گپ سنج اینسایز (Insize) 60-45 میلی متر مدل 4-4833,,,,,phase3b1_scope_snapshot,not_fetched
+4045,4837-1,TAPER_GAUGE,گپ گیج با خط کش اینسایز (Insize) 29-1 میلیمتر مدل 1-4837,,,,,phase3b1_scope_snapshot,not_fetched
+4051,4852-15,TAPER_GAUGE,گیج مخروطی اینسایز (Insize) 15-30 میلیمتر مدل 15-4852,,,,,phase3b1_scope_snapshot,not_fetched
+4053,4852-30,TAPER_GAUGE,گیج مخروطی اینسایز (Insize) 30-45 میلیمتر مدل 30-4852,,,,,phase3b1_scope_snapshot,not_fetched
+4054,4852-3,TAPER_GAUGE,گیج مخروطی اینسایز (Insize) 3-16 میلیمتر مدل 3-4852,,,,,phase3b1_scope_snapshot,not_fetched
+4056,4917-30,LEVEL,تراز لیزری اینسایز مدل 4917-30,,,,,phase3b1_scope_snapshot,not_fetched
+4071,6520-67,PRECISION_VISE,گیره دقیق اینسایز (Insize) 0-67 مدل 67-6520,,,,,phase3b1_scope_snapshot,not_fetched
+4072,6520-87,PRECISION_VISE,گیره دقیق اینسایز (Insize) 0-87 مدل 87-6520,,,,,phase3b1_scope_snapshot,not_fetched
+4074,6566-2,OPTICAL_EDGE_FINDER,مرکزیاب نوری اینسایز (Insize) مدل 2-6566,,,,,phase3b1_scope_snapshot,not_fetched
