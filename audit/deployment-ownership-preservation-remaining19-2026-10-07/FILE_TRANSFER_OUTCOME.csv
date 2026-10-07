@@ -1,0 +1,13 @@
+source_path,destination_path,copied,byte_identical,source_size,destination_size,file_class
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19/APPLY_REPORT.json,/opt/karzar/preserve/insize-remaining19-20261006/audit/APPLY_REPORT.json,YES,YES,2293,2293,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19/LOCKED_HEALTH.json,/opt/karzar/preserve/insize-remaining19-20261006/audit/LOCKED_HEALTH.json,YES,YES,167,167,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19/LOCKED_TRAILING_A_SKUS.txt,/opt/karzar/preserve/insize-remaining19-20261006/audit/LOCKED_TRAILING_A_SKUS.txt,YES,YES,1165,1165,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19/RECOVERY_REMAINING19_20261006T143215Z.json,/opt/karzar/preserve/insize-remaining19-20261006/audit/RECOVERY_REMAINING19_20261006T143215Z.json,YES,YES,3193,3193,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19/REMAINING_19_BASELINE.csv,/opt/karzar/preserve/insize-remaining19-20261006/audit/REMAINING_19_BASELINE.csv,YES,YES,5465,5465,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19/REMAINING_19_FINAL_IDENTITY_MATRIX.csv,/opt/karzar/preserve/insize-remaining19-20261006/audit/REMAINING_19_FINAL_IDENTITY_MATRIX.csv,YES,YES,6185,6185,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19/REMAINING_19_PRICE_DRY_RUN.csv,/opt/karzar/preserve/insize-remaining19-20261006/audit/REMAINING_19_PRICE_DRY_RUN.csv,YES,YES,5922,5922,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19/REMAINING_19_PRICE_PROOF_MATRIX.csv,/opt/karzar/preserve/insize-remaining19-20261006/audit/REMAINING_19_PRICE_PROOF_MATRIX.csv,YES,YES,6285,6285,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19/REMAINING_19_ROLLBACK.csv,/opt/karzar/preserve/insize-remaining19-20261006/audit/REMAINING_19_ROLLBACK.csv,YES,YES,1082,1082,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/audit/insize-price-20-remaining-19/SYNC_REPORT.json,/opt/karzar/preserve/insize-remaining19-20261006/audit/SYNC_REPORT.json,YES,YES,656,656,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/scripts/ops/insize_remaining19_identity_alias_apply.py,/opt/karzar/preserve/insize-remaining19-20261006/insize_remaining19_identity_alias_apply.py,YES,YES,26726,26726,EXPECTED_PREFLIGHT_FILE
+/opt/karzar/Karzar/scripts/ops/run_insize_remaining19_identity_alias_apply.sh,/opt/karzar/preserve/insize-remaining19-20261006/run_insize_remaining19_identity_alias_apply.sh,YES,YES,2787,2787,EXPECTED_PREFLIGHT_FILE
