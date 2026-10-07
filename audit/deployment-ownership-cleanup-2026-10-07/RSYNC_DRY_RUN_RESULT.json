@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "runner": "github-runner",
+  "uid": 1000,
+  "gid": 1000,
+  "managed_paths": 4,
+  "objects_checked": 3417,
+  "unexpected_ownership": 0,
+  "undeletable": 0,
+  "unreplaceable": 0,
+  "auto_chown": false,
+  "finding_count": 0,
+  "real_rsync_executed": false,
+  "source_tree": "/tmp/phase_cd_main_tree_runner @ c73899eff625cb171a2754a856467ebc3a81b57a"
+}

@@ -1,0 +1,82 @@
+{
+  "status": "DELETE_COMPLETE",
+  "deleted": [
+    {
+      "path": "/opt/karzar/Karzar/audit/insize-price-20-n4120",
+      "kind": "dir",
+      "children_files": 10
+    },
+    {
+      "path": "/opt/karzar/Karzar/audit/insize-price-20-remaining-19",
+      "kind": "dir",
+      "children_files": 10
+    },
+    {
+      "path": "/opt/karzar/Karzar/_ops",
+      "kind": "dir",
+      "children_files": 1
+    },
+    {
+      "path": "/opt/karzar/Karzar/scripts/ops/insize_n4120_identity_alias_apply.py",
+      "kind": "file"
+    },
+    {
+      "path": "/opt/karzar/Karzar/scripts/ops/run_insize_n4120_identity_alias_apply.sh",
+      "kind": "file"
+    },
+    {
+      "path": "/opt/karzar/Karzar/scripts/ops/insize_remaining19_identity_alias_apply.py",
+      "kind": "file"
+    },
+    {
+      "path": "/opt/karzar/Karzar/scripts/ops/run_insize_remaining19_identity_alias_apply.sh",
+      "kind": "file"
+    },
+    {
+      "path": "/opt/karzar/Karzar/docs/architecture/specs/product-naming-v1/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv",
+      "kind": "file"
+    }
+  ],
+  "failed_roots": [],
+  "unauthorized_touched": [],
+  "chown_performed": false,
+  "chmod_performed": false,
+  "blast_summary": {
+    "deleted_root_targets": 8,
+    "deleted_files_count": 26,
+    "deleted_dirs_count": 3
+  },
+  "deleted_files": [
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120/APPLY_REPORT.json",
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120/FREEZE.json",
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120/LOCKED_TRAILING_A_SKUS.txt",
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120/N4120_BASELINE.csv",
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120/N4120_PRICE_DRY_RUN.csv",
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120/N4120_PROOF_MATRIX.csv",
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120/N4120_ROLLBACK.csv",
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120/N4120_WORKBOOK_FAMILY.csv",
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120/RECOVERY_N4120_20261006T141319Z.json",
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120/SYNC_REPORT.json",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19/APPLY_REPORT.json",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19/LOCKED_HEALTH.json",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19/LOCKED_TRAILING_A_SKUS.txt",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19/RECOVERY_REMAINING19_20261006T143215Z.json",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19/REMAINING_19_BASELINE.csv",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19/REMAINING_19_FINAL_IDENTITY_MATRIX.csv",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19/REMAINING_19_PRICE_DRY_RUN.csv",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19/REMAINING_19_PRICE_PROOF_MATRIX.csv",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19/REMAINING_19_ROLLBACK.csv",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19/SYNC_REPORT.json",
+    "/opt/karzar/Karzar/_ops/input/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx",
+    "/opt/karzar/Karzar/scripts/ops/insize_n4120_identity_alias_apply.py",
+    "/opt/karzar/Karzar/scripts/ops/run_insize_n4120_identity_alias_apply.sh",
+    "/opt/karzar/Karzar/scripts/ops/insize_remaining19_identity_alias_apply.py",
+    "/opt/karzar/Karzar/scripts/ops/run_insize_remaining19_identity_alias_apply.sh",
+    "/opt/karzar/Karzar/docs/architecture/specs/product-naming-v1/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv"
+  ],
+  "deleted_dirs": [
+    "/opt/karzar/Karzar/audit/insize-price-20-n4120",
+    "/opt/karzar/Karzar/audit/insize-price-20-remaining-19",
+    "/opt/karzar/Karzar/_ops"
+  ]
+}

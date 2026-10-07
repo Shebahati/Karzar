@@ -46,6 +46,17 @@ def test_deploy_staging_does_not_publish_cms_as_a_side_effect():
     assert "run-smoke-staging.sh" in text
 
 
+def test_deploy_staging_ownership_preflight_before_rsync_no_autochown():
+    text = _read(".github/workflows/deploy-staging.yml")
+    assert "Ownership preflight (fail-closed before rsync)" in text
+    assert "deploy_ownership_preflight.py" in text
+    pre = text.index("Ownership preflight (fail-closed before rsync)")
+    sync = text.index("Sync backend → /opt/karzar/Karzar")
+    assert pre < sync
+    assert "chown -R" not in text
+    assert "sudo chown" not in text
+
+
 def test_smoke_staging_gates_on_readiness_before_functional_checks():
     smoke = _read("deploy/staging/scripts/smoke-staging.sh")
     assert "wait-staging-frontends.sh" in smoke

@@ -1,0 +1,27 @@
+{
+  "origin_main": "c73899eff625cb171a2754a856467ebc3a81b57a",
+  "pr_443_head": "0b54599c89ddc4c198ffe39e52f7b98b59183859",
+  "pr_443_base": "main",
+  "behind": 5,
+  "ahead": 4,
+  "PR443_SYNC_REQUIRED_BEFORE_CLEANUP_FINAL_GATE": true,
+  "host": {
+    "hostname": "srv5944957438",
+    "hostname_ok": true,
+    "effective_user": "root",
+    "uid": 0,
+    "gid": 0,
+    "utc": "2026-10-07T07:35:06Z"
+  },
+  "authorization": "PHASE_A2_COPY + PHASE_B2_VERIFY remaining-19 only",
+  "forbidden": [
+    "delete",
+    "move_source",
+    "chown_source",
+    "chmod_source",
+    "deploy",
+    "merge_443",
+    "sync_443"
+  ],
+  "previous_n4120_manifest_sha": "b599f88b32467dc6f21e67375ca5c85a937dcd6af6a75431abf0d77ee95247c0"
+}
