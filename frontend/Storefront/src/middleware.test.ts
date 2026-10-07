@@ -46,6 +46,26 @@ describe("numeric product HTTP 301 (middleware)", () => {
     );
   });
 
+  it("preserves query string on numeric 301", async () => {
+    vi.stubEnv("NEXT_PUBLIC_USE_MOCK", "false");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ slug: "slug-with-query" }),
+      })),
+    );
+
+    const res = await middleware(
+      new NextRequest("https://www.karzartools.com/product/99?utm_source=test"),
+    );
+
+    expect(res.status).toBe(301);
+    expect(res.headers.get("location")).toBe(
+      "https://www.karzartools.com/product/slug-with-query?utm_source=test",
+    );
+  });
+
   it("does not look up or redirect slug PDPs", async () => {
     vi.stubEnv("NEXT_PUBLIC_USE_MOCK", "false");
     const fetchMock = vi.fn();
