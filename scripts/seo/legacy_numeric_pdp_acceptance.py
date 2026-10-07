@@ -4,18 +4,21 @@ from __future__ import annotations
 
 import argparse
 import csv
+import html.parser
 import json
 import os
-import re
 import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
-from typing import Iterable
+from typing import Callable, Iterable
 
 MAX_REDIRECT_HOPS = 10
 USER_AGENT = "Karzar-Legacy-PDP-Acceptance/1.0"
+REDIRECT_STATUSES = frozenset({301, 302, 303, 307, 308})
+
+FetchFn = Callable[[str, float], tuple[int, dict[str, str], bytes]]
 
 
 @dataclass
@@ -32,11 +35,49 @@ class RedirectProbe:
     final_url: str = ""
     final_status: int = 0
     canonical: str = ""
+    redirect_loop: bool = False
+    bad_redirect_chain: bool = False
+    missing_location: bool = False
+    unsupported_redirect: bool = False
 
 
 class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[no-untyped-def]
         return None
+
+
+class CanonicalLinkParser(html.parser.HTMLParser):
+    """Extract canonical href regardless of rel/href attribute order."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.canonical: str = ""
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() != "link":
+            return
+        attr_map = {k.lower(): (v or "") for k, v in attrs}
+        rel = attr_map.get("rel", "").lower()
+        if "canonical" not in rel.split():
+            return
+        href = attr_map.get("href", "").strip()
+        if href:
+            self.canonical = href
+
+
+def default_manual_fetch(url: str, timeout: float) -> tuple[int, dict[str, str], bytes]:
+    opener = urllib.request.build_opener(NoRedirectHandler())
+    req = urllib.request.Request(url, method="GET", headers={"User-Agent": USER_AGENT})
+    try:
+        with opener.open(req, timeout=timeout) as resp:
+            headers = {k: v for k, v in resp.headers.items()}
+            return resp.status, headers, resp.read()
+    except urllib.error.HTTPError as exc:
+        headers = {k: v for k, v in exc.headers.items()}
+        body = exc.read() if exc.fp is not None else b""
+        return exc.code, headers, body
+    except Exception:
+        return 0, {}, b""
 
 
 def fetch_api_product(api_base: str, product_id: str, timeout: float = 30.0) -> ApiProduct:
@@ -70,12 +111,19 @@ def normalize_url(url: str) -> str:
 
 
 def extract_canonical(html: str) -> str:
-    m = re.search(
-        r'<link[^>]+rel=["\']canonical["\'][^>]+href=["\']([^"\']+)',
-        html,
-        re.I,
-    )
-    return m.group(1).strip() if m else ""
+    parser = CanonicalLinkParser()
+    try:
+        parser.feed(html)
+    except html.parser.HTMLParseError:
+        return ""
+    return parser.canonical
+
+
+def header_location(headers: dict[str, str]) -> str:
+    for key, value in headers.items():
+        if key.lower() == "location":
+            return value.strip()
+    return ""
 
 
 def absolute_url(base: str, location: str) -> str:
@@ -86,63 +134,75 @@ def absolute_url(base: str, location: str) -> str:
     return urllib.parse.urljoin(base if base.endswith("/") else base + "/", location.lstrip("/"))
 
 
-def follow_redirect_chain(start_url: str, timeout: float) -> RedirectProbe:
+def walk_redirect_chain(
+    start_url: str,
+    timeout: float,
+    fetch: FetchFn | None = None,
+) -> RedirectProbe:
+    """Manual redirect traversal; never auto-follows."""
+    fetcher = fetch or default_manual_fetch
     probe = RedirectProbe(status=0, location="", hops=[start_url])
     current = start_url
-    for _ in range(MAX_REDIRECT_HOPS):
-        req = urllib.request.Request(current, method="GET", headers={"User-Agent": USER_AGENT})
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                probe.final_url = resp.url
-                probe.final_status = resp.status
-                html = resp.read().decode("utf-8", errors="replace")
-                probe.canonical = extract_canonical(html)
-                return probe
-        except urllib.error.HTTPError as exc:
-            if exc.code not in (301, 302, 303, 307, 308):
-                probe.final_status = exc.code
-                return probe
-            loc = absolute_url(current, exc.headers.get("Location", ""))
-            if not loc:
-                probe.final_status = exc.code
-                return probe
-            if loc in probe.hops:
-                probe.final_status = exc.code
-                probe.location = loc
-                return probe
-            probe.hops.append(loc)
-            current = loc
-    probe.final_status = 0
-    return probe
+    visited = {normalize_url(start_url)}
+    redirect_steps = 0
+    first = True
 
+    while True:
+        status, headers, body = fetcher(current, timeout)
+        if first:
+            probe.status = status
+            probe.location = header_location(headers)
+            first = False
 
-def probe_numeric_redirect(site: str, product_id: str, timeout: float = 30.0) -> RedirectProbe:
-    start = f"{site.rstrip('/')}/product/{product_id}"
-    req = urllib.request.Request(start, method="GET", headers={"User-Agent": USER_AGENT})
-    opener = urllib.request.build_opener(NoRedirectHandler())
-    probe = RedirectProbe(status=0, location="", hops=[start])
-    try:
-        with opener.open(req, timeout=timeout) as resp:
-            probe.status = resp.status
-            probe.final_url = resp.url
-            probe.final_status = resp.status
-            html = resp.read().decode("utf-8", errors="replace")
-            probe.canonical = extract_canonical(html)
+        if status in REDIRECT_STATUSES:
+            redirect_steps += 1
+            if redirect_steps > MAX_REDIRECT_HOPS:
+                probe.bad_redirect_chain = True
+                probe.final_url = current
+                probe.final_status = status
+                return probe
+
+            loc_raw = header_location(headers)
+            if not loc_raw:
+                probe.missing_location = True
+                probe.final_url = current
+                probe.final_status = status
+                return probe
+
+            next_url = absolute_url(current, loc_raw)
+            norm_next = normalize_url(next_url)
+            if norm_next in visited:
+                probe.redirect_loop = True
+                probe.final_url = current
+                probe.final_status = status
+                return probe
+
+            visited.add(norm_next)
+            probe.hops.append(next_url)
+            current = next_url
+            continue
+
+        if 300 <= status < 400:
+            probe.unsupported_redirect = True
+            probe.final_url = current
+            probe.final_status = status
             return probe
-    except urllib.error.HTTPError as exc:
-        probe.status = exc.code
-        probe.location = exc.headers.get("Location", "")
-        if exc.code in (301, 302, 303, 307, 308):
-            first_target = absolute_url(start, probe.location)
-            tail = follow_redirect_chain(first_target, timeout=timeout)
-            probe.hops = [start] + tail.hops
-            probe.final_url = tail.final_url
-            probe.final_status = tail.final_status
-            probe.canonical = tail.canonical
+
+        probe.final_url = current
+        probe.final_status = status
+        if status == 200 and body:
+            probe.canonical = extract_canonical(body.decode("utf-8", errors="replace"))
         return probe
-    except Exception:
-        probe.status = 0
-        return probe
+
+
+def probe_numeric_redirect(
+    site: str,
+    product_id: str,
+    timeout: float = 30.0,
+    fetch: FetchFn | None = None,
+) -> RedirectProbe:
+    start = f"{site.rstrip('/')}/product/{product_id}"
+    return walk_redirect_chain(start, timeout, fetch=fetch)
 
 
 def classify_api(product_id: str, api: ApiProduct) -> str:
@@ -162,17 +222,29 @@ def verify_required_301(site: str, product_id: str, slug: str, probe: RedirectPr
     expected = expected_slug_url(site, slug)
     if probe.status != 301:
         errors.append("BAD_STATUS")
+
     loc = absolute_url(f"{site}/product/{product_id}", probe.location)
-    if normalize_url(loc) != normalize_url(expected):
+    if probe.missing_location or normalize_url(loc) != normalize_url(expected):
         errors.append("BAD_LOCATION")
-    if len(probe.hops) != len(set(probe.hops)):
+
+    if probe.redirect_loop or len({normalize_url(h) for h in probe.hops}) != len(probe.hops):
         errors.append("REDIRECT_LOOP")
-    if len(probe.hops) > MAX_REDIRECT_HOPS:
+
+    if probe.bad_redirect_chain:
         errors.append("BAD_REDIRECT_CHAIN")
+
+    if probe.unsupported_redirect:
+        errors.append("BAD_STATUS")
+
+    if normalize_url(probe.final_url) != normalize_url(expected):
+        errors.append("BAD_FINAL_URL")
+
     if probe.final_status != 200:
         errors.append("BAD_FINAL_STATUS")
+
     if normalize_url(probe.canonical) != normalize_url(expected):
         errors.append("BAD_FINAL_CANONICAL")
+
     return errors
 
 
@@ -196,6 +268,7 @@ def run_acceptance(
         "BAD_FINAL_STATUS": 0,
         "BAD_FINAL_CANONICAL": 0,
         "BAD_REDIRECT_CHAIN": 0,
+        "BAD_FINAL_URL": 0,
     }
     seen: set[str] = set()
     for row in rows:
@@ -228,6 +301,7 @@ def hard_pass(counts: dict[str, int]) -> bool:
         and counts.get("BAD_FINAL_STATUS", 0) == 0
         and counts.get("BAD_FINAL_CANONICAL", 0) == 0
         and counts.get("BAD_REDIRECT_CHAIN", 0) == 0
+        and counts.get("BAD_FINAL_URL", 0) == 0
     )
 
 
