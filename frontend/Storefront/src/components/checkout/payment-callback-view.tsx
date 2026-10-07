@@ -10,8 +10,10 @@ import { Input } from "@/components/ui/input";
 import { paymentService } from "@/services/payments";
 import { orderService } from "@/services/orders";
 import {
-  clearPendingPayment,
+  clearPendingPaymentIfMatches,
+  pendingPaymentHasOwner,
   readPendingPayment,
+  type PendingPayment,
 } from "@/lib/pending-payment";
 import { useCartStore } from "@/store/cart-store";
 
@@ -20,8 +22,9 @@ type VerifyState = "loading" | "success" | "failed" | "need_tracking";
 export function PaymentCallbackView() {
   const router = useRouter();
   const sp = useSearchParams();
-  const clearCartIfOwnershipCurrent = useCartStore((s) => s.clearCartIfOwnershipCurrent);
-  const captureOwnershipFence = useCartStore((s) => s.captureOwnershipFence);
+  const clearPurchaseCartLocallyForExpectedOwner = useCartStore(
+    (s) => s.clearPurchaseCartLocallyForExpectedOwner,
+  );
   const [state, setState] = useState<VerifyState>("loading");
   const [message, setMessage] = useState("در حال تأیید پرداخت…");
   const [trackingCode, setTrackingCode] = useState<string | null>(null);
@@ -31,22 +34,32 @@ export function PaymentCallbackView() {
   const authority = sp.get("Authority") ?? sp.get("authority") ?? "";
   const gatewayStatus = sp.get("Status") ?? sp.get("status") ?? "";
 
-  async function runVerify(pending: { order_id?: number; tracking_code?: string } | null) {
-    const ownershipFence = captureOwnershipFence();
+  async function runVerify(
+    pending: PendingPayment | { tracking_code: string } | null,
+  ) {
+    // Do NOT capture live ownership fence — cold callback often has unknown session.
+    // Local cleanup uses pending.customer_id captured before gateway redirect.
     const result = await paymentService.verify({
-      order_id: pending?.order_id,
+      order_id: pending && "order_id" in pending ? pending.order_id : undefined,
       authority,
       status: gatewayStatus,
       tracking_code: pending?.tracking_code,
     });
 
-    clearPendingPayment();
+    if (pending && "order_id" in pending && pending.order_id > 0 && pending.tracking_code) {
+      clearPendingPaymentIfMatches({
+        order_id: pending.order_id,
+        tracking_code: pending.tracking_code,
+      });
+    }
 
     if (result.success) {
       const ref = pending?.tracking_code || result.tracking_code;
-      if (ownershipFence) {
-        clearCartIfOwnershipCurrent(ownershipFence);
+      if (pending && "customer_id" in pending && pendingPaymentHasOwner(pending)) {
+        // LOCAL-ONLY purchase clear for the checkout owner — no cartService.clear.
+        clearPurchaseCartLocallyForExpectedOwner(pending.customer_id);
       }
+      // Legacy pending without customer_id: payment UI may proceed; cart cleanup NO-OP.
       setState("success");
       setTrackingCode(ref);
       setMessage(result.message);
@@ -120,7 +133,9 @@ export function PaymentCallbackView() {
       await orderService.track(code);
       setState("loading");
       setMessage("در حال تأیید پرداخت…");
-      await runVerify({ tracking_code: code });
+      // Prefer stored pending (keeps owner); tracking-only recovery cannot clear cart.
+      const pending = readPendingPayment();
+      await runVerify(pending?.order_id ? pending : { tracking_code: code });
     } catch {
       setMessage(
         "بازیابی ناموفق بود. کد پیگیری را بررسی کنید یا با پشتیبانی تماس بگیرید.",

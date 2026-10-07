@@ -3,8 +3,10 @@ import {
   captureVerifiedCustomerSessionFence,
   establishVerifiedCustomer,
   invalidateCustomerSession,
+  markCustomerSessionChecking,
   resetCustomerSessionStateForTests,
 } from "@/lib/customer-session";
+import * as apiClientModule from "@/lib/api-client";
 import {
   apiClient,
   clearCartToken,
@@ -243,7 +245,7 @@ describe("F03 cart ownership", () => {
   it("T05: logout hides A lines, keeps customer attribution, no server cart mutations", async () => {
     const upsert = vi.spyOn(cartService, "upsertItem").mockResolvedValue(emptyCart("purchase"));
     const remove = vi.spyOn(cartService, "removeItem").mockResolvedValue(emptyCart("purchase"));
-    const clear = vi.spyOn(cartService, "clear").mockResolvedValue(undefined);
+    const clear = vi.spyOn(cartService, "clear").mockImplementation(async () => {});
     vi.spyOn(cartService, "get").mockResolvedValue(emptyCart("purchase"));
 
     establishVerifiedCustomer(1, "otp");
@@ -718,4 +720,94 @@ describe("F03 cart ownership", () => {
     expect(upsert).not.toHaveBeenCalled();
     expect(getCartToken()).toBe(G2);
   });
+
+  it("T24: auth-pending B must not consume guest G before /me", async () => {
+    const G = "g".repeat(32);
+    seedGuestCart(G, [{ product: product(51), quantity: 2 }]);
+    useCartStore.setState({ cart: [], quote: [], lastSyncError: null });
+
+    const loginSpy = vi.spyOn(apiClientModule, "isLoggedIn").mockReturnValue(true);
+    markCustomerSessionChecking();
+
+    const get = vi.spyOn(cartService, "get").mockResolvedValue(emptyCart("purchase"));
+    const upsert = vi.spyOn(cartService, "upsertItem").mockResolvedValue(emptyCart("purchase"));
+    const clear = vi.spyOn(cartService, "clear").mockImplementation(async () => {});
+    const remove = vi.spyOn(cartService, "removeItem").mockResolvedValue(emptyCart("purchase"));
+
+    expect(useCartStore.getState().publishStashForCurrentGuestIfMatches()).toBe(false);
+    expect(useCartStore.getState().cart).toHaveLength(0);
+
+    const recon = await useCartStore.getState().reconcileActiveScopeFromServer();
+    expect(recon.ok).toBe(true);
+    expect(get).not.toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled();
+    expect(remove).not.toHaveBeenCalled();
+
+    useCartStore.getState().addToCart(product(99), 1);
+    useCartStore.getState().removeFromCart(51);
+    useCartStore.getState().setCartQuantity(51, 9);
+    useCartStore.getState().clearCart();
+    expect(useCartStore.getState().stash?.attribution).toEqual({
+      kind: "guest",
+      guestToken: G,
+    });
+    expect(useCartStore.getState().stash?.cart.map((l) => l.product.id)).toEqual([51]);
+
+    // After /me verifies B: guest G must not be pushed into B.
+    establishVerifiedCustomer(2, "otp");
+    get.mockClear();
+    upsert.mockClear();
+    get.mockResolvedValue(emptyCart("purchase"));
+    await useCartStore.getState().reconcileActiveScopeFromServer();
+    expect(useCartStore.getState().stash?.attribution).toEqual({
+      kind: "customer",
+      customerId: 2,
+    });
+    expect(useCartStore.getState().cart.some((l) => l.product.id === 51)).toBe(false);
+    expect(upsert).not.toHaveBeenCalledWith("purchase", 51, 2);
+
+    // Positive control: unknown + logged-out + exact G still republishes (T17).
+    loginSpy.mockReturnValue(false);
+    resetCustomerSessionStateForTests();
+    seedGuestCart(G, [{ product: product(51), quantity: 2 }]);
+    useCartStore.setState({ cart: [], quote: [] });
+    expect(useCartStore.getState().publishStashForCurrentGuestIfMatches()).toBe(true);
+    expect(useCartStore.getState().cart.some((l) => l.product.id === 51)).toBe(true);
+  });
+
+  it("T25: cold payment callback clears A purchase stash without verified session", () => {
+    seedCustomerCart(
+      1,
+      [{ product: product(51), quantity: 2 }],
+      [{ product: product(77, null), quantity: 1 }],
+    );
+    useCartStore.setState({ cart: [], quote: [], lastSyncError: null });
+    const clear = vi.spyOn(cartService, "clear").mockImplementation(async () => {});
+
+    const cleaned = useCartStore.getState().clearPurchaseCartLocallyForExpectedOwner(1);
+    expect(cleaned).toBe(true);
+    expect(useCartStore.getState().stash?.cart).toEqual([]);
+    expect(useCartStore.getState().stash?.quote.map((l) => l.product.id)).toEqual([77]);
+    expect(clear).not.toHaveBeenCalled();
+
+    establishVerifiedCustomer(1, "otp");
+    useCartStore.getState().publishStashForVerifiedCustomer(1);
+    expect(useCartStore.getState().cart.some((l) => l.product.id === 51)).toBe(false);
+    expect(useCartStore.getState().quote.some((l) => l.product.id === 77)).toBe(true);
+  });
+
+  it("T26: old A callback cannot clear B purchase stash", () => {
+    seedCustomerCart(2, [{ product: product(70), quantity: 1 }]);
+    establishVerifiedCustomer(2, "otp");
+    const clear = vi.spyOn(cartService, "clear").mockImplementation(async () => {});
+    const before = structuredClone(useCartStore.getState().stash);
+
+    const cleaned = useCartStore.getState().clearPurchaseCartLocallyForExpectedOwner(1);
+    expect(cleaned).toBe(false);
+    expect(useCartStore.getState().stash).toEqual(before);
+    expect(useCartStore.getState().cart.map((l) => l.product.id)).toEqual([70]);
+    expect(clear).not.toHaveBeenCalled();
+  });
+
 });

@@ -16,6 +16,7 @@ import {
   clearCartTokenIfMatches,
   getCartToken,
   getOrCreateCartToken,
+  isLoggedIn,
 } from "@/lib/api-client";
 
 export interface CartLine {
@@ -73,6 +74,11 @@ interface CartState {
   clearQuoteIfOwnershipCurrent: (fence: CartOwnershipFence) => boolean;
   /** Clear purchase cart only if the captured ownership fence is still current. */
   clearCartIfOwnershipCurrent: (fence: CartOwnershipFence) => boolean;
+  /**
+   * LOCAL-ONLY purchase-lane clear for cold payment callback cleanup.
+   * Matches persisted customer stash attribution; never calls cartService.clear.
+   */
+  clearPurchaseCartLocallyForExpectedOwner: (expectedCustomerId: number) => boolean;
   /**
    * Restore inquiry lines under a captured verified-customer fence.
    * Returns false (no write) when the fence is stale or owner mismatched.
@@ -159,15 +165,25 @@ function attributionEquals(a: CartAttribution | null | undefined, b: CartAttribu
   return false;
 }
 
+/**
+ * Guest cart publication/mutation/network is allowed only when guest scope is trustworthy.
+ * `verifiedCustomerId == null` alone is NOT sufficient (auth-pending checking/unknown+logged-in).
+ */
+export function isGuestCartScopeAllowed(): boolean {
+  const snap = getCustomerSessionSnapshot();
+  if (snap.phase === "guest") return true;
+  if (snap.phase === "unknown" && !isLoggedIn()) return true;
+  return false;
+}
+
 function captureCartOpFence(attribution: CartAttribution): CartOpFence | null {
   if (attribution.kind === "customer") {
     const session = captureVerifiedCustomerSessionFence();
     if (!session || session.ownerId !== attribution.customerId) return null;
     return { kind: "customer", session };
   }
+  if (!isGuestCartScopeAllowed()) return null;
   const snap = getCustomerSessionSnapshot();
-  // Guest ops are blocked while a verified customer owns the session.
-  if (snap.phase === "verified" && snap.verifiedCustomerId != null) return null;
   const token = getCartToken();
   // Guest fence requires exact storage token match (G1 stash + G2 token fails closed).
   if (!token || token !== attribution.guestToken) return null;
@@ -183,9 +199,9 @@ function isCartOpFenceCurrent(fence: CartOpFence | null): boolean {
   if (fence.kind === "customer") {
     return isCustomerSessionFenceCurrent(fence.session);
   }
+  if (!isGuestCartScopeAllowed()) return false;
   const snap = getCustomerSessionSnapshot();
   if (snap.generation !== fence.generation) return false;
-  if (snap.phase === "verified" && snap.verifiedCustomerId != null) return false;
   const stash = useCartStore.getState().stash;
   const token = getCartToken();
   return (
@@ -227,6 +243,9 @@ function ensureMutationAttribution(): CartAttribution | null {
     return next;
   }
 
+  // Auth-pending (checking / unknown+logged-in) must not fabricate guest identity.
+  if (!isGuestCartScopeAllowed()) return null;
+
   // Guest scope — token must be created under an explicit guest attribution.
   const token = getOrCreateCartToken();
   const next: CartAttribution = { kind: "guest", guestToken: token };
@@ -258,6 +277,7 @@ function resolveExistingMutationAttribution(): CartAttribution | null {
     }
     return null;
   }
+  if (!isGuestCartScopeAllowed()) return null;
   const token = getCartToken();
   if (
     token &&
@@ -480,7 +500,7 @@ export const useCartStore = create<CartState>()(
       },
 
       publishStashForCurrentGuestIfMatches: () => {
-        if (getVerifiedCustomerId() != null) return false;
+        if (!isGuestCartScopeAllowed()) return false;
         const token = getCartToken();
         const stash = get().stash;
         if (
@@ -668,6 +688,25 @@ export const useCartStore = create<CartState>()(
           stash: writeStash(attribution, [], s.quote),
         }));
         void clearServerCart("purchase");
+        return true;
+      },
+
+      clearPurchaseCartLocallyForExpectedOwner: (expectedCustomerId) => {
+        if (!Number.isFinite(expectedCustomerId) || expectedCustomerId <= 0) {
+          return false;
+        }
+        const stash = get().stash;
+        if (
+          stash?.attribution.kind !== "customer" ||
+          stash.attribution.customerId !== expectedCustomerId
+        ) {
+          return false;
+        }
+        // LOCAL-ONLY — checkout already cleared server cart; never cartService.clear here.
+        set({
+          cart: [],
+          stash: writeStash(stash.attribution, [], stash.quote),
+        });
         return true;
       },
 
@@ -947,7 +986,14 @@ export const useCartStore = create<CartState>()(
             return get().reconcileSameOwnerFromServer();
           }
           // Foreign customer, guest, or empty stash → server-authoritative replace.
+          // Ordinary /me verification must NOT auto-transfer guest G into B.
           return get().replaceFromServerForCustomer(verified);
+        }
+
+        // Auth-pending: logged-in but unknown/checking — hide and wait (no guest network).
+        if (!isGuestCartScopeAllowed()) {
+          set({ cart: [], quote: [], lastSyncError: null });
+          return { ok: true };
         }
 
         const published = get().publishStashForCurrentGuestIfMatches();

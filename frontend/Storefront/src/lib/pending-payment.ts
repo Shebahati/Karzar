@@ -7,6 +7,11 @@ export interface PendingPayment {
   tracking_code: string;
   /** Epoch ms — discard after this time. */
   expires_at: number;
+  /**
+   * Purchase-cart owner captured at checkout/payment initiation.
+   * Missing/invalid on legacy records → fail closed for local cart cleanup.
+   */
+  customer_id?: number;
 }
 
 const TTL_MS = 24 * 60 * 60 * 1000;
@@ -21,6 +26,17 @@ function isValid(pending: PendingPayment | null): pending is PendingPayment {
   );
 }
 
+export function pendingPaymentHasOwner(
+  pending: PendingPayment | null,
+): pending is PendingPayment & { customer_id: number } {
+  return Boolean(
+    pending &&
+      typeof pending.customer_id === "number" &&
+      Number.isFinite(pending.customer_id) &&
+      pending.customer_id > 0,
+  );
+}
+
 function parse(raw: string | null): PendingPayment | null {
   if (!raw) return null;
   try {
@@ -31,12 +47,22 @@ function parse(raw: string | null): PendingPayment | null {
   }
 }
 
-export function savePendingPayment(orderId: number, trackingCode: string): void {
+/**
+ * Persist pending payment with the checkout cart owner.
+ * Retry paths must pass the same customer_id (or use preserveOwnerFromExisting).
+ */
+export function savePendingPayment(
+  orderId: number,
+  trackingCode: string,
+  customerId: number,
+): void {
   if (typeof window === "undefined") return;
+  if (!Number.isFinite(customerId) || customerId <= 0) return;
   const pending: PendingPayment = {
     order_id: orderId,
     tracking_code: trackingCode,
     expires_at: Date.now() + TTL_MS,
+    customer_id: customerId,
   };
   const raw = JSON.stringify(pending);
   try {
@@ -49,6 +75,26 @@ export function savePendingPayment(orderId: number, trackingCode: string): void 
   } catch {
     /* ignore */
   }
+}
+
+/**
+ * Retry payment: keep the original owner when the same order is still pending.
+ */
+export function savePendingPaymentPreservingOwner(
+  orderId: number,
+  trackingCode: string,
+  customerIdFallback: number | null,
+): boolean {
+  const existing = readPendingPayment();
+  const owner =
+    existing &&
+    existing.order_id === orderId &&
+    pendingPaymentHasOwner(existing)
+      ? existing.customer_id
+      : customerIdFallback;
+  if (owner == null || !Number.isFinite(owner) || owner <= 0) return false;
+  savePendingPayment(orderId, trackingCode, owner);
+  return true;
 }
 
 export function readPendingPayment(): PendingPayment | null {
@@ -80,4 +126,21 @@ export function clearPendingPayment(): void {
   } catch {
     /* ignore */
   }
+}
+
+/** Clear pending payment only when it still matches the expected order identity. */
+export function clearPendingPaymentIfMatches(expected: {
+  order_id: number;
+  tracking_code: string;
+}): boolean {
+  const current = readPendingPayment();
+  if (
+    !current ||
+    current.order_id !== expected.order_id ||
+    current.tracking_code !== expected.tracking_code
+  ) {
+    return false;
+  }
+  clearPendingPayment();
+  return true;
 }

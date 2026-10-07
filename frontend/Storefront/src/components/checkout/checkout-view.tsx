@@ -19,7 +19,11 @@ import { ApiError } from "@/lib/api-client";
 import { ERROR_CODES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { savePendingInquiry } from "@/lib/inquiry-pending";
-import { savePendingPayment } from "@/lib/pending-payment";
+import {
+  savePendingPayment,
+  savePendingPaymentPreservingOwner,
+} from "@/lib/pending-payment";
+import { getVerifiedCustomerId } from "@/lib/customer-session";
 import type { CheckoutPayload } from "@/types/checkout";
 
 type Step = "auth" | "details";
@@ -53,6 +57,7 @@ export function CheckoutView() {
   const [pendingPayOrder, setPendingPayOrder] = useState<{
     order_id: number;
     tracking_code: string;
+    customer_id: number;
   } | null>(null);
 
   const submit = useSubmitCheckout();
@@ -156,7 +161,14 @@ export function CheckoutView() {
 
         try {
           setPaying(true);
-          savePendingPayment(res.order_id, res.tracking_code);
+          const ownerId = getVerifiedCustomerId();
+          if (ownerId == null) {
+            setPaying(false);
+            setCheckoutError("هویت تأییدشده برای پرداخت در دسترس نیست. لطفاً دوباره وارد شوید.");
+            setStep("auth");
+            return;
+          }
+          savePendingPayment(res.order_id, res.tracking_code, ownerId);
 
           let paymentUrl = res.payment_url;
           if (!paymentUrl) {
@@ -180,7 +192,14 @@ export function CheckoutView() {
             setStep("auth");
             return;
           }
-          setPendingPayOrder({ order_id: res.order_id, tracking_code: res.tracking_code });
+          const ownerId = getVerifiedCustomerId();
+          if (ownerId != null) {
+            setPendingPayOrder({
+              order_id: res.order_id,
+              tracking_code: res.tracking_code,
+              customer_id: ownerId,
+            });
+          }
           setCheckoutError(
             `سفارش با کد ${res.tracking_code} ثبت شد اما اتصال به درگاه ناموفق بود. می‌توانید پرداخت را دوباره امتحان کنید.`,
           );
@@ -226,7 +245,17 @@ export function CheckoutView() {
     try {
       setPaying(true);
       setCheckoutError(null);
-      savePendingPayment(pendingPayOrder.order_id, pendingPayOrder.tracking_code);
+      // Preserve checkout-time owner — never replace with a later session identity.
+      const saved = savePendingPaymentPreservingOwner(
+        pendingPayOrder.order_id,
+        pendingPayOrder.tracking_code,
+        pendingPayOrder.customer_id,
+      );
+      if (!saved) {
+        setPaying(false);
+        setCheckoutError("هویت سفارش برای پرداخت مجدد در دسترس نیست. لطفاً دوباره وارد شوید.");
+        return;
+      }
       const payment = await initPayment.mutateAsync({ order_id: pendingPayOrder.order_id });
       const { redirectToPaymentUrl } = await import("@/lib/payment-url");
       redirectToPaymentUrl(payment.payment_url);
