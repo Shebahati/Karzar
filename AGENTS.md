@@ -10,3 +10,13 @@
 8. One concern, explicit allowlist, preserve dirty worktree files. Admin work: `frontend/admin-panel/AGENTS.md` (`lint` / `typecheck` / `test` / `build`).
 9. CI integrity checks: `python3 aods/tools/aods_validate.py` (`aods/README.md`). Current AODS model is the Board-approved on-demand layer (`AODS-CHARTER.md` current operating model; minute `AODS-BOARD-MINUTE-003`). Do not run archived 1.0.0 prompts/task-graph as live ceremony.
 10. Operational status: GitHub Issues/PRs. Checkpoint intent: mid-tail SEO + UX + CWV, not head-term #1 vanity.
+
+## Execution discipline
+
+11. GitHub Issue/PR state is canonical. Before implementation: `git fetch origin`, attest current `origin/main`, issue scope, linked dependencies, branch/head, and worktree cleanliness. Prompt SHAs are hints until re-attested.
+12. One Issue = one execution scope. Do not silently widen scope, combine unrelated cleanup, or consume adjacent backlog. If target main moves materially, report `TARGET_MOVED` and re-evaluate before merge/rebase.
+13. Use the cheapest adequate model first. Routine exploration, grep, docs, test scaffolding, simple fixes, and evidence formatting stay on Cursor/cheap models. Escalate to frontier reasoning only for ambiguous root cause, auth/payment/security, concurrency/transactions, or critical review.
+14. Keep exploration bounded. Prefer issue → relevant docs/tests → targeted search → implementation. If evidence is still insufficient after focused inspection, stop with `BLOCKED_BY_MISSING_EVIDENCE` instead of broad repository wandering.
+15. One Issue = one Cursor conversation where practical. Do not carry unrelated historical chat context forward; reload truth from GitHub, repo, tests, and accepted docs.
+16. Merged != Done. Do not report Done without the acceptance evidence required by the issue/program (deploy, production verification, restore drill, live verification, etc.).
+17. Standard exit summary must stay concise: `STATUS`, `IDENTITY`, `CHANGED_PATHS`, `TESTS`, `CI`, `RISKS`, `BLOCKERS`, `PR`, `NEXT_STEP`, `SAFETY`. Expand only for failures or disputed evidence.
