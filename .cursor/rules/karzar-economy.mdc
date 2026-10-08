@@ -1,0 +1,14 @@
+---
+description: Karzar Cursor economy policy — cheap-first model routing and bounded exploration
+alwaysApply: true
+---
+
+Optimize for accepted PRs per unit of model usage.
+
+Default:
+- Use Cursor/cheap model for repo mapping, targeted search, docs, mechanical edits, test scaffolding, CI triage, and evidence formatting.
+- Escalate to frontier reasoning only for payment/auth/security boundaries, concurrency/transactions, architecture ambiguity, or final P0/P1 review.
+- After a frontier decision is made, return mechanical implementation/cleanup to a cheaper model when safe.
+- Avoid repeated full-repo scans, repeated summaries, and re-reading already-resolved context.
+- Prefer concise outputs and exact paths/tests over narrative.
+- Do not use Fast/Cloud/parallel agents by default; use only when the task benefit clearly justifies extra spend.
