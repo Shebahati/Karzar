@@ -15,6 +15,20 @@ export const apiClient = axios.create({
   withCredentials: !env.USE_MOCK,
 });
 
+/**
+ * Guest cart transport (Option A / F03).
+ * Cross-origin API + withCredentials:false → browser must not attach HttpOnly auth cookies.
+ * Never Authorization, never refresh, never credentialed retry.
+ * Only X-Cart-Token identifies the guest cart.
+ * Interceptors are attached after getCartToken is defined below.
+ */
+export const guestCartClient = axios.create({
+  baseURL: env.API_BASE_URL,
+  timeout: 15_000,
+  headers: { "Content-Type": "application/json" },
+  withCredentials: false,
+});
+
 const TOKEN_KEY = "karzar.storefront.token";
 const REFRESH_TOKEN_KEY = "karzar.storefront.refresh_token";
 const TOKEN_EXPIRES_AT_KEY = "karzar.storefront.token.expires_at";
@@ -141,6 +155,33 @@ export function clearCartToken(): void {
   window.localStorage.removeItem(CART_TOKEN_KEY);
 }
 
+/**
+ * Retire a guest cart token only when storage still holds that exact token.
+ * Prevents a stale G1→customer merge completion from clearing a newer G2.
+ */
+export function clearCartTokenIfMatches(expectedGuestToken: string): boolean {
+  if (typeof window === "undefined") return false;
+  if (!expectedGuestToken || expectedGuestToken.length < 32) return false;
+  const current = window.localStorage.getItem(CART_TOKEN_KEY);
+  if (current !== expectedGuestToken) return false;
+  window.localStorage.removeItem(CART_TOKEN_KEY);
+  return true;
+}
+
+guestCartClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  // Strip any accidental auth — guest lane must be auth-independent of F08 logout.
+  if (config.headers) {
+    delete config.headers.Authorization;
+    delete config.headers.authorization;
+  }
+  config.withCredentials = false;
+  const cartToken = getCartToken();
+  if (cartToken && !config.headers["X-Cart-Token"]) {
+    config.headers["X-Cart-Token"] = cartToken;
+  }
+  return config;
+});
+
 export const tokenStorage = {
   getExpiresAt(): number | null {
     if (typeof window === "undefined") return null;
@@ -260,6 +301,18 @@ function parseRetryAfter(header: string | undefined): number | null {
   return null;
 }
 
+function toApiError(error: AxiosError<{ detail?: ApiErrorPayload } & Partial<ApiErrorPayload>>) {
+  const status = error.response?.status ?? 0;
+  const body = error.response?.data;
+  const payload: ApiErrorPayload | undefined =
+    (body?.detail as ApiErrorPayload | undefined) ??
+    (body && "error_code" in body ? (body as ApiErrorPayload) : undefined);
+  const retryAfter = parseRetryAfter(
+    error.response?.headers?.["retry-after"] as string | undefined,
+  );
+  return new ApiError(status, payload, retryAfter);
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<{ detail?: ApiErrorPayload } & Partial<ApiErrorPayload>>) => {
@@ -289,16 +342,15 @@ apiClient.interceptors.response.use(
       }
     }
 
-    const body = error.response?.data;
-    const payload: ApiErrorPayload | undefined =
-      (body?.detail as ApiErrorPayload | undefined) ??
-      (body && "error_code" in body ? (body as ApiErrorPayload) : undefined);
+    throw toApiError(error);
+  },
+);
 
-    const retryAfter = parseRetryAfter(
-      error.response?.headers?.["retry-after"] as string | undefined,
-    );
-
-    throw new ApiError(status, payload, retryAfter);
+/** Guest cart errors never refresh auth or attach Authorization. */
+guestCartClient.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError<{ detail?: ApiErrorPayload } & Partial<ApiErrorPayload>>) => {
+    throw toApiError(error);
   },
 );
 

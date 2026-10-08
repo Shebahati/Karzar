@@ -60,11 +60,15 @@ function CustomerSessionBoundary() {
       onSessionInvalidated: () => {
         clearPrivateAuthAndOrderQueries(queryClient);
         useAddressStore.getState().clearVisibleAddresses();
+        // F03: hide authenticated cart publication; do not mutate server cart.
+        useCartStore.getState().hidePublishedCart();
       },
       onSessionVerified: (ownerId, sameOwner) => {
         if (!sameOwner) {
           clearPrivateAuthAndOrderQueries(queryClient);
         }
+        // Publish only when stash attribution matches verified owner; foreign/guest stash stays hidden.
+        useCartStore.getState().publishStashForVerifiedCustomer(ownerId);
         useAddressStore.getState().hydrateVisibleForVerifiedOwner(ownerId);
       },
     });
@@ -77,6 +81,7 @@ function CustomerSessionBoundary() {
       notifyExternalSessionHint();
       clearPrivateAuthAndOrderQueries(queryClient);
       useAddressStore.getState().clearVisibleAddresses();
+      useCartStore.getState().hidePublishedCart();
       if (!isLoggedIn()) {
         invalidateCustomerSession("guest", { broadcast: false });
         return;
@@ -139,7 +144,10 @@ function CustomerSessionBoundary() {
  */
 function PersistRehydrate() {
   useEffect(() => {
-    void useCartStore.persist.rehydrate();
+    void Promise.resolve(useCartStore.persist.rehydrate()).then(() => {
+      // Guest stash may republish after mount when token matches; customer stash stays hidden.
+      useCartStore.getState().publishStashForCurrentGuestIfMatches();
+    });
     void useAddressStore.persist.rehydrate();
   }, []);
   return null;

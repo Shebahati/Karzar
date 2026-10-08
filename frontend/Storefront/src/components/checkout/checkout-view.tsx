@@ -19,7 +19,10 @@ import { ApiError } from "@/lib/api-client";
 import { ERROR_CODES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { savePendingInquiry } from "@/lib/inquiry-pending";
-import { savePendingPayment } from "@/lib/pending-payment";
+import {
+  savePendingPayment,
+  savePendingPaymentPreservingOwner,
+} from "@/lib/pending-payment";
 import type { CheckoutPayload } from "@/types/checkout";
 
 type Step = "auth" | "details";
@@ -31,9 +34,13 @@ export function CheckoutView() {
 
   const cart = useCartStore((s) => s.cart);
   const quote = useCartStore((s) => s.quote);
-  const clearCart = useCartStore((s) => s.clearCart);
-  const clearQuote = useCartStore((s) => s.clearQuote);
-  const reconcileFromServer = useCartStore((s) => s.reconcileFromServer);
+  const clearQuoteIfOwnershipCurrent = useCartStore(
+    (s) => s.clearQuoteIfOwnershipCurrent,
+  );
+  const captureOwnershipFence = useCartStore((s) => s.captureOwnershipFence);
+  const reconcileActiveScopeFromServer = useCartStore(
+    (s) => s.reconcileActiveScopeFromServer,
+  );
 
   const lines = isInquiry ? quote : cart;
 
@@ -49,6 +56,7 @@ export function CheckoutView() {
   const [pendingPayOrder, setPendingPayOrder] = useState<{
     order_id: number;
     tracking_code: string;
+    customer_id: number;
   } | null>(null);
 
   const submit = useSubmitCheckout();
@@ -91,7 +99,7 @@ export function CheckoutView() {
 
     // Prefer server cart as source of truth before purchase checkout.
     if (!isInquiry && isLoggedIn()) {
-      const sync = await reconcileFromServer();
+      const sync = await reconcileActiveScopeFromServer();
       if (!sync.ok) {
         setCheckoutError(
           sync.error ??
@@ -115,6 +123,21 @@ export function CheckoutView() {
     const currentLines = isInquiry
       ? useCartStore.getState().quote
       : useCartStore.getState().cart;
+
+    // Capture ownership BEFORE async submit — never re-read live identity in onSuccess.
+    const submitOwnershipFence = captureOwnershipFence();
+    let purchaseOwnerId: number | null = null;
+    if (!isInquiry) {
+      if (
+        !submitOwnershipFence ||
+        submitOwnershipFence.kind !== "customer"
+      ) {
+        setCheckoutError("هویت تأییدشده برای پرداخت در دسترس نیست. لطفاً دوباره وارد شوید.");
+        setStep("auth");
+        return;
+      }
+      purchaseOwnerId = submitOwnershipFence.session.ownerId;
+    }
 
     const payload: CheckoutPayload = {
       mode: isInquiry ? "inquiry" : "purchase",
@@ -140,14 +163,25 @@ export function CheckoutView() {
             created_at: res.created_at,
             lines: currentLines.map((l) => ({ product_id: l.product.id, quantity: l.quantity })),
           });
-          clearQuote();
+          if (submitOwnershipFence) {
+            clearQuoteIfOwnershipCurrent(submitOwnershipFence);
+          }
           router.push(`/checkout/success?ref=${res.tracking_code}&mode=inquiry`);
+          return;
+        }
+
+        // Immutable submit-time owner — A→B mid-flight must not relabel A's order as B.
+        const ownerId = purchaseOwnerId;
+        if (ownerId == null) {
+          setPaying(false);
+          setCheckoutError("هویت سفارش برای پرداخت در دسترس نیست. لطفاً دوباره وارد شوید.");
+          setStep("auth");
           return;
         }
 
         try {
           setPaying(true);
-          savePendingPayment(res.order_id, res.tracking_code);
+          savePendingPayment(res.order_id, res.tracking_code, ownerId);
 
           let paymentUrl = res.payment_url;
           if (!paymentUrl) {
@@ -171,7 +205,11 @@ export function CheckoutView() {
             setStep("auth");
             return;
           }
-          setPendingPayOrder({ order_id: res.order_id, tracking_code: res.tracking_code });
+          setPendingPayOrder({
+            order_id: res.order_id,
+            tracking_code: res.tracking_code,
+            customer_id: ownerId,
+          });
           setCheckoutError(
             `سفارش با کد ${res.tracking_code} ثبت شد اما اتصال به درگاه ناموفق بود. می‌توانید پرداخت را دوباره امتحان کنید.`,
           );
@@ -217,7 +255,17 @@ export function CheckoutView() {
     try {
       setPaying(true);
       setCheckoutError(null);
-      savePendingPayment(pendingPayOrder.order_id, pendingPayOrder.tracking_code);
+      // Preserve checkout-time owner — never replace with a later session identity.
+      const saved = savePendingPaymentPreservingOwner(
+        pendingPayOrder.order_id,
+        pendingPayOrder.tracking_code,
+        pendingPayOrder.customer_id,
+      );
+      if (!saved) {
+        setPaying(false);
+        setCheckoutError("هویت سفارش برای پرداخت مجدد در دسترس نیست. لطفاً دوباره وارد شوید.");
+        return;
+      }
       const payment = await initPayment.mutateAsync({ order_id: pendingPayOrder.order_id });
       const { redirectToPaymentUrl } = await import("@/lib/payment-url");
       redirectToPaymentUrl(payment.payment_url);

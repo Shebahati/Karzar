@@ -595,6 +595,13 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
 
+  - id: CONSISTENCY-1B-CART-OWNERSHIP
+    path: docs/development/consistency-1b-cart-ownership.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+
   - id: DOCS-DEVELOPMENT-STANDARDS-README
     path: docs/development/standards/README.md
     class: CANON
