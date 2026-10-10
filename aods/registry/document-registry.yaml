@@ -40,6 +40,13 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
 
+  - id: STOREFRONT-AGENTS
+    path: frontend/Storefront/AGENTS.md
+    class: REFERENCE
+    rank: 7
+    status: current
+    owner_role: R-DOC-ARCH
+
   - id: README
     path: README.md
     class: REFERENCE

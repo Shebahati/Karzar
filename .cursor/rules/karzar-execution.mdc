@@ -1,0 +1,16 @@
+---
+description: Karzar issue execution contract — scope, truth, stop conditions
+alwaysApply: true
+---
+
+Follow root `AGENTS.md`.
+
+For implementation tasks:
+- Fetch current `origin/main` and current GitHub Issue/PR state before changing code.
+- Treat prompt SHAs and copied status as stale until re-attested.
+- Keep one Issue per branch/PR. No unrelated refactor or cleanup.
+- Preserve unrelated dirty files; prefer isolated worktree/branch.
+- If main moves materially, report `TARGET_MOVED`; do not paper over integration risk.
+- Stop at owner/business-policy boundaries rather than inventing decisions.
+- Do not merge, deploy, mutate production/catalog, or initiate real payment unless explicitly authorized.
+- Exit with the compact standard evidence contract from root `AGENTS.md`.
