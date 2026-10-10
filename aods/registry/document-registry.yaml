@@ -26,6 +26,13 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
 
+  - id: CURSOR-KARZAR-ISSUE-EXECUTOR
+    path: .cursor/skills/karzar-issue-executor/SKILL.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+
   - id: PULL_REQUEST_TEMPLATE
     path: .github/pull_request_template.md
     class: REFERENCE
