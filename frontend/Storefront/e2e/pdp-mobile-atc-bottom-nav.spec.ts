@@ -3,12 +3,16 @@ import { expect, test, type Page } from "@playwright/test";
 const MOBILE_WIDTHS = [320, 360, 375, 390, 412, 430] as const;
 
 const CART_STORAGE_KEY = "karzar.storefront.cart";
+const SPLASH_STORAGE_KEY = "karzar-splash-seen";
 
-async function dismissSplashIfPresent(page: Page) {
-  await page
-    .locator('[data-testid="first-visit-splash"]')
-    .waitFor({ state: "hidden", timeout: 8_000 })
-    .catch(() => undefined);
+async function skipFirstVisitSplash(page: Page) {
+  await page.addInitScript((key) => {
+    try {
+      sessionStorage.setItem(key, "1");
+    } catch {
+      /* non-browser context */
+    }
+  }, SPLASH_STORAGE_KEY);
 }
 
 async function clearCart(page: Page) {
@@ -42,35 +46,73 @@ async function hitStackAtLocatorCenter(locator: ReturnType<Page["getByRole"]>) {
   });
 }
 
+/** Scroll so main ATC center sits in the bottom-nav band but remains inside the viewport. */
 async function scrollMainAtcIntoDockBand(mainAtc: ReturnType<Page["getByRole"]>) {
+  await mainAtc.scrollIntoViewIfNeeded();
   await mainAtc.evaluate((btn) => {
+    const scroller = document.scrollingElement ?? document.documentElement;
     const nav = document.querySelector("nav.fixed.bottom-0");
-    const navRect = nav?.getBoundingClientRect();
-    if (!navRect) throw new Error("missing mobile bottom nav");
+    if (!nav) throw new Error("missing mobile bottom nav");
 
-    const rect = btn.getBoundingClientRect();
-    const vh = window.innerHeight;
-    const half = rect.height / 2;
-    const inNavBandY = navRect.top + Math.min(24, navRect.height * 0.4);
-    const targetCenterY = Math.max(half + 2, Math.min(vh - half - 2, inNavBandY));
-    const currentCenterY = rect.top + half;
-    window.scrollBy({ top: currentCenterY - targetCenterY, behavior: "auto" });
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const navRect = nav.getBoundingClientRect();
+      const rect = btn.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const half = rect.height / 2;
+      const centerY = rect.top + half;
+      const maxCenter = vh - half - 4;
+      const minCenter = half + 4;
+      const inNavBandY = navRect.top + Math.min(20, navRect.height * 0.35);
+      const targetCenterY = Math.max(minCenter, Math.min(maxCenter, inNavBandY));
+
+      if (centerY > maxCenter + 1) {
+        scroller.scrollTop += centerY - maxCenter;
+        continue;
+      }
+      if (centerY < minCenter - 1) {
+        scroller.scrollTop += centerY - minCenter;
+        continue;
+      }
+      if (Math.abs(centerY - targetCenterY) <= 2) break;
+      scroller.scrollTop += centerY - targetCenterY;
+    }
   });
-  await mainAtc.page().waitForTimeout(200);
+}
+
+async function expectMainAtcBeatsNav(mainAtc: ReturnType<Page["getByRole"]>, label: string) {
+  const geometry = await mainAtc.evaluate((btn) => {
+    const r = btn.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const centerY = r.top + r.height / 2;
+    return {
+      centerY,
+      vh,
+      inViewport: centerY >= 4 && centerY <= vh - 4,
+    };
+  });
+  expect(geometry.inViewport, `${label}: ATC center must be in viewport ${JSON.stringify(geometry)}`).toBe(
+    true,
+  );
+
+  const hit = await hitStackAtLocatorCenter(mainAtc);
+  expect(
+    hit.mainAtcAboveNav,
+    `${label}: main ATC must win over bottom nav ${JSON.stringify(hit)}`,
+  ).toBe(true);
 }
 
 function mainColumnAtc(page: Page) {
-  return page.locator("[data-pdp-main-atc]").first();
+  return page.locator("[data-pdp-main-atc]:visible").first();
 }
 
 test.describe("PDP mobile ATC vs bottom nav (#452)", () => {
   for (const width of MOBILE_WIDTHS) {
     test(`width ${width}: main ATC hit target not bottom nav`, async ({ page }) => {
+      await skipFirstVisitSplash(page);
       await page.setViewportSize({ width, height: 844 });
       await page.goto("/product/1", { waitUntil: "domcontentloaded", timeout: 120_000 });
       await clearCart(page);
       await page.reload({ waitUntil: "domcontentloaded" });
-      await dismissSplashIfPresent(page);
 
       await expect(
         page.getByRole("heading", { level: 1, name: /دریل چکشی بوش/i }),
@@ -80,12 +122,7 @@ test.describe("PDP mobile ATC vs bottom nav (#452)", () => {
       await expect(mainAtc).toBeVisible({ timeout: 15_000 });
 
       await scrollMainAtcIntoDockBand(mainAtc);
-
-      const hit = await hitStackAtLocatorCenter(mainAtc);
-      expect(
-        hit.mainAtcAboveNav,
-        `main ATC must win over bottom nav at ${width}px: ${JSON.stringify(hit)}`,
-      ).toBe(true);
+      await expectMainAtcBeatsNav(mainAtc, `width ${width}px`);
 
       await mainAtc.click({ timeout: 5_000 });
       await page.waitForFunction(
@@ -110,11 +147,11 @@ test.describe("PDP mobile ATC vs bottom nav (#452)", () => {
   }
 
   test("width 390: sticky dock ATC clickable", async ({ page }) => {
+    await skipFirstVisitSplash(page);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/product/1", { waitUntil: "domcontentloaded", timeout: 120_000 });
     await clearCart(page);
     await page.reload({ waitUntil: "domcontentloaded" });
-    await dismissSplashIfPresent(page);
 
     const stickyAdd = page
       .locator(".mobile-dock")
@@ -149,24 +186,23 @@ test.describe("PDP mobile ATC vs bottom nav (#452)", () => {
   });
 
   test("width 768 secondary: main ATC above bottom nav in dock band", async ({ page }) => {
+    await skipFirstVisitSplash(page);
     await page.setViewportSize({ width: 768, height: 1024 });
     await page.goto("/product/1", { waitUntil: "domcontentloaded", timeout: 120_000 });
     await clearCart(page);
     await page.reload({ waitUntil: "domcontentloaded" });
-    await dismissSplashIfPresent(page);
 
     const mainAtc = mainColumnAtc(page);
     await expect(mainAtc).toBeVisible({ timeout: 15_000 });
     await scrollMainAtcIntoDockBand(mainAtc);
-    const hit = await hitStackAtLocatorCenter(mainAtc);
-    expect(hit.mainAtcAboveNav).toBe(true);
+    await expectMainAtcBeatsNav(mainAtc, "width 768px");
   });
 
   test("width 390: bottom nav cart link clickable", async ({ page }) => {
+    await skipFirstVisitSplash(page);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/product/1", { waitUntil: "domcontentloaded", timeout: 120_000 });
     await clearCart(page);
-    await dismissSplashIfPresent(page);
 
     const cartNav = page.getByRole("link", { name: /^سبد$/i }).last();
     await expect(cartNav).toBeVisible({ timeout: 15_000 });
