@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "python3 .cursor/hooks/guard_shell.py",
+        "matcher": "(git|gh|curl|KARZAR_ALLOW_PRODUCTION_WRITE|rm\\s+-rf)",
+        "timeout": 5,
+        "failClosed": true
+      }
+    ],
+    "beforeReadFile": [
+      {
+        "command": "python3 .cursor/hooks/guard_read.py",
+        "timeout": 5,
+        "failClosed": true
+      }
+    ]
+  }
+}
