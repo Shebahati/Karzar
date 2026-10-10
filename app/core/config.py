@@ -54,6 +54,13 @@ class Settings(BaseSettings):
     # event-specific code above is empty. Never used for transactional SMS.
     SMS_FARAZ_OTP_PATTERN_CODE: str | None = None
     SMS_FARAZ_OTP_ATTR: str = "code"
+    # Faraz transactional patterns (never auth OTP patterns). Required for ORDER_PAID
+    # when any auth OTP pattern is configured.
+    SMS_FARAZ_ORDER_PAID_PATTERN_CODE: str | None = None
+    SMS_FARAZ_INTERNAL_ORDER_PAID_PATTERN_CODE: str | None = None
+    SMS_FARAZ_ORDER_TRACKING_ATTR: str = "tracking_code"
+    # Comma-separated operational mobiles for internal paid-order alerts (no bootstrap default).
+    SMS_INTERNAL_ORDER_ALERT_RECIPIENTS: str = ""
     SMS_FARAZ_BASE_URL: str = "https://api.iranpayamak.com"
     SMS_TIMEOUT_SECONDS: float = Field(default=10.0, ge=1.0, le=60.0)
 
