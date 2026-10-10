@@ -17,8 +17,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential libpq-dev curl \
     && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt ./
+# Primary index: Aliyun (historical VPS mirror). If a pinned wheel/metadata 404s (mirror
+# sync gap), retry the same pinned requirements against official PyPI only — no
+# --extra-index-url (avoids mixing indices per package / dependency confusion).
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
- && pip install --no-cache-dir -r requirements.txt
+ && (pip install --no-cache-dir -r requirements.txt \
+     || (echo "Primary PyPI mirror failed; retrying pinned requirements against official PyPI." \
+         && PIP_INDEX_URL=https://pypi.org/simple/ \
+            PIP_TRUSTED_HOST=pypi.org \
+            pip install --no-cache-dir -r requirements.txt))
 
 FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
