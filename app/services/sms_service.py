@@ -26,6 +26,7 @@ class SmsEvent(StrEnum):
     AUTH_LOGIN_OTP = "AUTH_LOGIN_OTP"
     AUTH_PASSWORD_RESET = "AUTH_PASSWORD_RESET"
     ORDER_PAID = "ORDER_PAID"
+    INTERNAL_ORDER_PAID = "INTERNAL_ORDER_PAID"
     ORDER_PROCESSING = "ORDER_PROCESSING"
     ORDER_SHIPPED = "ORDER_SHIPPED"
     ORDER_DELIVERED = "ORDER_DELIVERED"
@@ -34,6 +35,12 @@ class SmsEvent(StrEnum):
 
 
 AUTH_OTP_EVENTS = frozenset({SmsEvent.AUTH_LOGIN_OTP, SmsEvent.AUTH_PASSWORD_RESET})
+
+# Faraz pattern-backed transactional events (#242). Other order events stay on simple SMS
+# or legacy skip when only auth OTP patterns exist.
+FARAZ_TRANSACTIONAL_PATTERN_EVENTS = frozenset(
+    {SmsEvent.ORDER_PAID, SmsEvent.INTERNAL_ORDER_PAID}
+)
 
 
 class SmsDeliveryError(Exception):
@@ -173,7 +180,19 @@ class FarazSmsProvider:
             await self._send_simple(message, line)
             return
 
-        # Non-OTP events must not read OTP pattern settings.
+        if message.event in FARAZ_TRANSACTIONAL_PATTERN_EVENTS:
+            pattern = _transactional_pattern_code(message.event)
+            if pattern:
+                await self._send_transactional_pattern(message, line, pattern)
+                return
+            if _any_otp_pattern_configured():
+                raise SmsDeliveryError(
+                    f"Faraz transactional pattern is not configured for event={message.event.value}"
+                )
+            await self._send_simple(message, line)
+            return
+
+        # Other transactional events: legacy skip when auth OTP patterns exist.
         if _any_otp_pattern_configured():
             logger.warning(
                 "Transactional SMS skipped because no event-specific Faraz pattern "
@@ -201,17 +220,50 @@ class FarazSmsProvider:
         if status and status != "success":
             raise SmsDeliveryError(f"Faraz SMS {context} was rejected")
 
-    async def _send_pattern(self, message: SmsMessage, line: str, pattern_code: str) -> None:
+    async def _send_auth_otp_pattern(self, message: SmsMessage, line: str, pattern_code: str) -> None:
         if message.event not in AUTH_OTP_EVENTS:
             raise SmsDeliveryError("Faraz OTP pattern send is only valid for auth OTP events")
         token = (message.attributes.get("code") or "").strip()
         if not token:
             raise SmsDeliveryError("OTP code attribute is missing")
         attr_name = (settings.SMS_FARAZ_OTP_ATTR or "code").strip() or "code"
+        await self._post_pattern(
+            message,
+            line,
+            pattern_code,
+            attributes={attr_name: token},
+        )
+
+    async def _send_transactional_pattern(
+        self, message: SmsMessage, line: str, pattern_code: str
+    ) -> None:
+        if message.event not in FARAZ_TRANSACTIONAL_PATTERN_EVENTS:
+            raise SmsDeliveryError("Faraz transactional pattern send event is not supported")
+        attr_name = (settings.SMS_FARAZ_ORDER_TRACKING_ATTR or "tracking_code").strip()
+        if not attr_name:
+            raise SmsDeliveryError("Faraz order tracking attribute name is not configured")
+        tracking = (message.attributes.get(attr_name) or message.attributes.get("tracking_code") or "").strip()
+        if not tracking:
+            raise SmsDeliveryError("Order tracking_code attribute is missing")
+        await self._post_pattern(
+            message,
+            line,
+            pattern_code,
+            attributes={attr_name: tracking},
+        )
+
+    async def _post_pattern(
+        self,
+        message: SmsMessage,
+        line: str,
+        pattern_code: str,
+        *,
+        attributes: dict[str, str],
+    ) -> None:
         payload = {
             "code": pattern_code,
             "recipient": message.receptor,
-            "attributes": {attr_name: token},
+            "attributes": attributes,
             "line_number": line,
             "number_format": "english",
         }
@@ -220,6 +272,9 @@ class FarazSmsProvider:
             response = await client.post(url, headers=self._headers(), json=payload)
             response.raise_for_status()
             self._ensure_success(response.json(), context="pattern")
+
+    async def _send_pattern(self, message: SmsMessage, line: str, pattern_code: str) -> None:
+        await self._send_auth_otp_pattern(message, line, pattern_code)
 
     async def _send_simple(self, message: SmsMessage, line: str) -> None:
         payload = {
@@ -255,6 +310,22 @@ def _warn_legacy_pattern_once(kind: str, text: str) -> None:
         return
     _legacy_pattern_warnings.add(kind)
     logger.warning(text)
+
+
+def _transactional_pattern_code(event: SmsEvent) -> str | None:
+    if event == SmsEvent.ORDER_PAID:
+        return _setting_text(settings.SMS_FARAZ_ORDER_PAID_PATTERN_CODE) or None
+    if event == SmsEvent.INTERNAL_ORDER_PAID:
+        return _setting_text(settings.SMS_FARAZ_INTERNAL_ORDER_PAID_PATTERN_CODE) or None
+    return None
+
+
+def parse_internal_order_alert_recipients() -> list[str]:
+    """Operational SMS recipients for internal paid-order alerts (may be empty)."""
+    raw = (settings.SMS_INTERNAL_ORDER_ALERT_RECIPIENTS or "").strip()
+    if not raw:
+        return []
+    return [part.strip() for part in raw.split(",") if part.strip()]
 
 
 def _auth_pattern_code(event: SmsEvent) -> str | None:

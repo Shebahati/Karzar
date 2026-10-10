@@ -71,9 +71,13 @@ def _faraz_ready(monkeypatch, **overrides):
     monkeypatch.setattr(settings, "SMS_FARAZ_LINE_NUMBER", "90008361")
     monkeypatch.setattr(settings, "SMS_FARAZ_BASE_URL", "https://api.iranpayamak.com")
     monkeypatch.setattr(settings, "SMS_FARAZ_OTP_ATTR", "code")
+    monkeypatch.setattr(settings, "SMS_FARAZ_ORDER_TRACKING_ATTR", "tracking_code")
     monkeypatch.setattr(settings, "SMS_FARAZ_LOGIN_OTP_PATTERN_CODE", None)
     monkeypatch.setattr(settings, "SMS_FARAZ_PASSWORD_RESET_PATTERN_CODE", None)
     monkeypatch.setattr(settings, "SMS_FARAZ_OTP_PATTERN_CODE", None)
+    monkeypatch.setattr(settings, "SMS_FARAZ_ORDER_PAID_PATTERN_CODE", None)
+    monkeypatch.setattr(settings, "SMS_FARAZ_INTERNAL_ORDER_PAID_PATTERN_CODE", None)
+    monkeypatch.setattr(settings, "SMS_INTERNAL_ORDER_ALERT_RECIPIENTS", "")
     for name, value in overrides.items():
         monkeypatch.setattr(settings, name, value)
 
@@ -234,7 +238,7 @@ def test_legacy_pattern_fallback_is_auth_only(monkeypatch, caplog):
 
 @pytest.mark.parametrize(
     "event",
-    [SmsEvent.ORDER_PAID, SmsEvent.ORDER_SHIPPED, SmsEvent.INQUIRY_QUOTED],
+    [SmsEvent.ORDER_SHIPPED, SmsEvent.INQUIRY_QUOTED],
 )
 def test_transactional_event_does_not_use_otp_pattern(monkeypatch, caplog, event):
     _faraz_ready(
@@ -276,19 +280,82 @@ def test_password_reset_does_not_reuse_login_pattern(monkeypatch, caplog):
     assert "AUTH_PASSWORD_RESET" in caplog.text
 
 
-def test_order_paid_with_code_attribute_is_not_an_otp_send(monkeypatch, caplog):
-    _faraz_ready(monkeypatch, SMS_FARAZ_OTP_PATTERN_CODE="LEGACY")
-    caplog.set_level(logging.WARNING)
+def test_order_paid_with_login_otp_configured_requires_paid_pattern(monkeypatch):
+    _faraz_ready(
+        monkeypatch,
+        SMS_FARAZ_LOGIN_OTP_PATTERN_CODE="LOGIN1",
+        SMS_FARAZ_ORDER_PAID_PATTERN_CODE=None,
+    )
+    with pytest.raises(SmsDeliveryError, match="ORDER_PAID"):
+        _send(
+            SmsMessage(
+                receptor="09120000000",
+                body="سفارش KZ-ABC پرداخت شد.",
+                event=SmsEvent.ORDER_PAID,
+                attributes={"tracking_code": "KZ-ABC"},
+            )
+        )
+
+
+def test_order_paid_uses_dedicated_pattern_not_auth_otp(monkeypatch):
+    _faraz_ready(
+        monkeypatch,
+        SMS_FARAZ_LOGIN_OTP_PATTERN_CODE="LOGIN1",
+        SMS_FARAZ_PASSWORD_RESET_PATTERN_CODE="RESET1",
+        SMS_FARAZ_OTP_PATTERN_CODE="LEGACY",
+        SMS_FARAZ_ORDER_PAID_PATTERN_CODE="ORDERPAID1",
+    )
+    mock_client = _recording_client(monkeypatch)
     _send(
         SmsMessage(
             receptor="09120000000",
             body="سفارش KZ-ABC پرداخت شد.",
             event=SmsEvent.ORDER_PAID,
-            attributes={"code": "123456"},
+            attributes={"tracking_code": "KZ-ABC"},
         )
     )
-    assert "skipped" in caplog.text
-    assert "123456" not in caplog.text
+    call = _posted_json(mock_client)
+    assert call.kwargs["json"]["code"] == "ORDERPAID1"
+    assert call.kwargs["json"]["attributes"] == {"tracking_code": "KZ-ABC"}
+    assert "LOGIN1" not in str(call.kwargs["json"])
+    assert "RESET1" not in str(call.kwargs["json"])
+    assert "LEGACY" not in str(call.kwargs["json"])
+
+
+def test_internal_order_paid_uses_internal_pattern(monkeypatch):
+    _faraz_ready(
+        monkeypatch,
+        SMS_FARAZ_LOGIN_OTP_PATTERN_CODE="LOGIN1",
+        SMS_FARAZ_INTERNAL_ORDER_PAID_PATTERN_CODE="INTPAID1",
+    )
+    mock_client = _recording_client(monkeypatch)
+    _send(
+        SmsMessage(
+            receptor="09129998877",
+            body="سفارش پرداخت‌شده: KZ-INT",
+            event=SmsEvent.INTERNAL_ORDER_PAID,
+            attributes={"tracking_code": "KZ-INT"},
+        )
+    )
+    call = _posted_json(mock_client)
+    assert call.kwargs["json"]["code"] == "INTPAID1"
+    assert call.kwargs["json"]["attributes"] == {"tracking_code": "KZ-INT"}
+
+
+def test_order_paid_missing_tracking_attribute_raises(monkeypatch):
+    _faraz_ready(
+        monkeypatch,
+        SMS_FARAZ_ORDER_PAID_PATTERN_CODE="ORDERPAID1",
+    )
+    with pytest.raises(SmsDeliveryError, match="tracking"):
+        _send(
+            SmsMessage(
+                receptor="09120000000",
+                body="سفارش KZ-ABC پرداخت شد.",
+                event=SmsEvent.ORDER_PAID,
+                attributes={},
+            )
+        )
 
 
 def test_order_events_use_simple_sms_when_no_otp_pattern_is_configured(monkeypatch):
@@ -408,15 +475,17 @@ def test_order_notification_maps_statuses(monkeypatch):
 
     fake = _FakeProvider()
     monkeypatch.setattr(notification_service, "get_sms_provider", lambda: fake)
+    monkeypatch.setattr(settings, "SMS_INTERNAL_ORDER_ALERT_RECIPIENTS", "09121110000")
     mapping = {
-        "paid": SmsEvent.ORDER_PAID,
-        "processing": SmsEvent.ORDER_PROCESSING,
-        "shipped": SmsEvent.ORDER_SHIPPED,
-        "delivered": SmsEvent.ORDER_DELIVERED,
-        "inquiry_quoted": SmsEvent.INQUIRY_QUOTED,
-        "cancelled": SmsEvent.ORDER_CANCELLED,
+        "paid": (SmsEvent.ORDER_PAID, SmsEvent.INTERNAL_ORDER_PAID),
+        "processing": (SmsEvent.ORDER_PROCESSING,),
+        "shipped": (SmsEvent.ORDER_SHIPPED,),
+        "delivered": (SmsEvent.ORDER_DELIVERED,),
+        "inquiry_quoted": (SmsEvent.INQUIRY_QUOTED,),
+        "cancelled": (SmsEvent.ORDER_CANCELLED,),
     }
-    for status, event in mapping.items():
+    for status, events in mapping.items():
+        before = len(fake.messages)
         asyncio.run(
             notification_service.notify_order_status_change(
                 phone="09120000000",
@@ -424,7 +493,8 @@ def test_order_notification_maps_statuses(monkeypatch):
                 status=status,
             )
         )
-        assert fake.messages[-1].event is event
+        new_messages = fake.messages[before:]
+        assert [m.event for m in new_messages] == list(events)
     before = len(fake.messages)
     asyncio.run(
         notification_service.notify_order_status_change(
@@ -444,6 +514,7 @@ def test_order_notification_failure_is_soft(monkeypatch, caplog):
             raise SmsDeliveryError("Faraz SMS pattern was rejected")
 
     monkeypatch.setattr(notification_service, "get_sms_provider", lambda: BoomProvider())
+    monkeypatch.setattr(settings, "SMS_INTERNAL_ORDER_ALERT_RECIPIENTS", "09121112233")
     caplog.set_level(logging.ERROR)
     asyncio.run(
         notification_service.notify_order_status_change(
@@ -453,7 +524,49 @@ def test_order_notification_failure_is_soft(monkeypatch, caplog):
         )
     )
     assert "09123456789" not in caplog.text
+    assert "09121112233" not in caplog.text
     assert "ORDER_PAID" in caplog.text
+    assert "INTERNAL_ORDER_PAID" in caplog.text
+
+
+def test_paid_customer_failure_still_attempts_internal(monkeypatch, caplog):
+    from app.services import notification_service
+
+    attempted: list[SmsEvent] = []
+
+    class SelectiveBoom:
+        async def send(self, message):
+            attempted.append(message.event)
+            if message.event is SmsEvent.ORDER_PAID:
+                raise SmsDeliveryError("customer failed")
+
+    monkeypatch.setattr(notification_service, "get_sms_provider", lambda: SelectiveBoom())
+    monkeypatch.setattr(settings, "SMS_INTERNAL_ORDER_ALERT_RECIPIENTS", "09121110055")
+    caplog.set_level(logging.ERROR)
+    asyncio.run(
+        notification_service.notify_purchase_paid(
+            phone="09123456789",
+            tracking_code="KZ-DUAL",
+        )
+    )
+    assert attempted == [SmsEvent.ORDER_PAID, SmsEvent.INTERNAL_ORDER_PAID]
+
+
+def test_internal_recipients_empty_skips_without_send(monkeypatch, caplog):
+    from app.services import notification_service
+
+    sent = []
+
+    class Recorder:
+        async def send(self, message):
+            sent.append(message.event)
+
+    monkeypatch.setattr(notification_service, "get_sms_provider", lambda: Recorder())
+    monkeypatch.setattr(settings, "SMS_INTERNAL_ORDER_ALERT_RECIPIENTS", "")
+    caplog.set_level(logging.WARNING)
+    asyncio.run(notification_service.notify_internal_order_paid(tracking_code="KZ-NOOPS"))
+    assert sent == []
+    assert "no recipients configured" in caplog.text
 
 
 @pytest.mark.usefixtures("override_database")
