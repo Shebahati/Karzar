@@ -23,8 +23,11 @@ export function MobileBottomNav() {
   const blogActive = pathname === "/blog" || pathname.startsWith("/blog/");
 
   return (
-    <nav className="glass-strong fixed inset-x-0 bottom-0 z-[70] border-t border-border/40 pb-[env(safe-area-inset-bottom,0px)] lg:hidden">
-      <ul className="mx-auto flex h-[var(--mobile-bottom-nav-chrome)] max-w-md items-stretch justify-between px-2">
+    <nav
+      className="glass-strong pointer-events-none fixed inset-x-0 bottom-0 z-[70] border-t border-border/40 pb-[env(safe-area-inset-bottom,0px)] lg:hidden"
+      aria-label="ناوبری پایین"
+    >
+      <ul className="pointer-events-auto mx-auto flex h-[var(--mobile-bottom-nav-chrome)] max-w-md items-stretch justify-between px-2">
         <NavItem href="/" label="خانه" Icon={Home} active={pathname === "/"} />
         <NavItem
           href="/catalog"

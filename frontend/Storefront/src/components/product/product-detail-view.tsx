@@ -481,8 +481,10 @@ export function ProductDetailView({ id }: { id: number }) {
 
           {/* Mobile / tablet: identity above buy card, same column width */}
           <div
+            data-pdp-main-buy
             className={cn(
-              "relative z-[1] flex w-full min-w-0 max-w-full flex-col gap-3.5 bg-white px-5 pb-6 pt-7 sm:gap-4 sm:px-6 sm:pt-8 lg:hidden",
+              "relative flex w-full min-w-0 max-w-full flex-col gap-3.5 bg-white px-5 pb-6 pt-7 sm:gap-4 sm:px-6 sm:pt-8",
+              "max-lg:z-[75] lg:hidden",
             )}
           >
             {product.brand ? (
@@ -494,7 +496,7 @@ export function ProductDetailView({ id }: { id: number }) {
                 className="w-full"
               />
             ) : null}
-            <PdpBuyCard {...buyCardProps} />
+            <PdpBuyCard {...buyCardProps} mainAtcMarker />
           </div>
         </div>
 
@@ -586,10 +588,12 @@ function PdpBuyCard({
   product,
   hasPrice,
   trust,
+  mainAtcMarker,
 }: {
   product: ProductDetail;
   hasPrice: boolean;
   trust: PdpTrustItem[];
+  mainAtcMarker?: boolean;
 }) {
   return (
     <div
@@ -646,7 +650,7 @@ function PdpBuyCard({
           trust.length === 0 && "pb-3.5 sm:pb-4",
         )}
       >
-        <TwoLaneActions product={product} />
+        <TwoLaneActions product={product} mainAtcMarker={mainAtcMarker} />
       </div>
 
       {trust.length > 0 ? (

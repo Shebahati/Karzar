@@ -67,6 +67,11 @@
      * Keep in sync with MobileBottomNav — .mobile-dock sits flush on top.
      */
     --mobile-bottom-nav-chrome: 3.5rem;
+    /*
+     * Fixed PDP sticky purchase bar (MobileStickyBuyBar) — content row only.
+     * Keep aligned with mobile-sticky-buy-bar padding + h-11 CTA.
+     */
+    --mobile-pdp-sticky-dock-chrome: 4.25rem;
   }
 
   @media (min-width: 640px) {
@@ -212,7 +217,22 @@
    */
   .mobile-dock {
     @apply fixed inset-x-0 z-[60] border-t border-steel/10 bg-white/95 shadow-[0_-10px_36px_-18px_rgba(94,95,94,0.35)] backdrop-blur-xl;
-    bottom: calc(var(--mobile-bottom-nav-chrome) + env(safe-area-inset-bottom, 0px));
+    bottom: calc(
+      var(--mobile-bottom-nav-chrome) + env(safe-area-inset-bottom, 0px) + 1px
+    );
+  }
+
+  /**
+   * In-flow PDP main buy column — must stay above the bottom-nav hit band when
+   * scrolled into the dock zone (nav z-[70] otherwise intercepts taps).
+   */
+  @media (max-width: 1023px) {
+    [data-pdp-main-buy] {
+      scroll-margin-bottom: calc(
+        var(--mobile-bottom-nav-chrome) + env(safe-area-inset-bottom, 0px) +
+          var(--mobile-pdp-sticky-dock-chrome) + 0.5rem
+      );
+    }
   }
 
   /** Minimum comfortable touch target (Apple HIG ~44px). */
