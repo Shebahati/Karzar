@@ -126,7 +126,7 @@ export default async function RootLayout({
           <FirstVisitSplash />
           <SiteHeader />
           {/* Clearance for fixed mobile bottom nav (~4.5rem + iOS home indicator). */}
-          <div className="w-full max-w-full min-w-0 overflow-x-clip overscroll-x-none pb-[calc(var(--mobile-bottom-nav-chrome)+env(safe-area-inset-bottom,0px))] lg:pb-0">
+          <div className="w-full max-w-full min-w-0 overflow-x-clip overscroll-x-none pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
             <main
               id="main-content"
               tabIndex={-1}

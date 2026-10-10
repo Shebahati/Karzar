@@ -483,8 +483,7 @@ export function ProductDetailView({ id }: { id: number }) {
           <div
             data-pdp-main-buy
             className={cn(
-              "relative flex w-full min-w-0 max-w-full flex-col gap-3.5 bg-white px-5 pb-6 pt-7 sm:gap-4 sm:px-6 sm:pt-8",
-              "max-lg:z-[75] lg:hidden",
+              "relative flex w-full min-w-0 max-w-full flex-col gap-3.5 bg-white px-5 pb-6 pt-7 sm:gap-4 sm:px-6 sm:pt-8 lg:hidden",
             )}
           >
             {product.brand ? (

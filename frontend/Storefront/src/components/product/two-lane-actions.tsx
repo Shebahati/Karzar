@@ -48,7 +48,10 @@ export function TwoLaneActions({
   };
 
   return (
-    <div className="flex flex-col gap-3.5">
+    <div
+      className="flex flex-col gap-3.5"
+      {...(mainAtcMarker ? { "data-pdp-main-purchase": "" } : {})}
+    >
       {hasPrice ? (
         <>
           {!outOfStock && cart.inCart ? (
