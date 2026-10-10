@@ -1402,6 +1402,27 @@ documents:
       Schema-faithful PostgreSQL disposable rehearsal (SERIALIZABLE+ROLLBACK).
       Not a live apply authorization.
 
+  - id: PRODUCT-NAMING-V1-PHASE-3B3A-EXECUTIVE-SUMMARY
+    path: audit/product-naming-phase3b3a-runtime-contract/PHASE3B3A_EXECUTIVE_SUMMARY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3b3a-runtime-contract
+    notes: >
+      Phase 3B3A runtime apply contract closure. Read-only + disposable rehearsal.
+      Does not authorize live governance apply.
+
+  - id: PRODUCT-NAMING-V1-PHASE-3B3A-FACT-GATE
+    path: audit/product-naming-phase3b3a-runtime-contract/PHASE3B3A_REASSIGNMENT_FACT_GATE.csv
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/product-naming-phase3b3a-runtime-contract
+    notes: >
+      Published-Fact gate for 44 Wave 3B reassignment candidates.
+
   - id: PRODUCT-STATUS-AUDIT-20260924
     path: audit/product-status-2026-09-24/README.md
     class: EVIDENCE

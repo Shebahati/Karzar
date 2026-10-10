@@ -1,0 +1,45 @@
+product_id,manufacturer_code,sku,name,product_type_id,current_pt,published_fact_count,asserted_fact_count,disputed_fact_count,deprecated_fact_count,target_pt,prestate_source,transaction_read_only
+1775,1106-301,1106-301,کولیس دیجیتال اینسایز (Insize) 30 سانتی‌ متری فک بلند مدل 301-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1776,1106-302,1106-302,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 302-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1778,1106-502,1106-502,کولیس دیجیتال اینسایز(insize) 50 سانتی متر فک بلند 15 سانت مدل 502-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1779,1106-503,1106-503,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 503-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1780,1106-505,1106-505,کولیس دیجیتال اینسایز (Insize) 50 سانتی متر فک بلند 30 سانت مدل 505-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1782,1106-602,1106-602,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 602-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1783,1106-603,1106-603,کولیس دیجیتال اینسایز (Insize) 60 سانتی متر فک بلند 20 سانت مدل 603-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1784,1106-802,1106-802,کولیس دیجیتال اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 802-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1829,1170-300,1170-300,کولیس دیجیتال اینسایز (Insize) 30 سانتی متر فک بلند مدل 300-1170,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1847,1215-1032,1215-1032,کولیس اینسایز (Insize) 1 متری فک بلند مدل 1032-1215,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1848,1215-1052,1215-1052,کولیس ورنیه اینسایز( Insize) 100 سانتی متر فک بلند مدل 1052-1215,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1849,1215-322,1215-322,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 15 سانت مدل 322-1215,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1850,1215-392,1215-392,کولیس معمولی اینسایز (Insize) 30 سانتی متر فک بلند 9 سانت مدل 392-1215,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1851,1215-522,1215-522,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 15 سانت مدل 522-1215,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1852,1215-532,1215-532,کولیس معمولی اینسایز (Insize) 50 سانتی متر فک بلند 20 سانت مدل 532-1215,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1853,1215-622,1215-622,کولیس معمولی اینسایز (Insize) 60 سانتی متر فک بلند 15 سانت مدل 622-1215,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1854,1215-822,1215-822,کولیس معمولی اینسایز (Insize) 80 سانتی متر فک بلند 15 سانت مدل 822-1215,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1856,1236-394,1236-394,کولیس معمولی اینسایز (Insize) 30 سانت دو فک فک بلند 9 سانت مدل 394-1236,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1857,1236-524,1236-524,کولیس معمولی اینسایز (Insize) 50 سانت دو فک فک بلند 15سانت مدل 524-1236,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+1939,3127-300,3127-300,میکرومتر دیجیتال اینسایز (Insize) 275-300 میلی متر داخل سنج سه فک مدل 300-3127,18,BORE_GAUGE,3,0,0,0,INSIDE_MICROMETER,live_readonly_query,on
+2046,4912-100,4912-100,تراز مگنتی 10سانت اینسایز مدل 4912-100,27,LEVEL,1,0,0,0,DIGITAL_LEVEL,live_readonly_query,on
+2089,7247-150,7247-150,پرگار مستقیم 15سانت اینسایز مدل 7247-150,41,DIVIDER,1,0,0,0,OUTSIDE_SPRING_CALIPER,live_readonly_query,on
+2090,7247-200,7247-200,پرگار مستقیم 20سانت اینسایز مدل 7247-200,41,DIVIDER,1,0,0,0,OUTSIDE_SPRING_CALIPER,live_readonly_query,on
+2091,7247-300,7247-300,پرگار مستقیم 30سانت اینسایز مدل 7247-300,41,DIVIDER,1,0,0,0,OUTSIDE_SPRING_CALIPER,live_readonly_query,on
+2092,7261-150,7261-150,پرگار داخل 15سانت اینسایز مدل 7261-150,41,DIVIDER,1,0,0,0,INSIDE_SPRING_CALIPER,live_readonly_query,on
+2093,7261-200,7261-200,پرگار داخل 20سانت اینسایز مدل 7261-200,41,DIVIDER,1,0,0,0,INSIDE_SPRING_CALIPER,live_readonly_query,on
+2094,7261-300,7261-300,پرگار داخل 30سانت اینسایز مدل 7261-300,41,DIVIDER,1,0,0,0,INSIDE_SPRING_CALIPER,live_readonly_query,on
+2095,7262-150,7262-150,پرگار خارج 15سانت اینسایز مدل 7262-150,41,DIVIDER,1,0,0,0,OUTSIDE_SPRING_CALIPER,live_readonly_query,on
+2096,7262-200,7262-200,پرگار خارج 20سانت اینسایز مدل 7262-200,41,DIVIDER,1,0,0,0,OUTSIDE_SPRING_CALIPER,live_readonly_query,on
+2097,7262-300,7262-300,پرگار خارج 30سانت اینسایز مدل 7262-300,41,DIVIDER,1,0,0,0,OUTSIDE_SPRING_CALIPER,live_readonly_query,on
+3676,4833-1,4833-1,گپ سنج 0.8 - 15میلیمتر اینسایز مدل 4833-1,31,TAPER_GAUGE,3,0,0,0,GAP_TAPER_GAUGE,live_readonly_query,on
+3896,1106-1005,1106-1005,کولیس دیجیتال اینسایز (Insize) 100 سانتی‌ متر فک بلند مدل 1005-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+3897,1106-1503,1106-1503,کولیس دیجیتال اینسایز (Insize) فک بلند مدل 1503-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+3898,1106-2002,1106-2002,کولیس دیجیتال اینسایز (Insize) 200 سانتی‌ متری فک بلند مدل 2002-1106,1,GEN_CALIPER,3,0,0,0,LONG_JAW_CALIPER,live_readonly_query,on
+3919,2198-2,2198-2,شیب سنج و سطح سنج دیجیتال اینسایز (Insize) مدل 2-2198,27,LEVEL,1,0,0,0,DIGITAL_LEVEL,live_readonly_query,on
+4033,4829-1,4829-1,گپ گیج با خط کش 0.8 - 15طول خط کش 15سانت اینسایز مدل 4829-1,31,TAPER_GAUGE,3,0,0,0,TAPER_GAUGE_SET,live_readonly_query,on
+4037,4833-2,4833-2,گپ سنج اینسایز (Insize) 30-15 میلی متر مدل 2-4833,31,TAPER_GAUGE,3,0,0,0,GAP_TAPER_GAUGE,live_readonly_query,on
+4039,4833-3,4833-3,گپ سنج اینسایز (Insize) 30-45 میلی متر مدل 3-4833,31,TAPER_GAUGE,3,0,0,0,GAP_TAPER_GAUGE,live_readonly_query,on
+4040,4833-4,4833-4,گپ سنج اینسایز (Insize) 60-45 میلی متر مدل 4-4833,31,TAPER_GAUGE,3,0,0,0,GAP_TAPER_GAUGE,live_readonly_query,on
+4045,4837-1,4837-1,گپ گیج با خط کش اینسایز (Insize) 29-1 میلیمتر مدل 1-4837,31,TAPER_GAUGE,3,0,0,0,TAPER_GAUGE_SET,live_readonly_query,on
+4051,4852-15,4852-15,گیج مخروطی اینسایز (Insize) 15-30 میلیمتر مدل 15-4852,31,TAPER_GAUGE,3,0,0,0,TAPER_BORE_GAUGE,live_readonly_query,on
+4053,4852-30,4852-30,گیج مخروطی اینسایز (Insize) 30-45 میلیمتر مدل 30-4852,31,TAPER_GAUGE,3,0,0,0,TAPER_BORE_GAUGE,live_readonly_query,on
+4054,4852-3,4852-3,گیج مخروطی اینسایز (Insize) 3-16 میلیمتر مدل 3-4852,31,TAPER_GAUGE,3,0,0,0,TAPER_BORE_GAUGE,live_readonly_query,on
+4056,4917-30,4917-30,تراز لیزری اینسایز مدل 4917-30,27,LEVEL,1,0,0,0,LASER_LEVEL,live_readonly_query,on
