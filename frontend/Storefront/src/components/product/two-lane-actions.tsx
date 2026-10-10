@@ -23,9 +23,12 @@ import type { ProductDetail } from "@/types/product";
 export function TwoLaneActions({
   product,
   onAdded,
+  mainAtcMarker,
 }: {
   product: ProductDetail;
   onAdded?: (lane: "cart" | "quote") => void;
+  /** Marks the in-column PDP ATC for mobile hit-target regression tests (#452). */
+  mainAtcMarker?: boolean;
 }) {
   const summary = toCartProductSummary(product);
   const cart = useProductCartQty(summary);
@@ -45,7 +48,10 @@ export function TwoLaneActions({
   };
 
   return (
-    <div className="flex flex-col gap-3.5">
+    <div
+      className="flex flex-col gap-3.5"
+      {...(mainAtcMarker ? { "data-pdp-main-purchase": "" } : {})}
+    >
       {hasPrice ? (
         <>
           {!outOfStock && cart.inCart ? (
@@ -80,6 +86,7 @@ export function TwoLaneActions({
               )}
               disabled={outOfStock}
               onClick={handleFirstCartAdd}
+              {...(mainAtcMarker ? { "data-pdp-main-atc": "" } : {})}
             >
               <Buy set="bold" size="small" />
               {outOfStock ? "ناموجود" : "افزودن به سبد خرید"}
