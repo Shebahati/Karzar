@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
+      deploy_staging: ${{ steps.filter.outputs.deploy_staging }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,6 +52,8 @@ jobs:
               - 'aods/**'
               - 'openapi/**'
               - 'project-management/**'
+            deploy_staging:
+              - 'deploy/staging/**'
 
   aods:
     name: aods
@@ -143,6 +146,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Deploy staging Dockerfile guard
+        if: needs.changes.outputs.deploy_staging == 'true'
+        run: bash deploy/staging/scripts/test-dockerfile-pypi-fallback.sh
 
       - name: Skip Python tests (no backend changes)
         if: needs.changes.outputs.backend != 'true'
