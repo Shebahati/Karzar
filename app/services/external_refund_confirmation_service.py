@@ -8,6 +8,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
+from app.crud import commerce as crud_commerce
 from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.db.models.user import User
 from app.schemas.payment import PaymentRefundMode
@@ -177,20 +178,26 @@ async def attempt_external_refund_order_cancellation(
             order, refund_id=refund_id, cancelled=True, reconciliation_required=False
         )
 
+    order_id = order.id
     try:
-        await transition_order_status(
-            db,
-            order,
-            OrderStatus.CANCELLED.value,
-            actor="admin",
-            event_description="سفارش پس از ثبت استرداد خارجی لغو شد",
-        )
+        async with db.begin_nested():
+            await transition_order_status(
+                db,
+                order,
+                OrderStatus.CANCELLED.value,
+                actor="admin",
+                event_description="سفارش پس از ثبت استرداد خارجی لغو شد",
+            )
     except Exception as exc:
         logger.warning(
             "external refund recorded but order cancellation requires reconciliation order_id=%s: %s",
-            order.id,
+            order_id,
             exc,
         )
+        await db.rollback()
+        order = await crud_commerce.get_order_by_id_for_update(db, order_id)
+        if order is None:
+            raise ExternalRefundInvalidState("Order not found after cancellation rollback") from exc
         await record_audit(
             db,
             actor_user_id=actor_user.id,

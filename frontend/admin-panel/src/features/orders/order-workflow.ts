@@ -95,6 +95,13 @@ export function orderHasActiveManualPortalFulfillment(
 }
 
 export function getPrimaryAction(order: OrderDetail): OrderAction | null {
+  if (
+    order.mode === "purchase" &&
+    order.payment_status === "refunded" &&
+    order.status !== "cancelled"
+  ) {
+    return null;
+  }
   if (orderHasActiveManualPortalFulfillment(order)) {
     if (order.status === "processing" || order.status === "shipped") {
       return null;

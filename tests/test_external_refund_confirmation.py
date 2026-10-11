@@ -7,7 +7,7 @@ import asyncio
 import pytest
 from app.core.config import settings
 from app.crud.payment_transaction import list_payment_transactions_for_order
-from app.db.models.commerce import Order, OrderStatus, PaymentStatus
+from app.db.models.commerce import Order, OrderStatus, OrderStatusEvent, PaymentStatus
 from app.db.models.platform import AdminAuditLog
 from app.db.models.product import StockMovement, StockMovementType
 from app.main import app
@@ -572,6 +572,226 @@ def test_external_confirmation_partial_replay_completes_cancel(
     assert refunded_n == 1
     assert return_n == 1
     assert confirmed_n == 1
+
+
+@pytest.mark.usefixtures("override_database")
+def test_external_confirmation_cancel_rolls_back_after_return_flush(
+    valid_product_data, super_admin_headers, monkeypatch
+):
+    _activate_mock_checkout(monkeypatch)
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "C1-ATOMIC"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    owner = customer_auth_headers("09127770055")
+    checkout = _checkout(product_id, owner, phone="09127770055")
+    order_id = checkout["order_id"]
+    _mark_order_paid(order_id)
+    _activate_sep(monkeypatch)
+
+    from app.services import order_service as order_service_module
+
+    real_record = order_service_module.crud_commerce.record_status_event
+    cancel_event_attempts = {"n": 0}
+
+    async def flaky_record_status_event(db, **kwargs):
+        if kwargs.get("status") == OrderStatus.CANCELLED.value:
+            cancel_event_attempts["n"] += 1
+            if cancel_event_attempts["n"] == 1:
+                raise RuntimeError("failure after return flush")
+        return await real_record(db, **kwargs)
+
+    monkeypatch.setattr(
+        order_service_module.crud_commerce,
+        "record_status_event",
+        flaky_record_status_event,
+    )
+
+    async def noop_notify(**_kwargs):
+        return None
+
+    monkeypatch.setattr(
+        "app.services.order_service.notify_order_status_change",
+        noop_notify,
+    )
+
+    ext_ref = "REF-ATOMIC-ROLLBACK"
+    payload = {"order_id": order_id, "external_reference": ext_ref}
+
+    first = client.post(
+        "/api/v1/payments/refund/external-confirmation",
+        json=payload,
+        headers=_step_up_headers(super_admin_headers),
+    )
+    assert first.status_code == 200
+    assert first.json()["cancelled"] is False
+    assert first.json()["reconciliation_required"] is True
+
+    async def snapshot():
+        async with TestingSessionLocal() as db:
+            order = await db.get(Order, order_id)
+            rows = await list_payment_transactions_for_order(db, order_id)
+            returns = (
+                await db.execute(
+                    select(func.count())
+                    .select_from(StockMovement)
+                    .where(
+                        StockMovement.reference_id == f"order:{order_id}",
+                        StockMovement.movement_type == StockMovementType.RETURN.value,
+                    )
+                )
+            ).scalar_one()
+            cancelled_events = (
+                await db.execute(
+                    select(func.count())
+                    .select_from(OrderStatusEvent)
+                    .where(
+                        OrderStatusEvent.order_id == order_id,
+                        OrderStatusEvent.status == OrderStatus.CANCELLED.value,
+                    )
+                )
+            ).scalar_one()
+            confirmed = (
+                await db.execute(
+                    select(func.count())
+                    .select_from(AdminAuditLog)
+                    .where(
+                        AdminAuditLog.action == "payment_external_refund_confirmed",
+                        AdminAuditLog.entity_id == str(order_id),
+                    )
+                )
+            ).scalar_one()
+            pending = (
+                await db.execute(
+                    select(func.count())
+                    .select_from(AdminAuditLog)
+                    .where(
+                        AdminAuditLog.action == "payment_external_refund_cancel_pending",
+                        AdminAuditLog.entity_id == str(order_id),
+                    )
+                )
+            ).scalar_one()
+            return order, rows, returns, cancelled_events, confirmed, pending
+
+    order, rows, returns, cancelled_events, confirmed, pending = asyncio.run(snapshot())
+    assert order.payment_status == PaymentStatus.REFUNDED.value
+    assert order.payment_refund_id == ext_ref
+    assert order.status == OrderStatus.PAID.value
+    assert len([r for r in rows if r.status == "refunded"]) == 1
+    assert returns == 0
+    assert cancelled_events == 0
+    assert confirmed == 1
+    assert pending == 1
+
+    second = client.post(
+        "/api/v1/payments/refund/external-confirmation",
+        json=payload,
+        headers=_step_up_headers(super_admin_headers),
+    )
+    assert second.status_code == 200
+    assert second.json()["cancelled"] is True
+    assert second.json()["reconciliation_required"] is False
+
+    third = client.post(
+        "/api/v1/payments/refund/external-confirmation",
+        json=payload,
+        headers=_step_up_headers(super_admin_headers),
+    )
+    assert third.status_code == 200
+    assert third.json()["cancelled"] is True
+
+    order, rows, returns, cancelled_events, confirmed, pending = asyncio.run(snapshot())
+    assert order.status == OrderStatus.CANCELLED.value
+    assert len([r for r in rows if r.status == "refunded"]) == 1
+    assert returns == 1
+    assert cancelled_events == 1
+    assert confirmed == 1
+    assert pending == 1
+
+
+@pytest.mark.usefixtures("override_database")
+def test_external_confirmation_trim_validation(
+    valid_product_data, super_admin_headers, monkeypatch
+):
+    _activate_mock_checkout(monkeypatch)
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "C1-TRIM"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    owner = customer_auth_headers("09127770044")
+    checkout = _checkout(product_id, owner, phone="09127770044")
+    order_id = checkout["order_id"]
+    order_ws = _checkout(product_id, customer_auth_headers("09127770045"), phone="09127770045")
+    order_len = _checkout(product_id, customer_auth_headers("09127770047"), phone="09127770047")
+    order_note = _checkout(product_id, customer_auth_headers("09127770046"), phone="09127770046")
+    order_note_bad = _checkout(product_id, customer_auth_headers("09127770048"), phone="09127770048")
+    _mark_order_paid(order_id)
+    _mark_order_paid(order_ws["order_id"])
+    _mark_order_paid(order_len["order_id"])
+    _mark_order_paid(order_note["order_id"])
+    _mark_order_paid(order_note_bad["order_id"])
+    _activate_sep(monkeypatch)
+
+    trimmed = client.post(
+        "/api/v1/payments/refund/external-confirmation",
+        json={"order_id": order_id, "external_reference": "  ABC  "},
+        headers=_step_up_headers(super_admin_headers),
+    )
+    assert trimmed.status_code == 200
+    async def ref_id():
+        async with TestingSessionLocal() as db:
+            order = await db.get(Order, order_id)
+            return order.payment_refund_id
+    assert asyncio.run(ref_id()) == "ABC"
+
+    ref64 = "r" * 64
+    padded = client.post(
+        "/api/v1/payments/refund/external-confirmation",
+        json={"order_id": order_ws["order_id"], "external_reference": f"  {ref64}  "},
+        headers=_step_up_headers(super_admin_headers),
+    )
+    assert padded.status_code == 200
+
+    async def ref64_id():
+        async with TestingSessionLocal() as db:
+            order = await db.get(Order, order_ws["order_id"])
+            return order.payment_refund_id
+
+    assert asyncio.run(ref64_id()) == ref64
+    assert len(asyncio.run(ref64_id())) == 64
+
+    over = client.post(
+        "/api/v1/payments/refund/external-confirmation",
+        json={"order_id": order_len["order_id"], "external_reference": "y" * 65},
+        headers=_step_up_headers(super_admin_headers),
+    )
+    assert over.status_code == 422
+
+    note_ok = client.post(
+        "/api/v1/payments/refund/external-confirmation",
+        json={
+            "order_id": order_note["order_id"],
+            "external_reference": "NOTE-OK",
+            "evidence_note": f"  {'n' * 500}  ",
+        },
+        headers=_step_up_headers(super_admin_headers),
+    )
+    assert note_ok.status_code == 200
+
+    note_bad = client.post(
+        "/api/v1/payments/refund/external-confirmation",
+        json={
+            "order_id": order_note_bad["order_id"],
+            "external_reference": "NOTE-BAD",
+            "evidence_note": "x" * 501,
+        },
+        headers=_step_up_headers(super_admin_headers),
+    )
+    assert note_bad.status_code == 422
 
 
 @pytest.mark.usefixtures("override_database")

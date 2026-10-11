@@ -55,26 +55,25 @@ class PaymentCapabilitiesResponse(BaseModel):
 
 class PaymentExternalRefundConfirmationRequest(BaseModel):
     order_id: int = Field(..., ge=1)
-    external_reference: str = Field(..., min_length=1, max_length=64)
+    external_reference: str = Field(..., min_length=3, max_length=64)
     evidence_note: str | None = Field(None, max_length=500)
 
-    @field_validator("external_reference")
+    @field_validator("external_reference", mode="before")
     @classmethod
-    def validate_external_reference(cls, value: str) -> str:
-        trimmed = value.strip()
-        if len(trimmed) < 3:
-            raise ValueError("external_reference must be at least 3 characters after trimming")
-        if len(trimmed) > 64:
-            raise ValueError("external_reference must be at most 64 characters after trimming")
-        return trimmed
+    def normalize_external_reference(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
-    @field_validator("evidence_note")
+    @field_validator("evidence_note", mode="before")
     @classmethod
-    def validate_evidence_note(cls, value: str | None) -> str | None:
+    def normalize_evidence_note(cls, value: object) -> object | None:
         if value is None:
             return None
-        trimmed = value.strip()
-        return trimmed or None
+        if isinstance(value, str):
+            trimmed = value.strip()
+            return trimmed or None
+        return value
 
 
 class PaymentExternalRefundConfirmationResponse(BaseModel):
