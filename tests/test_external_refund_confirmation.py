@@ -60,13 +60,13 @@ def _pay_order_mock(order_id: int, authority: str, owner_headers: dict) -> None:
     assert verify.status_code == 200
 
 
-def _mark_order_paid(order_id: int, ref_id: str = "SEP-PAID-REF-001") -> None:
+def _mark_order_paid(order_id: int, ref_id: str | None = None) -> None:
     async def _run() -> None:
         async with TestingSessionLocal() as db:
             order = await db.get(Order, order_id)
             order.payment_status = PaymentStatus.PAID.value
             order.status = OrderStatus.PAID.value
-            order.payment_ref_id = ref_id
+            order.payment_ref_id = ref_id or f"SEP-PAID-REF-{order_id}"
             if not order.payment_authority:
                 order.payment_authority = "SEP-AUTH-TEST"
             await db.commit()
