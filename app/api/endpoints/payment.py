@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import (
+    get_current_super_admin,
     get_current_super_admin_with_step_up,
     get_optional_current_user,
 )
@@ -23,6 +24,9 @@ from app.db.database import get_db
 from app.db.models.commerce import OrderStatus, PaymentStatus
 from app.db.models.user import User
 from app.schemas.payment import (
+    PaymentCapabilitiesResponse,
+    PaymentExternalRefundConfirmationRequest,
+    PaymentExternalRefundConfirmationResponse,
     PaymentInitRequest,
     PaymentInitResponse,
     PaymentRefundRequest,
@@ -31,8 +35,16 @@ from app.schemas.payment import (
     PaymentVerifyResponse,
 )
 from app.services.audit_service import record_audit
+from app.services.external_refund_confirmation_service import (
+    ExternalRefundConflict,
+    ExternalRefundInvalidState,
+    ExternalRefundProviderMismatch,
+    attempt_external_refund_order_cancellation,
+    persist_external_refund_evidence,
+)
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 from app.services.order_service import transition_order_status
+from app.services.payment_capabilities_service import get_payment_capabilities
 from app.services.payment_flow_service import (
     get_order_payment_authority,
     get_order_payment_ref_id,
@@ -509,6 +521,86 @@ async def payment_verify(
         status=refreshed.status,
         ref_id=result.ref_id,
         tracking_code=refreshed.tracking_code,
+    )
+
+
+@router.get(
+    "/capabilities",
+    response_model=PaymentCapabilitiesResponse,
+    summary="Payment provider refund capabilities (admin)",
+)
+async def payment_capabilities(
+    _current_user: User = Depends(get_current_super_admin),
+):
+    return get_payment_capabilities()
+
+
+@router.post(
+    "/refund/external-confirmation",
+    response_model=PaymentExternalRefundConfirmationResponse,
+    summary="Record operator-confirmed external refund and cancel order",
+)
+async def payment_external_refund_confirmation(
+    payload: PaymentExternalRefundConfirmationRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_super_admin_with_step_up),
+):
+    order = await crud_commerce.get_order_by_id_for_update(db, payload.order_id)
+    if not order:
+        raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Order not found")
+
+    try:
+        evidence = await persist_external_refund_evidence(
+            db,
+            order,
+            external_reference=payload.external_reference,
+            evidence_note=payload.evidence_note,
+            actor_user=current_user,
+            ip_address=_client_ip(request),
+        )
+    except ExternalRefundProviderMismatch as exc:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.CONFLICT,
+            message="This provider uses the automated refund workflow.",
+        ) from exc
+    except ExternalRefundConflict as exc:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.CONFLICT,
+            message=str(exc),
+        ) from exc
+    except ExternalRefundInvalidState as exc:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.CONFLICT,
+            message=str(exc),
+        ) from exc
+
+    await db.commit()
+
+    order = await crud_commerce.get_order_by_id_for_update(db, payload.order_id)
+    if not order:
+        raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Order not found")
+
+    outcome = await attempt_external_refund_order_cancellation(
+        db,
+        order,
+        external_reference=evidence.refund_id,
+        provider=evidence.provider,
+        actor_user=current_user,
+    )
+    await db.commit()
+
+    refreshed = await crud_commerce.get_order_by_id(db, payload.order_id)
+    return PaymentExternalRefundConfirmationResponse(
+        order_id=refreshed.id,
+        payment_status=refreshed.payment_status,
+        status=refreshed.status,
+        refund_id=outcome.refund_id,
+        cancelled=outcome.cancelled,
+        reconciliation_required=outcome.reconciliation_required,
     )
 
 

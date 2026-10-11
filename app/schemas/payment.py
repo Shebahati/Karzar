@@ -1,6 +1,13 @@
 """Payment API schemas."""
 
-from pydantic import BaseModel, Field
+from enum import StrEnum
+
+from pydantic import BaseModel, Field, field_validator
+
+
+class PaymentRefundMode(StrEnum):
+    AUTOMATED = "automated"
+    EXTERNAL_CONFIRMATION = "external_confirmation"
 
 
 class PaymentInitRequest(BaseModel):
@@ -37,3 +44,43 @@ class PaymentRefundResponse(BaseModel):
     payment_status: str
     status: str
     refund_id: str | None = None
+
+
+class PaymentCapabilitiesResponse(BaseModel):
+    provider: str
+    automated_refund_supported: bool
+    external_refund_confirmation_supported: bool
+    refund_mode: PaymentRefundMode
+
+
+class PaymentExternalRefundConfirmationRequest(BaseModel):
+    order_id: int = Field(..., ge=1)
+    external_reference: str = Field(..., min_length=1, max_length=64)
+    evidence_note: str | None = Field(None, max_length=500)
+
+    @field_validator("external_reference")
+    @classmethod
+    def validate_external_reference(cls, value: str) -> str:
+        trimmed = value.strip()
+        if len(trimmed) < 3:
+            raise ValueError("external_reference must be at least 3 characters after trimming")
+        if len(trimmed) > 64:
+            raise ValueError("external_reference must be at most 64 characters after trimming")
+        return trimmed
+
+    @field_validator("evidence_note")
+    @classmethod
+    def validate_evidence_note(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        trimmed = value.strip()
+        return trimmed or None
+
+
+class PaymentExternalRefundConfirmationResponse(BaseModel):
+    order_id: int
+    payment_status: str
+    status: str
+    refund_id: str
+    cancelled: bool
+    reconciliation_required: bool

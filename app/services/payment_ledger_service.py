@@ -156,6 +156,7 @@ async def record_payment_refunded(
     ref_id: str | None = None,
     refund_id: str | None = None,
     ip_address: str | None = None,
+    provider_data: dict[str, Any] | None = None,
 ) -> PaymentTransaction:
     return await _append(
         db,
@@ -164,6 +165,7 @@ async def record_payment_refunded(
         authority=authority,
         ref_id=refund_id or ref_id,
         ip_address=ip_address,
+        provider_data=provider_data,
     )
 
 

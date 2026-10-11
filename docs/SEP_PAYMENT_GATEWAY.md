@@ -107,6 +107,8 @@ then `reconciliation_required`. Order expiry only cancels `payment_status=unpaid
 
 ## Reverse vs refund
 
+Operator workflow for recording refunds already completed in SEP/bank: [`SEP_REFUND_RUNBOOK.md`](SEP_REFUND_RUNBOOK.md).
+
 SEP Reverse is a time-boxed correction (~50 minutes), not a general refund API.
 `POST /payments/refund` returns a controlled unsupported error for `sep`.
 Automatic Reverse is only used for safety paths such as amount mismatch; never treat a Reverse
