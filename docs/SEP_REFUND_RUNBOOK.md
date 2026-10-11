@@ -17,6 +17,21 @@ Karzar staging/production may use `PAYMENT_PROVIDER=sep`. This runbook is for **
 11. If Karzar shows `payment_status=refunded` but the order is **not** cancelled (`reconciliation_required=true` in the API response), escalate to engineering/ops — do **not** submit a second external reference.
 12. Never repeat external confirmation with a **different** reference for the same order; conflicting replays are rejected with HTTP 409.
 
+## Shipping quiescence before external refund
+
+Do **not** perform the authoritative SEP/bank refund while Karzar may still be creating or reconciling a Postex parcel for the order. Karzar rejects external refund confirmation (HTTP 409) when any shipment is in an unresolved provider-create window (for example `booking`, `creation_uncertain`, or durable `create_attempted` without a parcel id).
+
+Recommended operator order:
+
+1. Inspect current shipment/fulfillment state in Admin (Postex automation, manual portal, or manual carrier).
+2. Ensure no provider create is in `booking` / `creation_uncertain` (or equivalent unresolved create state).
+3. Stop or cancel forward fulfillment where applicable; wait for booking/reconciliation to finish or cancel the shipment.
+4. Only then perform the authoritative SEP/bank refund.
+5. Obtain external refund evidence (reference, amount, RefNum).
+6. Record external confirmation in Karzar (`POST /api/v1/payments/refund/external-confirmation` with step-up).
+7. Verify `payment_status=refunded`.
+8. Verify order `status=cancelled` (or follow reconciliation if cancellation is pending).
+
 ## Acceptance example (placeholder only)
 
 Order **29** (`KZ-3904296707BC`) illustrates a live paid SEP order in acceptance notes. **Do not** mutate order 29 during drills; use test orders in non-production environments.

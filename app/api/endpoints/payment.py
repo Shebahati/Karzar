@@ -35,6 +35,7 @@ from app.schemas.payment import (
     PaymentVerifyResponse,
 )
 from app.services.audit_service import record_audit
+from app.services.logistics.refunded_fulfillment_guard import ExternalRefundFulfillmentBusy
 from app.services.external_refund_confirmation_service import (
     ExternalRefundConflict,
     ExternalRefundInvalidState,
@@ -572,6 +573,12 @@ async def payment_external_refund_confirmation(
             message=str(exc),
         ) from exc
     except ExternalRefundInvalidState as exc:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.CONFLICT,
+            message=str(exc),
+        ) from exc
+    except ExternalRefundFulfillmentBusy as exc:
         raise api_error(
             status.HTTP_409_CONFLICT,
             error_code=ErrorCode.CONFLICT,

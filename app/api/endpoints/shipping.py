@@ -627,6 +627,13 @@ async def admin_book_shipment(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
+    order = await crud_commerce.get_order_by_id_for_update(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
     try:
         reject_postex_admin_automation_path(shipment)
@@ -647,13 +654,6 @@ async def admin_book_shipment(
             status.HTTP_409_CONFLICT,
             error_code=ErrorCode.SHIPMENT_STATE_INVALID,
             message="ابتدا بسته‌بندی، نرخ‌گیری و آماده‌سازی ثبت را تکمیل کنید.",
-        )
-    order = await crud_commerce.get_order_by_id(db, order_id)
-    if order is None:
-        raise api_error(
-            status.HTTP_404_NOT_FOUND,
-            error_code=ErrorCode.NOT_FOUND,
-            message="سفارش یافت نشد.",
         )
     try:
         assert_order_forward_fulfillment_allowed(order)
@@ -707,6 +707,13 @@ async def admin_mark_ready(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(get_current_super_admin),
 ):
+    order = await crud_commerce.get_order_by_id_for_update(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
     shipment = await _shipment_or_raise(db, order_id, shipment_id, for_update=True)
     _reject_generic_postex_provider_path(shipment)
     try:
@@ -730,13 +737,6 @@ async def admin_mark_ready(
         and shipment.ready_to_accept
     ):
         return admin_shipment_view(shipment)
-    order = await crud_commerce.get_order_by_id(db, order_id)
-    if order is None:
-        raise api_error(
-            status.HTTP_404_NOT_FOUND,
-            error_code=ErrorCode.NOT_FOUND,
-            message="سفارش یافت نشد.",
-        )
     try:
         assert_order_forward_fulfillment_allowed(order)
     except LogisticsError as exc:
@@ -830,6 +830,13 @@ async def admin_edit_shipment(
 ):
     from app.services.logistics.service import build_parcel_update_request
 
+    order = await crud_commerce.get_order_by_id_for_update(db, order_id)
+    if order is None:
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="سفارش یافت نشد.",
+        )
     shipment = await _shipment_or_raise(db, order_id, shipment_id)
     _reject_generic_postex_provider_path(shipment)
     try:
@@ -847,13 +854,6 @@ async def admin_edit_shipment(
             status.HTTP_409_CONFLICT,
             error_code=ErrorCode.SHIPMENT_STATE_INVALID,
             message="مرسوله هنوز در پستکس ثبت نشده است.",
-        )
-    order = await crud_commerce.get_order_by_id(db, order_id)
-    if order is None:
-        raise api_error(
-            status.HTTP_404_NOT_FOUND,
-            error_code=ErrorCode.NOT_FOUND,
-            message="سفارش یافت نشد.",
         )
     try:
         assert_order_forward_fulfillment_allowed(order)

@@ -16,6 +16,7 @@ from app.services.audit_service import record_audit
 from app.services.order_service import transition_order_status
 from app.services.payment_capabilities_service import get_payment_capabilities
 from app.services.payment_flow_service import get_order_payment_authority, get_order_payment_ref_id
+from app.services.logistics.refunded_fulfillment_guard import assert_external_refund_fulfillment_quiescent
 from app.services.payment_ledger_service import record_payment_refunded
 
 logger = get_logger(__name__)
@@ -116,6 +117,8 @@ async def persist_external_refund_evidence(
         raise ExternalRefundInvalidState(
             f"External refund confirmation requires payment_status=paid (got {order.payment_status})"
         )
+
+    assert_external_refund_fulfillment_quiescent(order)
 
     payment_ref = get_order_payment_ref_id(order)
     if not payment_ref:

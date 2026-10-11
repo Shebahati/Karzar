@@ -20,14 +20,28 @@ from app.services.logistics.service import apply_tracking_to_order, ingest_track
 from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 
-from tests.conftest import TestingSessionLocal, super_admin_headers, step_up_headers
+from tests.conftest import TestingSessionLocal, customer_auth_headers, super_admin_headers, step_up_headers
 from tests.test_postex_booking_safety import _seed_order_shipment
 from tests.test_postex_logistics import _enable_postex
 from tests.test_postex_quotes_checkout import FakeProvider
 
 
 @pytest.fixture
-def fake_provider(monkeypatch):
+def manual_portal_test_env(monkeypatch):
+    _enable_postex(monkeypatch)
+    monkeypatch.setattr(settings, "POSTEX_FULFILLMENT_MODE", "manual_portal")
+    monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", False)
+    monkeypatch.setattr(settings, "POSTEX_SHIPPING_PAYMENT_MODE", "receiver_due")
+    monkeypatch.setattr(settings, "SHIPPING_TIPAX_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_CHAPAR_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_POST_PISHTAZ_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_MOTORCYCLE_48H_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_TEHRAN_EXPRESS_3H_ENABLED", False)
+    monkeypatch.setattr(settings, "SHIPPING_POSTEX_CHECKOUT_ENABLED", True)
+
+
+@pytest.fixture
+def booking_fake_provider(monkeypatch):
     _enable_postex(monkeypatch)
     monkeypatch.setattr(settings, "POSTEX_BOOKING_ENABLED", True)
     provider = FakeProvider()
@@ -47,7 +61,7 @@ async def _mark_order_refunded(order_id: int) -> None:
         await session.commit()
 
 
-def test_book_shipment_blocks_refunded_before_create(fake_provider, override_database):
+def test_book_shipment_blocks_refunded_before_create(booking_fake_provider, override_database):
     order_id, shipment_id, _ = _seed_order_shipment(
         status=ShipmentStatus.PENDING_BOOKING.value,
         booking_attempts=0,
@@ -63,7 +77,7 @@ def test_book_shipment_blocks_refunded_before_create(fake_provider, override_dat
             processed = await book_shipment(session, shipment_id)
             assert processed is False
             after = await session.get(Shipment, shipment_id)
-            assert fake_provider.create_calls == 0
+            assert booking_fake_provider.create_calls == 0
             assert int(after.booking_attempts or 0) == attempts_before
             assert after.status == status_before
             assert after.status != ShipmentStatus.BOOKING.value
@@ -75,7 +89,7 @@ def test_book_shipment_blocks_refunded_before_create(fake_provider, override_dat
     asyncio.run(run())
 
 
-def test_process_shipment_bookings_skips_refunded_claim(fake_provider, override_database):
+def test_process_shipment_bookings_skips_refunded_claim(booking_fake_provider, override_database):
     order_id, shipment_id, _ = _seed_order_shipment(
         status=ShipmentStatus.PENDING_BOOKING.value,
         booking_attempts=0,
@@ -88,13 +102,13 @@ def test_process_shipment_bookings_skips_refunded_claim(fake_provider, override_
             assert count == 0
             row = await session.get(Shipment, shipment_id)
             assert row.status == ShipmentStatus.PENDING_BOOKING.value
-            assert fake_provider.create_calls == 0
+            assert booking_fake_provider.create_calls == 0
 
     asyncio.run(run())
 
 
 def test_admin_book_rejects_refunded_ready_to_book(
-    fake_provider, override_database, super_admin_headers
+    booking_fake_provider, override_database, super_admin_headers
 ):
     order_id, shipment_id, _ = _seed_order_shipment(
         status=ShipmentStatus.READY_TO_BOOK.value,
@@ -108,7 +122,7 @@ def test_admin_book_rejects_refunded_ready_to_book(
     )
     assert res.status_code == 409
     assert res.json()["error_code"] == "SHIPMENT_STATE_INVALID"
-    assert fake_provider.create_calls == 0
+    assert booking_fake_provider.create_calls == 0
 
     async def check():
         async with TestingSessionLocal() as session:
@@ -118,7 +132,7 @@ def test_admin_book_rejects_refunded_ready_to_book(
     asyncio.run(check())
 
 
-def test_admin_ready_rejects_refunded_order(fake_provider, override_database, super_admin_headers):
+def test_admin_ready_rejects_refunded_order(booking_fake_provider, override_database, super_admin_headers):
     order_id, shipment_id, _ = _seed_order_shipment(
         status=ShipmentStatus.BOOKED.value,
         parcel_no="1001",
@@ -131,7 +145,7 @@ def test_admin_ready_rejects_refunded_order(fake_provider, override_database, su
     )
     assert res.status_code == 409
     assert res.json()["error_code"] == "SHIPMENT_STATE_INVALID"
-    assert fake_provider.ready_calls == 0
+    assert booking_fake_provider.ready_calls == 0
 
     async def check():
         async with TestingSessionLocal() as session:
@@ -142,7 +156,7 @@ def test_admin_ready_rejects_refunded_order(fake_provider, override_database, su
     asyncio.run(check())
 
 
-def test_admin_edit_rejects_refunded_order(fake_provider, override_database, super_admin_headers):
+def test_admin_edit_rejects_refunded_order(booking_fake_provider, override_database, super_admin_headers):
     order_id, shipment_id, _ = _seed_order_shipment(
         status=ShipmentStatus.BOOKED.value,
         parcel_no="1001",
@@ -162,10 +176,10 @@ def test_admin_edit_rejects_refunded_order(fake_provider, override_database, sup
     )
     assert res.status_code == 409
     assert res.json()["error_code"] == "SHIPMENT_STATE_INVALID"
-    assert fake_provider.update_calls == 0
+    assert booking_fake_provider.update_calls == 0
 
 
-def test_final_package_rejects_refunded_order(fake_provider, override_database, super_admin_headers):
+def test_final_package_rejects_refunded_order(booking_fake_provider, override_database, super_admin_headers):
     order_id, shipment_id, _ = _seed_order_shipment(
         status=ShipmentStatus.AWAITING_PACKAGING.value,
     )
@@ -244,7 +258,7 @@ def test_manual_handoff_and_deliver_blocked_when_refunded(
 
 
 def test_cancel_still_allowed_on_refunded_order(
-    fake_provider, override_database, step_up_headers
+    booking_fake_provider, override_database, step_up_headers
 ):
     order_id, shipment_id, _ = _seed_order_shipment(
         status=ShipmentStatus.BOOKED.value,
@@ -259,7 +273,7 @@ def test_cancel_still_allowed_on_refunded_order(
     )
     assert res.status_code == 200
     assert res.json()["status"] == "cancellation_pending"
-    assert fake_provider.cancel_calls == 1
+    assert booking_fake_provider.cancel_calls == 1
 
 
 def test_tracking_ingestion_allowed_without_order_lifecycle_advance(override_database):
@@ -314,3 +328,134 @@ def test_tracking_ingestion_allowed_without_order_lifecycle_advance(override_dat
             assert order.payment_status == PaymentStatus.REFUNDED.value
 
     asyncio.run(body())
+
+
+@pytest.mark.usefixtures("override_database")
+def test_manual_portal_register_blocked_when_refunded(
+    super_admin_headers, manual_portal_test_env
+):
+    from tests.test_manual_portal_fulfillment import _mark_paid
+    from tests.test_postex_receiver_due import _purchase_payload, _seed_product_without_logistics
+
+    client = TestClient(app)
+    product = _seed_product_without_logistics(client, super_admin_headers, sku="MP-REF")
+    checkout = client.post(
+        "/api/v1/checkout",
+        json=_purchase_payload(product["id"]),
+        headers={**customer_auth_headers(), "Idempotency-Key": f"ref-mp-{uuid4().hex}"},
+    )
+    assert checkout.status_code == 201, checkout.text
+    order_id, shipment_id = _mark_paid(checkout.json()["order_id"])
+
+    async def refund_processing() -> None:
+        async with TestingSessionLocal() as session:
+            order = await session.get(Order, order_id)
+            order.payment_status = PaymentStatus.REFUNDED.value
+            order.status = OrderStatus.PROCESSING.value
+            await session.commit()
+
+    asyncio.run(refund_processing())
+
+    async def snapshot_before():
+        async with TestingSessionLocal() as session:
+            sh = await session.get(Shipment, shipment_id)
+            order = await session.get(Order, order_id)
+            events = await session.scalar(
+                select(func.count()).select_from(ShipmentEvent).where(
+                    ShipmentEvent.shipment_id == shipment_id
+                )
+            )
+            return (
+                sh.status,
+                sh.tracking_code,
+                sh.provider_parcel_no,
+                dict(sh.provider_data or {}),
+                order.postal_tracking_code,
+                events,
+            )
+
+    before = asyncio.run(snapshot_before())
+    res = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/register",
+        json={"tracking_code": "123456789012", "provider_parcel_no": "PX-9"},
+        headers=super_admin_headers,
+    )
+    assert res.status_code == 409
+    assert res.json()["error_code"] == "SHIPMENT_STATE_INVALID"
+    after = asyncio.run(snapshot_before())
+    assert after == before
+
+
+@pytest.mark.usefixtures("override_database")
+def test_manual_portal_correct_handoff_deliver_blocked_when_refunded(
+    super_admin_headers, step_up_headers, manual_portal_test_env
+):
+    from tests.test_manual_portal_fulfillment import _mark_paid
+    from tests.test_postex_receiver_due import _purchase_payload, _seed_product_without_logistics
+
+    client = TestClient(app)
+    product = _seed_product_without_logistics(client, super_admin_headers, sku="MP-REF2")
+    checkout = client.post(
+        "/api/v1/checkout",
+        json=_purchase_payload(product["id"]),
+        headers={**customer_auth_headers(), "Idempotency-Key": f"ref-mp2-{uuid4().hex}"},
+    )
+    assert checkout.status_code == 201, checkout.text
+    order_id, shipment_id = _mark_paid(checkout.json()["order_id"])
+    tracking = "123456789055"
+    reg = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/register",
+        json={"tracking_code": tracking},
+        headers=super_admin_headers,
+    )
+    assert reg.status_code == 200, reg.text
+    client.patch(
+        f"/api/v1/orders/{order_id}/status",
+        json={"status": "processing"},
+        headers=super_admin_headers,
+    )
+
+    async def refund_processing() -> None:
+        async with TestingSessionLocal() as session:
+            order = await session.get(Order, order_id)
+            order.payment_status = PaymentStatus.REFUNDED.value
+            await session.commit()
+
+    asyncio.run(refund_processing())
+
+    correct = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/correct",
+        json={"tracking_code": "999999999999", "update_fields": ["tracking_code"]},
+        headers=step_up_headers,
+    )
+    assert correct.status_code == 409
+
+    handoff = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/handoff",
+        headers=super_admin_headers,
+    )
+    assert handoff.status_code == 409
+
+    async def set_shipped():
+        async with TestingSessionLocal() as session:
+            order = await session.get(Order, order_id)
+            shipment = await session.get(Shipment, shipment_id)
+            order.status = OrderStatus.SHIPPED.value
+            shipment.status = ShipmentStatus.PICKED_UP.value
+            await session.commit()
+
+    asyncio.run(set_shipped())
+
+    deliver = client.post(
+        f"/api/v1/orders/{order_id}/shipments/{shipment_id}/manual-portal/deliver",
+        headers=super_admin_headers,
+    )
+    assert deliver.status_code == 409
+
+    async def final_state():
+        async with TestingSessionLocal() as session:
+            order = await session.get(Order, order_id)
+            shipment = await session.get(Shipment, shipment_id)
+            return order.status, shipment.status
+
+    assert asyncio.run(final_state()) == (OrderStatus.SHIPPED.value, ShipmentStatus.PICKED_UP.value)

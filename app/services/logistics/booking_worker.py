@@ -222,6 +222,22 @@ async def _reconcile_pending_cancellations(db: AsyncSession) -> int:
     return processed
 
 
+async def _lock_order(db: AsyncSession, order_id: int) -> Order | None:
+    return (
+        (
+            await db.execute(
+                select(Order)
+                .where(Order.id == order_id)
+                .options(selectinload(Order.items))
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+        )
+        .scalars()
+        .first()
+    )
+
+
 async def _lock_shipment(db: AsyncSession, shipment_id: int) -> Shipment | None:
     return (
         (
@@ -295,8 +311,20 @@ async def _commit_create_attempt(
     Returns ``(create_body, count_as_processed)`` after COMMIT when applicable.
     Never holds FOR UPDATE across the network.
     """
+    order_id = (
+        await db.execute(select(Shipment.order_id).where(Shipment.id == shipment_id))
+    ).scalar_one_or_none()
+    if order_id is None:
+        return None, False
+
+    order = await _lock_order(db, order_id)
+    if order is None:
+        await db.commit()
+        return None, False
+
     shipment = await _lock_shipment(db, shipment_id)
     if shipment is None:
+        await db.commit()
         return None, False
 
     if provider_automation_blocked(shipment):
@@ -309,18 +337,16 @@ async def _commit_create_attempt(
         await db.commit()
         return None, False
 
-    order_for_guard = await db.get(Order, shipment.order_id)
-    if order_for_guard is not None:
-        try:
-            assert_order_forward_fulfillment_allowed(order_for_guard)
-        except ShipmentStateError:
-            logger.info(
-                "skip postex book refunded order shipment_id=%s order_id=%s",
-                shipment_id,
-                order_for_guard.id,
-            )
-            await db.commit()
-            return None, False
+    try:
+        assert_order_forward_fulfillment_allowed(order)
+    except ShipmentStateError:
+        logger.info(
+            "skip postex book refunded order shipment_id=%s order_id=%s",
+            shipment_id,
+            order.id,
+        )
+        await db.commit()
+        return None, False
 
     if shipment.status == ShipmentStatus.AWAITING_PACKAGING.value:
         await db.commit()
@@ -341,10 +367,20 @@ async def _commit_create_attempt(
 
     if _must_lookup_before_create(shipment):
         public_id = shipment.public_id
+        locked_order_id = order.id
         await db.commit()
         lookup = await _lookup_safe(get_provider(), public_id)
+        order = await _lock_order(db, locked_order_id)
+        if order is None:
+            return None, False
+        try:
+            assert_order_forward_fulfillment_allowed(order)
+        except ShipmentStateError:
+            await db.commit()
+            return None, False
         shipment = await _lock_shipment(db, shipment_id)
         if shipment is None:
+            await db.commit()
             return None, False
         if _already_created(shipment):
             promoted = _maybe_promote_booked(shipment)
@@ -380,22 +416,17 @@ async def _commit_create_attempt(
         await db.commit()
         return None, False
 
-    order = (
-        (
-            await db.execute(
-                select(Order)
-                .where(Order.id == shipment.order_id)
-                .options(selectinload(Order.items))
-            )
-        )
-        .scalars()
-        .first()
-    )
+    order = await _lock_order(db, shipment.order_id)
     if order is None:
         shipment.status = ShipmentStatus.ERROR.value
         shipment.last_error_code = "ORDER_MISSING"
         await db.commit()
         return None, True
+    try:
+        assert_order_forward_fulfillment_allowed(order)
+    except ShipmentStateError:
+        await db.commit()
+        return None, False
 
     try:
         request = build_parcel_create_request(order, shipment)
