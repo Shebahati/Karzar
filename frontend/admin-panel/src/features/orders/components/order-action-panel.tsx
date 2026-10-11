@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CloseSquare, Delete, Send, TickSquare, Wallet } from "react-iconly";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,13 @@ import {
   STATUS_LABELS,
 } from "@/features/orders/order-workflow";
 import { ApiError } from "@/lib/api-client";
+import { ExternalRefundConfirmationDialog } from "@/features/orders/components/external-refund-confirmation-dialog";
+import {
+  isAwaitingRefund,
+  needsCancelAfterExternalRefund,
+  showAutomatedRefundAction,
+  showExternalRefundConfirmationAction,
+} from "@/features/orders/refund-workflow";
 import { paymentsAdminService } from "@/services/payments";
 import type { OrderDetail } from "@/types/order";
 
@@ -36,15 +43,27 @@ export function OrderActionPanel({ order }: OrderActionPanelProps) {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [refundOpen, setRefundOpen] = useState(false);
+  const [externalRefundOpen, setExternalRefundOpen] = useState(false);
+  const [completeCancelOpen, setCompleteCancelOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [actionPending, setActionPending] = useState(false);
 
-  const needsRefundBeforeCancel =
-    order.mode === "purchase" &&
+  const awaitingRefund = isAwaitingRefund(order);
+  const cancelAfterRefund = needsCancelAfterExternalRefund(order);
+  const needsPaidRefundGuidance =
+    awaitingRefund &&
     (order.status === "paid" ||
       order.status === "processing" ||
-      order.status === "shipped" ||
-      order.payment_status === "paid");
+      order.status === "shipped");
+
+  const capabilitiesQuery = useQuery({
+    queryKey: ["payments", "capabilities"],
+    queryFn: () => paymentsAdminService.getCapabilities(),
+    enabled: awaitingRefund,
+  });
+  const refundCapabilities = capabilitiesQuery.data;
+  const showAutomatedRefund = showAutomatedRefundAction(order, refundCapabilities);
+  const showExternalRefund = showExternalRefundConfirmationAction(order, refundCapabilities);
 
   async function advance(nextStatus: NonNullable<typeof primary>["nextStatus"]) {
     if (!nextStatus) return;
@@ -108,7 +127,7 @@ export function OrderActionPanel({ order }: OrderActionPanelProps) {
             <p className="text-sm text-muted-foreground">اقدام بعدی برای این وضعیت تعریف نشده است.</p>
           )}
 
-          {needsRefundBeforeCancel && (
+          {showAutomatedRefund && (
             <Button
               type="button"
               variant="outline"
@@ -120,7 +139,31 @@ export function OrderActionPanel({ order }: OrderActionPanelProps) {
             </Button>
           )}
 
-          {canCancel(order) && !needsRefundBeforeCancel && (
+          {showExternalRefund && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full gap-2 sm:w-auto"
+              onClick={() => setExternalRefundOpen(true)}
+            >
+              <Wallet set="light" size={18} />
+              ثبت استرداد انجام‌شده و لغو سفارش
+            </Button>
+          )}
+
+          {cancelAfterRefund && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full gap-2 border-amber-500/40 sm:w-auto"
+              onClick={() => setCompleteCancelOpen(true)}
+            >
+              <CloseSquare set="light" size={18} primaryColor="#D97706" />
+              تکمیل لغو سفارش
+            </Button>
+          )}
+
+          {canCancel(order) && !awaitingRefund && !cancelAfterRefund && (
             <Button
               type="button"
               variant="outline"
@@ -132,10 +175,23 @@ export function OrderActionPanel({ order }: OrderActionPanelProps) {
             </Button>
           )}
 
-          {needsRefundBeforeCancel && (
+          {showAutomatedRefund && needsPaidRefundGuidance && (
             <p className="text-xs leading-5 text-muted-foreground">
               برای سفارش پرداخت‌شده ابتدا باید از مسیر استرداد (Refund) استفاده کنید؛ لغو مستقیم توسط
               سرور رد می‌شود.
+            </p>
+          )}
+
+          {showExternalRefund && (
+            <p className="text-xs leading-5 text-muted-foreground">
+              ابتدا استرداد وجه را در کانال رسمی درگاه/بانک انجام دهید. پس از دریافت شناسه یا مدرک
+              استرداد، آن را اینجا ثبت کنید تا وضعیت پرداخت و سفارش در کارزار به‌روزرسانی شود.
+            </p>
+          )}
+
+          {cancelAfterRefund && (
+            <p className="text-xs leading-5 text-muted-foreground">
+              استرداد وجه قبلاً ثبت شده است، اما لغو سفارش هنوز کامل نشده است.
             </p>
           )}
 
@@ -169,7 +225,7 @@ export function OrderActionPanel({ order }: OrderActionPanelProps) {
             toast.success("لغو با موفقیت ثبت شد.");
             setCancelOpen(false);
           } catch (err) {
-            if (err instanceof ApiError && err.code === "CONFLICT") {
+            if (err instanceof ApiError && err.code === "CONFLICT" && order.payment_status === "paid") {
               toast.error("این سفارش نیازمند استرداد قبل از لغو است.");
               setCancelOpen(false);
               setRefundOpen(true);
@@ -180,6 +236,38 @@ export function OrderActionPanel({ order }: OrderActionPanelProps) {
             setActionPending(false);
           }
         }}
+      />
+
+      <StepUpDialog
+        open={completeCancelOpen}
+        onOpenChange={setCompleteCancelOpen}
+        title="تکمیل لغو سفارش"
+        description="استرداد قبلاً ثبت شده است. با تأیید PIN، لغو سفارش تکمیل می‌شود."
+        actionPending={actionPending}
+        onVerified={async (token) => {
+          setActionPending(true);
+          try {
+            await updateStatus.mutateAsync({ status: "cancelled", stepUpToken: token });
+            toast.success("لغو سفارش تکمیل شد.");
+            setCompleteCancelOpen(false);
+            void queryClient.invalidateQueries({ queryKey: ordersKeys.all });
+          } catch (err) {
+            toast.warning(
+              err instanceof ApiError
+                ? err.message
+                : "لغو سفارش کامل نشد. استرداد ثبت‌شده حفظ شده است.",
+            );
+            void queryClient.invalidateQueries({ queryKey: ordersKeys.all });
+          } finally {
+            setActionPending(false);
+          }
+        }}
+      />
+
+      <ExternalRefundConfirmationDialog
+        orderId={order.id}
+        open={externalRefundOpen}
+        onOpenChange={setExternalRefundOpen}
       />
 
       <StepUpDialog

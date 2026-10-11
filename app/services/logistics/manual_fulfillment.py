@@ -14,6 +14,9 @@ from app.services.logistics.exceptions import (
     ShippingMethodConflictError,
 )
 from app.services.logistics.models import ShipmentStatus
+from app.services.logistics.refunded_fulfillment_guard import (
+    assert_order_forward_fulfillment_allowed,
+)
 from app.services.logistics.service import _append_event
 from app.services.logistics.shipping_methods import MANUAL_FULFILLMENT_PROVIDERS
 from app.services.order_service import transition_order_status
@@ -156,6 +159,7 @@ async def manual_handoff(
     shipment: Shipment,
     actor_user_id: int | None = None,
 ) -> Shipment:
+    assert_order_forward_fulfillment_allowed(order)
     if not is_manual_fulfillment_shipment(shipment):
         raise ShipmentStateError("این مرسوله از مسیر تحویل دستی پشتیبانی نمی‌شود.")
     provider = (shipment.provider or "").strip()
@@ -224,6 +228,7 @@ async def manual_deliver(
     shipment: Shipment,
     actor_user_id: int | None = None,
 ) -> Shipment:
+    assert_order_forward_fulfillment_allowed(order)
     if not is_manual_fulfillment_shipment(shipment):
         raise ShipmentStateError("این مرسوله از مسیر تحویل دستی پشتیبانی نمی‌شود.")
 

@@ -17,6 +17,9 @@ from app.services.logistics.fulfillment_mode import (
     registration_source,
 )
 from app.services.logistics.models import ShipmentStatus
+from app.services.logistics.refunded_fulfillment_guard import (
+    assert_order_forward_fulfillment_allowed,
+)
 from app.services.logistics.shipping_payment import ShippingPaymentMode
 from app.services.order_service import transition_order_status
 
@@ -113,6 +116,7 @@ async def register_manual_portal_shipment(
 ) -> Shipment:
     from app.services.logistics.service import _append_event
 
+    assert_order_forward_fulfillment_allowed(order)
     _require_manual_receiver_shipment(order, shipment)
     tracking = normalize_tracking_code(tracking_code)
     parcel = (provider_parcel_no or "").strip() or None
@@ -197,6 +201,7 @@ async def confirm_manual_physical_handoff(
 ) -> tuple[Order, Shipment]:
     from app.services.logistics.service import _append_event
 
+    assert_order_forward_fulfillment_allowed(order)
     _require_manual_receiver_shipment(order, shipment)
     if registration_source(shipment) != _REGISTRATION_SOURCE:
         raise ShipmentStateError(
@@ -257,6 +262,7 @@ async def confirm_manual_delivery(
 ) -> tuple[Order, Shipment]:
     from app.services.logistics.service import _append_event
 
+    assert_order_forward_fulfillment_allowed(order)
     _require_manual_receiver_shipment(order, shipment)
     if registration_source(shipment) != _REGISTRATION_SOURCE:
         raise ShipmentStateError(
@@ -321,6 +327,7 @@ async def correct_manual_portal_registration(
 ) -> Shipment:
     from app.services.logistics.service import _append_event
 
+    assert_order_forward_fulfillment_allowed(order)
     _require_manual_receiver_shipment(order, shipment)
     if registration_source(shipment) != _REGISTRATION_SOURCE:
         raise ShipmentStateError(

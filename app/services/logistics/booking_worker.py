@@ -11,7 +11,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.db.models.commerce import Order
+from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.db.models.logistics import Shipment
 from app.services.logistics.exceptions import (
     LogisticsError,
@@ -32,6 +32,9 @@ from app.services.logistics.models import (
     BOOKING_CREATE_FORBIDDEN_STATUSES,
     ParcelBooking,
     ShipmentStatus,
+)
+from app.services.logistics.refunded_fulfillment_guard import (
+    assert_order_forward_fulfillment_allowed,
 )
 from app.services.logistics.service import (
     build_parcel_create_request,
@@ -145,6 +148,7 @@ async def process_shipment_bookings(db: AsyncSession) -> int:
     now = datetime.now(UTC)
     stmt = (
         select(Shipment.id)
+        .join(Order, Shipment.order_id == Order.id)
         .where(
             Shipment.status.in_(_CLAIMABLE),
             # Never claim awaiting_packaging / freight_required even if malformed.
@@ -160,6 +164,11 @@ async def process_shipment_bookings(db: AsyncSession) -> int:
                 Shipment.booking_next_attempt_at <= now,
             ),
             shipment_provider_automation_eligible_clause(),
+            (
+                (Order.mode != OrderMode.PURCHASE)
+                | (Order.payment_status != PaymentStatus.REFUNDED.value)
+                | (Order.status == OrderStatus.CANCELLED.value)
+            ),
         )
         .order_by(Shipment.id)
         .limit(10)
@@ -213,6 +222,22 @@ async def _reconcile_pending_cancellations(db: AsyncSession) -> int:
             continue
         processed += 1
     return processed
+
+
+async def _lock_order(db: AsyncSession, order_id: int) -> Order | None:
+    return (
+        (
+            await db.execute(
+                select(Order)
+                .where(Order.id == order_id)
+                .options(selectinload(Order.items))
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+        )
+        .scalars()
+        .first()
+    )
 
 
 async def _lock_shipment(db: AsyncSession, shipment_id: int) -> Shipment | None:
@@ -288,8 +313,20 @@ async def _commit_create_attempt(
     Returns ``(create_body, count_as_processed)`` after COMMIT when applicable.
     Never holds FOR UPDATE across the network.
     """
+    order_id = (
+        await db.execute(select(Shipment.order_id).where(Shipment.id == shipment_id))
+    ).scalar_one_or_none()
+    if order_id is None:
+        return None, False
+
+    order = await _lock_order(db, order_id)
+    if order is None:
+        await db.commit()
+        return None, False
+
     shipment = await _lock_shipment(db, shipment_id)
     if shipment is None:
+        await db.commit()
         return None, False
 
     if provider_automation_blocked(shipment):
@@ -298,6 +335,17 @@ async def _commit_create_attempt(
             "skip postex book shipment_id=%s reason=%s",
             shipment_id,
             reason,
+        )
+        await db.commit()
+        return None, False
+
+    try:
+        assert_order_forward_fulfillment_allowed(order)
+    except ShipmentStateError:
+        logger.info(
+            "skip postex book refunded order shipment_id=%s order_id=%s",
+            shipment_id,
+            order.id,
         )
         await db.commit()
         return None, False
@@ -321,10 +369,20 @@ async def _commit_create_attempt(
 
     if _must_lookup_before_create(shipment):
         public_id = shipment.public_id
+        locked_order_id = order.id
         await db.commit()
         lookup = await _lookup_safe(get_provider(), public_id)
+        order = await _lock_order(db, locked_order_id)
+        if order is None:
+            return None, False
+        try:
+            assert_order_forward_fulfillment_allowed(order)
+        except ShipmentStateError:
+            await db.commit()
+            return None, False
         shipment = await _lock_shipment(db, shipment_id)
         if shipment is None:
+            await db.commit()
             return None, False
         if _already_created(shipment):
             promoted = _maybe_promote_booked(shipment)
@@ -360,22 +418,17 @@ async def _commit_create_attempt(
         await db.commit()
         return None, False
 
-    order = (
-        (
-            await db.execute(
-                select(Order)
-                .where(Order.id == shipment.order_id)
-                .options(selectinload(Order.items))
-            )
-        )
-        .scalars()
-        .first()
-    )
+    order = await _lock_order(db, shipment.order_id)
     if order is None:
         shipment.status = ShipmentStatus.ERROR.value
         shipment.last_error_code = "ORDER_MISSING"
         await db.commit()
         return None, True
+    try:
+        assert_order_forward_fulfillment_allowed(order)
+    except ShipmentStateError:
+        await db.commit()
+        return None, False
 
     try:
         request = build_parcel_create_request(order, shipment)

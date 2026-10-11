@@ -194,6 +194,13 @@ async def transition_order_status(
     if not can_transition(current, target):
         raise ValueError(f"Cannot transition order from '{current}' to '{target}'")
 
+    if (
+        order.mode == OrderMode.PURCHASE
+        and order.payment_status == PaymentStatus.REFUNDED.value
+        and target != OrderStatus.CANCELLED.value
+    ):
+        raise ValueError("Refunded purchase orders may only transition to cancelled")
+
     if target in {OrderStatus.SHIPPED.value, OrderStatus.DELIVERED.value}:
         from app.services.logistics.manual_portal_guard import (
             order_has_active_manual_portal_shipment,

@@ -288,6 +288,13 @@ documents:
     status: current
     owner_role: R-DOC-ARCH
 
+  - id: SEP-REFUND-RUNBOOK
+    path: docs/SEP_REFUND_RUNBOOK.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+
   - id: CANON-LOCK
     path: docs/architecture/CANON-LOCK.md
     class: CANON
