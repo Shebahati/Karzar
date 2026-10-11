@@ -35,7 +35,6 @@ from app.schemas.payment import (
     PaymentVerifyResponse,
 )
 from app.services.audit_service import record_audit
-from app.services.logistics.refunded_fulfillment_guard import ExternalRefundFulfillmentBusy
 from app.services.external_refund_confirmation_service import (
     ExternalRefundConflict,
     ExternalRefundInvalidState,
@@ -43,6 +42,7 @@ from app.services.external_refund_confirmation_service import (
     attempt_external_refund_order_cancellation,
     persist_external_refund_evidence,
 )
+from app.services.logistics.refunded_fulfillment_guard import ExternalRefundFulfillmentBusy
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 from app.services.order_service import transition_order_status
 from app.services.payment_capabilities_service import get_payment_capabilities

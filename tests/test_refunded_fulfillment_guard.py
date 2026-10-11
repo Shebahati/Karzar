@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 from datetime import UTC, datetime
-from decimal import Decimal
 from uuid import uuid4
 
 import pytest
@@ -14,13 +13,17 @@ from app.db.models.logistics import Shipment, ShipmentEvent
 from app.main import app
 from app.services.logistics.booking_worker import book_shipment, process_shipment_bookings
 from app.services.logistics.exceptions import ShipmentStateError
-from app.services.logistics.manual_fulfillment import manual_deliver, manual_handoff, manual_register
+from app.services.logistics.manual_fulfillment import (
+    manual_deliver,
+    manual_handoff,
+    manual_register,
+)
 from app.services.logistics.models import ShipmentStatus, TrackingEvent
 from app.services.logistics.service import apply_tracking_to_order, ingest_tracking_events
 from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 
-from tests.conftest import TestingSessionLocal, customer_auth_headers, super_admin_headers, step_up_headers
+from tests.conftest import TestingSessionLocal, customer_auth_headers
 from tests.test_postex_booking_safety import _seed_order_shipment
 from tests.test_postex_logistics import _enable_postex
 from tests.test_postex_quotes_checkout import FakeProvider
@@ -230,8 +233,6 @@ def test_manual_handoff_and_deliver_blocked_when_refunded(
                     ShipmentEvent.shipment_id == shipment.id
                 )
             )
-            status_before = shipment.status
-            order_status_before = order.status
             try:
                 await manual_handoff(session, order=order, shipment=shipment)
                 raise AssertionError("expected handoff block")

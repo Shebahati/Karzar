@@ -43,10 +43,6 @@ from app.services.logistics.fulfillment_mode import (
     shipment_fulfillment_mode,
 )
 from app.services.logistics.manual_portal_service import assert_api_fulfillment_path_allowed
-from app.services.logistics.refunded_fulfillment_guard import (
-    assert_order_forward_fulfillment_allowed,
-    order_blocks_forward_fulfillment,
-)
 from app.services.logistics.models import (
     PHYSICAL_HANDOFF_STATUSES,
     RECEIVER_PRE_CREATE_MUTABLE_STATUSES,
@@ -60,6 +56,10 @@ from app.services.logistics.money import toman_to_irr
 from app.services.logistics.package_builder import build_package, select_box
 from app.services.logistics.postex.provider import PostexProvider
 from app.services.logistics.redaction import redact_secrets
+from app.services.logistics.refunded_fulfillment_guard import (
+    assert_order_forward_fulfillment_allowed,
+    order_blocks_forward_fulfillment,
+)
 from app.services.logistics.shipping_payment import (
     ShippingPaymentMode,
     default_shipping_payment_mode,

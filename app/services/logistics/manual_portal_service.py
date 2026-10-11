@@ -17,8 +17,10 @@ from app.services.logistics.fulfillment_mode import (
     registration_source,
 )
 from app.services.logistics.models import ShipmentStatus
+from app.services.logistics.refunded_fulfillment_guard import (
+    assert_order_forward_fulfillment_allowed,
+)
 from app.services.logistics.shipping_payment import ShippingPaymentMode
-from app.services.logistics.refunded_fulfillment_guard import assert_order_forward_fulfillment_allowed
 from app.services.order_service import transition_order_status
 
 _REGISTRATION_SOURCE = "manual_portal"

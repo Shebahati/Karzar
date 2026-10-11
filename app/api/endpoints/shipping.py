@@ -41,7 +41,6 @@ from app.schemas.shipping import (
     ShippingStatusResponse,
 )
 from app.services.logistics.booking_worker import book_shipment, request_shipment_cancellation
-from app.services.logistics.refunded_fulfillment_guard import assert_order_forward_fulfillment_allowed
 from app.services.logistics.exceptions import (
     LogisticsError,
     ProviderError,
@@ -72,6 +71,9 @@ from app.services.logistics.models import (
     TERMINAL_SHIPMENT_STATUSES,
     Destination,
     ShipmentStatus,
+)
+from app.services.logistics.refunded_fulfillment_guard import (
+    assert_order_forward_fulfillment_allowed,
 )
 from app.services.logistics.service import (
     admin_shipment_view,

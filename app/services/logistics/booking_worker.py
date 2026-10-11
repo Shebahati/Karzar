@@ -33,12 +33,14 @@ from app.services.logistics.models import (
     ParcelBooking,
     ShipmentStatus,
 )
+from app.services.logistics.refunded_fulfillment_guard import (
+    assert_order_forward_fulfillment_allowed,
+)
 from app.services.logistics.service import (
     build_parcel_create_request,
     get_provider,
     postex_enabled,
 )
-from app.services.logistics.refunded_fulfillment_guard import assert_order_forward_fulfillment_allowed
 from app.services.logistics.shipping_payment import postex_booking_enabled
 
 logger = get_logger(__name__)

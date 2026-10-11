@@ -14,9 +14,11 @@ from app.services.logistics.exceptions import (
     ShippingMethodConflictError,
 )
 from app.services.logistics.models import ShipmentStatus
+from app.services.logistics.refunded_fulfillment_guard import (
+    assert_order_forward_fulfillment_allowed,
+)
 from app.services.logistics.service import _append_event
 from app.services.logistics.shipping_methods import MANUAL_FULFILLMENT_PROVIDERS
-from app.services.logistics.refunded_fulfillment_guard import assert_order_forward_fulfillment_allowed
 from app.services.order_service import transition_order_status
 
 _HANDOFF_DESCRIPTIONS: dict[str, str] = {

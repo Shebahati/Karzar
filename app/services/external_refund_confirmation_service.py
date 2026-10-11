@@ -13,10 +13,12 @@ from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.db.models.user import User
 from app.schemas.payment import PaymentRefundMode
 from app.services.audit_service import record_audit
+from app.services.logistics.refunded_fulfillment_guard import (
+    assert_external_refund_fulfillment_quiescent,
+)
 from app.services.order_service import transition_order_status
 from app.services.payment_capabilities_service import get_payment_capabilities
 from app.services.payment_flow_service import get_order_payment_authority, get_order_payment_ref_id
-from app.services.logistics.refunded_fulfillment_guard import assert_external_refund_fulfillment_quiescent
 from app.services.payment_ledger_service import record_payment_refunded
 
 logger = get_logger(__name__)

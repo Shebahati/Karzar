@@ -10,7 +10,7 @@ from uuid import uuid4
 import pytest
 from app.core.config import settings
 from app.crud import commerce as crud_commerce
-from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
+from app.db.models.commerce import Order, OrderStatus, PaymentStatus
 from app.db.models.logistics import Shipment
 from app.db.models.platform import AdminAuditLog
 from app.main import app
@@ -24,7 +24,6 @@ from tests.test_external_refund_confirmation import (
     _activate_sep,
     _checkout,
     _mark_order_paid,
-    _step_up_headers,
 )
 from tests.test_postex_booking_safety import _seed_order_shipment
 from tests.test_postex_logistics import _enable_postex
