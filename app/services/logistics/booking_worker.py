@@ -11,7 +11,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.db.models.commerce import Order
+from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.db.models.logistics import Shipment
 from app.services.logistics.exceptions import (
     LogisticsError,
@@ -38,6 +38,7 @@ from app.services.logistics.service import (
     get_provider,
     postex_enabled,
 )
+from app.services.logistics.refunded_fulfillment_guard import assert_order_forward_fulfillment_allowed
 from app.services.logistics.shipping_payment import postex_booking_enabled
 
 logger = get_logger(__name__)
@@ -145,6 +146,7 @@ async def process_shipment_bookings(db: AsyncSession) -> int:
     now = datetime.now(UTC)
     stmt = (
         select(Shipment.id)
+        .join(Order, Shipment.order_id == Order.id)
         .where(
             Shipment.status.in_(_CLAIMABLE),
             # Never claim awaiting_packaging / freight_required even if malformed.
@@ -160,6 +162,11 @@ async def process_shipment_bookings(db: AsyncSession) -> int:
                 Shipment.booking_next_attempt_at <= now,
             ),
             shipment_provider_automation_eligible_clause(),
+            (
+                (Order.mode != OrderMode.PURCHASE)
+                | (Order.payment_status != PaymentStatus.REFUNDED.value)
+                | (Order.status == OrderStatus.CANCELLED.value)
+            ),
         )
         .order_by(Shipment.id)
         .limit(10)
@@ -301,6 +308,19 @@ async def _commit_create_attempt(
         )
         await db.commit()
         return None, False
+
+    order_for_guard = await db.get(Order, shipment.order_id)
+    if order_for_guard is not None:
+        try:
+            assert_order_forward_fulfillment_allowed(order_for_guard)
+        except ShipmentStateError:
+            logger.info(
+                "skip postex book refunded order shipment_id=%s order_id=%s",
+                shipment_id,
+                order_for_guard.id,
+            )
+            await db.commit()
+            return None, False
 
     if shipment.status == ShipmentStatus.AWAITING_PACKAGING.value:
         await db.commit()

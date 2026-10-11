@@ -43,6 +43,10 @@ from app.services.logistics.fulfillment_mode import (
     shipment_fulfillment_mode,
 )
 from app.services.logistics.manual_portal_service import assert_api_fulfillment_path_allowed
+from app.services.logistics.refunded_fulfillment_guard import (
+    assert_order_forward_fulfillment_allowed,
+    order_blocks_forward_fulfillment,
+)
 from app.services.logistics.models import (
     PHYSICAL_HANDOFF_STATUSES,
     RECEIVER_PRE_CREATE_MUTABLE_STATUSES,
@@ -856,6 +860,9 @@ async def apply_tracking_to_order(db: AsyncSession, order: Order) -> None:
         # Compatibility mirror of the primary shipment barcode only.
         order.postal_tracking_code = primary.tracking_code
 
+    if order_blocks_forward_fulfillment(order):
+        return
+
     if (
         handoff
         and order.status == OrderStatus.PROCESSING.value
@@ -1040,6 +1047,7 @@ async def set_final_package(
     actor_user_id: int | None = None,
 ) -> Shipment:
     """Admin measures the sealed outbound parcel. No Postex HTTP."""
+    assert_order_forward_fulfillment_allowed(order)
     assert_api_fulfillment_path_allowed(shipment)
     if shipment.status not in {
         ShipmentStatus.AWAITING_PACKAGING.value,
@@ -1125,6 +1133,7 @@ async def quote_packed_shipment(
     shipment: Shipment,
 ) -> dict[str, Any]:
     """Quote Postex for a measured final parcel (RECEIVER payment_type). No create."""
+    assert_order_forward_fulfillment_allowed(order)
     assert_api_fulfillment_path_allowed(shipment)
     if shipment_payment_mode(shipment, order) != ShippingPaymentMode.RECEIVER_DUE:
         raise LogisticsError(
@@ -1262,6 +1271,7 @@ async def select_packed_service(
     carrier_code: str,
     service_code: str,
 ) -> Shipment:
+    assert_order_forward_fulfillment_allowed(order)
     assert_api_fulfillment_path_allowed(shipment)
     if shipment_payment_mode(shipment, order) != ShippingPaymentMode.RECEIVER_DUE:
         raise LogisticsError(
@@ -1326,6 +1336,7 @@ async def schedule_receiver_booking(
     shipment: Shipment,
 ) -> Shipment:
     """Mark receiver_due shipment ready_to_book. Worker must NOT claim this status."""
+    assert_order_forward_fulfillment_allowed(order)
     assert_api_fulfillment_path_allowed(shipment)
     if shipment_payment_mode(shipment, order) != ShippingPaymentMode.RECEIVER_DUE:
         raise LogisticsError(
