@@ -62,9 +62,8 @@ def _pay_order_mock(order_id: int, authority: str, owner_headers: dict) -> None:
 
 def _mark_order_paid(order_id: int, ref_id: str | None = None) -> None:
     async def _run() -> None:
-        from sqlalchemy.orm import selectinload
-
         from app.services.stock_ledger_service import ensure_order_sale_movements
+        from sqlalchemy.orm import selectinload
 
         async with TestingSessionLocal() as db:
             order = (
