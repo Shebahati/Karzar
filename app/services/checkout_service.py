@@ -47,7 +47,6 @@ from app.services.logistics.shipping_payment import (
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 from app.services.order_service import record_initial_status_event, status_label
 from app.services.payment_flow_service import initialize_order_payment
-from app.services.stock_ledger_service import record_sale_movement
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import decimal_to_api_string
 
@@ -174,7 +173,8 @@ async def submit_checkout(
 
     quantities = _merge_quantities(payload)
 
-    # Lock the referenced product rows so concurrent purchases cannot oversell.
+    # Row-lock sellable products for a consistent availability read (not a reservation).
+    # Concurrent customers may purchase the same SKU; is_available means sellable only.
     products = await crud_product.get_products_for_update(db, list(quantities.keys()))
     if shipping_quote is not None:
         assert_quote_prices_current(shipping_quote, products, quantities)
@@ -182,8 +182,6 @@ async def submit_checkout(
     line_items = []
     estimated_total = Decimal("0.0")
     has_priced_item = False
-    stock_reservations: list[tuple[int, int]] = []
-
     for product_id, quantity in quantities.items():
         product = products.get(product_id)
         if not product or not product.is_active:
@@ -205,9 +203,6 @@ async def submit_checkout(
             # tax_percent must never surcharge payable (accounting metadata only).
             line_total = _to_decimal(unit_price) * quantity
             estimated_total += line_total
-
-        if is_purchase:
-            stock_reservations.append((product_id, quantity))
 
         line_items.append(
             {
@@ -295,16 +290,6 @@ async def submit_checkout(
     if shipping_quote is not None:
         await bind_quote_to_order(db, shipping_quote, order.id)
     await record_initial_status_event(db, order, description="سفارش ثبت شد")
-
-    if is_purchase:
-        for product_id, quantity in stock_reservations:
-            await record_sale_movement(
-                db,
-                product_id=product_id,
-                quantity=quantity,
-                order_id=order.id,
-                user_id=current_user.id if current_user else None,
-            )
 
     payment_url: str | None = None
     authority: str | None = None

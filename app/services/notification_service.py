@@ -1,7 +1,12 @@
 """SMS notifications for order lifecycle events."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from app.core.config import settings
 from app.core.logging import get_logger
+from app.crud.order_notification import claim_order_notification
 from app.db.models.commerce import OrderStatus
 from app.services.sms_service import (
     SmsEvent,
@@ -11,7 +16,13 @@ from app.services.sms_service import (
     parse_internal_order_alert_recipients,
 )
 
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
+
 logger = get_logger(__name__)
+
+CHANNEL_CUSTOMER_PAID = "customer:order_paid"
+CHANNEL_INTERNAL_PAID = "internal:order_paid"
 
 _NOTIFY_STATUSES = frozenset(
     {
@@ -79,8 +90,18 @@ async def _send_order_sms_soft(
         )
 
 
-async def notify_internal_order_paid(*, tracking_code: str) -> None:
+async def notify_internal_order_paid(
+    *,
+    tracking_code: str,
+    db: AsyncSession | None = None,
+    order_id: int | None = None,
+) -> None:
     """Internal/admin alert for a newly paid purchase order (soft-failing)."""
+    if db is not None and order_id is not None:
+        if not await claim_order_notification(
+            db, order_id=order_id, channel=CHANNEL_INTERNAL_PAID
+        ):
+            return
     recipients = parse_internal_order_alert_recipients()
     if not recipients:
         logger.warning(
@@ -99,10 +120,32 @@ async def notify_internal_order_paid(*, tracking_code: str) -> None:
         )
 
 
-async def notify_purchase_paid(*, phone: str, tracking_code: str) -> None:
+async def notify_purchase_paid(
+    *,
+    phone: str,
+    tracking_code: str,
+    db: AsyncSession | None = None,
+    order_id: int | None = None,
+) -> None:
     """Customer + internal paid notifications; failures do not propagate."""
     template = _STATUS_TEMPLATES.get(OrderStatus.PAID.value)
     if not template:
+        return
+    if db is not None and order_id is not None:
+        if await claim_order_notification(
+            db, order_id=order_id, channel=CHANNEL_CUSTOMER_PAID
+        ):
+            body = template.format(tracking_code=tracking_code)
+            await _send_order_sms_soft(
+                receptor=phone,
+                body=body,
+                event=SmsEvent.ORDER_PAID,
+                tracking_code=tracking_code,
+                log_context="Order status",
+            )
+        await notify_internal_order_paid(
+            tracking_code=tracking_code, db=db, order_id=order_id
+        )
         return
     body = template.format(tracking_code=tracking_code)
     await _send_order_sms_soft(
@@ -120,9 +163,16 @@ async def notify_order_status_change(
     phone: str,
     tracking_code: str,
     status: str,
+    db: AsyncSession | None = None,
+    order_id: int | None = None,
 ) -> None:
     if status == OrderStatus.PAID.value:
-        await notify_purchase_paid(phone=phone, tracking_code=tracking_code)
+        await notify_purchase_paid(
+            phone=phone,
+            tracking_code=tracking_code,
+            db=db,
+            order_id=order_id,
+        )
         return
 
     event = _STATUS_EVENTS.get(status)

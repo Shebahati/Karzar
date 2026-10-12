@@ -154,11 +154,7 @@ class TestAdminOrders:
                 return await list_stock_movements_for_reference(db, f"order:{order_id}")
 
         movements = asyncio.run(fetch_movements())
-        assert len(movements) == 2
-        assert movements[0].movement_type == "sale"
-        assert float(movements[0].quantity_change) == -5.0
-        assert movements[1].movement_type == "return"
-        assert float(movements[1].quantity_change) == 5.0
+        assert movements == []
 
 
 class TestOrderTracking:

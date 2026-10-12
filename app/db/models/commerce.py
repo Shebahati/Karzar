@@ -5,7 +5,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text, text
+from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -212,3 +212,19 @@ class OrderStatusEvent(Base):
     )
 
     order: Mapped["Order"] = relationship("Order", back_populates="status_events")
+
+
+class OrderNotificationSent(Base):
+    """Semantic notification delivery fence (one row per order + channel purpose)."""
+
+    __tablename__ = "order_notification_sent"
+    __table_args__ = (
+        UniqueConstraint("order_id", "channel", name="uq_order_notification_sent_order_channel"),
+        Index("ix_order_notification_sent_order_id", "order_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    order_id: Mapped[int] = mapped_column(
+        ForeignKey("orders.id", ondelete="CASCADE"), nullable=False
+    )
+    channel: Mapped[str] = mapped_column(String(64), nullable=False)

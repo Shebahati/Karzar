@@ -63,7 +63,6 @@ def test_purchase_disabled_rejects_before_any_side_effect(monkeypatch):
 
     cancel_expired = AsyncMock()
     create_order = AsyncMock()
-    record_sale = AsyncMock()
     init_payment = AsyncMock()
     clear_cart = AsyncMock()
     get_products = AsyncMock()
@@ -75,10 +74,6 @@ def test_purchase_disabled_rejects_before_any_side_effect(monkeypatch):
     monkeypatch.setattr(
         "app.services.checkout_service.crud_commerce.create_order",
         create_order,
-    )
-    monkeypatch.setattr(
-        "app.services.checkout_service.record_sale_movement",
-        record_sale,
     )
     monkeypatch.setattr(
         "app.services.checkout_service.initialize_order_payment",
@@ -108,7 +103,6 @@ def test_purchase_disabled_rejects_before_any_side_effect(monkeypatch):
     cancel_expired.assert_not_called()
     get_products.assert_not_called()
     create_order.assert_not_called()
-    record_sale.assert_not_called()
     init_payment.assert_not_called()
     clear_cart.assert_not_called()
 
