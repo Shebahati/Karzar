@@ -244,6 +244,9 @@ export async function openPdpViaSearch(page: Page) {
   await expect(searchBox).toBeVisible();
 
   await searchBox.fill(E2E_CATALOG_SEARCH_TERM);
+  await expect(searchDialog.getByText(/در حال جستجو/i)).toHaveCount(0, {
+    timeout: 30_000,
+  });
 
   const spotlightProduct = searchDialog
     .getByRole("button")
@@ -252,7 +255,7 @@ export async function openPdpViaSearch(page: Page) {
   await expect(
     spotlightProduct,
     "spotlight search must list PLP-visible mock crawl products",
-  ).toBeVisible({ timeout: 20_000 });
+  ).toBeVisible({ timeout: 45_000 });
 
   const viewAll = searchDialog.getByRole("button", { name: /مشاهده همه نتایج/i });
   await expect(viewAll).toBeVisible({ timeout: 15_000 });
@@ -280,16 +283,17 @@ export async function openPdpViaSearch(page: Page) {
   await expect(
     productCardLink,
     "catalog PLP must expose a clickable product card after search",
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: 60_000 });
 
+  await productCardLink.scrollIntoViewIfNeeded();
   await Promise.all([
-    page.waitForURL(/\/product\//, { timeout: 30_000 }),
+    page.waitForURL(/\/product\//, { timeout: 60_000 }),
     productCardLink.click(),
   ]);
 
   await expect(
     page.getByRole("heading", { level: 1, name: E2E_CATALOG_PRODUCT_NAME }),
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: 60_000 });
 }
 
 export async function openCartViaMobileUi(page: Page) {

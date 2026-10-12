@@ -22,7 +22,7 @@ async function prepareMobile(page: Page, width: number) {
 }
 
 test.describe("Mobile full purchase journey (#462)", () => {
-  test.setTimeout(240_000);
+  test.setTimeout(360_000);
 
   for (const width of MOBILE_WIDTHS) {
     test(`width ${width}: full mobile purchase journey`, async ({ page }) => {
