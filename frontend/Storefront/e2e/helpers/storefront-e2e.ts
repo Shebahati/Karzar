@@ -286,10 +286,10 @@ export async function openPdpViaSearch(page: Page) {
   ).toBeVisible({ timeout: 60_000 });
 
   await productCardLink.scrollIntoViewIfNeeded();
-  await Promise.all([
-    page.waitForURL(/\/product\//, { timeout: 60_000 }),
-    productCardLink.click(),
-  ]);
+  const productTitle = productCardLink.getByRole("heading", { level: 3 });
+  await expect(productTitle).toBeVisible({ timeout: 15_000 });
+  await productTitle.click();
+  await expect(page).toHaveURL(/\/product\//, { timeout: 60_000 });
 
   await expect(
     page.getByRole("heading", { level: 1, name: E2E_CATALOG_PRODUCT_NAME }),
