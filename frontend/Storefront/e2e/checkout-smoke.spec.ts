@@ -1,28 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-
-const CART_STORAGE_KEY = "karzar.storefront.cart";
-
-/** Wait until Zustand persist has written at least one purchase line. */
-async function waitForCartPersisted(page: Page) {
-  await page.waitForFunction(
-    (key) => {
-      try {
-        const raw = localStorage.getItem(key);
-        if (!raw) return false;
-        const parsed = JSON.parse(raw) as {
-          state?: { stash?: { cart?: unknown[] }; cart?: unknown[] };
-        };
-        const stashLen = parsed.state?.stash?.cart?.length ?? 0;
-        const legacyLen = parsed.state?.cart?.length ?? 0;
-        return stashLen > 0 || legacyLen > 0;
-      } catch {
-        return false;
-      }
-    },
-    CART_STORAGE_KEY,
-    { timeout: 10_000 },
-  );
-}
+import { expect, test } from "@playwright/test";
+import { waitForCartPersisted } from "./helpers/storefront-e2e";
 
 /**
  * Smoke: OTP login at checkout → submit → payment callback success path (mock).
