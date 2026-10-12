@@ -3,6 +3,7 @@ import {
   MOBILE_HEIGHT,
   MOBILE_WIDTHS,
   addToCartFromPdp,
+  assertCartLineQuantityIsOne,
   assertNoHorizontalOverflow,
   cartCheckoutCta,
   E2E_CATALOG_PRODUCT_NAME,
@@ -35,9 +36,7 @@ test.describe("Mobile full purchase journey (#462)", () => {
 
       await openCartViaMobileUi(page);
       await assertNoHorizontalOverflow(page);
-      await expect(
-        page.getByRole("article").filter({ hasText: E2E_CATALOG_PRODUCT_NAME }),
-      ).toBeVisible({ timeout: 15_000 });
+      await assertCartLineQuantityIsOne(page, E2E_CATALOG_PRODUCT_NAME);
 
       const checkoutCta = cartCheckoutCta(page);
       await expect(checkoutCta).toBeVisible({ timeout: 20_000 });

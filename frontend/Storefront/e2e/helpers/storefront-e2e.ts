@@ -1,11 +1,8 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 export const MOBILE_WIDTHS = [320, 360, 375, 390, 412, 430] as const;
 
 export const MOBILE_HEIGHT = 844;
-
-/** KEYBOARD_LAYOUT_PROXY — simulates reduced visual space when OS keyboard is open (not a real keyboard). */
-export const KEYBOARD_LAYOUT_PROXY_HEIGHT = 480;
 
 export const CART_STORAGE_KEY = "karzar.storefront.cart";
 export const SPLASH_STORAGE_KEY = "karzar-splash-seen";
@@ -35,10 +32,6 @@ export async function skipFirstVisitSplash(page: Page) {
   }, SPLASH_STORAGE_KEY);
 }
 
-export async function clearCart(page: Page) {
-  await page.evaluate((key) => localStorage.removeItem(key), CART_STORAGE_KEY);
-}
-
 export async function waitForCartPersisted(page: Page, timeoutMs = 20_000) {
   await page.waitForFunction(
     (key) => {
@@ -66,115 +59,6 @@ export async function assertNoHorizontalOverflow(page: Page) {
     return doc.scrollWidth - doc.clientWidth;
   });
   expect(overflow, "document horizontal overflow").toBeLessThanOrEqual(2);
-}
-
-type HitProbe = {
-  inViewport: boolean;
-  targetIndex: number;
-  navIndex: number;
-  dockIndex: number;
-};
-
-export async function hitProbeAtLocatorCenter(locator: Locator): Promise<HitProbe> {
-  return locator.evaluate((el) => {
-    const r = el.getBoundingClientRect();
-    const x = r.left + r.width / 2;
-    const y = r.top + r.height / 2;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const inViewport = x >= 0 && y >= 0 && x <= vw && y <= vh;
-    const stack = inViewport ? document.elementsFromPoint(x, y) : [];
-    const targetIndex = stack.findIndex((n) => n === el || el.contains(n));
-    const navIndex = stack.findIndex((n) => n.closest("nav.fixed.bottom-0"));
-    const dockIndex = stack.findIndex((n) => n.closest(".mobile-dock"));
-    return { inViewport, targetIndex, navIndex, dockIndex };
-  });
-}
-
-/** CTA must be hittable and not lose to bottom nav at its center point. */
-export async function assertCtaNotInterceptedByBottomNav(cta: Locator, label: string) {
-  const hit = await hitProbeAtLocatorCenter(cta);
-  expect(hit.inViewport, `${label}: in viewport ${JSON.stringify(hit)}`).toBe(true);
-  expect(hit.targetIndex, `${label}: in hit stack`).toBeGreaterThanOrEqual(0);
-  expect(
-    hit.navIndex < 0 || hit.targetIndex < hit.navIndex,
-    `${label}: bottom nav must not beat CTA ${JSON.stringify(hit)}`,
-  ).toBe(true);
-}
-
-/** Checkout pay CTA lives inside `.mobile-dock`; assert reachability without nav interception. */
-export async function assertMobilePayCtaReachable(page: Page, label: string) {
-  const payCta = mobilePayCta(page);
-  await payCta.scrollIntoViewIfNeeded();
-  await expect(payCta, `${label}: visible`).toBeVisible();
-  await expect(payCta, `${label}: enabled`).toBeEnabled();
-  const hit = await hitProbeAtLocatorCenter(payCta);
-  expect(hit.inViewport, `${label}: in viewport`).toBe(true);
-  expect(hit.dockIndex, `${label}: dock in stack`).toBeGreaterThanOrEqual(0);
-}
-
-/** Scroll so the field sits above fixed bottom nav / mobile checkout dock. */
-export async function scrollFieldAboveMobileChrome(field: Locator) {
-  await field.scrollIntoViewIfNeeded();
-  await field.evaluate((el) => {
-    const blockers = [
-      document.querySelector("nav.fixed.bottom-0"),
-      document.querySelector(".mobile-dock"),
-    ].filter(Boolean) as Element[];
-    if (blockers.length === 0) return;
-    const minTop = Math.min(...blockers.map((b) => b.getBoundingClientRect().top));
-    const r = el.getBoundingClientRect();
-    const pad = 8;
-    const overflow = r.bottom - (minTop - pad);
-    if (overflow > 0) {
-      window.scrollBy({ top: overflow, left: 0 });
-    }
-  });
-}
-
-export async function assertFieldCenterAboveBottomNav(field: Locator, label: string) {
-  await scrollFieldAboveMobileChrome(field);
-  const ok = await field.evaluate((el) => {
-    const nav = document.querySelector("nav.fixed.bottom-0");
-    const dock = document.querySelector(".mobile-dock");
-    const r = el.getBoundingClientRect();
-    const cy = r.top + r.height / 2;
-    const blockers = [nav, dock].filter(Boolean) as Element[];
-    if (blockers.length === 0) return true;
-    const minTop = Math.min(
-      ...blockers.map((b) => b.getBoundingClientRect().top),
-    );
-    return cy < minTop - 2;
-  });
-  expect(ok, `${label}: field center not under fixed bottom chrome`).toBe(true);
-}
-
-/**
- * KEYBOARD_LAYOUT_PROXY — automated stand-in for virtual keyboard overlap checks.
- * Not PHYSICAL_KEYBOARD_PASS.
- */
-export async function runKeyboardLayoutProxy(
-  page: Page,
-  width: number,
-  field: Locator,
-  cta: Locator,
-  label: string,
-) {
-  await page.setViewportSize({ width, height: MOBILE_HEIGHT });
-  await field.focus();
-  await expect(field).toBeVisible();
-  await field.scrollIntoViewIfNeeded();
-
-  await page.setViewportSize({ width, height: KEYBOARD_LAYOUT_PROXY_HEIGHT });
-  await scrollFieldAboveMobileChrome(field);
-  await expect(field).toBeVisible();
-  await assertFieldCenterAboveBottomNav(field, `${label}: proxy height`);
-
-  await cta.scrollIntoViewIfNeeded();
-  await expect(cta).toBeVisible();
-  await expect(cta).toBeEnabled();
-
-  await page.setViewportSize({ width, height: MOBILE_HEIGHT });
 }
 
 export async function mockOtpLoginAtCheckout(page: Page) {
@@ -300,15 +184,21 @@ export async function openCartViaMobileUi(page: Page) {
   const bottomNav = page.getByRole("navigation", { name: "ناوبری پایین" });
   const cartFromNav = bottomNav.getByRole("link", { name: /سبد/i });
 
-  try {
-    await expect(cartFromNav).toBeVisible({ timeout: 5_000 });
+  const bottomNavCartVisible = await cartFromNav
+    .waitFor({ state: "visible", timeout: 8_000 })
+    .then(() => true)
+    .catch(() => false);
+
+  if (bottomNavCartVisible) {
     await cartFromNav.click();
-  } catch {
-    const footerCart = page.getByRole("contentinfo").getByRole("link", { name: "سبد خرید" });
-    await footerCart.scrollIntoViewIfNeeded();
-    await expect(footerCart).toBeVisible({ timeout: 15_000 });
-    await footerCart.click();
+    await expect(page).toHaveURL(/\/cart/, { timeout: 15_000 });
+    return;
   }
+
+  const footerCart = page.getByRole("contentinfo").getByRole("link", { name: "سبد خرید" });
+  await footerCart.scrollIntoViewIfNeeded();
+  await expect(footerCart).toBeVisible({ timeout: 15_000 });
+  await footerCart.click();
   await expect(page).toHaveURL(/\/cart/, { timeout: 15_000 });
 }
 
@@ -317,16 +207,19 @@ export async function addToCartFromPdp(page: Page) {
   await expect(addCart).toBeVisible({ timeout: 15_000 });
   await expect(addCart).toBeEnabled();
   await addCart.scrollIntoViewIfNeeded();
+  await addCart.click({ timeout: 10_000 });
+  await waitForCartPersisted(page);
+}
 
-  for (let attempt = 0; attempt < 2; attempt++) {
-    await addCart.click({ timeout: 10_000 });
-    try {
-      await waitForCartPersisted(page);
-      return;
-    } catch (err) {
-      if (attempt === 1) throw err;
-    }
-  }
+/** One ATC action → line quantity exactly 1 (QtyStepper UI, not store internals). */
+export async function assertCartLineQuantityIsOne(page: Page, productName: RegExp) {
+  const line = page.getByRole("article").filter({ hasText: productName });
+  await expect(line).toBeVisible({ timeout: 15_000 });
+
+  const mobileStepperQty = line
+    .locator("div.sm\\:hidden")
+    .locator('button[aria-label="کاهش تعداد"] + span.tnum');
+  await expect(mobileStepperQty).toHaveText("۱");
 }
 
 /** MOCK_MATRIX_RETURN_PASS — mock UI only; not live payment idempotency (#242). */
