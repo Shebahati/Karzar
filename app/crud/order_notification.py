@@ -87,9 +87,7 @@ async def begin_notification_dispatch(
             retry = await db.execute(upd)
             await db.flush()
             return (
-                DispatchBeginResult.SEND
-                if retry.rowcount
-                else DispatchBeginResult.SKIP_IN_FLIGHT
+                DispatchBeginResult.SEND if retry.rowcount else DispatchBeginResult.SKIP_IN_FLIGHT
             )
         return DispatchBeginResult.SKIP_ALREADY_DISPATCHED
 

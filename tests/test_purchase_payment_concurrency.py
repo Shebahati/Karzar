@@ -131,7 +131,9 @@ def sep_settings(monkeypatch):
         "PAYMENT_CALLBACK_URL",
         "http://localhost:8000/api/v1/payments/callback/sep",
     )
-    monkeypatch.setattr(settings, "PAYMENT_SUCCESS_REDIRECT_URL", "http://localhost:3000/checkout/success")
+    monkeypatch.setattr(
+        settings, "PAYMENT_SUCCESS_REDIRECT_URL", "http://localhost:3000/checkout/success"
+    )
     monkeypatch.setattr(
         settings,
         "PAYMENT_FAILURE_REDIRECT_URL",
@@ -179,9 +181,7 @@ def test_concurrent_two_customers_same_sku_checkout(
     assert set(results_by_phone.keys()) == set(phones)
     order_ids = {results_by_phone[p]["order_id"] for p in phones}
     assert len(order_ids) == 2
-    stock = client.get(
-        f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
-    )
+    stock = client.get(f"/api/v1/products/{product_id}/stock", headers=super_admin_headers)
     assert stock.json()["is_available"] is True
     for phone in phones:
         body = results_by_phone[phone]
@@ -226,10 +226,16 @@ def test_checkout_same_raw_key_different_owners_no_collision(
     product_id = _create_product(super_admin_headers, valid_product_data, sku="IDEM-3")
     shared = f"shared-{uuid.uuid4().hex}"
     a = _checkout(
-        product_id, phone="09125000003", idempotency_key=shared, headers=customer_auth_headers("09125000003")
+        product_id,
+        phone="09125000003",
+        idempotency_key=shared,
+        headers=customer_auth_headers("09125000003"),
     )
     b = _checkout(
-        product_id, phone="09125000004", idempotency_key=shared, headers=customer_auth_headers("09125000004")
+        product_id,
+        phone="09125000004",
+        idempotency_key=shared,
+        headers=customer_auth_headers("09125000004"),
     )
     assert a["order_id"] != b["order_id"]
 
@@ -265,9 +271,7 @@ def test_legacy_pending_sale_not_duplicated_when_paid(
     assert len(sales) == 1
 
 
-def test_new_pending_cancel_has_no_return(
-    valid_product_data, super_admin_headers, mock_payment
-):
+def test_new_pending_cancel_has_no_return(valid_product_data, super_admin_headers, mock_payment):
     product_id = _create_product(super_admin_headers, valid_product_data, sku="CAN-NEW")
     body = _checkout(product_id, phone="09125000008")
     resp = client.patch(
@@ -336,7 +340,9 @@ def test_expiry_ledger_exactly_once(
     assert len(returns) == 1
 
 
-def test_mock_verify_double_callback(valid_product_data, super_admin_headers, mock_payment, monkeypatch):
+def test_mock_verify_double_callback(
+    valid_product_data, super_admin_headers, mock_payment, monkeypatch
+):
     product_id = _create_product(super_admin_headers, valid_product_data, sku="DBL-VRF")
     body = _checkout(product_id, phone="09125000012")
     headers = customer_auth_headers("09125000012")
@@ -347,7 +353,9 @@ def test_mock_verify_double_callback(valid_product_data, super_admin_headers, mo
     assert len(sales) == 1
 
 
-def test_notification_paid_idempotent(valid_product_data, super_admin_headers, mock_payment, monkeypatch):
+def test_notification_paid_idempotent(
+    valid_product_data, super_admin_headers, mock_payment, monkeypatch
+):
     from app.services import notification_service
     from app.services.sms_service import SmsEvent
 
@@ -419,6 +427,7 @@ def test_hesabfa_invoice_idempotent_on_double_verify(
     client.post("/api/v1/payments/verify", json=payload, headers=headers)
     client.post("/api/v1/payments/verify", json=payload, headers=headers)
     assert calls["n"] == 1
+
     async def order_paid_once():
         async with TestingSessionLocal() as db:
             order = await db.get(Order, body["order_id"])
@@ -489,9 +498,7 @@ def _dispatch_status(order_id: int, channel: str) -> str | None:
 
     async def _load():
         async with TestingSessionLocal() as db:
-            row = await get_notification_dispatch(
-                db, order_id=order_id, channel=channel
-            )
+            row = await get_notification_dispatch(db, order_id=order_id, channel=channel)
             return row.status if row else None
 
     return asyncio.run(_load())

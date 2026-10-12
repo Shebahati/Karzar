@@ -62,7 +62,9 @@ _INTERNAL_PAID_TEMPLATE = "سفارش پرداخت‌شده: {tracking_code}"
 
 
 def _order_tracking_attributes(tracking_code: str) -> dict[str, str]:
-    attr_name = (settings.SMS_FARAZ_ORDER_TRACKING_ATTR or "tracking_code").strip() or "tracking_code"
+    attr_name = (
+        settings.SMS_FARAZ_ORDER_TRACKING_ATTR or "tracking_code"
+    ).strip() or "tracking_code"
     return {attr_name: tracking_code}
 
 
@@ -196,9 +198,7 @@ async def notify_purchase_paid(
                 (phone, body, SmsEvent.ORDER_PAID, "Order status"),
             ],
         )
-        await notify_internal_order_paid(
-            tracking_code=tracking_code, db=db, order_id=order_id
-        )
+        await notify_internal_order_paid(tracking_code=tracking_code, db=db, order_id=order_id)
         return
     await _send_order_sms_soft(
         receptor=phone,
