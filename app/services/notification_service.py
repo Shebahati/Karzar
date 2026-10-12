@@ -6,7 +6,12 @@ from typing import TYPE_CHECKING
 
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.crud.order_notification import claim_order_notification
+from app.crud.order_notification import (
+    DispatchBeginResult,
+    begin_notification_dispatch,
+    complete_notification_dispatch_failure,
+    complete_notification_dispatch_success,
+)
 from app.db.models.commerce import OrderStatus
 from app.services.sms_service import (
     SmsEvent,
@@ -68,7 +73,8 @@ async def _send_order_sms_soft(
     event: SmsEvent,
     tracking_code: str,
     log_context: str,
-) -> None:
+) -> bool:
+    """Return True when the provider call completed without raising."""
     try:
         await get_sms_provider().send(
             SmsMessage(
@@ -78,6 +84,7 @@ async def _send_order_sms_soft(
                 attributes=_order_tracking_attributes(tracking_code),
             )
         )
+        return True
     except Exception as exc:
         logger.error(
             "%s SMS failed tracking=%s event=%s receptor=%s provider=%s error_type=%s",
@@ -88,6 +95,40 @@ async def _send_order_sms_soft(
             settings.SMS_PROVIDER,
             type(exc).__name__,
         )
+        return False
+
+
+async def _dispatch_channel_sms(
+    db: AsyncSession,
+    *,
+    order_id: int,
+    channel: str,
+    tracking_code: str,
+    send_calls: list[tuple[str, str, SmsEvent, str]],
+) -> None:
+    """Durable dedup for concurrent/retried paid processing (not provider exactly-once)."""
+    begin = await begin_notification_dispatch(db, order_id=order_id, channel=channel)
+    if begin != DispatchBeginResult.SEND:
+        return
+    all_ok = True
+    for receptor, body, event, log_context in send_calls:
+        if not await _send_order_sms_soft(
+            receptor=receptor,
+            body=body,
+            event=event,
+            tracking_code=tracking_code,
+            log_context=log_context,
+        ):
+            all_ok = False
+    if all_ok:
+        await complete_notification_dispatch_success(db, order_id=order_id, channel=channel)
+    else:
+        await complete_notification_dispatch_failure(
+            db,
+            order_id=order_id,
+            channel=channel,
+            error="provider_send_failed",
+        )
 
 
 async def notify_internal_order_paid(
@@ -97,11 +138,6 @@ async def notify_internal_order_paid(
     order_id: int | None = None,
 ) -> None:
     """Internal/admin alert for a newly paid purchase order (soft-failing)."""
-    if db is not None and order_id is not None:
-        if not await claim_order_notification(
-            db, order_id=order_id, channel=CHANNEL_INTERNAL_PAID
-        ):
-            return
     recipients = parse_internal_order_alert_recipients()
     if not recipients:
         logger.warning(
@@ -110,6 +146,24 @@ async def notify_internal_order_paid(
         )
         return
     body = _INTERNAL_PAID_TEMPLATE.format(tracking_code=tracking_code)
+    if db is not None and order_id is not None:
+        calls = [
+            (
+                receptor,
+                body,
+                SmsEvent.INTERNAL_ORDER_PAID,
+                "Internal order",
+            )
+            for receptor in recipients
+        ]
+        await _dispatch_channel_sms(
+            db,
+            order_id=order_id,
+            channel=CHANNEL_INTERNAL_PAID,
+            tracking_code=tracking_code,
+            send_calls=calls,
+        )
+        return
     for receptor in recipients:
         await _send_order_sms_soft(
             receptor=receptor,
@@ -131,23 +185,21 @@ async def notify_purchase_paid(
     template = _STATUS_TEMPLATES.get(OrderStatus.PAID.value)
     if not template:
         return
+    body = template.format(tracking_code=tracking_code)
     if db is not None and order_id is not None:
-        if await claim_order_notification(
-            db, order_id=order_id, channel=CHANNEL_CUSTOMER_PAID
-        ):
-            body = template.format(tracking_code=tracking_code)
-            await _send_order_sms_soft(
-                receptor=phone,
-                body=body,
-                event=SmsEvent.ORDER_PAID,
-                tracking_code=tracking_code,
-                log_context="Order status",
-            )
+        await _dispatch_channel_sms(
+            db,
+            order_id=order_id,
+            channel=CHANNEL_CUSTOMER_PAID,
+            tracking_code=tracking_code,
+            send_calls=[
+                (phone, body, SmsEvent.ORDER_PAID, "Order status"),
+            ],
+        )
         await notify_internal_order_paid(
             tracking_code=tracking_code, db=db, order_id=order_id
         )
         return
-    body = template.format(tracking_code=tracking_code)
     await _send_order_sms_soft(
         receptor=phone,
         body=body,

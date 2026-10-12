@@ -8,12 +8,9 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from sqlalchemy import func, select
-
 from app.core.config import settings
 from app.crud.stock_movement import list_stock_movements_for_reference
 from app.db.models.commerce import Order
-from app.db.models.hesabfa import HesabfaInvoiceRecord
 from app.db.models.product import StockMovement, StockMovementType
 from app.main import app
 from app.services import order_expiry_service
@@ -21,7 +18,7 @@ from app.services.payment_service import reset_payment_provider_for_tests
 from app.services.stock_ledger_service import record_sale_movement
 from fastapi.testclient import TestClient
 
-from tests.conftest import TestingSessionLocal, USE_POSTGRES_TESTS, customer_auth_headers
+from tests.conftest import USE_POSTGRES_TESTS, TestingSessionLocal, customer_auth_headers
 
 pytestmark = pytest.mark.usefixtures("override_database")
 
@@ -123,41 +120,72 @@ def mock_payment(monkeypatch):
     reset_payment_provider_for_tests()
 
 
+@pytest.fixture
+def sep_settings(monkeypatch):
+    from tests.test_sep_payment import TERMINAL
+
+    monkeypatch.setattr(settings, "SEP_TERMINAL_ID", TERMINAL)
+    monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+    monkeypatch.setattr(
+        settings,
+        "PAYMENT_CALLBACK_URL",
+        "http://localhost:8000/api/v1/payments/callback/sep",
+    )
+    monkeypatch.setattr(settings, "PAYMENT_SUCCESS_REDIRECT_URL", "http://localhost:3000/checkout/success")
+    monkeypatch.setattr(
+        settings,
+        "PAYMENT_FAILURE_REDIRECT_URL",
+        "http://localhost:3000/checkout/payment/failed",
+    )
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "mock")
+    reset_payment_provider_for_tests()
+    yield
+
+
 def test_concurrent_two_customers_same_sku_checkout(
     valid_product_data, super_admin_headers, mock_payment, monkeypatch
 ):
     if not USE_POSTGRES_TESTS:
         pytest.skip("requires PostgreSQL row locking semantics")
     product_id = _create_product(super_admin_headers, valid_product_data, sku="CONC-SKU")
-    results: list[dict] = []
-    errors: list[Exception] = []
+    results_by_phone: dict[str, dict] = {}
+    errors: list[tuple[str, BaseException]] = []
     barrier = threading.Barrier(2)
+    phones = ("09124000001", "09124000002")
 
-    def worker(phone: str):
+    def worker(phone: str) -> None:
         try:
             barrier.wait(timeout=10)
-            results.append(
-                _checkout(product_id, phone=phone, headers=customer_auth_headers(phone))
-            )
-        except Exception as exc:  # noqa: BLE001
-            errors.append(exc)
+            thread_client = TestClient(app)
+            auth = customer_auth_headers(phone)
+            body = {
+                **_CHECKOUT_BODY,
+                "customer": {"full_name": "خریدار", "phone": phone},
+                "items": [{"product_id": product_id, "quantity": 1}],
+            }
+            resp = thread_client.post("/api/v1/checkout", json=body, headers=auth)
+            assert resp.status_code == 201, resp.text
+            results_by_phone[phone] = resp.json()
+        except BaseException as exc:  # noqa: BLE001
+            errors.append((phone, exc))
 
-    t1 = threading.Thread(target=worker, args=("09124000001",))
-    t2 = threading.Thread(target=worker, args=("09124000002",))
-    t1.start()
-    t2.start()
-    t1.join(timeout=30)
-    t2.join(timeout=30)
+    threads = [threading.Thread(target=worker, args=(phone,)) for phone in phones]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=30)
+        assert not thread.is_alive(), "checkout worker thread did not finish"
     assert not errors, errors
-    assert len(results) == 2
-    assert results[0]["order_id"] != results[1]["order_id"]
+    assert set(results_by_phone.keys()) == set(phones)
+    order_ids = {results_by_phone[p]["order_id"] for p in phones}
+    assert len(order_ids) == 2
     stock = client.get(
         f"/api/v1/products/{product_id}/stock", headers=super_admin_headers
     )
     assert stock.json()["is_available"] is True
-    for body in results:
+    for phone in phones:
+        body = results_by_phone[phone]
         assert _movements(body["order_id"]) == []
-    for body, phone in zip(results, ("09124000001", "09124000002"), strict=True):
         _pay_order(body, phone, monkeypatch)
         sales = [m for m in _movements(body["order_id"]) if m.movement_type == "sale"]
         assert len(sales) == 1
@@ -372,7 +400,7 @@ def test_internal_paid_notification_idempotent(
 def test_hesabfa_invoice_idempotent_on_double_verify(
     valid_product_data, super_admin_headers, mock_payment, monkeypatch
 ):
-    from app.services.hesabfa.invoices import InvoiceSyncResult, maybe_create_invoice_after_payment
+    from app.services.hesabfa.invoices import maybe_create_invoice_after_payment
 
     calls = {"n": 0}
 
@@ -454,3 +482,492 @@ def test_external_refund_idempotent(
     assert first.status_code == 200
     assert second.status_code == 200
     assert first.json()["refund_id"] == second.json()["refund_id"]
+
+
+def _dispatch_status(order_id: int, channel: str) -> str | None:
+    from app.crud.order_notification import get_notification_dispatch
+
+    async def _load():
+        async with TestingSessionLocal() as db:
+            row = await get_notification_dispatch(
+                db, order_id=order_id, channel=channel
+            )
+            return row.status if row else None
+
+    return asyncio.run(_load())
+
+
+def test_customer_paid_sms_failure_persists_failed_then_retry_succeeds(
+    valid_product_data, super_admin_headers, mock_payment, monkeypatch
+):
+    from app.db.models.commerce import OrderNotificationDispatchStatus
+    from app.services import notification_service
+    from app.services.sms_service import SmsDeliveryError
+
+    class FailOnce:
+        def __init__(self):
+            self.calls = 0
+
+        async def send(self, message):
+            self.calls += 1
+            if self.calls == 1:
+                raise SmsDeliveryError("fail")
+            return None
+
+    fake = FailOnce()
+    monkeypatch.setattr(notification_service, "get_sms_provider", lambda: fake)
+    product_id = _create_product(super_admin_headers, valid_product_data, sku="NOTIF-FAIL")
+    body = _checkout(product_id, phone="09125000020")
+    headers = customer_auth_headers("09125000020")
+    payload = {"order_id": body["order_id"], "authority": body["authority"], "status": "OK"}
+    client.post("/api/v1/payments/verify", json=payload, headers=headers)
+    assert (
+        _dispatch_status(body["order_id"], notification_service.CHANNEL_CUSTOMER_PAID)
+        == OrderNotificationDispatchStatus.FAILED.value
+    )
+
+    async def retry_dispatch():
+        async with TestingSessionLocal() as db:
+            order = await db.get(Order, body["order_id"])
+            await notification_service.notify_purchase_paid(
+                phone="09125000020",
+                tracking_code=order.tracking_code,
+                db=db,
+                order_id=order.id,
+            )
+            await db.commit()
+
+    asyncio.run(retry_dispatch())
+    assert (
+        _dispatch_status(body["order_id"], notification_service.CHANNEL_CUSTOMER_PAID)
+        == OrderNotificationDispatchStatus.DISPATCHED.value
+    )
+    assert fake.calls == 2
+
+
+def test_internal_paid_sms_failure_persists_failed(
+    valid_product_data, super_admin_headers, mock_payment, monkeypatch
+):
+    from app.db.models.commerce import OrderNotificationDispatchStatus
+    from app.services import notification_service
+    from app.services.sms_service import SmsDeliveryError
+
+    class Boom:
+        async def send(self, message):
+            raise SmsDeliveryError("internal fail")
+
+    monkeypatch.setattr(notification_service, "get_sms_provider", lambda: Boom())
+    monkeypatch.setattr(settings, "SMS_INTERNAL_ORDER_ALERT_RECIPIENTS", "09121110002")
+    product_id = _create_product(super_admin_headers, valid_product_data, sku="NOTIF-IFAIL")
+    body = _checkout(product_id, phone="09125000021")
+    headers = customer_auth_headers("09125000021")
+    payload = {"order_id": body["order_id"], "authority": body["authority"], "status": "OK"}
+    client.post("/api/v1/payments/verify", json=payload, headers=headers)
+    assert (
+        _dispatch_status(body["order_id"], notification_service.CHANNEL_INTERNAL_PAID)
+        == OrderNotificationDispatchStatus.FAILED.value
+    )
+
+
+def test_internal_paid_no_recipient_leaves_no_dispatch_row(
+    valid_product_data, super_admin_headers, mock_payment, monkeypatch
+):
+    from app.services import notification_service
+
+    monkeypatch.setattr(settings, "SMS_INTERNAL_ORDER_ALERT_RECIPIENTS", "")
+    product_id = _create_product(super_admin_headers, valid_product_data, sku="NOTIF-NOREC")
+    body = _checkout(product_id, phone="09125000022")
+    headers = customer_auth_headers("09125000022")
+    payload = {"order_id": body["order_id"], "authority": body["authority"], "status": "OK"}
+    client.post("/api/v1/payments/verify", json=payload, headers=headers)
+    assert _dispatch_status(body["order_id"], notification_service.CHANNEL_INTERNAL_PAID) is None
+
+
+def test_paid_dispatch_success_persists_dispatched_state(
+    valid_product_data, super_admin_headers, mock_payment, monkeypatch
+):
+    from app.db.models.commerce import OrderNotificationDispatchStatus
+    from app.services import notification_service
+    from app.services.sms_service import SmsEvent
+
+    class Recorder:
+        def __init__(self):
+            self.messages = []
+
+        async def send(self, message):
+            self.messages.append(message)
+
+    fake = Recorder()
+    monkeypatch.setattr(notification_service, "get_sms_provider", lambda: fake)
+    monkeypatch.setattr(settings, "SMS_INTERNAL_ORDER_ALERT_RECIPIENTS", "09121110003")
+    product_id = _create_product(super_admin_headers, valid_product_data, sku="NOTIF-OK")
+    body = _checkout(product_id, phone="09125000023")
+    headers = customer_auth_headers("09125000023")
+    payload = {"order_id": body["order_id"], "authority": body["authority"], "status": "OK"}
+    client.post("/api/v1/payments/verify", json=payload, headers=headers)
+    assert (
+        _dispatch_status(body["order_id"], notification_service.CHANNEL_CUSTOMER_PAID)
+        == OrderNotificationDispatchStatus.DISPATCHED.value
+    )
+    assert (
+        _dispatch_status(body["order_id"], notification_service.CHANNEL_INTERNAL_PAID)
+        == OrderNotificationDispatchStatus.DISPATCHED.value
+    )
+    assert len([m for m in fake.messages if m.event == SmsEvent.ORDER_PAID]) == 1
+    assert len([m for m in fake.messages if m.event == SmsEvent.INTERNAL_ORDER_PAID]) == 1
+
+
+@pytest.mark.usefixtures("override_database")
+def test_sep_concurrent_duplicate_callbacks(
+    valid_product_data, super_admin_headers, monkeypatch, sep_settings
+):
+    if not USE_POSTGRES_TESTS:
+        pytest.skip("requires PostgreSQL")
+    from app.db.models.commerce import OrderStatus, PaymentStatus
+    from app.services.payment_flow_service import order_amount_rials
+
+    from tests.test_sep_payment import (
+        TERMINAL,
+        _auth,
+        _enable_sep,
+        _get_order,
+        _mock_verify_ok,
+        _set_order_authority,
+        _unique_ref,
+        _unique_token,
+    )
+    from tests.test_sep_payment import (
+        _checkout as sep_checkout,
+    )
+
+    token = _unique_token("CONCSEP")
+    ref_num = _unique_ref("CONCSEP")
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "SEP-CONC-CB"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    headers = _auth("09126000001")
+    body = sep_checkout(product_id, headers, phone="09126000001")
+    order_id = body["order_id"]
+    tracking = asyncio.run(_set_order_authority(order_id, token))
+    order = asyncio.run(_get_order(order_id))
+    amount_rials = order_amount_rials(order)
+    _enable_sep(monkeypatch)
+    _mock_verify_ok(monkeypatch, amount_rials=amount_rials, ref_num=ref_num)
+    data = {
+        "Token": token,
+        "ResNum": tracking,
+        "RefNum": ref_num,
+        "State": "OK",
+        "Status": "2",
+        "TerminalId": TERMINAL,
+        "Amount": str(amount_rials),
+    }
+    barrier = threading.Barrier(2)
+    errors: list[BaseException] = []
+
+    def post_callback():
+        try:
+            barrier.wait(timeout=10)
+            c = TestClient(app)
+            return c.post("/api/v1/payments/callback/sep", data=data, follow_redirects=False)
+        except BaseException as exc:  # noqa: BLE001
+            errors.append(exc)
+            return None
+
+    t1 = threading.Thread(target=post_callback)
+    t2 = threading.Thread(target=post_callback)
+    t1.start()
+    t2.start()
+    t1.join(timeout=60)
+    t2.join(timeout=60)
+    assert not t1.is_alive() and not t2.is_alive()
+    assert not errors, errors
+    order = asyncio.run(_get_order(order_id))
+    assert order.payment_status == PaymentStatus.PAID.value
+    assert order.status == OrderStatus.PAID.value
+    assert order.payment_ref_id == ref_num
+    sales = [m for m in _movements(order_id) if m.movement_type == "sale"]
+    assert len(sales) == 1
+
+
+@pytest.mark.usefixtures("override_database")
+def test_callback_wins_safely_against_expiry(
+    valid_product_data, super_admin_headers, monkeypatch, sep_settings
+):
+    if not USE_POSTGRES_TESTS:
+        pytest.skip("requires PostgreSQL")
+    from app.db.models.commerce import Order, OrderStatus, PaymentStatus
+    from app.services import order_service
+    from app.services.order_expiry_service import cancel_expired_pending_payment_orders
+    from app.services.payment_flow_service import order_amount_rials
+
+    from tests.test_sep_payment import (
+        TERMINAL,
+        _auth,
+        _enable_sep,
+        _get_order,
+        _mock_verify_ok,
+        _set_order_authority,
+        _unique_ref,
+        _unique_token,
+    )
+    from tests.test_sep_payment import (
+        _checkout as sep_checkout,
+    )
+
+    token = _unique_token("RACEEXP")
+    ref_num = _unique_ref("RACEEXP")
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "SEP-RACE-EXP"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    headers = _auth("09126000002")
+    body = sep_checkout(product_id, headers, phone="09126000002")
+    order_id = body["order_id"]
+    tracking = asyncio.run(_set_order_authority(order_id, token))
+    order = asyncio.run(_get_order(order_id))
+    amount_rials = order_amount_rials(order)
+    _enable_sep(monkeypatch)
+    _mock_verify_ok(monkeypatch, amount_rials=amount_rials, ref_num=ref_num)
+
+    async def age_order():
+        async with TestingSessionLocal() as session:
+            row = await session.get(Order, order_id)
+            row.created_at = datetime.now(UTC) - timedelta(hours=2)
+            row.payment_authority_expires_at = datetime.now(UTC) - timedelta(minutes=1)
+            await session.commit()
+
+    asyncio.run(age_order())
+    monkeypatch.setattr(
+        order_expiry_service,
+        "pending_payment_cutoff",
+        lambda now=None: datetime.now(UTC) + timedelta(days=1),
+    )
+    gate = threading.Barrier(2)
+    real_transition = order_service.transition_order_status
+
+    async def gated_cancel_transition(db, order, target_status, **kwargs):
+        if target_status == OrderStatus.CANCELLED.value:
+            gate.wait(timeout=15)
+        return await real_transition(db, order, target_status, **kwargs)
+
+    monkeypatch.setattr(order_service, "transition_order_status", gated_cancel_transition)
+
+    def run_expiry():
+        async def sweep():
+            async with TestingSessionLocal() as session:
+                return await cancel_expired_pending_payment_orders(session)
+
+        return asyncio.run(sweep())
+
+    def run_callback():
+        gate.wait(timeout=15)
+        c = TestClient(app)
+        return c.post(
+            "/api/v1/payments/callback/sep",
+            data={
+                "Token": token,
+                "ResNum": tracking,
+                "RefNum": ref_num,
+                "State": "OK",
+                "Status": "2",
+                "TerminalId": TERMINAL,
+                "Amount": str(amount_rials),
+            },
+            follow_redirects=False,
+        )
+
+    t_exp = threading.Thread(target=run_expiry)
+    t_cb = threading.Thread(target=run_callback)
+    t_exp.start()
+    t_cb.start()
+    t_exp.join(timeout=60)
+    t_cb.join(timeout=60)
+    assert not t_exp.is_alive() and not t_cb.is_alive()
+    order = asyncio.run(_get_order(order_id))
+    assert order.status == OrderStatus.PAID.value
+    assert order.payment_status == PaymentStatus.PAID.value
+    returns = [m for m in _movements(order_id) if m.movement_type == "return"]
+    assert returns == []
+
+
+@pytest.mark.usefixtures("override_database")
+def test_cancel_unpaid_while_callback_in_flight(
+    valid_product_data, super_admin_headers, monkeypatch, sep_settings
+):
+    if not USE_POSTGRES_TESTS:
+        pytest.skip("requires PostgreSQL")
+    from app.db.models.commerce import OrderStatus, PaymentStatus
+    from app.services import sep_callback_service
+    from app.services.payment_flow_service import order_amount_rials
+
+    from tests.test_sep_payment import (
+        TERMINAL,
+        _auth,
+        _enable_sep,
+        _get_order,
+        _mock_verify_ok,
+        _set_order_authority,
+        _unique_ref,
+        _unique_token,
+    )
+    from tests.test_sep_payment import (
+        _checkout as sep_checkout,
+    )
+
+    token = _unique_token("RACECAN")
+    ref_num = _unique_ref("RACECAN")
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "SEP-RACE-CAN"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    headers = _auth("09126000003")
+    body = sep_checkout(product_id, headers, phone="09126000003")
+    order_id = body["order_id"]
+    tracking = asyncio.run(_set_order_authority(order_id, token))
+    order = asyncio.run(_get_order(order_id))
+    amount_rials = order_amount_rials(order)
+    _enable_sep(monkeypatch)
+    _mock_verify_ok(monkeypatch, amount_rials=amount_rials, ref_num=ref_num)
+    gate = threading.Barrier(2)
+    real_reserve = sep_callback_service.reserve_sep_callback
+
+    async def gated_reserve(db, fields, **kwargs):
+        gate.wait(timeout=15)
+        return await real_reserve(db, fields, **kwargs)
+
+    monkeypatch.setattr(sep_callback_service, "reserve_sep_callback", gated_reserve)
+
+    def admin_cancel():
+        gate.wait(timeout=15)
+        return client.patch(
+            f"/api/v1/orders/{order_id}/status",
+            json={"status": "cancelled"},
+            headers=_step_up_headers(super_admin_headers),
+        )
+
+    def sep_callback():
+        c = TestClient(app)
+        return c.post(
+            "/api/v1/payments/callback/sep",
+            data={
+                "Token": token,
+                "ResNum": tracking,
+                "RefNum": ref_num,
+                "State": "OK",
+                "Status": "2",
+                "TerminalId": TERMINAL,
+                "Amount": str(amount_rials),
+            },
+            follow_redirects=False,
+        )
+
+    t1 = threading.Thread(target=admin_cancel)
+    t2 = threading.Thread(target=sep_callback)
+    t1.start()
+    t2.start()
+    t1.join(timeout=60)
+    t2.join(timeout=60)
+    order = asyncio.run(_get_order(order_id))
+    assert order.payment_ref_id == ref_num
+    assert order.payment_status in {
+        PaymentStatus.PAID.value,
+        PaymentStatus.VERIFYING.value,
+        PaymentStatus.RECONCILIATION_REQUIRED.value,
+    }
+    assert order.status in {
+        OrderStatus.PAID.value,
+        OrderStatus.PENDING_PAYMENT.value,
+        OrderStatus.CANCELLED.value,
+    }
+    if order.status == OrderStatus.PAID.value:
+        assert order.payment_status == PaymentStatus.PAID.value
+
+
+@pytest.mark.usefixtures("override_database")
+def test_payment_ref_id_collision_second_order(
+    valid_product_data, super_admin_headers, monkeypatch, sep_settings
+):
+    if not USE_POSTGRES_TESTS:
+        pytest.skip("requires PostgreSQL")
+    from app.db.models.commerce import PaymentStatus
+    from app.services.payment_flow_service import order_amount_rials
+
+    from tests.test_sep_payment import (
+        TERMINAL,
+        _auth,
+        _enable_sep,
+        _get_order,
+        _mock_verify_ok,
+        _set_order_authority,
+        _unique_ref,
+        _unique_token,
+    )
+    from tests.test_sep_payment import (
+        _checkout as sep_checkout,
+    )
+
+    ref_num = _unique_ref("COLLIDE")
+    _enable_sep(monkeypatch)
+    create = client.post(
+        "/api/v1/products/",
+        json={**valid_product_data, "sku": "SEP-COL-A"},
+        headers=super_admin_headers,
+    )
+    product_id = create.json()["id"]
+    headers_a = _auth("09126000004")
+    body_a = sep_checkout(product_id, headers_a, phone="09126000004")
+    token_a = _unique_token("COLA")
+    tracking_a = asyncio.run(_set_order_authority(body_a["order_id"], token_a))
+    order_a = asyncio.run(_get_order(body_a["order_id"]))
+    amount_a = order_amount_rials(order_a)
+    _mock_verify_ok(monkeypatch, amount_rials=amount_a, ref_num=ref_num)
+    resp_a = client.post(
+        "/api/v1/payments/callback/sep",
+        data={
+            "Token": token_a,
+            "ResNum": tracking_a,
+            "RefNum": ref_num,
+            "State": "OK",
+            "Status": "2",
+            "TerminalId": TERMINAL,
+            "Amount": str(amount_a),
+        },
+        follow_redirects=False,
+    )
+    assert resp_a.status_code == 303
+    assert "paid=1" in resp_a.headers["location"]
+
+    headers_b = _auth("09126000005")
+    body_b = sep_checkout(product_id, headers_b, phone="09126000005")
+    token_b = _unique_token("COLB")
+    tracking_b = asyncio.run(_set_order_authority(body_b["order_id"], token_b))
+    order_b = asyncio.run(_get_order(body_b["order_id"]))
+    amount_b = order_amount_rials(order_b)
+    resp_b = client.post(
+        "/api/v1/payments/callback/sep",
+        data={
+            "Token": token_b,
+            "ResNum": tracking_b,
+            "RefNum": ref_num,
+            "State": "OK",
+            "Status": "2",
+            "TerminalId": TERMINAL,
+            "Amount": str(amount_b),
+        },
+        follow_redirects=False,
+    )
+    assert resp_b.status_code == 303
+    assert "paid=1" not in resp_b.headers.get("location", "")
+    order_b = asyncio.run(_get_order(body_b["order_id"]))
+    assert order_b.payment_status != PaymentStatus.PAID.value
+    order_a = asyncio.run(_get_order(body_a["order_id"]))
+    assert order_a.payment_status == PaymentStatus.PAID.value
+    assert order_a.payment_ref_id == ref_num

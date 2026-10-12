@@ -5,7 +5,18 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text, UniqueConstraint, text
+from sqlalchemy import (
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -214,13 +225,25 @@ class OrderStatusEvent(Base):
     order: Mapped["Order"] = relationship("Order", back_populates="status_events")
 
 
-class OrderNotificationSent(Base):
-    """Semantic notification delivery fence (one row per order + channel purpose)."""
+class OrderNotificationDispatchStatus(str, enum.Enum):
+    """Application dispatch state — not provider delivery confirmation."""
 
-    __tablename__ = "order_notification_sent"
+    DISPATCHING = "dispatching"
+    DISPATCHED = "dispatched"
+    FAILED = "failed"
+
+
+class OrderNotificationDispatch(Base):
+    """Durable dispatch dedup for order lifecycle SMS (per order + channel)."""
+
+    __tablename__ = "order_notification_dispatch"
     __table_args__ = (
-        UniqueConstraint("order_id", "channel", name="uq_order_notification_sent_order_channel"),
-        Index("ix_order_notification_sent_order_id", "order_id"),
+        UniqueConstraint(
+            "order_id",
+            "channel",
+            name="uq_order_notification_dispatch_order_channel",
+        ),
+        Index("ix_order_notification_dispatch_order_id", "order_id"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -228,3 +251,6 @@ class OrderNotificationSent(Base):
         ForeignKey("orders.id", ondelete="CASCADE"), nullable=False
     )
     channel: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False)
+    last_error: Mapped[str | None] = mapped_column(String(500))
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
