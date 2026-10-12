@@ -755,17 +755,20 @@ def test_callback_wins_safely_against_expiry(
         "pending_payment_cutoff",
         lambda now=None: datetime.now(UTC) + timedelta(days=1),
     )
-    gate = threading.Barrier(2)
+    callback_finished = threading.Event()
+    start_gate = threading.Barrier(2)
     real_transition = order_service.transition_order_status
 
     async def gated_cancel_transition(db, order, target_status, **kwargs):
         if target_status == OrderStatus.CANCELLED.value:
-            gate.wait(timeout=15)
+            callback_finished.wait(timeout=30)
         return await real_transition(db, order, target_status, **kwargs)
 
     monkeypatch.setattr(order_service, "transition_order_status", gated_cancel_transition)
 
     def run_expiry():
+        start_gate.wait(timeout=15)
+
         async def sweep():
             async with TestingSessionLocal() as session:
                 return await cancel_expired_pending_payment_orders(session)
@@ -773,9 +776,9 @@ def test_callback_wins_safely_against_expiry(
         return asyncio.run(sweep())
 
     def run_callback():
-        gate.wait(timeout=15)
+        start_gate.wait(timeout=15)
         c = TestClient(app)
-        return c.post(
+        resp = c.post(
             "/api/v1/payments/callback/sep",
             data={
                 "Token": token,
@@ -788,6 +791,8 @@ def test_callback_wins_safely_against_expiry(
             },
             follow_redirects=False,
         )
+        callback_finished.set()
+        return resp
 
     t_exp = threading.Thread(target=run_expiry)
     t_cb = threading.Thread(target=run_callback)
@@ -796,6 +801,7 @@ def test_callback_wins_safely_against_expiry(
     t_exp.join(timeout=60)
     t_cb.join(timeout=60)
     assert not t_exp.is_alive() and not t_cb.is_alive()
+    assert callback_finished.is_set()
     order = asyncio.run(_get_order(order_id))
     assert order.status == OrderStatus.PAID.value
     assert order.payment_status == PaymentStatus.PAID.value
