@@ -928,7 +928,6 @@ def test_payment_ref_id_collision_second_order(
     )
 
     ref_num = _unique_ref("COLLIDE")
-    _enable_sep(monkeypatch)
     create = client.post(
         "/api/v1/products/",
         json={**valid_product_data, "sku": "SEP-COL-A"},
@@ -936,11 +935,18 @@ def test_payment_ref_id_collision_second_order(
     )
     product_id = create.json()["id"]
     headers_a = _auth("09126000004")
+    headers_b = _auth("09126000005")
     body_a = sep_checkout(product_id, headers_a, phone="09126000004")
+    body_b = sep_checkout(product_id, headers_b, phone="09126000005")
     token_a = _unique_token("COLA")
+    token_b = _unique_token("COLB")
     tracking_a = asyncio.run(_set_order_authority(body_a["order_id"], token_a))
+    tracking_b = asyncio.run(_set_order_authority(body_b["order_id"], token_b))
     order_a = asyncio.run(_get_order(body_a["order_id"]))
+    order_b = asyncio.run(_get_order(body_b["order_id"]))
     amount_a = order_amount_rials(order_a)
+    amount_b = order_amount_rials(order_b)
+    _enable_sep(monkeypatch)
     _mock_verify_ok(monkeypatch, amount_rials=amount_a, ref_num=ref_num)
     resp_a = client.post(
         "/api/v1/payments/callback/sep",
@@ -958,12 +964,7 @@ def test_payment_ref_id_collision_second_order(
     assert resp_a.status_code == 303
     assert "paid=1" in resp_a.headers["location"]
 
-    headers_b = _auth("09126000005")
-    body_b = sep_checkout(product_id, headers_b, phone="09126000005")
-    token_b = _unique_token("COLB")
-    tracking_b = asyncio.run(_set_order_authority(body_b["order_id"], token_b))
-    order_b = asyncio.run(_get_order(body_b["order_id"]))
-    amount_b = order_amount_rials(order_b)
+    _mock_verify_ok(monkeypatch, amount_rials=amount_b, ref_num=ref_num)
     resp_b = client.post(
         "/api/v1/payments/callback/sep",
         data={
