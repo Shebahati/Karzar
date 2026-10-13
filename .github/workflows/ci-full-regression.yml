@@ -17,6 +17,7 @@ jobs:
   backend-full:
     name: backend-full
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
@@ -65,6 +66,7 @@ jobs:
   frontend-full:
     name: frontend-full
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     strategy:
       matrix:
         include:

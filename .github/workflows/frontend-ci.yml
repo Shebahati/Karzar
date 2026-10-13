@@ -19,6 +19,7 @@ jobs:
   classify:
     name: Classify changes
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       risk_tier: ${{ steps.classify.outputs.risk_tier }}
       run_frontend_storefront: ${{ steps.classify.outputs.run_frontend_storefront }}
@@ -36,17 +37,18 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            python3 scripts/ci/classify_changes.py --force-full --github-output
+            python3 scripts/ci/classify_changes.py --force-full --github-output --step-summary
           elif [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            python3 scripts/ci/classify_changes.py --base "HEAD~1" --head HEAD --github-output
+            python3 scripts/ci/classify_changes.py --base "HEAD~1" --head HEAD --github-output --step-summary
           else
-            python3 scripts/ci/classify_changes.py --base origin/main --head HEAD --pr-labels "$PR_LABELS" --github-output
+            python3 scripts/ci/classify_changes.py --base origin/main --head HEAD --pr-labels "$PR_LABELS" --github-output --step-summary
           fi
 
   storefront:
     name: storefront
     needs: classify
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: frontend/Storefront
@@ -77,6 +79,7 @@ jobs:
     name: admin-panel
     needs: classify
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: frontend/admin-panel
@@ -107,6 +110,7 @@ jobs:
     name: storefront-e2e
     needs: classify
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: frontend/Storefront

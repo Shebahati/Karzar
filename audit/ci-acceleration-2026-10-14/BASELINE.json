@@ -3,15 +3,58 @@
   "origin_main_sha": "ec6ed4d55c10284ab4a0661a6ed9a2cd352bb833",
   "github_issue": 491,
   "branch": "infra/ci-risk-aware-acceleration",
+  "sample_method": "gh api last 25 successful workflow runs per workflow; job wall times from started_at/completed_at",
   "backend_ci": {
-    "required_check_names": [
-      "aods",
-      "lint",
-      "test"
-    ],
+    "jobs": {
+      "Classify changes": {
+        "median_seconds": 15.0,
+        "p95_seconds": 15.0,
+        "timeout_minutes": 5
+      },
+      "aods": {
+        "median_seconds": 28.0,
+        "p95_seconds": 44.0,
+        "timeout_minutes": 10
+      },
+      "lint": {
+        "median_seconds": 57.0,
+        "p95_seconds": 68.0,
+        "timeout_minutes": 10
+      },
+      "test": {
+        "median_seconds": 790.0,
+        "p95_seconds": 833.0,
+        "timeout_minutes": 25
+      }
+    },
     "cov_fail_under": 68
   },
+  "frontend_ci": {
+    "jobs": {
+      "Classify changes": {
+        "median_seconds": 13.5,
+        "p95_seconds": 15.0,
+        "timeout_minutes": 5
+      },
+      "storefront": {
+        "median_seconds": 78.0,
+        "p95_seconds": 91.0,
+        "timeout_minutes": 10
+      },
+      "admin-panel": {
+        "median_seconds": 49.0,
+        "p95_seconds": 61.0,
+        "timeout_minutes": 10
+      },
+      "storefront-e2e": {
+        "median_seconds": 181.0,
+        "p95_seconds": 198.0,
+        "timeout_minutes": 10
+      }
+    }
+  },
   "repo_settings": {
-    "allow_auto_merge": false
+    "allow_auto_merge": true,
+    "allow_auto_merge_note": "Enabled via gh api PATCH 2026-10-14; Owner may disable in Settings"
   }
 }

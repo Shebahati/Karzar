@@ -44,7 +44,16 @@ path = sys.argv[1]
 check_only = os.environ.get("CHECK_ONLY") == "1"
 repo = os.environ["REPO"]
 ruleset_id = os.environ["RULESET_ID"]
-required = ["lint", "test", "aods"]
+required = [
+    "lint",
+    "test",
+    "aods",
+    "storefront",
+    "admin-panel",
+    "storefront-e2e",
+    "Collaborator Scope Gate",
+    "workflow-lint",
+]
 
 with open(path, encoding="utf-8") as fh:
     data = json.load(fh)

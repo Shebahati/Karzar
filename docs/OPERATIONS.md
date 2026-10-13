@@ -226,6 +226,6 @@ Persistent **external uptime + alerting** is owned by [#246](https://github.com/
 
 - **Classifier SoT:** `scripts/ci/classify_changes.py` + `.github/ci/policy.json` (see `docs/DEVELOPMENT.md`).
 - **Escape hatches (increase only):** PR label `ci:full`; workflows **Backend CI**, **Frontend CI**, and **CI Full Regression** via `workflow_dispatch`; nightly full regression (`ci-full-regression.yml`).
-- **Protect main:** ruleset **Protect main** still requires contexts `aods`, `lint`, `test` with strict policy — do not remove or rename without a governance minute.
-- **Auto-merge:** repository setting `allow_auto_merge` is **false** (2026-10-14 baseline). Enable only after Owner review; when enabled, restrict to PRs at FULL tier or with `ci:full`, green required checks, and no deploy/production side effects.
+- **Protect main:** ruleset **Protect main** requires `aods`, `lint`, `test`, `storefront`, `admin-panel`, `storefront-e2e`, `Collaborator Scope Gate`, and `workflow-lint` (strict up-to-date). Do not remove or rename without a governance minute.
+- **Auto-merge:** repository setting `allow_auto_merge` stays **off** until the Owner opts in via GitHub Settings → General → Allow auto-merge. When enabled, use native auto-merge with the required checks above (no extra tier-based restriction in repo policy).
 - **Safety:** no `pull_request_target` for untrusted code execution; collaborator scope gate unchanged.

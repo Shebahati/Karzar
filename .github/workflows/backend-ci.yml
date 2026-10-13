@@ -25,6 +25,7 @@ jobs:
   classify:
     name: Classify changes
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       risk_tier: ${{ steps.classify.outputs.risk_tier }}
       scenario: ${{ steps.classify.outputs.scenario }}
@@ -55,12 +56,13 @@ jobs:
           else
             args+=(--base origin/main --head HEAD --pr-labels "$PR_LABELS")
           fi
-          python3 scripts/ci/classify_changes.py "${args[@]}"
+          python3 scripts/ci/classify_changes.py "${args[@]}" --step-summary
 
   aods:
     name: aods
     needs: classify
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -102,6 +104,7 @@ jobs:
     name: lint
     needs: classify
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -135,6 +138,7 @@ jobs:
     name: test
     needs: classify
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
