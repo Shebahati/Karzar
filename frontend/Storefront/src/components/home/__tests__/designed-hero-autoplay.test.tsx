@@ -49,6 +49,23 @@ function autoplayButton(container: HTMLElement): HTMLButtonElement | undefined {
   }) as HTMLButtonElement | undefined;
 }
 
+/** React delegates `mouseenter` via bubbling `mouseover`. */
+function pointerEnterHero(hero: Element) {
+  act(() => {
+    hero.dispatchEvent(
+      new MouseEvent("mouseover", { bubbles: true, relatedTarget: document.body }),
+    );
+  });
+}
+
+function pointerLeaveHero(hero: Element) {
+  act(() => {
+    hero.dispatchEvent(
+      new MouseEvent("mouseout", { bubbles: true, relatedTarget: document.body }),
+    );
+  });
+}
+
 function mountHero() {
   const pack = buildFiveHeroPublishedPack();
   const container = document.createElement("div");
@@ -80,15 +97,11 @@ describe("DesignedHero autoplay control", () => {
     expect(btn?.getAttribute("aria-label")).toBe("توقف پخش خودکار");
     expect(btn?.getAttribute("aria-pressed")).toBe("false");
 
-    act(() => {
-      hero.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
-    });
+    pointerEnterHero(hero);
     expect(btn?.getAttribute("aria-label")).toBe("توقف پخش خودکار");
     expect(btn?.getAttribute("aria-pressed")).toBe("false");
 
-    act(() => {
-      hero.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
-    });
+    pointerLeaveHero(hero);
     expect(btn?.getAttribute("aria-label")).toBe("توقف پخش خودکار");
   });
 
@@ -103,9 +116,7 @@ describe("DesignedHero autoplay control", () => {
     expect(btn.getAttribute("aria-label")).toBe("ادامه پخش خودکار");
     expect(btn.getAttribute("aria-pressed")).toBe("true");
 
-    act(() => {
-      hero.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
-    });
+    pointerLeaveHero(hero);
     expect(btn.getAttribute("aria-pressed")).toBe("true");
 
     act(() => {
@@ -174,6 +185,66 @@ describe("DesignedHero autoplay control", () => {
     });
     expect(btn.getAttribute("aria-pressed")).toBe("false");
     expect(btn.getAttribute("aria-label")).toBe("توقف پخش خودکار");
+  });
+
+  it("resumes autoplay while pointer and focus remain on the control", () => {
+    vi.useFakeTimers();
+    const setIntervalSpy = vi.spyOn(window, "setInterval");
+    const AUTOPLAY_MS = 7000;
+    const autoplayIntervalCalls = () =>
+      setIntervalSpy.mock.calls.filter(([, ms]) => ms === AUTOPLAY_MS).length;
+
+    const { container } = mountHero();
+    const hero = container.querySelector('section[aria-label="هیرو کارزار"]')!;
+    const btn = autoplayButton(container)!;
+
+    expect(autoplayIntervalCalls()).toBeGreaterThanOrEqual(1);
+
+    pointerEnterHero(hero);
+    act(() => {
+      btn.focus();
+    });
+    act(() => {
+      btn.click();
+    });
+    expect(btn.getAttribute("aria-pressed")).toBe("true");
+    expect(btn.getAttribute("aria-label")).toBe("ادامه پخش خودکار");
+    const pausedCalls = autoplayIntervalCalls();
+
+    act(() => {
+      btn.click();
+    });
+    expect(btn.getAttribute("aria-pressed")).toBe("false");
+    expect(btn.getAttribute("aria-label")).toBe("توقف پخش خودکار");
+    expect(autoplayIntervalCalls()).toBeGreaterThan(pausedCalls);
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+
+    setIntervalSpy.mockRestore();
+    vi.useRealTimers();
+  });
+
+  it("re-applies hover pause after leave and re-enter following explicit resume", () => {
+    vi.useFakeTimers();
+    const { container } = mountHero();
+    const hero = container.querySelector('section[aria-label="هیرو کارزار"]')!;
+    const btn = autoplayButton(container)!;
+
+    pointerEnterHero(hero);
+    act(() => {
+      btn.focus();
+      btn.click();
+      btn.click();
+    });
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+
+    pointerLeaveHero(hero);
+    const runningAfterLeave = vi.getTimerCount();
+    expect(runningAfterLeave).toBeGreaterThan(0);
+
+    pointerEnterHero(hero);
+    expect(vi.getTimerCount()).toBeLessThan(runningAfterLeave);
+
+    vi.useRealTimers();
   });
 
   it("does not render visible ادامه/توقف control text", () => {

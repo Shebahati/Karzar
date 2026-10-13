@@ -875,7 +875,14 @@ export function DesignedHero({
     userPaused || hoverPaused || focusPaused || visibilityPaused || menuOpen;
 
   const toggleAutoplay = useCallback(() => {
-    setUserPaused((p) => !p);
+    setUserPaused((wasPaused) => {
+      if (wasPaused) {
+        setHoverPaused(false);
+        setFocusPaused(false);
+        return false;
+      }
+      return true;
+    });
   }, []);
 
   // Desktop-only autoplay — mobile stays swipe/manual (saves timers + slide churn).
