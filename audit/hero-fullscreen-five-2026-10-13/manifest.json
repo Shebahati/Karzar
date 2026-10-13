@@ -1,0 +1,144 @@
+{
+  "kind": "fullscreen-five-hero",
+  "capturedAt": "2026-10-13T16:46:37.269Z",
+  "base": "http://127.0.0.1:3010",
+  "viewports": [
+    {
+      "id": "1920x1080",
+      "layout": {
+        "heroW": 1920,
+        "heroH": 1080,
+        "imageW": 1920,
+        "imageH": 1080,
+        "widthRatio": 1,
+        "gap": 20,
+        "overlap": false,
+        "viewportH": 1080
+      }
+    },
+    {
+      "id": "1440x900",
+      "layout": {
+        "heroW": 1440,
+        "heroH": 900,
+        "imageW": 1440,
+        "imageH": 900,
+        "widthRatio": 1,
+        "gap": 20,
+        "overlap": false,
+        "viewportH": 900
+      }
+    },
+    {
+      "id": "1366x768",
+      "layout": {
+        "heroW": 1366,
+        "heroH": 768,
+        "imageW": 1366,
+        "imageH": 768,
+        "widthRatio": 1,
+        "gap": 20,
+        "overlap": false,
+        "viewportH": 768
+      }
+    },
+    {
+      "id": "768x1024",
+      "layout": {
+        "heroW": 768,
+        "heroH": 1024,
+        "imageW": 768,
+        "imageH": 1024,
+        "widthRatio": 1,
+        "gap": 20,
+        "overlap": false,
+        "viewportH": 1024
+      }
+    },
+    {
+      "id": "390x844",
+      "layout": {
+        "heroW": 390,
+        "heroH": 523.265625,
+        "imageW": 390,
+        "imageH": 523.265625,
+        "widthRatio": 1,
+        "gap": 20,
+        "overlap": false,
+        "viewportH": 844
+      }
+    }
+  ],
+  "slides1920": [
+    {
+      "index": 1,
+      "title": "تخفیف‌های ویژه‌ی کارزار",
+      "layout": {
+        "heroW": 1920,
+        "heroH": 1080,
+        "imageW": 1920,
+        "imageH": 1080,
+        "widthRatio": 1,
+        "gap": 20,
+        "overlap": false,
+        "viewportH": 1080
+      }
+    },
+    {
+      "index": 2,
+      "title": "ابزار اندازه‌گیری",
+      "layout": {
+        "heroW": 1920,
+        "heroH": 1080,
+        "imageW": 1920,
+        "imageH": 1080,
+        "widthRatio": 1,
+        "gap": 20,
+        "overlap": false,
+        "viewportH": 1080
+      }
+    },
+    {
+      "index": 3,
+      "title": "اینسرت و ابزارهای اینسرتی",
+      "layout": {
+        "heroW": 1920,
+        "heroH": 1080,
+        "imageW": 1920,
+        "imageH": 1080,
+        "widthRatio": 1,
+        "gap": 20,
+        "overlap": false,
+        "viewportH": 1080
+      }
+    },
+    {
+      "index": 4,
+      "title": "فرز انگشتی",
+      "layout": {
+        "heroW": 1920,
+        "heroH": 1080,
+        "imageW": 1920,
+        "imageH": 1080,
+        "widthRatio": 1,
+        "gap": 20,
+        "overlap": false,
+        "viewportH": 1080
+      }
+    },
+    {
+      "index": 5,
+      "title": "دستگاه‌های صنعتی",
+      "layout": {
+        "heroW": 1920,
+        "heroH": 1080,
+        "imageW": 1920,
+        "imageH": 1080,
+        "widthRatio": 1,
+        "gap": 20,
+        "overlap": false,
+        "viewportH": 1080
+      }
+    }
+  ]
+}
