@@ -2031,3 +2031,13 @@ documents:
     branch: feat/hero-five-reborn-campaign
     notes: >
       PR #481 Heroes Reborn 5 visual acceptance: 25 screenshots, transition webms, manifest.json.
+
+  - id: INSIZE-FINAL-COMMERCIAL-20261013
+    path: audit/insize-final-commercial-source-2026-10-13/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/catalog-258-insize-final-commercial-source
+    notes: >
+      #258/#391 INSIZE final commercial reconciliation (SHA 8324b2c1). No APPLY.

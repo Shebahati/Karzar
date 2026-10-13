@@ -1,0 +1,28 @@
+{
+  "live_insize_products": 870,
+  "source_rows": 55266,
+  "identity_mapping": {
+    "EXACT": 682,
+    "GOVERNED_ALIAS": 143,
+    "SOURCE_CONFLICT": 8,
+    "NOT_FOUND": 37
+  },
+  "mapped_exact_or_alias": 825,
+  "unmatched_or_hold": 45,
+  "apply_eligible_rows": 669,
+  "price_compliance": {
+    "PRICE_ALREADY_EXACT": 208,
+    "PRICE_MUST_BE_CLEARED": 611,
+    "PRICED_BUT_NO_AUTHORITATIVE_SOURCE_MATCH": 42,
+    "PRICE_NEEDS_UPDATE": 2,
+    "AVAILABLE_WITHOUT_VALID_PRICE": 4,
+    "UNMATCHED": 3
+  },
+  "availability_compliance": {
+    "AVAILABILITY_ALREADY_CORRECT": 764,
+    "FALSE_TO_TRUE": 57,
+    "HOLD": 45,
+    "TRUE_TO_FALSE": 4
+  },
+  "pr488_superseded_note": "PR #488 Wave A/D evidence used SHA beb54910\u2026 \u2014 superseded by Owner final SHA 8324b2c1\u2026"
+}

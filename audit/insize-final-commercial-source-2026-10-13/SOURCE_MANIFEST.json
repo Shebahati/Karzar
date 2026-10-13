@@ -1,0 +1,18 @@
+{
+  "source_id": "insize.distributor.final.300k_toman.8324b2c1",
+  "sha256": "8324b2c175a703ab0ff7364da4a33f82c440d592cdc10d990c133bed39ac2989",
+  "path": "/home/shebahati/KaZar/DOCS/\u0645\u0648\u062c\u0648\u062f\u06cc \u062a\u0648\u0632\u06cc\u0639 \u06a9\u0646\u0646\u062f\u0647 11 \u0634\u0647\u0631\u06cc\u0648\u0631 - \u062f\u0644\u0627\u0631 300 \u0647\u0632\u0627\u0631 \u062a\u0648\u0645\u0627\u0646 - \u0646\u0647\u0627\u06cc\u06cc.xlsx",
+  "original_filename": "\u0645\u0648\u062c\u0648\u062f\u06cc \u062a\u0648\u0632\u06cc\u0639 \u06a9\u0646\u0646\u062f\u0647 11 \u0634\u0647\u0631\u06cc\u0648\u0631 - \u062f\u0644\u0627\u0631 300 \u0647\u0632\u0627\u0631 \u062a\u0648\u0645\u0627\u0646 - \u0646\u0647\u0627\u06cc\u06cc (1).xlsx",
+  "supersedes_sha256": [
+    "beb549109165a1fd0d156af8d9b8a9622eb3a04e7fc92b07c548993ee98669cf"
+  ],
+  "source_date": null,
+  "source_date_note": "Exact calendar date unknown \u2014 not inferred from filename/metadata/mtime",
+  "freshness": "CURRENT_ENOUGH",
+  "freshness_basis": "OWNER_CONFIRMED_RECENCY",
+  "owner_recency_statement": "Owner confirms final file is approximately one week old and is the current commercial source",
+  "fx_cell_k6_rial_per_usd": "3000000",
+  "fx_toman_per_usd": "300000",
+  "price_formula": "base_price_toman = source_USD \u00d7 300000 (Decimal, no +20%, no tax)",
+  "inspected_at": "2026-10-13T20:37:06Z"
+}
