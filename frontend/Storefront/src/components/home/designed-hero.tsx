@@ -57,6 +57,21 @@ const AUTOPLAY_MS = 7000;
 /** Hard cap — approved campaign is five slides / five featured dock orbs. */
 const MAX_ACTIVE_SLIDES = 5;
 
+function HeroAutoplayIcon({ paused }: { paused: boolean }) {
+  if (paused) {
+    return (
+      <svg aria-hidden width={18} height={18} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5.5v13a1 1 0 0 0 1.52.86l10.5-6.5a1 1 0 0 0 0-1.72l-10.5-6.5A1 1 0 0 0 8 5.5Z" />
+      </svg>
+    );
+  }
+  return (
+    <svg aria-hidden width={18} height={18} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M7 5.5h3v13H7zm7 0h3v13h-3z" />
+    </svg>
+  );
+}
+
 function overlayCss(config: DesignedHeroConfig): string {
   const o = config.overlay;
   if (o.mode === "solid") return o.solidColor;
@@ -719,8 +734,10 @@ export function DesignedHero({
 
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [paused, setPaused] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
+  const [hoverPaused, setHoverPaused] = useState(false);
   const [focusPaused, setFocusPaused] = useState(false);
+  const [visibilityPaused, setVisibilityPaused] = useState(false);
   const [internalMenu, setInternalMenu] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -854,11 +871,11 @@ export function DesignedHero({
     commitPrev();
   }, [slideCount, isMobile, reducedMotion, commitPrev, bumpAutoplayEpoch]);
 
-  const autoplayBlocked = paused || focusPaused || menuOpen;
+  const autoplayBlocked =
+    userPaused || hoverPaused || focusPaused || visibilityPaused || menuOpen;
 
   const toggleAutoplay = useCallback(() => {
-    setFocusPaused(false);
-    setPaused((p) => !p);
+    setUserPaused((p) => !p);
   }, []);
 
   // Desktop-only autoplay — mobile stays swipe/manual (saves timers + slide churn).
@@ -871,11 +888,10 @@ export function DesignedHero({
   }, [isMobile, slideCount, autoplayBlocked, reducedMotion, commitNext, autoplayEpoch]);
 
   useEffect(() => {
-    const onVis = () => {
-      if (document.hidden) setPaused(true);
-    };
-    document.addEventListener("visibilitychange", onVis);
-    return () => document.removeEventListener("visibilitychange", onVis);
+    const updateVisibility = () => setVisibilityPaused(document.hidden);
+    updateVisibility();
+    document.addEventListener("visibilitychange", updateVisibility);
+    return () => document.removeEventListener("visibilitychange", updateVisibility);
   }, []);
 
   useEffect(() => {
@@ -901,11 +917,9 @@ export function DesignedHero({
       }
       if (e.key === "ArrowLeft") {
         e.preventDefault();
-        setFocusPaused(true);
         goNext();
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
-        setFocusPaused(true);
         goPrev();
       } else if (e.key === " " || e.key === "Spacebar") {
         e.preventDefault();
@@ -983,12 +997,17 @@ export function DesignedHero({
         sectionHeightClass,
       )}
       style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
-      onMouseEnter={() => setPaused(true)}
+      onMouseEnter={() => setHoverPaused(true)}
       onMouseLeave={() => {
-        setPaused(false);
+        setHoverPaused(false);
         setArrowSide(null);
       }}
-      onFocus={() => setFocusPaused(true)}
+      onFocusCapture={() => setFocusPaused(true)}
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+          setFocusPaused(false);
+        }
+      }}
       onPointerMove={(e) => {
         if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
         const rect = e.currentTarget.getBoundingClientRect();
@@ -1087,14 +1106,14 @@ export function DesignedHero({
                 type="button"
                 onClick={toggleAutoplay}
                 className={cn(
-                  "pointer-events-auto absolute top-4 z-30 rounded-full px-3 py-2 text-xs font-bold",
-                  "bg-black/65 text-white ring-1 ring-white/25 backdrop-blur-md",
+                  "pointer-events-auto absolute top-4 z-30 grid h-10 w-10 place-items-center rounded-full",
+                  "bg-black/55 text-white ring-1 ring-white/30 backdrop-blur-md",
                   "end-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                 )}
-                aria-pressed={autoplayBlocked}
-                aria-label={autoplayBlocked ? "ادامه پخش خودکار" : "توقف پخش خودکار"}
+                aria-pressed={userPaused}
+                aria-label={userPaused ? "ادامه پخش خودکار" : "توقف پخش خودکار"}
               >
-                {autoplayBlocked ? "ادامه" : "توقف"}
+                <HeroAutoplayIcon paused={userPaused} />
               </button>
             ) : null}
           </>
