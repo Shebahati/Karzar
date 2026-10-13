@@ -1,0 +1,50 @@
+{
+  "live_insize_products": 870,
+  "source_rows": 55266,
+  "identity_mapping": {
+    "EXACT": 682,
+    "GOVERNED_ALIAS": 143,
+    "SOURCE_CONFLICT": 8,
+    "NOT_FOUND": 37
+  },
+  "mapped_exact_or_alias": 825,
+  "unmatched_or_hold": 45,
+  "apply_eligible_rows": 711,
+  "mutation_actions": {
+    "NO_CHANGE": 1023,
+    "combined:NO_CHANGE": 156,
+    "CLEAR_PRICE": 654,
+    "combined:CLEAR_PRICE": 607,
+    "SET_AVAILABLE": 57,
+    "combined:SET_AVAILABLE": 55,
+    "combined:HOLD_CLEAR_PRICE": 42,
+    "SET_PRICE": 2,
+    "combined:SET_AVAILABLE_AND_PRICE": 1,
+    "combined:SET_AVAILABLE_CLEAR_PRICE": 1,
+    "SET_UNAVAILABLE": 4,
+    "combined:SET_UNAVAILABLE_AND_CLEAR_PRICE": 4,
+    "combined:SET_PRICE": 1,
+    "combined:HOLD_IDENTITY": 3
+  },
+  "hold_price_policy": {
+    "hold_total": 45,
+    "priced_hold_before": 42,
+    "hold_price_clears_added": 42,
+    "priced_hold_after_proposed": 0
+  },
+  "priced_insize_without_authoritative_source_after_plan": 0,
+  "price_compliance": {
+    "PRICE_ALREADY_EXACT": 208,
+    "PRICE_MUST_BE_CLEARED": 653,
+    "PRICE_NEEDS_UPDATE": 2,
+    "AVAILABLE_WITHOUT_VALID_PRICE": 4,
+    "UNMATCHED": 3
+  },
+  "availability_compliance": {
+    "AVAILABILITY_ALREADY_CORRECT": 764,
+    "FALSE_TO_TRUE": 57,
+    "HOLD": 45,
+    "TRUE_TO_FALSE": 4
+  },
+  "pr488_superseded_note": "PR #488 Wave A/D evidence used SHA beb54910\u2026 \u2014 superseded by Owner final SHA 8324b2c1\u2026"
+}

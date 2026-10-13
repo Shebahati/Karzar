@@ -1,0 +1,15 @@
+{
+  "ACTUAL_APPLY_PLAN_PROJECTION": {
+    "SELLABLE_BEFORE": 159,
+    "SELLABLE_GAIN": 10,
+    "SELLABLE_LOSS": 7,
+    "SELLABLE_AFTER_PROJECTED": 162
+  },
+  "OWNER_POLICY_FULL_PROJECTION": {
+    "SELLABLE_BEFORE": 159,
+    "SELLABLE_GAIN": 10,
+    "SELLABLE_LOSS": 7,
+    "SELLABLE_AFTER_PROJECTED": 162
+  },
+  "note": "INSIZE-scoped sellable (active, imaged, available, base_price>0); simulated from APPLY_ELIGIBLE mutations only"
+}
