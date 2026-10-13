@@ -15,7 +15,7 @@
     "test:http-contract": "NEXT_PUBLIC_USE_MOCK=true NEXT_PUBLIC_MOCK_LATENCY_MS=0 NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api/v1 NEXT_PUBLIC_SITE_URL=https://www.karzartools.com npm run build && playwright test -c playwright.http-contract.config.ts"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.4.0",
+    "@hookform/resolvers": "^5.9.1",
     "@tanstack/react-query": "^5.101.1",
     "axios": "^1.20.0",
     "class-variance-authority": "^0.7.1",
