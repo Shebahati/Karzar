@@ -41,20 +41,17 @@ function HeroCopyStack({
     >
       <TitleTag
         className={cn(
-          "font-extrabold leading-[1.2] tracking-tight",
+          "font-extrabold leading-[1.2] tracking-tight drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)]",
           compact ? "text-[clamp(1.35rem,5.2vw,1.65rem)]" : "text-[clamp(1.75rem,2.4vw,2.75rem)]",
         )}
         style={{ color: t.titleColor }}
       >
         {t.title}
       </TitleTag>
-      <div
-        className="mt-3 h-px w-10 bg-[rgba(208,35,39,0.85)]"
-        aria-hidden
-      />
+      <div className="mt-3 h-px w-10 bg-[rgba(208,35,39,0.85)]" aria-hidden />
       <p
         className={cn(
-          "mt-3 max-w-prose font-normal leading-relaxed",
+          "mt-3 max-w-prose font-normal leading-relaxed drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]",
           compact ? "text-sm sm:text-[15px]" : "text-[clamp(0.95rem,1.1vw,1.0625rem)]",
         )}
         style={{ color: t.subtitleColor }}
@@ -83,7 +80,7 @@ function HeroCopyStack({
                 className={cn(
                   "inline-flex min-h-11 items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold",
                   "transition hover:opacity-95 active:scale-[0.98]",
-                  compact && "min-h-[44px] w-full sm:w-auto",
+                  compact && "min-h-[44px] sm:w-auto",
                 )}
                 style={visual}
               >
@@ -97,6 +94,7 @@ function HeroCopyStack({
   );
 }
 
+/** Full-bleed five-hero slide: image covers stage, RTL copy and CTAs overlay the image. */
 export function CampaignHeroSlide({
   slide,
   compact,
@@ -119,83 +117,52 @@ export function CampaignHeroSlide({
   const focal = compact ? media.compactFocal : media.desktopFocal;
   const overlayOpacity = slide.config.overlay.opacity;
 
-  if (compact) {
-    return (
-      <div
-        className={cn("flex h-full w-full flex-col bg-[#1a1a1a]", className)}
-        data-testid="campaign-hero-compact"
-      >
-        <div
-          className="relative w-full shrink-0 overflow-hidden bg-[#121212]"
-          style={{ aspectRatio: `${media.compactAspect}` }}
-        >
-          <HeroImageHandoff
-            key={slide.id}
-            slideKey={slide.id}
-            desktopSrc={imageUrl}
-            mobileSrc={slide.config.background.mobileImageUrl}
-            focal={focal}
-            priority={priority}
-            compactMedia
-            onReadyChange={onImageReadyChange}
-            imageClassName="object-cover"
-          />
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{ background: overlayCss(slide), opacity: overlayOpacity * 0.35 }}
-          />
-        </div>
-        <div className="flex flex-1 flex-col px-[clamp(1rem,4.5vw,1.25rem)] py-4 pb-5">
-          <HeroCopyStack
-            slide={slide}
-            compact
-            primaryHeading={primaryHeading}
-            visible={contentVisible}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
-      className={cn(
-        "relative grid h-full w-full grid-cols-1 bg-[#1a1a1a] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]",
-        className,
-      )}
-      data-testid="campaign-hero-desktop"
+      className={cn("relative h-full w-full overflow-hidden", className)}
+      data-testid="campaign-hero-fullbleed"
     >
-      <div className="relative min-h-[240px] overflow-hidden lg:min-h-0">
-        <HeroImageHandoff
-          slideKey={slide.id}
-          desktopSrc={imageUrl}
-          mobileSrc={slide.config.background.mobileImageUrl}
-          focal={focal}
-          priority={priority}
-          onReadyChange={onImageReadyChange}
-          imageClassName="object-cover"
+      <HeroImageHandoff
+        key={slide.id}
+        slideKey={slide.id}
+        desktopSrc={imageUrl}
+        mobileSrc={slide.config.background.mobileImageUrl}
+        focal={focal}
+        priority={priority}
+        onReadyChange={onImageReadyChange}
+        className="absolute inset-0 h-full w-full"
+        imageClassName="object-cover"
+      />
+
+      {/* RTL-weighted readability: darker toward the right (copy side), subtle bottom for dock */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(270deg,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.38)_38%,transparent_68%)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.5)_0%,transparent_42%)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{ background: overlayCss(slide), opacity: overlayOpacity * 0.22 }}
+        aria-hidden
+      />
+
+      <div
+        className={cn(
+          "absolute z-20 flex w-full max-w-[min(560px,92vw)] flex-col text-right",
+          compact
+            ? "bottom-[max(5.25rem,16vw)] left-5 right-5"
+            : "right-[clamp(2rem,7vw,8rem)] top-1/2 -translate-y-1/2",
+        )}
+      >
+        <HeroCopyStack
+          slide={slide}
+          compact={compact}
+          primaryHeading={primaryHeading}
+          visible={contentVisible}
         />
-        <div
-          className="pointer-events-none absolute inset-0 lg:hidden"
-          style={{ background: overlayCss(slide), opacity: overlayOpacity * 0.25 }}
-        />
-      </div>
-      <div className="relative flex items-center px-6 py-8 lg:px-10 lg:py-10">
-        <div
-          className="pointer-events-none absolute inset-0 hidden lg:block"
-          style={{
-            background:
-              "linear-gradient(105deg, rgba(8,8,8,0.08) 0%, rgba(12,12,12,0.55) 38%, rgba(18,18,18,0.92) 100%)",
-          }}
-        />
-        <div className="relative z-10 w-full max-w-[460px] lg:ms-auto">
-          <HeroCopyStack
-            slide={slide}
-            compact={false}
-            primaryHeading={primaryHeading}
-            visible={contentVisible}
-          />
-        </div>
       </div>
     </div>
   );

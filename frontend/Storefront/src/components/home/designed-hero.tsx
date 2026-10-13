@@ -970,14 +970,7 @@ export function DesignedHero({
       ? slides[campaignPending.index]
       : null;
 
-  const compactMinHeight =
-    "min-h-[calc((100vw/(4/3))+15.5rem)] max-[430px]:min-h-[calc((100vw/(4/3))+17rem)]";
-
-  const sectionHeightClass = campaignMode
-    ? campaignCompact
-      ? cn("h-auto", compactMinHeight)
-      : "h-[min(calc(100vw*941/1672),86svh)] min-h-[520px] max-h-[920px]"
-    : "h-[62svh] md:h-[100svh]";
+  const sectionHeightClass = "h-[62svh] md:h-[100svh]";
 
   return (
     <section
@@ -1004,10 +997,7 @@ export function DesignedHero({
       }}
     >
       <div
-        className={cn(
-          "relative w-full overflow-hidden",
-          campaignCompact ? compactMinHeight : "h-full",
-        )}
+        className="relative h-full w-full overflow-hidden"
         style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       >
         {useSheetStrip ? (
