@@ -176,3 +176,45 @@ Production image rollback: revert the container image / previous env. **Never** 
 | SEV3 | Single endpoint | Env flag / hotfix / forward migration |
 
 Capture `request-id` from headers/logs. Roll back image before rolling back the database.
+
+### Public `502 Bad Gateway` / connection-closed diagnosis (Refs [#249](https://github.com/Shebahati/Karzar/issues/249))
+
+Use this when **external** clients see `502`, `504`, timeouts, or “connection closed” on `www.karzartools.com`, `api.karzartools.com`, or `admin.karzartools.com`.
+
+**Do not blindly restart or redeploy** when origin probes are healthy and evidence points to an upstream/network path (see 2026-09-02 RCA on #249).
+
+#### Failure classes
+
+| Class | Typical signal | First checks |
+|-------|----------------|--------------|
+| External/public probe failure | Monitor or user off-VPS fails; origin may be fine | Compare external `curl` vs VPS loopback (not the same network) |
+| Origin nginx / reverse-proxy | 502 with nginx error log upstream timeout/refused | `nginx -t`; site error logs; upstream socket |
+| Frontend container | Shop/admin 502; API may still be ready | `docker compose ps`; shop/admin logs; image tag |
+| API readiness failure | `/ready` non-200 or DB/Redis down | `curl` `/ready` with trusted `Host` + `X-Forwarded-Proto: https`; app logs |
+| Docker false-negative health | `lathe_api` `unhealthy` but `/ready` OK | Compose healthcheck must send proxy headers (PR #265 on `docker-compose.yml`) |
+| DNS / TLS | Certificate or name resolution errors | `dig` A/AAAA; cert expiry; SNI |
+| VPS resource exhaustion | OOM, full disk, high load | `df`, `free`, `dmesg`, container restart counts |
+| Path-dependent / international routing | Direct path OK; VPN or distant vantage fails | Capture timestamps + paths; provider escalation (recurrence-driven) |
+
+#### Safe diagnostic order
+
+1. **Public probes** (from at least one external network):  
+   `https://www.karzartools.com/`, `https://api.karzartools.com/ready`, `https://admin.karzartools.com/login` — record status, latency, time (UTC).
+2. **API readiness** (trusted host):  
+   `curl -fsS -H "Host: api.karzartools.com" -H "X-Forwarded-Proto: https" http://127.0.0.1:8000/ready` on the VPS (loopback only; not a substitute for step 1).
+3. **Nginx**: config test, error log around incident window, upstream definitions for shop/api/admin.
+4. **Compose state**: `docker compose ps` (API `lathe_api`, shop, admin, db, redis); note `unhealthy` vs `running`.
+5. **Logs**: API, shop, admin, nginx — look for crashes, OOM, migration failures.
+6. **Resources**: disk, memory, CPU; recent deploy time (`Deploy Staging` run + `DEPLOY_FE_SMOKE_OK`).
+7. **DNS/TLS**: resolution and certificate validity for public hostnames.
+8. **Path comparison**: if origin is healthy but external/VPN paths fail, treat as **provider/network escalation** — do not restart healthy origin as “fix”.
+
+#### Recovery guidance
+
+- **Origin broken** (upstream refused, `/ready` failing, container crash): follow SEV1/SEV2 — fix root cause, roll back image if needed, then redeploy only after evidence.
+- **False-negative API healthcheck**: ensure deployed `docker-compose.yml` healthcheck includes `Host` + `X-Forwarded-Proto: https` to `/ready` (merged PR #265).
+- **External-only failure**: document paths and timestamps; open/continue provider ticket; keep origin stable.
+
+#### Monitoring ownership
+
+Persistent **external uptime + alerting** is owned by [#246](https://github.com/Shebahati/Karzar/issues/246), not #249. #249 covers incident RCA, service restoration, healthcheck correctness, and this runbook.
