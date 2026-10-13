@@ -1,0 +1,18 @@
+# INSIZE Wave D guarded dry-run (#391)
+
+**Status:** `READY_FOR_OWNER_WAVE_D_APPLY_AUTHORIZATION`  
+**PR #488 HEAD:** `10c2e53615aef70824be251a52d28340b06961ad`  
+**No APPLY.**
+
+## Artifacts
+
+- [`INSIZE_WAVE_D_DRY_RUN_REPORT.md`](INSIZE_WAVE_D_DRY_RUN_REPORT.md)
+- [`PRODUCTION_RECHECK.csv`](PRODUCTION_RECHECK.csv)
+- [`ALLOWLIST.csv`](ALLOWLIST.csv)
+- [`SOURCE_RECHECK.csv`](SOURCE_RECHECK.csv)
+- [`INSIZE_WAVE_D_EXPECTED_STATE.csv`](INSIZE_WAVE_D_EXPECTED_STATE.csv)
+- [`INSIZE_WAVE_D_DRY_RUN.csv`](INSIZE_WAVE_D_DRY_RUN.csv)
+- [`ROLLBACK_MANIFEST.csv`](ROLLBACK_MANIFEST.csv)
+- [`APPLY_PLAN.md`](APPLY_PLAN.md)
+
+Linked Wave A evidence: [`../sellability-391-wave-a-insize-2026-10-13/`](../sellability-391-wave-a-insize-2026-10-13/)

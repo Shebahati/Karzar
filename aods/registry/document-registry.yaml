@@ -2033,6 +2033,26 @@ documents:
     notes: >
       #391 INSIZE 8601-100 AVAILABLE with #N/A dollar price; availability-only note.
 
+  - id: SELLABILITY-391-INSIZE-WAVE-D-20261013
+    path: audit/sellability-391-wave-d-insize-2026-10-13/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/catalog-391-insize-wave-a
+    notes: >
+      Issue #391 INSIZE Wave D guarded dry-run; 10-row allowlist; APPLY not executed.
+
+  - id: SELLABILITY-391-INSIZE-WAVE-D-REPORT-20261013
+    path: audit/sellability-391-wave-d-insize-2026-10-13/INSIZE_WAVE_D_DRY_RUN_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/catalog-391-insize-wave-a
+    notes: >
+      Wave D dry-run report; READY_FOR_OWNER_WAVE_D_APPLY_AUTHORIZATION when gates pass.
+
   - id: SELLABILITY-391-DASQUA-TERMA-SCAN-20261013
     path: audit/sellability-391-wave-a-insize-2026-10-13/SECONDARY_DASQUA_TERMA_SCAN.md
     class: EVIDENCE
