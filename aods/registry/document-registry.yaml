@@ -1992,6 +1992,27 @@ documents:
     notes: >
       Fastest +500 analysis; strict candidates 0.
 
+  - id: SELLABILITY-391-INSIZE-WAVE-A-20261013
+    path: audit/sellability-391-wave-a-insize-2026-10-13/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/catalog-391-insize-wave-a
+    notes: >
+      Issue #391 read-only INSIZE Wave A evidence. Strict unlock=0;
+      SOURCE_YEAR_UNPROVEN. APPLY AUTHORIZED=NO.
+
+  - id: SELLABILITY-391-INSIZE-FINAL-20261013
+    path: audit/sellability-391-wave-a-insize-2026-10-13/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/catalog-391-insize-wave-a
+    notes: >
+      Issue #391 INSIZE Wave A final report. Owner: REQUEST_FRESH_INSIZE_STOCK_SOURCE.
+
   - id: HERO-REBORN-5-LIVE-REPAIR-20261013
     path: audit/hero-reborn-5-live-repair-2026-10-13/README.md
     class: EVIDENCE

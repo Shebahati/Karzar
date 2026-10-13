@@ -1,0 +1,5 @@
+product_id,sku,manufacturer_code,brand,adapter_id,source_path,source_date,freshness_class,freshness_days,pdf_price,normalized_availability,strict_apply_eligible,blocker
+4474,CDA100-300,CDA100-300,TERMA | ترما,TERMA_GOOGLE_DRIVE_INVENTORY_LIST,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/ترما/لیست قیمت ترما +25درصد.pdf,,UNKNOWN,,,UNAVAILABLE,NO,UNKNOWN_DATE
+4480,YDA100F-300,,TERMA | ترما,TERMA_GOOGLE_DRIVE_INVENTORY_LIST,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/ترما/لیست قیمت ترما +25درصد.pdf,,UNKNOWN,,,UNAVAILABLE,NO,UNKNOWN_DATE
+4619,MA250H-200,MA250H-200,TERMA | ترما,TERMA_GOOGLE_DRIVE_INVENTORY_LIST,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/ترما/لیست قیمت ترما +25درصد.pdf,,UNKNOWN,,,UNAVAILABLE,NO,UNKNOWN_DATE
+4625,MD710-25,MD710-25,TERMA | ترما,TERMA_GOOGLE_DRIVE_INVENTORY_LIST,/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/ترما/لیست قیمت ترما +25درصد.pdf,,UNKNOWN,,,UNAVAILABLE,NO,UNKNOWN_DATE

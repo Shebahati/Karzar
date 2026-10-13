@@ -1,0 +1,18 @@
+{
+  "INSIZE_workbook": {
+    "columns": [
+      "CODE",
+      "وضعیت",
+      "warehouse qty columns (not used for status)"
+    ],
+    "availability_rule": "وضعیت موجود/نا موجود only; quantity_is_sellable_stock=false",
+    "price_not_availability": true,
+    "identity_rules": [
+      "EXACT manufacturer_code/SKU",
+      "INSIZE_TRAILING_A_IDENTITY (identity only)"
+    ],
+    "freshness": "UNKNOWN",
+    "source_date_proven": false,
+    "SOURCE_AUTHORITY_VALID": false
+  }
+}

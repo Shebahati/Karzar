@@ -1,0 +1,33 @@
+{
+  "snapshot_utc": "2026-10-13T19:26:59Z",
+  "live": 6536,
+  "soft_deleted": 1,
+  "active": 1585,
+  "available": 3758,
+  "priced_commercial": 4926,
+  "visible": 1368,
+  "sellable": 717,
+  "only_availability": 580,
+  "non_sellable": 5819,
+  "one_blocker_cohorts": {
+    "ONLY_AVAILABILITY": 580
+  },
+  "only_availability_by_brand": {
+    "INSIZE | اینسایز": 476,
+    "ASTPOWER | ای اس تی پاور": 53,
+    "SAN OU | سانو": 24,
+    "Dasqua | داسکوا": 22,
+    "TERMA | ترما": 4,
+    "Mitutoyo | میتوتویو": 1
+  },
+  "read_only_proven": true,
+  "contract": "audit/sellability-global-root-cause-2026-10-07/CODE_SELLABILITY_CONTRACT.md",
+  "identity": {
+    "snapshot_utc": "2026-10-13T19:26:59Z",
+    "transaction_read_only": "on",
+    "database": "karzar_staging",
+    "db_user": "karzar_staging",
+    "alembic": "c1d2e3f4a5b6",
+    "host": "srv5944957438"
+  }
+}
