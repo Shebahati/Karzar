@@ -32,7 +32,7 @@ export function MobileCategoryCard({
     <Link
       href={href}
       className={cn(
-        "group relative flex min-h-[5.65rem] items-center gap-3.5 overflow-hidden",
+        "group relative flex min-h-[5.65rem] items-center gap-2.5 overflow-hidden",
         "rounded-[1.35rem] pe-3.5 ps-3 py-3 text-start",
         /* Cool matte plaque — workshop steel, not porcelain slab */
         "bg-[linear-gradient(168deg,#FBFBFB_0%,#F2F2F3_42%,#E8E8EA_100%)]",
@@ -79,7 +79,7 @@ export function MobileCategoryCard({
       {/* Oversized icon roundel — primary visual weight */}
       <span
         className={cn(
-          "relative grid h-[4.15rem] w-[4.15rem] shrink-0 place-items-center overflow-visible",
+          "relative grid h-[3.75rem] w-[3.75rem] shrink-0 place-items-center overflow-visible",
           "rounded-full",
           "bg-[radial-gradient(circle_at_42%_32%,#FFFFFF_0%,#F7F7F8_48%,#ECECEE_100%)]",
           "ring-[1.5px] ring-inset ring-white/90",
@@ -115,8 +115,8 @@ export function MobileCategoryCard({
       <span className="relative min-w-0 flex-1 pe-0.5">
         <span
           className={cn(
-            "block overflow-hidden text-[15px] font-black leading-[1.35] tracking-[-0.015em] text-[#1a1a1a]",
-            "line-clamp-2 break-words transition-colors duration-200",
+            "block overflow-hidden text-[14.5px] font-black leading-[1.35] tracking-[-0.015em] text-[#1a1a1a]",
+            "line-clamp-2 [overflow-wrap:normal] [word-break:keep-all] transition-colors duration-200",
             "group-hover:text-[#D02327]",
           )}
           title={name}
