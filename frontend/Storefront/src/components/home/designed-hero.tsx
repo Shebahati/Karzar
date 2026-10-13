@@ -726,7 +726,12 @@ export function DesignedHero({
   const [isMobile, setIsMobile] = useState(false);
   const [isCompactLayout, setIsCompactLayout] = useState(false);
   const [sheetNudge, setSheetNudge] = useState<"next" | "prev" | null>(null);
-  const [campaignPendingIndex, setCampaignPendingIndex] = useState<number | null>(null);
+  const [campaignPending, setCampaignPending] = useState<{
+    index: number;
+    gen: number;
+  } | null>(null);
+  const campaignPendingGenRef = useRef(0);
+  const campaignPendingRef = useRef(campaignPending);
   const [autoplayEpoch, setAutoplayEpoch] = useState(0);
   /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
   const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
@@ -734,6 +739,10 @@ export function DesignedHero({
 
   const menuOpen = menuOpenProp ?? internalMenu;
   const setMenuOpen = onMenuOpenChange ?? setInternalMenu;
+
+  useEffect(() => {
+    campaignPendingRef.current = campaignPending;
+  }, [campaignPending]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -783,38 +792,46 @@ export function DesignedHero({
     setAutoplayEpoch((e) => e + 1);
   }, []);
 
-  const finalizeCampaignPending = useCallback(() => {
-    setCampaignPendingIndex((pending) => {
-      if (pending !== null) setIndex(pending);
-      return null;
-    });
-  }, []);
+  const queueCampaignTransition = useCallback(
+    (next: number) => {
+      campaignPendingGenRef.current += 1;
+      setCampaignPending({ index: next, gen: campaignPendingGenRef.current });
+    },
+    [],
+  );
+
+  const onCampaignPendingReady = useCallback(
+    (ready: boolean, gen: number, targetIndex: number) => {
+      if (!ready) return;
+      const pending = campaignPendingRef.current;
+      if (!pending || pending.gen !== gen) return;
+      setCampaignPending(null);
+      setIndex(targetIndex);
+    },
+    [],
+  );
 
   const commitNext = useCallback(() => {
     if (!slideCount) return;
     setDirection(1);
-    setIndex((i) => {
-      const next = (i + 1) % slideCount;
-      if (campaignMode) {
-        setCampaignPendingIndex(next);
-        return i;
-      }
-      return next;
-    });
-  }, [slideCount, campaignMode]);
+    const next = (index + 1) % slideCount;
+    if (campaignMode) {
+      queueCampaignTransition(next);
+      return;
+    }
+    setIndex(next);
+  }, [slideCount, campaignMode, index, queueCampaignTransition]);
 
   const commitPrev = useCallback(() => {
     if (!slideCount) return;
     setDirection(-1);
-    setIndex((i) => {
-      const next = (i - 1 + slideCount) % slideCount;
-      if (campaignMode) {
-        setCampaignPendingIndex(next);
-        return i;
-      }
-      return next;
-    });
-  }, [slideCount, campaignMode]);
+    const next = (index - 1 + slideCount) % slideCount;
+    if (campaignMode) {
+      queueCampaignTransition(next);
+      return;
+    }
+    setIndex(next);
+  }, [slideCount, campaignMode, index, queueCampaignTransition]);
 
   const goNext = useCallback(() => {
     if (!slideCount) return;
@@ -949,8 +966,8 @@ export function DesignedHero({
   const useSheetStrip = isMobile && !reducedMotion && slideCount > 1;
   const campaignCompact = campaignMode && isCompactLayout;
   const pendingSlide =
-    campaignPendingIndex !== null && slides[campaignPendingIndex]
-      ? slides[campaignPendingIndex]
+    campaignPending !== null && slides[campaignPending.index]
+      ? slides[campaignPending.index]
       : null;
 
   const compactMinHeight =
@@ -1037,16 +1054,20 @@ export function DesignedHero({
           </AnimatePresence>
         )}
 
-        {pendingSlide ? (
-          <div className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0" aria-hidden>
+        {pendingSlide && campaignPending ? (
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden opacity-0"
+            aria-hidden
+          >
             <SlideCanvas
+              key={`campaign-pending-${campaignPending.gen}`}
               slide={pendingSlide}
               reducedMotion
               isMobile={isMobile}
               useCampaignLayout
               campaignCompact={campaignCompact}
               onImageReadyChange={(ready) => {
-                if (ready) finalizeCampaignPending();
+                onCampaignPendingReady(ready, campaignPending.gen, campaignPending.index);
               }}
             />
           </div>

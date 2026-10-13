@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HeroBackgroundImage } from "@/lib/hero-background-image";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ type HandoffProps = {
   compactMedia?: boolean;
 };
 
-type VisualCandidate = {
+export type VisualCandidate = {
   slideKey: string;
   desktopSrc: string;
   mobileSrc: string | null | undefined;
@@ -24,14 +24,12 @@ type VisualCandidate = {
   compactMedia: boolean;
 };
 
-function sameCandidate(a: VisualCandidate, b: VisualCandidate): boolean {
-  return (
-    a.slideKey === b.slideKey &&
-    a.desktopSrc === b.desktopSrc &&
-    a.focal === b.focal &&
-    a.mobileSrc === b.mobileSrc &&
-    a.compactMedia === b.compactMedia
-  );
+export function candidateId(c: VisualCandidate): string {
+  return `${c.slideKey}\0${c.desktopSrc}\0${c.focal}\0${c.mobileSrc ?? ""}\0${c.compactMedia ? 1 : 0}`;
+}
+
+export function sameCandidate(a: VisualCandidate, b: VisualCandidate): boolean {
+  return candidateId(a) === candidateId(b);
 }
 
 function propsToCandidate(p: HandoffProps): VisualCandidate {
@@ -45,61 +43,99 @@ function propsToCandidate(p: HandoffProps): VisualCandidate {
 }
 
 /**
- * Keeps the last fully decoded visual candidate (src + focal + art direction)
- * until the next candidate is ready — avoids mixed old/new metadata during load.
+ * Keeps the last fully decoded visual candidate until the next candidate loads.
+ * `ready` is true only after the incoming candidate's image has fired `onLoad`.
  */
 export function HeroImageHandoff(props: HandoffProps) {
   const {
+    slideKey,
+    desktopSrc,
+    mobileSrc,
+    focal,
+    compactMedia,
     priority,
     onReadyChange,
     className,
     imageClassName,
-    compactMedia,
   } = props;
-  const incoming = propsToCandidate(props);
-  const [shown, setShown] = useState<VisualCandidate>(() => incoming);
-  const shownRef = useRef(shown);
-  shownRef.current = shown;
+  const incoming = useMemo(
+    () =>
+      propsToCandidate({
+        slideKey,
+        desktopSrc,
+        mobileSrc,
+        focal,
+        compactMedia,
+      }),
+    [slideKey, desktopSrc, mobileSrc, focal, compactMedia],
+  );
+  const incomingId = candidateId(incoming);
+  const incomingRef = useRef(incoming);
+  useEffect(() => {
+    incomingRef.current = incoming;
+  }, [incoming]);
 
-  const ready = sameCandidate(shown, incoming);
+  const [displayed, setDisplayed] = useState<VisualCandidate>(() => incoming);
+  /** Candidate identity that has completed a successful image load. */
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+
+  const ready = loadedId === incomingId;
 
   useEffect(() => {
     onReadyChange?.(ready);
   }, [ready, onReadyChange]);
 
-  useEffect(() => {
-    if (sameCandidate(shownRef.current, incoming)) return;
-    // Incoming changed — keep `shown` until hidden preload fires onLoad.
-  }, [incoming]);
+  const markLoaded = useCallback((forId: string) => {
+    setLoadedId((prev) => (prev === forId ? prev : forId));
+  }, []);
 
-  const handleIncomingReady = useCallback(() => {
-    setShown(incoming);
-  }, [incoming]);
+  const handleVisibleLoad = useCallback(() => {
+    const id = candidateId(displayed);
+    if (id === incomingId) {
+      markLoaded(incomingId);
+    }
+  }, [displayed, incomingId, markLoaded]);
 
-  const shownMobile = shown.compactMedia ? null : shown.mobileSrc;
+  const handlePreloadLoad = useCallback(
+    (preloadId: string) => {
+      const current = incomingRef.current;
+      const currentId = candidateId(current);
+      if (preloadId !== currentId) return;
+      setDisplayed(current);
+      markLoaded(currentId);
+    },
+    [markLoaded],
+  );
+
+  const shownMobile = displayed.compactMedia ? null : displayed.mobileSrc;
   const incomingMobile = incoming.compactMedia ? null : incoming.mobileSrc;
+  const preloading = !sameCandidate(displayed, incoming);
 
   return (
     <div className={cn("relative h-full w-full overflow-hidden", className)}>
       <HeroBackgroundImage
-        key={`shown-${shown.slideKey}-${shown.desktopSrc}`}
-        desktopSrc={shown.desktopSrc}
+        key={`shown-${candidateId(displayed)}`}
+        desktopSrc={displayed.desktopSrc}
         mobileSrc={shownMobile}
-        focal={shown.focal}
-        priority={priority && sameCandidate(shown, incoming)}
+        focal={displayed.focal}
+        priority={priority && !preloading && ready}
         className={imageClassName ?? "object-cover"}
-        sizes={shown.compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
+        sizes={displayed.compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
+        onLoad={handleVisibleLoad}
       />
-      {!sameCandidate(shown, incoming) ? (
-        <div className="pointer-events-none absolute inset-0 opacity-0" aria-hidden>
+      {preloading ? (
+        <div
+          className="pointer-events-none absolute inset-0 opacity-0"
+          aria-hidden
+        >
           <HeroBackgroundImage
-            key={`preload-${incoming.slideKey}-${incoming.desktopSrc}`}
+            key={`preload-${incomingId}`}
             desktopSrc={incoming.desktopSrc}
             mobileSrc={incomingMobile}
             focal={incoming.focal}
             className={imageClassName ?? "object-cover"}
             sizes={incoming.compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
-            onLoad={handleIncomingReady}
+            onLoad={() => handlePreloadLoad(incomingId)}
           />
         </div>
       ) : null}
