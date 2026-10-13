@@ -34,6 +34,8 @@ jobs:
       run_aods_fast: ${{ steps.classify.outputs.run_aods_fast }}
       run_aods_openapi: ${{ steps.classify.outputs.run_aods_openapi }}
       run_deploy_staging_guard: ${{ steps.classify.outputs.run_deploy_staging_guard }}
+      run_audit_script_validation: ${{ steps.classify.outputs.run_audit_script_validation }}
+      changed_readonly_audit_scripts: ${{ steps.classify.outputs.changed_readonly_audit_scripts }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -108,9 +110,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Skip Python lint (classifier R0/R1)
-        if: needs.classify.outputs.run_backend_lint != 'true'
+      - name: Skip Python lint (classifier)
+        if: needs.classify.outputs.run_backend_lint != 'true' && needs.classify.outputs.run_audit_script_validation != 'true'
         run: echo "No backend lint required (tier=${{ needs.classify.outputs.risk_tier }}, scenario=${{ needs.classify.outputs.scenario }})."
+
+      - name: Validate read-only audit scripts
+        if: needs.classify.outputs.run_audit_script_validation == 'true'
+        run: bash scripts/ci/validate_readonly_audit_scripts.sh '${{ needs.classify.outputs.changed_readonly_audit_scripts }}'
 
       - name: Setup Python
         if: needs.classify.outputs.run_backend_lint == 'true'

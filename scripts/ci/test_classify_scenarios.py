@@ -114,7 +114,8 @@ class ClassifierScenarios(unittest.TestCase):
         r = run_classifier("scripts/audit_product_naming_v1.py")
         self.assertEqual(r["scenario"], "M")
         self.assertEqual(r["risk_tier"], "R1")
-        self.assertTrue(r["run_backend_lint"])
+        self.assertTrue(r["run_audit_script_validation"])
+        self.assertFalse(r["run_backend_lint"])
         self.assertFalse(r["run_backend_test_heavy"])
 
     def test_scripts_apply_r3(self):
@@ -130,6 +131,39 @@ class ClassifierScenarios(unittest.TestCase):
         r = run_classifier("frontend/Storefront/package.json")
         self.assertTrue(r["run_frontend_e2e"])
 
+
+
+    def test_script_audit_allowlisted_r1(self):
+        r = run_classifier("scripts/audit_safe_readonly.py")
+        self.assertEqual(r["risk_tier"], "R1")
+        self.assertEqual(r["scenario"], "M")
+        self.assertTrue(r["run_audit_script_validation"])
+        self.assertFalse(r["run_backend_test_heavy"])
+        self.assertFalse(r["run_backend_lint"])
+        self.assertIn("scripts/audit_safe_readonly.py", r["changed_readonly_audit_scripts"])
+
+    def test_script_audit_apply_production_r3(self):
+        r = run_classifier("scripts/audit_apply_production.py")
+        self.assertEqual(r["risk_tier"], "R3")
+        self.assertTrue(r["run_backend_test_heavy"])
+        self.assertFalse(r.get("run_audit_script_validation"))
+
+    def test_script_audit_price_writer_r3(self):
+        r = run_classifier("scripts/audit_price_writer.py")
+        self.assertEqual(r["risk_tier"], "R3")
+
+    def test_script_apply_catalog_r3(self):
+        r = run_classifier("scripts/apply_catalog.py")
+        self.assertEqual(r["risk_tier"], "R3")
+
+    def test_script_custom_unknown_r3(self):
+        r = run_classifier("scripts/custom_unknown.py")
+        self.assertEqual(r["risk_tier"], "R3")
+
+    def test_script_mutation_overrides_audit_name(self):
+        r = run_classifier("scripts/audit_apply_production.py")
+        self.assertEqual(r["risk_tier"], "R3")
+        self.assertNotEqual(r.get("scenario"), "M")
 
 if __name__ == "__main__":
     unittest.main()

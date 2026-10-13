@@ -48,7 +48,9 @@ class Classification:
     run_frontend_admin: bool = False
     run_frontend_e2e: bool = False
     run_deploy_staging_guard: bool = False
+    run_audit_script_validation: bool = False
     changed_paths: list[str] = field(default_factory=list)
+    changed_readonly_audit_scripts: list[str] = field(default_factory=list)
 
     def to_github_outputs(self) -> dict[str, str]:
         data = asdict(self)
@@ -84,18 +86,29 @@ def matches_any(path: str, prefixes: list[str]) -> bool:
     return False
 
 
+def _is_script_mutation(path: str, policy: dict) -> bool:
+    """Mutation / high-risk script paths win before read-only audit allowlist."""
+    name = Path(path).name
+    mutation_prefixes = policy.get("script_mutation_prefixes", [])
+    if any(matches_any(path, [p]) for p in mutation_prefixes):
+        return True
+    for marker in policy.get("script_mutation_name_markers", []):
+        if marker in name:
+            return True
+    return False
+
+
+def _is_readonly_audit_script(path: str, policy: dict) -> bool:
+    return path in set(policy.get("script_readonly_audit_allowlist", []))
+
+
 def script_tags(path: str, policy: dict) -> set[str]:
     if not path.startswith("scripts/"):
         return set()
-    name = Path(path).name
-    audit_prefix = policy.get("script_audit_name_prefix", "audit_")
-    if name.startswith(audit_prefix):
+    if _is_script_mutation(path, policy):
+        return {"scripts_apply"}
+    if _is_readonly_audit_script(path, policy):
         return {"scripts_audit"}
-    if name.startswith("apply_") or "_apply" in name:
-        return {"scripts_apply"}
-    mutation_prefixes = policy.get("script_mutation_prefixes", [])
-    if any(matches_any(path, [p]) for p in mutation_prefixes):
-        return {"scripts_apply"}
     return {"scripts_unknown"}
 
 
@@ -345,12 +358,16 @@ def classify(
         )
 
     if "scripts_audit" in tag_union and tag_union <= {"scripts_audit", "docs_only"}:
+        readonly_scripts = sorted(
+            p for p in paths if _is_readonly_audit_script(p, policy)
+        )
         return Classification(
             risk_tier="R1",
             scenario="M",
             conservative=False,
             domains=domains_from_tags(tag_union),
-            run_backend_lint=True,
+            run_audit_script_validation=True,
+            changed_readonly_audit_scripts=readonly_scripts,
             run_aods_fast=True,
             changed_paths=paths,
         )
@@ -408,7 +425,9 @@ def classify(
 def skip_reasons(result: Classification) -> list[str]:
     reasons: list[str] = []
     if not result.run_backend_lint:
-        reasons.append("backend lint skipped (tier/scenario does not require Python lint)")
+        reasons.append("backend app lint skipped (tier/scenario does not require full ruff/mypy)")
+    if not result.run_audit_script_validation:
+        reasons.append("read-only audit script validation skipped (no allowlisted audit scripts)")
     if not result.run_backend_test_heavy:
         reasons.append("Postgres/Redis pytest skipped (R0/R1 or deploy-guard-only)")
     if not result.run_aods_openapi:
@@ -437,6 +456,7 @@ def write_step_summary(result: Classification) -> None:
         "run_frontend_admin": result.run_frontend_admin,
         "run_frontend_e2e": result.run_frontend_e2e,
         "run_deploy_staging_guard": result.run_deploy_staging_guard,
+        "run_audit_script_validation": result.run_audit_script_validation,
     }
     lines = [
         "## CI risk classification",
@@ -449,6 +469,15 @@ def write_step_summary(result: Classification) -> None:
     ]
     for key, enabled in flags.items():
         lines.append(f"- `{key}`: **{'on' if enabled else 'off'}**")
+    if result.changed_readonly_audit_scripts:
+        lines.extend(
+            [
+                "",
+                "### Read-only audit scripts",
+                "",
+                ", ".join(f"`{p}`" for p in result.changed_readonly_audit_scripts),
+            ]
+        )
     if result.unknown_paths:
         lines.extend(["", "### Unknown paths (fail-safe FULL)", ""])
         for path in result.unknown_paths:
