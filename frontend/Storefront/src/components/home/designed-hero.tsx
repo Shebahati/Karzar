@@ -726,7 +726,7 @@ export function DesignedHero({
   const [isMobile, setIsMobile] = useState(false);
   const [isCompactLayout, setIsCompactLayout] = useState(false);
   const [sheetNudge, setSheetNudge] = useState<"next" | "prev" | null>(null);
-  const [slideImageReady, setSlideImageReady] = useState(true);
+  const [campaignPendingIndex, setCampaignPendingIndex] = useState<number | null>(null);
   const [autoplayEpoch, setAutoplayEpoch] = useState(0);
   /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
   const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
@@ -783,18 +783,37 @@ export function DesignedHero({
     setAutoplayEpoch((e) => e + 1);
   }, []);
 
+  const finalizeCampaignPending = useCallback(() => {
+    setCampaignPendingIndex((pending) => {
+      if (pending !== null) setIndex(pending);
+      return null;
+    });
+  }, []);
+
   const commitNext = useCallback(() => {
     if (!slideCount) return;
-    if (campaignMode) setSlideImageReady(false);
     setDirection(1);
-    setIndex((i) => (i + 1) % slideCount);
+    setIndex((i) => {
+      const next = (i + 1) % slideCount;
+      if (campaignMode) {
+        setCampaignPendingIndex(next);
+        return i;
+      }
+      return next;
+    });
   }, [slideCount, campaignMode]);
 
   const commitPrev = useCallback(() => {
     if (!slideCount) return;
-    if (campaignMode) setSlideImageReady(false);
     setDirection(-1);
-    setIndex((i) => (i - 1 + slideCount) % slideCount);
+    setIndex((i) => {
+      const next = (i - 1 + slideCount) % slideCount;
+      if (campaignMode) {
+        setCampaignPendingIndex(next);
+        return i;
+      }
+      return next;
+    });
   }, [slideCount, campaignMode]);
 
   const goNext = useCallback(() => {
@@ -929,7 +948,10 @@ export function DesignedHero({
       : heroSheetVariants;
   const useSheetStrip = isMobile && !reducedMotion && slideCount > 1;
   const campaignCompact = campaignMode && isCompactLayout;
-  const copyVisible = !campaignMode || slideImageReady || reducedMotion;
+  const pendingSlide =
+    campaignPendingIndex !== null && slides[campaignPendingIndex]
+      ? slides[campaignPendingIndex]
+      : null;
 
   const compactMinHeight =
     "min-h-[calc((100vw/(4/3))+15.5rem)] max-[430px]:min-h-[calc((100vw/(4/3))+17rem)]";
@@ -984,22 +1006,6 @@ export function DesignedHero({
             onCommitPrev={commitPrev}
             useCampaignLayout={campaignMode}
           />
-        ) : campaignMode ? (
-          <div className="absolute inset-0">
-            <SlideCanvas
-              slide={slide}
-              reducedMotion={reducedMotion || isMobile}
-              blurred={menuOpen}
-              mobilePreset={mobilePreset}
-              isMobile={isMobile}
-              priority={activeIndex === 0}
-              primaryHeading={activeIndex === 0}
-              useCampaignLayout
-              campaignCompact={campaignCompact}
-              contentVisible={copyVisible}
-              onImageReadyChange={setSlideImageReady}
-            />
-          </div>
         ) : (
           <AnimatePresence initial={false} custom={direction} mode="sync">
             <motion.div
@@ -1024,10 +1030,27 @@ export function DesignedHero({
                 isMobile={isMobile}
                 priority={activeIndex === 0}
                 primaryHeading={activeIndex === 0}
+                useCampaignLayout={campaignMode}
+                campaignCompact={campaignCompact}
               />
             </motion.div>
           </AnimatePresence>
         )}
+
+        {pendingSlide ? (
+          <div className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0" aria-hidden>
+            <SlideCanvas
+              slide={pendingSlide}
+              reducedMotion
+              isMobile={isMobile}
+              useCampaignLayout
+              campaignCompact={campaignCompact}
+              onImageReadyChange={(ready) => {
+                if (ready) finalizeCampaignPending();
+              }}
+            />
+          </div>
+        ) : null}
 
         {slides.length > 1 && !menuOpen ? (
           <>

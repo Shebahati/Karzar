@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HeroBackgroundImage } from "@/lib/hero-background-image";
 import { cn } from "@/lib/utils";
 
@@ -16,55 +16,90 @@ type HandoffProps = {
   compactMedia?: boolean;
 };
 
+type VisualCandidate = {
+  slideKey: string;
+  desktopSrc: string;
+  mobileSrc: string | null | undefined;
+  focal: string;
+  compactMedia: boolean;
+};
+
+function sameCandidate(a: VisualCandidate, b: VisualCandidate): boolean {
+  return (
+    a.slideKey === b.slideKey &&
+    a.desktopSrc === b.desktopSrc &&
+    a.focal === b.focal &&
+    a.mobileSrc === b.mobileSrc &&
+    a.compactMedia === b.compactMedia
+  );
+}
+
+function propsToCandidate(p: HandoffProps): VisualCandidate {
+  return {
+    slideKey: p.slideKey,
+    desktopSrc: p.desktopSrc,
+    mobileSrc: p.mobileSrc,
+    focal: p.focal,
+    compactMedia: Boolean(p.compactMedia),
+  };
+}
+
 /**
- * Keeps the last decoded hero image visible until the next candidate is ready,
- * avoiding image-free frames during slide transitions.
+ * Keeps the last fully decoded visual candidate (src + focal + art direction)
+ * until the next candidate is ready — avoids mixed old/new metadata during load.
  */
-export function HeroImageHandoff({
-  slideKey,
-  desktopSrc,
-  mobileSrc,
-  focal,
-  priority,
-  onReadyChange,
-  className,
-  imageClassName,
-  compactMedia,
-}: HandoffProps) {
-  const [shownSrc, setShownSrc] = useState(desktopSrc);
-  const ready = desktopSrc === shownSrc;
-  const artMobile = compactMedia ? null : mobileSrc;
+export function HeroImageHandoff(props: HandoffProps) {
+  const {
+    priority,
+    onReadyChange,
+    className,
+    imageClassName,
+    compactMedia,
+  } = props;
+  const incoming = propsToCandidate(props);
+  const [shown, setShown] = useState<VisualCandidate>(() => incoming);
+  const shownRef = useRef(shown);
+  shownRef.current = shown;
+
+  const ready = sameCandidate(shown, incoming);
 
   useEffect(() => {
     onReadyChange?.(ready);
   }, [ready, onReadyChange]);
 
-  const handleLoad = useCallback(() => {
-    setShownSrc(desktopSrc);
-  }, [desktopSrc]);
+  useEffect(() => {
+    if (sameCandidate(shownRef.current, incoming)) return;
+    // Incoming changed — keep `shown` until hidden preload fires onLoad.
+  }, [incoming]);
+
+  const handleIncomingReady = useCallback(() => {
+    setShown(incoming);
+  }, [incoming]);
+
+  const shownMobile = shown.compactMedia ? null : shown.mobileSrc;
+  const incomingMobile = incoming.compactMedia ? null : incoming.mobileSrc;
 
   return (
     <div className={cn("relative h-full w-full overflow-hidden", className)}>
       <HeroBackgroundImage
-        key={`shown-${shownSrc}-${slideKey}`}
-        desktopSrc={shownSrc}
-        mobileSrc={artMobile}
-        focal={focal}
-        priority={priority && shownSrc === desktopSrc}
+        key={`shown-${shown.slideKey}-${shown.desktopSrc}`}
+        desktopSrc={shown.desktopSrc}
+        mobileSrc={shownMobile}
+        focal={shown.focal}
+        priority={priority && sameCandidate(shown, incoming)}
         className={imageClassName ?? "object-cover"}
-        sizes={compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
-        onLoad={shownSrc === desktopSrc ? handleLoad : undefined}
+        sizes={shown.compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
       />
-      {desktopSrc !== shownSrc ? (
+      {!sameCandidate(shown, incoming) ? (
         <div className="pointer-events-none absolute inset-0 opacity-0" aria-hidden>
           <HeroBackgroundImage
-            key={`preload-${desktopSrc}-${slideKey}`}
-            desktopSrc={desktopSrc}
-            mobileSrc={artMobile}
-            focal={focal}
+            key={`preload-${incoming.slideKey}-${incoming.desktopSrc}`}
+            desktopSrc={incoming.desktopSrc}
+            mobileSrc={incomingMobile}
+            focal={incoming.focal}
             className={imageClassName ?? "object-cover"}
-            sizes={compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
-            onLoad={handleLoad}
+            sizes={incoming.compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
+            onLoad={handleIncomingReady}
           />
         </div>
       ) : null}
