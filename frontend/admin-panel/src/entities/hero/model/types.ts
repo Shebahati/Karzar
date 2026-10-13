@@ -41,6 +41,8 @@ export interface HeroPosition {
 export interface HeroBackground {
   mode: "image" | "color";
   imageUrl: string;
+  /** Optional mobile art-directed asset (desktop uses imageUrl). */
+  mobileImageUrl?: string;
   color: string;
   /** CSS object-position, e.g. "center", "left 40%" */
   focal: string;

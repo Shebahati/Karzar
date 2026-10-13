@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "publishedAt": "2026-09-01T09:30:00.000Z",
+  "publishedAt": "2026-10-13T10:00:00.000Z",
   "mobilePreset": "balanced",
   "categoryDock": {
     "categories": [
@@ -40,12 +40,12 @@
       },
       {
         "key": "inserts",
-        "name": "اینسرت",
+        "name": "اینسرت و ابزارهای اینسرتی",
         "icon": "/category-icons/insert.png",
         "productCount": 0,
         "heroImage": "/images/hero/hero-cutting-left.jpg",
         "subtitle": "اینسرت‌های پوشش‌دار برای سطوح برش متنوع — تعویض سریع، عمر طولانی، کیفیت ثابت",
-        "ctaLabel": "مشاهده اینسرت",
+        "ctaLabel": "مشاهده اینسرت‌ها",
         "featuredOrder": 2,
         "slugHint": "insert"
       },
@@ -57,7 +57,7 @@
         "heroImage": "/images/hero/hero-cutting-left.jpg",
         "subtitle": "ابزارهای پروفایل و فرز انگشتی برای ماشین‌کاری تمیز — از کاربید تا پوشش‌های پیشرفته",
         "ctaLabel": "مشاهده فرز انگشتی",
-        "featuredOrder": null,
+        "featuredOrder": 3,
         "slugHint": "farz-angoshti"
       },
       {
@@ -72,13 +72,24 @@
         "slugHint": "ghalaviz"
       },
       {
+        "key": "drills",
+        "name": "مته‌ها",
+        "icon": "/category-icons/mete.png",
+        "productCount": 0,
+        "heroImage": "/images/hero/hero-cutting-left.jpg",
+        "subtitle": "مته‌های HSS و کاربید برای سوراخ‌کاری تمیز و تکرارپذیر",
+        "ctaLabel": "مشاهده مته‌ها",
+        "featuredOrder": null,
+        "slugHint": "mete"
+      },
+      {
         "key": "toolholders",
-        "name": "ابزار گیر",
+        "name": "ابزارگیر",
         "icon": "/category-icons/abzar-gir.png",
         "productCount": 0,
         "heroImage": "/images/hero/hero-holding-left.jpg",
         "subtitle": "هولدر و رابط‌های ابزار برای پایداری بیشتر در اسپیندل",
-        "ctaLabel": "مشاهده ابزار گیر",
+        "ctaLabel": "مشاهده ابزارگیر",
         "featuredOrder": null,
         "slugHint": "abzar-gir"
       },
@@ -90,7 +101,7 @@
         "heroImage": "/images/hero/hero-holding-left.jpg",
         "subtitle": "گیره، فیکسچر و سیستم‌های نگه‌دارنده — ثبات بیشتر، لرزش کمتر، نتیجه تمیزتر در ماشین‌کاری",
         "ctaLabel": "مشاهده ابزار گیرشی",
-        "featuredOrder": 3,
+        "featuredOrder": null,
         "slugHint": "abzar-gireshi"
       },
       {
@@ -116,23 +127,12 @@
         "slugHint": "heli-coil"
       },
       {
-        "key": "drills",
-        "name": "مته",
-        "icon": "/category-icons/mete.png",
-        "productCount": 0,
-        "heroImage": "/images/hero/hero-cutting-left.jpg",
-        "subtitle": "مته‌های HSS و کاربید برای سوراخ‌کاری تمیز و تکرارپذیر",
-        "ctaLabel": "مشاهده مته",
-        "featuredOrder": null,
-        "slugHint": "mete"
-      },
-      {
         "key": "workshop-tools",
-        "name": "ابزار کارگاهی : دریل عادی",
+        "name": "ابزار کارگاهی",
         "icon": "/category-icons/abzar-kargahi.png",
         "productCount": 0,
         "heroImage": "/images/hero/hero-holding-left.jpg",
-        "subtitle": "ابزار کارگاهی و دریل عادی برای کار روزمره کارگاه",
+        "subtitle": "ابزار کارگاهی برای کار روزمره کارگاه",
         "ctaLabel": "مشاهده ابزار کارگاهی",
         "featuredOrder": null,
         "slugHint": "abzar-kargahi"
@@ -152,11 +152,11 @@
   },
   "slides": [
     {
-      "id": "slide_special_offers",
-      "name": "تخفیف‌های ویژه",
+      "id": "slide_h01_special_offers",
+      "name": "تخفیف‌ها",
       "sortOrder": 1,
       "isActive": true,
-      "mobilePreset": "copy-focus",
+      "mobilePreset": "balanced",
       "config": {
         "version": 1,
         "minHeight": 760,
@@ -164,36 +164,36 @@
         "linkedOrbKey": "discounts",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/v2/desktop/hero-special-offers.png",
-          "mobileImageUrl": "/images/hero/v2/mobile/hero-special-offers-mobile.png",
+          "imageUrl": "/images/hero/reborn-5/H01-special-offers-native-lossless.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/H01-special-offers-1280.webp",
           "color": "#121212",
-          "focal": "center"
+          "focal": "left 38%"
         },
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.55)",
-          "gradientFrom": "rgba(8,8,8,0.15)",
-          "gradientTo": "rgba(8,8,8,0.62)",
+          "gradientFrom": "rgba(8,8,8,0.12)",
+          "gradientTo": "rgba(8,8,8,0.58)",
           "gradientAngle": 105,
-          "opacity": 0.88
+          "opacity": 0.82
         },
         "typography": {
-          "title": "تخفیف‌های ویژه کارزار",
-          "subtitle": "فرصت‌های منتخب خرید ابزار و تجهیزات صنعتی",
           "titleColor": "#FFFFFF",
           "subtitleColor": "rgba(255,255,255,0.9)",
           "titleSize": 44,
-          "subtitleSize": 16,
+          "subtitleSize": 17,
           "align": "start",
           "position": {
             "x": 6,
             "y": 28
           },
-          "maxWidth": 420
+          "maxWidth": 460,
+          "title": "تخفیف‌های ویژه‌ی کارزار",
+          "subtitle": "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی."
         },
         "buttons": [
           {
-            "id": "btn_slide_special_offers",
+            "id": "btn_slide_h01_special_offers",
             "label": "مشاهده تخفیف‌ها",
             "variant": "solid",
             "bgColor": "#D02327",
@@ -225,11 +225,11 @@
       }
     },
     {
-      "id": "slide_precision",
-      "name": "اندازه‌گیری دقیق",
+      "id": "slide_h02_measuring",
+      "name": "اندازه‌گیری",
       "sortOrder": 2,
       "isActive": true,
-      "mobilePreset": "copy-focus",
+      "mobilePreset": "balanced",
       "config": {
         "version": 1,
         "minHeight": 760,
@@ -237,37 +237,37 @@
         "linkedOrbKey": "metrology",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/v2/desktop/hero-precision-measurement.png",
-          "mobileImageUrl": "/images/hero/v2/mobile/hero-precision-measurement-mobile.png",
+          "imageUrl": "/images/hero/reborn-5/H02-measuring-tools-native-lossless.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/H02-measuring-tools-1280.webp",
           "color": "#121212",
-          "focal": "center"
+          "focal": "left 40%"
         },
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.55)",
-          "gradientFrom": "rgba(8,8,8,0.15)",
-          "gradientTo": "rgba(8,8,8,0.62)",
+          "gradientFrom": "rgba(8,8,8,0.12)",
+          "gradientTo": "rgba(8,8,8,0.58)",
           "gradientAngle": 105,
-          "opacity": 0.88
+          "opacity": 0.82
         },
         "typography": {
-          "title": "اندازه‌گیری دقیق",
-          "subtitle": "ابزارهای سنجش و کنترل ابعادی برای کارگاه و کنترل کیفیت",
           "titleColor": "#FFFFFF",
           "subtitleColor": "rgba(255,255,255,0.9)",
           "titleSize": 44,
-          "subtitleSize": 16,
+          "subtitleSize": 17,
           "align": "start",
           "position": {
             "x": 6,
             "y": 28
           },
-          "maxWidth": 420
+          "maxWidth": 460,
+          "title": "ابزار اندازه‌گیری",
+          "subtitle": "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت."
         },
         "buttons": [
           {
-            "id": "btn_slide_precision",
-            "label": "مشاهده ابزارهای اندازه‌گیری",
+            "id": "btn_slide_h02_measuring",
+            "label": "مشاهده ابزار اندازه‌گیری",
             "variant": "solid",
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
@@ -298,84 +298,11 @@
       }
     },
     {
-      "id": "slide_workholding",
-      "name": "ثبات کاری",
+      "id": "slide_h03_inserts",
+      "name": "اینسرت و ابزارهای اینسرتی",
       "sortOrder": 3,
       "isActive": true,
-      "mobilePreset": "copy-focus",
-      "config": {
-        "version": 1,
-        "minHeight": 760,
-        "animation": "fade-up",
-        "linkedOrbKey": "workholding",
-        "background": {
-          "mode": "image",
-          "imageUrl": "/images/hero/v2/desktop/hero-workholding.png",
-          "mobileImageUrl": "/images/hero/v2/mobile/hero-workholding-mobile.png",
-          "color": "#121212",
-          "focal": "center"
-        },
-        "overlay": {
-          "mode": "gradient",
-          "solidColor": "rgba(12,12,12,0.55)",
-          "gradientFrom": "rgba(8,8,8,0.15)",
-          "gradientTo": "rgba(8,8,8,0.62)",
-          "gradientAngle": 105,
-          "opacity": 0.88
-        },
-        "typography": {
-          "title": "ثبات کاری حرفه‌ای",
-          "subtitle": "راهکارهای دقیق مهار قطعه برای ماشین‌کاری مطمئن و پایدار",
-          "titleColor": "#FFFFFF",
-          "subtitleColor": "rgba(255,255,255,0.9)",
-          "titleSize": 44,
-          "subtitleSize": 16,
-          "align": "start",
-          "position": {
-            "x": 6,
-            "y": 28
-          },
-          "maxWidth": 420
-        },
-        "buttons": [
-          {
-            "id": "btn_slide_workholding",
-            "label": "مشاهده ابزارهای گیرشی",
-            "variant": "solid",
-            "bgColor": "#D02327",
-            "textColor": "#FFFFFF",
-            "borderRadius": 12,
-            "position": {
-              "x": 6,
-              "y": 58
-            },
-            "action": {
-              "type": "href",
-              "value": "/categories/abzar-gireshi"
-            },
-            "stylePreset": "primary",
-            "sizePreset": "lg"
-          }
-        ],
-        "badges": [],
-        "carousel": {
-          "enabled": false,
-          "categorySlug": "",
-          "categoryLabel": "",
-          "position": {
-            "x": 52,
-            "y": 62
-          },
-          "maxItems": 4
-        }
-      }
-    },
-    {
-      "id": "slide_inserts",
-      "name": "اینسرت کاربیدی",
-      "sortOrder": 4,
-      "isActive": true,
-      "mobilePreset": "copy-focus",
+      "mobilePreset": "balanced",
       "config": {
         "version": 1,
         "minHeight": 760,
@@ -383,36 +310,36 @@
         "linkedOrbKey": "inserts",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/v2/desktop/hero-carbide-inserts.png",
-          "mobileImageUrl": "/images/hero/v2/mobile/hero-carbide-inserts-mobile.png",
+          "imageUrl": "/images/hero/reborn-5/H03-inserts-turning-tools-native-lossless.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/H03-inserts-turning-tools-1280.webp",
           "color": "#121212",
-          "focal": "center"
+          "focal": "left 42%"
         },
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.55)",
-          "gradientFrom": "rgba(8,8,8,0.15)",
-          "gradientTo": "rgba(8,8,8,0.62)",
+          "gradientFrom": "rgba(8,8,8,0.12)",
+          "gradientTo": "rgba(8,8,8,0.58)",
           "gradientAngle": 105,
-          "opacity": 0.88
+          "opacity": 0.82
         },
         "typography": {
-          "title": "اینسرت کاربیدی",
-          "subtitle": "انتخاب هندسه و گرید متناسب با جنس قطعه و عملیات ماشین‌کاری",
           "titleColor": "#FFFFFF",
           "subtitleColor": "rgba(255,255,255,0.9)",
           "titleSize": 44,
-          "subtitleSize": 16,
+          "subtitleSize": 17,
           "align": "start",
           "position": {
             "x": 6,
             "y": 28
           },
-          "maxWidth": 420
+          "maxWidth": 460,
+          "title": "اینسرت و ابزارهای اینسرتی",
+          "subtitle": "انتخاب ابزار متناسب با جنس قطعه، نوع عملیات و شرایط ماشین‌کاری."
         },
         "buttons": [
           {
-            "id": "btn_slide_inserts",
+            "id": "btn_slide_h03_inserts",
             "label": "مشاهده اینسرت‌ها",
             "variant": "solid",
             "bgColor": "#D02327",
@@ -428,6 +355,24 @@
             },
             "stylePreset": "primary",
             "sizePreset": "lg"
+          },
+          {
+            "id": "btn_slide_h03_inserts_secondary",
+            "label": "مشاهده ابزارهای اینسرتی",
+            "variant": "solid",
+            "bgColor": "#5E5F5E",
+            "textColor": "#FFFFFF",
+            "borderRadius": 12,
+            "position": {
+              "x": 6,
+              "y": 68
+            },
+            "action": {
+              "type": "href",
+              "value": "/categories/abzar-inserti"
+            },
+            "stylePreset": "soft",
+            "sizePreset": "lg"
           }
         ],
         "badges": [],
@@ -444,49 +389,49 @@
       }
     },
     {
-      "id": "slide_indexable",
-      "name": "ابزارهای اینسرتی",
-      "sortOrder": 5,
+      "id": "slide_h04_endmills",
+      "name": "فرز انگشتی",
+      "sortOrder": 4,
       "isActive": true,
-      "mobilePreset": "copy-focus",
+      "mobilePreset": "balanced",
       "config": {
         "version": 1,
         "minHeight": 760,
         "animation": "fade-up",
-        "linkedOrbKey": "insert-tools",
+        "linkedOrbKey": "endmills",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/v2/desktop/hero-indexable-tools.png",
-          "mobileImageUrl": "/images/hero/v2/mobile/hero-indexable-tools-mobile.png",
+          "imageUrl": "/images/hero/reborn-5/H04-end-mills-native-lossless.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/H04-end-mills-1280.webp",
           "color": "#121212",
-          "focal": "center"
+          "focal": "left 44%"
         },
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.55)",
-          "gradientFrom": "rgba(8,8,8,0.15)",
-          "gradientTo": "rgba(8,8,8,0.62)",
+          "gradientFrom": "rgba(8,8,8,0.12)",
+          "gradientTo": "rgba(8,8,8,0.58)",
           "gradientAngle": 105,
-          "opacity": 0.88
+          "opacity": 0.82
         },
         "typography": {
-          "title": "ابزارهای اینسرتی",
-          "subtitle": "هلدرها و سیستم‌های تعویض‌پذیر برای تراش و فرز",
           "titleColor": "#FFFFFF",
           "subtitleColor": "rgba(255,255,255,0.9)",
           "titleSize": 44,
-          "subtitleSize": 16,
+          "subtitleSize": 17,
           "align": "start",
           "position": {
             "x": 6,
             "y": 28
           },
-          "maxWidth": 420
+          "maxWidth": 460,
+          "title": "فرز انگشتی",
+          "subtitle": "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف."
         },
         "buttons": [
           {
-            "id": "btn_slide_indexable",
-            "label": "مشاهده ابزارهای اینسرتی",
+            "id": "btn_slide_h04_endmills",
+            "label": "مشاهده فرزهای انگشتی",
             "variant": "solid",
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
@@ -497,7 +442,7 @@
             },
             "action": {
               "type": "href",
-              "value": "/categories/abzar-inserti"
+              "value": "/categories/farz-angoshti"
             },
             "stylePreset": "primary",
             "sizePreset": "lg"
@@ -517,11 +462,11 @@
       }
     },
     {
-      "id": "slide_machines",
-      "name": "دستگاه‌ها",
-      "sortOrder": 6,
+      "id": "slide_h05_machines",
+      "name": "دستگاه‌های صنعتی",
+      "sortOrder": 5,
       "isActive": true,
-      "mobilePreset": "copy-focus",
+      "mobilePreset": "balanced",
       "config": {
         "version": 1,
         "minHeight": 760,
@@ -529,37 +474,37 @@
         "linkedOrbKey": "industrial-machines",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/v2/desktop/hero-cnc-machines.png",
-          "mobileImageUrl": "/images/hero/v2/mobile/hero-cnc-machines-mobile.png",
+          "imageUrl": "/images/hero/reborn-5/H05-industrial-machines-native-lossless.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/H05-industrial-machines-1280.webp",
           "color": "#121212",
-          "focal": "center"
+          "focal": "left 36%"
         },
         "overlay": {
           "mode": "gradient",
           "solidColor": "rgba(12,12,12,0.55)",
-          "gradientFrom": "rgba(8,8,8,0.15)",
-          "gradientTo": "rgba(8,8,8,0.62)",
+          "gradientFrom": "rgba(8,8,8,0.12)",
+          "gradientTo": "rgba(8,8,8,0.58)",
           "gradientAngle": 105,
-          "opacity": 0.88
+          "opacity": 0.82
         },
         "typography": {
-          "title": "ظرفیت کارگاه را ارتقا دهید",
-          "subtitle": "دستگاه‌ها و تجهیزات صنعتی برای توسعه تولید",
           "titleColor": "#FFFFFF",
           "subtitleColor": "rgba(255,255,255,0.9)",
           "titleSize": 44,
-          "subtitleSize": 16,
+          "subtitleSize": 17,
           "align": "start",
           "position": {
             "x": 6,
             "y": 28
           },
-          "maxWidth": 420
+          "maxWidth": 460,
+          "title": "دستگاه‌های صنعتی",
+          "subtitle": "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما."
         },
         "buttons": [
           {
-            "id": "btn_slide_machines",
-            "label": "مشاهده دستگاه‌ها",
+            "id": "btn_slide_h05_machines",
+            "label": "مشاهده دستگاه‌های صنعتی",
             "variant": "solid",
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",

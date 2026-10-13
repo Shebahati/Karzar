@@ -74,7 +74,7 @@ export function HeroSlidePicker({
               طراحی هیرو کارزار
             </p>
             <h1 className="mt-1 text-2xl font-black text-[#1A1A1A]">
-              ۶ اسلاید ثابت
+              {HERO_SLIDE_SLOT_COUNT} اسلاید ثابت
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-[#5E5F5E]">
               دقیقاً {HERO_SLIDE_SLOT_COUNT} اسلاید برای کاروسل، و{" "}
@@ -95,7 +95,7 @@ export function HeroSlidePicker({
                 variant="secondary"
                 onClick={() => {
                   importProject(createDefaultProject());
-                  toast.success("پکیج ۶ اسلایدی پیش‌فرض بارگذاری شد");
+                  toast.success(`پکیج ${HERO_SLIDE_SLOT_COUNT} اسلایدی پیش‌فرض بارگذاری شد`);
                 }}
               >
                 بارگذاری پیش‌فرض
@@ -122,7 +122,7 @@ export function HeroSlidePicker({
           </ul>
         ) : (
           <p className="mt-4 rounded-xl bg-[#F0FDF4] px-4 py-2.5 text-xs font-bold text-[#166534]">
-            آماده انتشار — ۶ اسلاید و داک پاور کامل است.
+            آماده انتشار — {HERO_SLIDE_SLOT_COUNT} اسلاید و داک پاور کامل است.
           </p>
         )}
       </header>
@@ -294,7 +294,9 @@ export function HeroSlidePicker({
                       onClick={() => {
                         const ok = duplicateSlide(slide.id);
                         if (!ok) {
-                          toast.error("هر ۶ اسلات پر است — اول یکی را خالی کنید");
+                          toast.error(
+                            `هر ${HERO_SLIDE_SLOT_COUNT} اسلات پر است — اول یکی را خالی کنید`,
+                          );
                           return;
                         }
                         toast.success("در اسلات خالی کپی شد");

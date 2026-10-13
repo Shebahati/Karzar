@@ -1,0 +1,1115 @@
+{
+  "capturedAt": "2026-10-13T11:30:37.428Z",
+  "baseUrl": "http://127.0.0.1:3000",
+  "reducedMotion": true,
+  "viewports": [
+    {
+      "id": "1920x1080",
+      "shots": [
+        {
+          "slide": 1,
+          "slug": "h01-discounts",
+          "expectedTitle": "تخفیف‌های ویژه‌ی کارزار",
+          "observedTitle": "تخفیف‌های ویژه‌ی کارزار",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1920,
+              "h": 1080
+            },
+            "title": {
+              "x": 1344.8125,
+              "y": 302.390625,
+              "w": 460,
+              "h": 51.90625,
+              "text": "تخفیف‌های ویژه‌ی کارزار"
+            },
+            "subtitle": {
+              "x": 1344.8125,
+              "y": 383.296875,
+              "w": 460,
+              "h": 27.625,
+              "text": "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1920,
+              "h": 1080
+            }
+          }
+        },
+        {
+          "slide": 2,
+          "slug": "h02-metrology",
+          "expectedTitle": "ابزار اندازه‌گیری",
+          "observedTitle": "ابزار اندازه‌گیری",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1920,
+              "h": 1080
+            },
+            "title": {
+              "x": 1344.8125,
+              "y": 302.390625,
+              "w": 460,
+              "h": 51.90625,
+              "text": "ابزار اندازه‌گیری"
+            },
+            "subtitle": {
+              "x": 1344.8125,
+              "y": 383.296875,
+              "w": 460,
+              "h": 55.25,
+              "text": "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1920,
+              "h": 1080
+            }
+          }
+        },
+        {
+          "slide": 3,
+          "slug": "h03-inserts",
+          "expectedTitle": "اینسرت و ابزارهای اینسرتی",
+          "observedTitle": "اینسرت و ابزارهای اینسرتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1920,
+              "h": 1080
+            },
+            "title": {
+              "x": 1344.8125,
+              "y": 302.390625,
+              "w": 460,
+              "h": 103.8125,
+              "text": "اینسرت و ابزارهای اینسرتی"
+            },
+            "subtitle": {
+              "x": 1344.8125,
+              "y": 435.203125,
+              "w": 460,
+              "h": 55.25,
+              "text": "انتخاب ابزار متناسب با جنس قطعه، نوع عملیات و شرایط ماشین‌کاری."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1920,
+              "h": 1080
+            }
+          }
+        },
+        {
+          "slide": 4,
+          "slug": "h04-endmills",
+          "expectedTitle": "فرز انگشتی",
+          "observedTitle": "فرز انگشتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1920,
+              "h": 1080
+            },
+            "title": {
+              "x": 1344.8125,
+              "y": 302.390625,
+              "w": 460,
+              "h": 51.90625,
+              "text": "فرز انگشتی"
+            },
+            "subtitle": {
+              "x": 1344.8125,
+              "y": 383.296875,
+              "w": 460,
+              "h": 27.625,
+              "text": "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1920,
+              "h": 1080
+            }
+          }
+        },
+        {
+          "slide": 5,
+          "slug": "h05-machines",
+          "expectedTitle": "دستگاه‌های صنعتی",
+          "observedTitle": "دستگاه‌های صنعتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1920,
+              "h": 1080
+            },
+            "title": {
+              "x": 1344.8125,
+              "y": 302.390625,
+              "w": 460,
+              "h": 51.90625,
+              "text": "دستگاه‌های صنعتی"
+            },
+            "subtitle": {
+              "x": 1344.8125,
+              "y": 383.296875,
+              "w": 460,
+              "h": 55.25,
+              "text": "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1920,
+              "h": 1080
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "1440x900",
+      "shots": [
+        {
+          "slide": 1,
+          "slug": "h01-discounts",
+          "expectedTitle": "تخفیف‌های ویژه‌ی کارزار",
+          "observedTitle": "تخفیف‌های ویژه‌ی کارزار",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 900
+            },
+            "title": {
+              "x": 893.609375,
+              "y": 252,
+              "w": 460,
+              "h": 51.90625,
+              "text": "تخفیف‌های ویژه‌ی کارزار"
+            },
+            "subtitle": {
+              "x": 893.609375,
+              "y": 332.90625,
+              "w": 460,
+              "h": 27.625,
+              "text": "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1440,
+              "h": 900
+            }
+          }
+        },
+        {
+          "slide": 2,
+          "slug": "h02-metrology",
+          "expectedTitle": "ابزار اندازه‌گیری",
+          "observedTitle": "ابزار اندازه‌گیری",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 900
+            },
+            "title": {
+              "x": 893.609375,
+              "y": 252,
+              "w": 460,
+              "h": 51.90625,
+              "text": "ابزار اندازه‌گیری"
+            },
+            "subtitle": {
+              "x": 893.609375,
+              "y": 332.90625,
+              "w": 460,
+              "h": 55.25,
+              "text": "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1440,
+              "h": 900
+            }
+          }
+        },
+        {
+          "slide": 3,
+          "slug": "h03-inserts",
+          "expectedTitle": "اینسرت و ابزارهای اینسرتی",
+          "observedTitle": "اینسرت و ابزارهای اینسرتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 900
+            },
+            "title": {
+              "x": 893.609375,
+              "y": 252,
+              "w": 460,
+              "h": 103.8125,
+              "text": "اینسرت و ابزارهای اینسرتی"
+            },
+            "subtitle": {
+              "x": 893.609375,
+              "y": 384.8125,
+              "w": 460,
+              "h": 55.25,
+              "text": "انتخاب ابزار متناسب با جنس قطعه، نوع عملیات و شرایط ماشین‌کاری."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1440,
+              "h": 900
+            }
+          }
+        },
+        {
+          "slide": 4,
+          "slug": "h04-endmills",
+          "expectedTitle": "فرز انگشتی",
+          "observedTitle": "فرز انگشتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 900
+            },
+            "title": {
+              "x": 893.609375,
+              "y": 252,
+              "w": 460,
+              "h": 51.90625,
+              "text": "فرز انگشتی"
+            },
+            "subtitle": {
+              "x": 893.609375,
+              "y": 332.90625,
+              "w": 460,
+              "h": 27.625,
+              "text": "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1440,
+              "h": 900
+            }
+          }
+        },
+        {
+          "slide": 5,
+          "slug": "h05-machines",
+          "expectedTitle": "دستگاه‌های صنعتی",
+          "observedTitle": "دستگاه‌های صنعتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1440,
+              "h": 900
+            },
+            "title": {
+              "x": 893.609375,
+              "y": 252,
+              "w": 460,
+              "h": 51.90625,
+              "text": "دستگاه‌های صنعتی"
+            },
+            "subtitle": {
+              "x": 893.609375,
+              "y": 332.90625,
+              "w": 460,
+              "h": 55.25,
+              "text": "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1440,
+              "h": 900
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "1366x768",
+      "shots": [
+        {
+          "slide": 1,
+          "slug": "h01-discounts",
+          "expectedTitle": "تخفیف‌های ویژه‌ی کارزار",
+          "observedTitle": "تخفیف‌های ویژه‌ی کارزار",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1366,
+              "h": 768
+            },
+            "title": {
+              "x": 824.046875,
+              "y": 215.03125,
+              "w": 460,
+              "h": 51.90625,
+              "text": "تخفیف‌های ویژه‌ی کارزار"
+            },
+            "subtitle": {
+              "x": 824.046875,
+              "y": 295.9375,
+              "w": 460,
+              "h": 27.625,
+              "text": "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1366,
+              "h": 768
+            }
+          }
+        },
+        {
+          "slide": 2,
+          "slug": "h02-metrology",
+          "expectedTitle": "ابزار اندازه‌گیری",
+          "observedTitle": "ابزار اندازه‌گیری",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1366,
+              "h": 768
+            },
+            "title": {
+              "x": 824.046875,
+              "y": 215.03125,
+              "w": 460,
+              "h": 51.90625,
+              "text": "ابزار اندازه‌گیری"
+            },
+            "subtitle": {
+              "x": 824.046875,
+              "y": 295.9375,
+              "w": 460,
+              "h": 55.25,
+              "text": "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1366,
+              "h": 768
+            }
+          }
+        },
+        {
+          "slide": 3,
+          "slug": "h03-inserts",
+          "expectedTitle": "اینسرت و ابزارهای اینسرتی",
+          "observedTitle": "اینسرت و ابزارهای اینسرتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1366,
+              "h": 768
+            },
+            "title": {
+              "x": 824.046875,
+              "y": 215.03125,
+              "w": 460,
+              "h": 103.8125,
+              "text": "اینسرت و ابزارهای اینسرتی"
+            },
+            "subtitle": {
+              "x": 824.046875,
+              "y": 347.84375,
+              "w": 460,
+              "h": 55.25,
+              "text": "انتخاب ابزار متناسب با جنس قطعه، نوع عملیات و شرایط ماشین‌کاری."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1366,
+              "h": 768
+            }
+          }
+        },
+        {
+          "slide": 4,
+          "slug": "h04-endmills",
+          "expectedTitle": "فرز انگشتی",
+          "observedTitle": "فرز انگشتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1366,
+              "h": 768
+            },
+            "title": {
+              "x": 824.046875,
+              "y": 215.03125,
+              "w": 460,
+              "h": 51.90625,
+              "text": "فرز انگشتی"
+            },
+            "subtitle": {
+              "x": 824.046875,
+              "y": 295.9375,
+              "w": 460,
+              "h": 27.625,
+              "text": "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1366,
+              "h": 768
+            }
+          }
+        },
+        {
+          "slide": 5,
+          "slug": "h05-machines",
+          "expectedTitle": "دستگاه‌های صنعتی",
+          "observedTitle": "دستگاه‌های صنعتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 1366,
+              "h": 768
+            },
+            "title": {
+              "x": 824.046875,
+              "y": 215.03125,
+              "w": 460,
+              "h": 51.90625,
+              "text": "دستگاه‌های صنعتی"
+            },
+            "subtitle": {
+              "x": 824.046875,
+              "y": 295.9375,
+              "w": 460,
+              "h": 55.25,
+              "text": "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 1366,
+              "h": 768
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "768x1024",
+      "shots": [
+        {
+          "slide": 1,
+          "slug": "h01-discounts",
+          "expectedTitle": "تخفیف‌های ویژه‌ی کارزار",
+          "observedTitle": "تخفیف‌های ویژه‌ی کارزار",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 768,
+              "h": 1024
+            },
+            "title": {
+              "x": 261.921875,
+              "y": 286.71875,
+              "w": 460,
+              "h": 36.234375,
+              "text": "تخفیف‌های ویژه‌ی کارزار"
+            },
+            "subtitle": {
+              "x": 261.921875,
+              "y": 351.953125,
+              "w": 460,
+              "h": 23.40625,
+              "text": "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 768,
+              "h": 1024
+            }
+          }
+        },
+        {
+          "slide": 2,
+          "slug": "h02-metrology",
+          "expectedTitle": "ابزار اندازه‌گیری",
+          "observedTitle": "ابزار اندازه‌گیری",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 768,
+              "h": 1024
+            },
+            "title": {
+              "x": 261.921875,
+              "y": 286.71875,
+              "w": 460,
+              "h": 36.234375,
+              "text": "ابزار اندازه‌گیری"
+            },
+            "subtitle": {
+              "x": 261.921875,
+              "y": 351.953125,
+              "w": 460,
+              "h": 23.40625,
+              "text": "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 768,
+              "h": 1024
+            }
+          }
+        },
+        {
+          "slide": 3,
+          "slug": "h03-inserts",
+          "expectedTitle": "اینسرت و ابزارهای اینسرتی",
+          "observedTitle": "اینسرت و ابزارهای اینسرتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 768,
+              "h": 1024
+            },
+            "title": {
+              "x": 261.921875,
+              "y": 286.71875,
+              "w": 460,
+              "h": 36.234375,
+              "text": "اینسرت و ابزارهای اینسرتی"
+            },
+            "subtitle": {
+              "x": 261.921875,
+              "y": 351.953125,
+              "w": 460,
+              "h": 23.40625,
+              "text": "انتخاب ابزار متناسب با جنس قطعه، نوع عملیات و شرایط ماشین‌کاری."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 768,
+              "h": 1024
+            }
+          }
+        },
+        {
+          "slide": 4,
+          "slug": "h04-endmills",
+          "expectedTitle": "فرز انگشتی",
+          "observedTitle": "فرز انگشتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 768,
+              "h": 1024
+            },
+            "title": {
+              "x": 261.921875,
+              "y": 286.71875,
+              "w": 460,
+              "h": 36.234375,
+              "text": "فرز انگشتی"
+            },
+            "subtitle": {
+              "x": 261.921875,
+              "y": 351.953125,
+              "w": 460,
+              "h": 23.40625,
+              "text": "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 768,
+              "h": 1024
+            }
+          }
+        },
+        {
+          "slide": 5,
+          "slug": "h05-machines",
+          "expectedTitle": "دستگاه‌های صنعتی",
+          "observedTitle": "دستگاه‌های صنعتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 768,
+              "h": 1024
+            },
+            "title": {
+              "x": 261.921875,
+              "y": 286.71875,
+              "w": 460,
+              "h": 36.234375,
+              "text": "دستگاه‌های صنعتی"
+            },
+            "subtitle": {
+              "x": 261.921875,
+              "y": 351.953125,
+              "w": 460,
+              "h": 23.40625,
+              "text": "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 768,
+              "h": 1024
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "390x844",
+      "shots": [
+        {
+          "slide": 1,
+          "slug": "h01-discounts",
+          "expectedTitle": "تخفیف‌های ویژه‌ی کارزار",
+          "observedTitle": "تخفیف‌های ویژه‌ی کارزار",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 390,
+              "h": 523.265625
+            },
+            "title": {
+              "x": 66.609375,
+              "y": 83.71875,
+              "w": 300,
+              "h": 28.3125,
+              "text": "تخفیف‌های ویژه‌ی کارزار"
+            },
+            "subtitle": {
+              "x": 66.609375,
+              "y": 141.03125,
+              "w": 300,
+              "h": 46.8125,
+              "text": "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 390,
+              "h": 844
+            }
+          }
+        },
+        {
+          "slide": 2,
+          "slug": "h02-metrology",
+          "expectedTitle": "ابزار اندازه‌گیری",
+          "observedTitle": "ابزار اندازه‌گیری",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 390,
+              "h": 523.265625
+            },
+            "title": {
+              "x": 66.609375,
+              "y": 83.71875,
+              "w": 300,
+              "h": 28.3125,
+              "text": "ابزار اندازه‌گیری"
+            },
+            "subtitle": {
+              "x": 66.609375,
+              "y": 141.03125,
+              "w": 300,
+              "h": 46.8125,
+              "text": "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 390,
+              "h": 844
+            }
+          }
+        },
+        {
+          "slide": 3,
+          "slug": "h03-inserts",
+          "expectedTitle": "اینسرت و ابزارهای اینسرتی",
+          "observedTitle": "اینسرت و ابزارهای اینسرتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 390,
+              "h": 523.265625
+            },
+            "title": {
+              "x": 66.609375,
+              "y": 83.71875,
+              "w": 300,
+              "h": 28.3125,
+              "text": "اینسرت و ابزارهای اینسرتی"
+            },
+            "subtitle": {
+              "x": 66.609375,
+              "y": 141.03125,
+              "w": 300,
+              "h": 46.8125,
+              "text": "انتخاب ابزار متناسب با جنس قطعه، نوع عملیات و شرایط ماشین‌کاری."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 390,
+              "h": 844
+            }
+          }
+        },
+        {
+          "slide": 4,
+          "slug": "h04-endmills",
+          "expectedTitle": "فرز انگشتی",
+          "observedTitle": "فرز انگشتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 390,
+              "h": 523.265625
+            },
+            "title": {
+              "x": 66.609375,
+              "y": 83.71875,
+              "w": 300,
+              "h": 28.3125,
+              "text": "فرز انگشتی"
+            },
+            "subtitle": {
+              "x": 66.609375,
+              "y": 141.03125,
+              "w": 300,
+              "h": 46.8125,
+              "text": "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 390,
+              "h": 844
+            }
+          }
+        },
+        {
+          "slide": 5,
+          "slug": "h05-machines",
+          "expectedTitle": "دستگاه‌های صنعتی",
+          "observedTitle": "دستگاه‌های صنعتی",
+          "titleMatch": true,
+          "metrics": {
+            "hero": {
+              "x": 0,
+              "y": 0,
+              "w": 390,
+              "h": 523.265625
+            },
+            "title": {
+              "x": 66.609375,
+              "y": 83.71875,
+              "w": 300,
+              "h": 28.3125,
+              "text": "دستگاه‌های صنعتی"
+            },
+            "subtitle": {
+              "x": 66.609375,
+              "y": 141.03125,
+              "w": 300,
+              "h": 46.8125,
+              "text": "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما."
+            },
+            "titleOverlapsOrb": false,
+            "viewport": {
+              "w": 390,
+              "h": 844
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "kind": "desktop-1920x1080",
+      "forwardTitles": [
+        "تخفیف‌های ویژه‌ی کارزار",
+        "ابزار اندازه‌گیری",
+        "اینسرت و ابزارهای اینسرتی",
+        "فرز انگشتی",
+        "دستگاه‌های صنعتی"
+      ],
+      "afterBackward": "تخفیف‌های ویژه‌ی کارزار",
+      "videoFile": "desktop-1920x1080-forward-back.webm"
+    },
+    {
+      "kind": "mobile-390x844",
+      "forwardTitles": [
+        "تخفیف‌های ویژه‌ی کارزار",
+        "ابزار اندازه‌گیری",
+        "اینسرت و ابزارهای اینسرتی",
+        "فرز انگشتی",
+        "دستگاه‌های صنعتی"
+      ],
+      "afterBackward": "تخفیف‌های ویژه‌ی کارزار",
+      "videoFile": "mobile-390x844-forward-back.webm"
+    }
+  ],
+  "slideTitleChecks": [
+    {
+      "viewport": "1920x1080",
+      "slide": 1,
+      "titleMatch": true,
+      "expected": "تخفیف‌های ویژه‌ی کارزار",
+      "observed": "تخفیف‌های ویژه‌ی کارزار",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1920x1080",
+      "slide": 2,
+      "titleMatch": true,
+      "expected": "ابزار اندازه‌گیری",
+      "observed": "ابزار اندازه‌گیری",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1920x1080",
+      "slide": 3,
+      "titleMatch": true,
+      "expected": "اینسرت و ابزارهای اینسرتی",
+      "observed": "اینسرت و ابزارهای اینسرتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1920x1080",
+      "slide": 4,
+      "titleMatch": true,
+      "expected": "فرز انگشتی",
+      "observed": "فرز انگشتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1920x1080",
+      "slide": 5,
+      "titleMatch": true,
+      "expected": "دستگاه‌های صنعتی",
+      "observed": "دستگاه‌های صنعتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1440x900",
+      "slide": 1,
+      "titleMatch": true,
+      "expected": "تخفیف‌های ویژه‌ی کارزار",
+      "observed": "تخفیف‌های ویژه‌ی کارزار",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1440x900",
+      "slide": 2,
+      "titleMatch": true,
+      "expected": "ابزار اندازه‌گیری",
+      "observed": "ابزار اندازه‌گیری",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1440x900",
+      "slide": 3,
+      "titleMatch": true,
+      "expected": "اینسرت و ابزارهای اینسرتی",
+      "observed": "اینسرت و ابزارهای اینسرتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1440x900",
+      "slide": 4,
+      "titleMatch": true,
+      "expected": "فرز انگشتی",
+      "observed": "فرز انگشتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1440x900",
+      "slide": 5,
+      "titleMatch": true,
+      "expected": "دستگاه‌های صنعتی",
+      "observed": "دستگاه‌های صنعتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1366x768",
+      "slide": 1,
+      "titleMatch": true,
+      "expected": "تخفیف‌های ویژه‌ی کارزار",
+      "observed": "تخفیف‌های ویژه‌ی کارزار",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1366x768",
+      "slide": 2,
+      "titleMatch": true,
+      "expected": "ابزار اندازه‌گیری",
+      "observed": "ابزار اندازه‌گیری",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1366x768",
+      "slide": 3,
+      "titleMatch": true,
+      "expected": "اینسرت و ابزارهای اینسرتی",
+      "observed": "اینسرت و ابزارهای اینسرتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1366x768",
+      "slide": 4,
+      "titleMatch": true,
+      "expected": "فرز انگشتی",
+      "observed": "فرز انگشتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "1366x768",
+      "slide": 5,
+      "titleMatch": true,
+      "expected": "دستگاه‌های صنعتی",
+      "observed": "دستگاه‌های صنعتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "768x1024",
+      "slide": 1,
+      "titleMatch": true,
+      "expected": "تخفیف‌های ویژه‌ی کارزار",
+      "observed": "تخفیف‌های ویژه‌ی کارزار",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "768x1024",
+      "slide": 2,
+      "titleMatch": true,
+      "expected": "ابزار اندازه‌گیری",
+      "observed": "ابزار اندازه‌گیری",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "768x1024",
+      "slide": 3,
+      "titleMatch": true,
+      "expected": "اینسرت و ابزارهای اینسرتی",
+      "observed": "اینسرت و ابزارهای اینسرتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "768x1024",
+      "slide": 4,
+      "titleMatch": true,
+      "expected": "فرز انگشتی",
+      "observed": "فرز انگشتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "768x1024",
+      "slide": 5,
+      "titleMatch": true,
+      "expected": "دستگاه‌های صنعتی",
+      "observed": "دستگاه‌های صنعتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "390x844",
+      "slide": 1,
+      "titleMatch": true,
+      "expected": "تخفیف‌های ویژه‌ی کارزار",
+      "observed": "تخفیف‌های ویژه‌ی کارزار",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "390x844",
+      "slide": 2,
+      "titleMatch": true,
+      "expected": "ابزار اندازه‌گیری",
+      "observed": "ابزار اندازه‌گیری",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "390x844",
+      "slide": 3,
+      "titleMatch": true,
+      "expected": "اینسرت و ابزارهای اینسرتی",
+      "observed": "اینسرت و ابزارهای اینسرتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "390x844",
+      "slide": 4,
+      "titleMatch": true,
+      "expected": "فرز انگشتی",
+      "observed": "فرز انگشتی",
+      "titleOverlapsOrb": false
+    },
+    {
+      "viewport": "390x844",
+      "slide": 5,
+      "titleMatch": true,
+      "expected": "دستگاه‌های صنعتی",
+      "observed": "دستگاه‌های صنعتی",
+      "titleOverlapsOrb": false
+    }
+  ],
+  "summary": {
+    "screenshotCount": 25,
+    "allTitlesMatch": true,
+    "layoutOverlapFlags": 0
+  }
+}

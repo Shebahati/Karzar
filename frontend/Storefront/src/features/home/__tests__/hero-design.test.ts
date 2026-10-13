@@ -1,10 +1,23 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  HERO_CAMPAIGN_FIVE_SLIDES,
+  HERO_CAMPAIGN_FEATURED_KEYS,
+  buildFiveHeroPublishedPack,
+} from "@/config/hero-campaign-five";
 import { parseDesignedHeroPack } from "@/features/home/hero-design";
 import type { DesignedHeroPack } from "@/types/hero-design";
 
 const publishedPath = path.join(process.cwd(), "public", "hero-design.json");
+
+const EXPECTED_ORDER = [
+  "discounts",
+  "metrology",
+  "inserts",
+  "endmills",
+  "industrial-machines",
+] as const;
 
 function minimalPack(overrides: Partial<DesignedHeroPack> = {}): DesignedHeroPack {
   return {
@@ -22,8 +35,8 @@ function minimalPack(overrides: Partial<DesignedHeroPack> = {}): DesignedHeroPac
           animation: "none",
           background: {
             mode: "image",
-            imageUrl: "/images/hero/v2/desktop/hero-special-offers.png",
-            mobileImageUrl: "/images/hero/v2/mobile/hero-special-offers-mobile.png",
+            imageUrl: "/images/hero/reborn-5/H01-special-offers-native-lossless.webp",
+            mobileImageUrl: "/images/hero/reborn-5/H01-special-offers-1280.webp",
             color: "#000",
             focal: "center",
           },
@@ -73,7 +86,7 @@ describe("parseDesignedHeroPack", () => {
     const raw = JSON.parse(readFileSync(publishedPath, "utf8")) as unknown;
     const pack = parseDesignedHeroPack(raw);
     expect(pack).not.toBeNull();
-    expect(pack!.slides.some((s) => s.id === "slide_special_offers")).toBe(true);
+    expect(pack!.slides.some((s) => s.id === "slide_h01_special_offers")).toBe(true);
   });
 
   it("returns null when slides missing", () => {
@@ -91,5 +104,63 @@ describe("parseDesignedHeroPack", () => {
   it("returns null for non-object input", () => {
     expect(parseDesignedHeroPack(null)).toBeNull();
     expect(parseDesignedHeroPack("bad")).toBeNull();
+  });
+});
+
+describe("five-hero reborn campaign contract", () => {
+  it("campaign module defines five ordered keys", () => {
+    expect(HERO_CAMPAIGN_FIVE_SLIDES).toHaveLength(5);
+    expect(HERO_CAMPAIGN_FEATURED_KEYS).toEqual([...EXPECTED_ORDER]);
+  });
+
+  it("published pack matches five-slide dock mapping", () => {
+    const pack = buildFiveHeroPublishedPack();
+    const active = pack.slides.filter((s) => s.isActive);
+    expect(active).toHaveLength(5);
+    expect(active.map((s) => s.config.linkedOrbKey)).toEqual([...EXPECTED_ORDER]);
+
+    const featured = pack.categoryDock!.categories
+      .filter((c) => c.featuredOrder != null)
+      .sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0));
+    expect(featured.map((c) => c.key)).toEqual([...EXPECTED_ORDER]);
+    expect(featured.map((c) => c.featuredOrder)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("on-disk hero-design.json matches campaign contract", () => {
+    const raw = JSON.parse(readFileSync(publishedPath, "utf8")) as unknown;
+    const pack = parseDesignedHeroPack(raw)!;
+    const keys = pack.slides
+      .filter((s) => s.isActive)
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((s) => s.config.linkedOrbKey);
+    expect(keys).toEqual([...EXPECTED_ORDER]);
+    expect(pack.slides.some((s) => s.config.linkedOrbKey === "workholding")).toBe(false);
+    expect(pack.slides.some((s) => s.config.linkedOrbKey === "insert-tools")).toBe(false);
+  });
+
+  it("uses exact Persian H01 title and H03 dual CTAs", () => {
+    const pack = buildFiveHeroPublishedPack();
+    const h01 = pack.slides.find((s) => s.config.linkedOrbKey === "discounts")!;
+    expect(h01.config.typography.title).toBe("تخفیف‌های ویژه‌ی کارزار");
+    expect(h01.config.buttons[0]?.action.value).toBe("/catalog?on_sale=1");
+
+    const h03 = pack.slides.find((s) => s.config.linkedOrbKey === "inserts")!;
+    expect(h03.config.typography.title).toBe("اینسرت و ابزارهای اینسرتی");
+    expect(h03.config.buttons.map((b) => b.label)).toEqual([
+      "مشاهده اینسرت‌ها",
+      "مشاهده ابزارهای اینسرتی",
+    ]);
+    expect(h03.config.buttons.map((b) => b.action.value)).toEqual([
+      "/categories/insert",
+      "/categories/abzar-inserti",
+    ]);
+  });
+
+  it("uses reborn-5 webp assets per slide", () => {
+    const pack = buildFiveHeroPublishedPack();
+    for (const slide of pack.slides) {
+      expect(slide.config.background.imageUrl).toMatch(/reborn-5\/H0\d-.*-native-lossless\.webp$/);
+      expect(slide.config.background.mobileImageUrl).toMatch(/reborn-5\/H0\d-.*-1280\.webp$/);
+    }
   });
 });

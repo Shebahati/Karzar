@@ -4,8 +4,8 @@
  */
 
 export const DISCOUNTS_ORB_KEY = "discounts";
-/** Prefer plain catalog — storefront API has no discount sort key. */
-export const DISCOUNTS_CATALOG_HREF = "/catalog";
+/** Keep in sync with Storefront — sale filter required for تخفیف‌ها CTA. */
+export const DISCOUNTS_CATALOG_HREF = "/catalog?on_sale=1";
 
 export interface FinalL1Category {
   key: string;
@@ -17,6 +17,7 @@ export interface FinalL1Category {
   ctaLabel: string;
   featuredOrder: number | null;
   aliases: string[];
+  heroDockLabel?: string;
 }
 
 export const DISCOUNTS_SPECIAL = {
@@ -35,7 +36,7 @@ export const DISCOUNTS_SPECIAL = {
 export const FINAL_L1_FEATURED_KEYS = [
   "metrology",
   "inserts",
-  "workholding",
+  "endmills",
   "industrial-machines",
 ] as const;
 
@@ -80,8 +81,9 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     iconSlug: "insert",
     heroImage: "/images/hero/hero-cutting-left.jpg",
     subtitle: "اینسرت‌های کاربیدی و پوشش‌دار برای سطوح برش متنوع",
-    ctaLabel: "مشاهده اینسرت",
+    ctaLabel: "مشاهده اینسرت‌ها",
     featuredOrder: 2,
+    heroDockLabel: "اینسرت و ابزارهای اینسرتی",
     aliases: ["اینسرت"],
   },
   {
@@ -92,7 +94,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     heroImage: "/images/hero/hero-cutting-left.jpg",
     subtitle: "فرز انگشتی و ابزارهای پروفایل برای ماشین‌کاری دقیق قطعه",
     ctaLabel: "مشاهده فرز انگشتی",
-    featuredOrder: null,
+    featuredOrder: 3,
     aliases: ["فرز انگشتی", "ابزار انگشتی"],
   },
   {
@@ -136,7 +138,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     heroImage: "/images/hero/hero-holding-left.jpg",
     subtitle: "گیره‌ها و سیستم‌های فیکسچر برای نگهداشت ایمن قطعه کار",
     ctaLabel: "مشاهده ابزار گیرشی",
-    featuredOrder: 3,
+    featuredOrder: null,
     aliases: ["ابزار گیرشی"],
   },
   {

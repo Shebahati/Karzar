@@ -29,7 +29,9 @@ import {
   HERO_SHEET_UNDERLAY,
   HERO_SWIPE_CONFIDENCE,
   HERO_SWIPE_OFFSET,
+  heroSheetDesktopVariants,
   heroSheetReducedVariants,
+  HERO_DESKTOP_MS,
   heroSheetTransition,
   heroSheetVariants,
   heroSwipePower,
@@ -46,9 +48,9 @@ import { cn } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
 import type { DesignedHeroConfig, DesignedHeroPack, DesignedHeroSlide } from "@/types/hero-design";
 
-const AUTOPLAY_MS = 5500;
-/** Hard cap — published pack + dock are designed around 6 slides / 5 featured orbs. */
-const MAX_ACTIVE_SLIDES = 6;
+const AUTOPLAY_MS = 7000;
+/** Hard cap — approved campaign is five slides / five featured dock orbs. */
+const MAX_ACTIVE_SLIDES = 5;
 
 function overlayCss(config: DesignedHeroConfig): string {
   const o = config.overlay;
@@ -798,8 +800,17 @@ export function DesignedHero({
       arrowSide === side && "[@media(hover:hover)_and_(pointer:fine)]:!opacity-100",
     );
 
-  const sheetDuration = reducedMotion ? HERO_SHEET_MS_REDUCED : HERO_SHEET_MS;
-  const sheetVariants = reducedMotion ? heroSheetReducedVariants : heroSheetVariants;
+  const useDesktopDissolve = !isMobile && !reducedMotion;
+  const sheetDuration = reducedMotion
+    ? HERO_SHEET_MS_REDUCED
+    : useDesktopDissolve
+      ? HERO_DESKTOP_MS
+      : HERO_SHEET_MS;
+  const sheetVariants = reducedMotion
+    ? heroSheetReducedVariants
+    : useDesktopDissolve
+      ? heroSheetDesktopVariants
+      : heroSheetVariants;
   const useSheetStrip = isMobile && !reducedMotion && slideCount > 1;
 
   return (
@@ -847,7 +858,7 @@ export function DesignedHero({
               initial="enter"
               animate="center"
               exit="exit"
-              transition={heroSheetTransition(sheetDuration)}
+              transition={heroSheetTransition(sheetDuration, useDesktopDissolve)}
               className="absolute inset-0"
               style={{
                 willChange: reducedMotion ? undefined : "transform",
