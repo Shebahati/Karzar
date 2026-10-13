@@ -11,7 +11,7 @@ Runbook for environments, backup, deploy, and incidents. Commerce/payment policy
 | Production | `production` | `docker-compose.yml` + secrets | Redis required; runtime hardening via `APP_ENV=production` |
 | Catalog staging (isolated) | `staging` + `KARZAR_DATA_PLANE=catalog_staging` | `docker-compose.catalog-staging.yml` | Separate DB + uploads; see [`CATALOG_STAGING_ISOLATION.md`](CATALOG_STAGING_ISOLATION.md) |
 
-Templates: `.env.example`, `.env.staging.example`, `.env.catalog-staging.example`. Never commit real secrets.
+Templates: `.env.example`, `.env.staging.example`, `.env.catalog-staging.example`. Never commit real secrets. `.env.staging.example` documents CR-011 live plane identity with **intentionally non-bootable** mock/console provider placeholders — copy is not production-ready; live provider and callback values are operator-managed on the VPS only.
 
 **Topology:** the historic “staging” deploy targets the **same VPS** as public traffic (`karzartools.com`). That stack is the **live** data plane (`CR-011`): `APP_ENV=staging` is a process label; default `KARZAR_DATA_PLANE` is `live`. It is **not** safe for catalog APPLY rehearsal. Use the isolated catalog-staging Compose project for that work.
 

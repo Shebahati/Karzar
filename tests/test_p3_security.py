@@ -1,5 +1,7 @@
 """P3 security hardening tests: throttles, SSRF guards, production config."""
 
+from pathlib import Path
+
 import pytest
 from app.core.config import Settings
 from app.core.request_throttle import InMemoryRequestThrottle
@@ -236,6 +238,24 @@ class TestProductionConfigGuards:
         )
         with pytest.raises(ValidationError, match="TRUSTED_HOSTS"):
             Settings(**kwargs)
+
+
+class TestEnvStagingExampleTemplate:
+    """`.env.staging.example` must not read as production-ready SEP/Faraz config."""
+
+    def test_staging_example_uses_fail_closed_provider_placeholders(self):
+        text = Path(".env.staging.example").read_text(encoding="utf-8")
+        assert "PAYMENT_PROVIDER=mock" in text
+        assert "SMS_PROVIDER=console" in text
+        assert "intentionally non-bootable on the live data plane" in text
+        assert "PAYMENT_PROVIDER=mock is intentionally refused on live" in text
+        assert "SMS_PROVIDER=console is intentionally refused on live" in text
+        assert not any(
+            line.strip().startswith("PAYMENT_PROVIDER=sep") for line in text.splitlines()
+        )
+        assert not any(
+            line.strip().startswith("SMS_PROVIDER=faraz") for line in text.splitlines()
+        )
 
 
 class TestLivePlaneProviderGuards:
