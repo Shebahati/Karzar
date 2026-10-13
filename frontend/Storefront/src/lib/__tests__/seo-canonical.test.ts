@@ -12,6 +12,7 @@ import { metadata as faqMetadata } from "@/app/faq/page";
 import { metadata as loginMetadata } from "@/app/login/page";
 import { metadata as homeMetadata } from "@/app/page";
 import { metadata as quoteMetadata } from "@/app/quote/page";
+import { metadata as privacyMetadata } from "@/app/privacy/page";
 import { metadata as termsMetadata } from "@/app/terms/page";
 import { metadata as cartMetadata } from "@/app/cart/page";
 import {
@@ -59,6 +60,7 @@ describe("static indexable self-canonicals", () => {
     { path: "/about", canonical: aboutMetadata.alternates?.canonical },
     { path: "/contact", canonical: contactMetadata.alternates?.canonical },
     { path: "/terms", canonical: termsMetadata.alternates?.canonical },
+    { path: "/privacy", canonical: privacyMetadata.alternates?.canonical },
     { path: "/faq", canonical: faqMetadata.alternates?.canonical },
     { path: "/categories", canonical: categoriesMetadata.alternates?.canonical },
   ];
@@ -142,6 +144,7 @@ describe("product + sitemap URL hygiene", () => {
       "/about",
       "/contact",
       "/terms",
+      "/privacy",
       "/faq",
     ]);
     expect(SITEMAP_STATIC_PATHS.some((p) => p.includes("?"))).toBe(false);

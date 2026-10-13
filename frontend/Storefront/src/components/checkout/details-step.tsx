@@ -21,6 +21,7 @@ import { cn, toPersianDigits } from "@/lib/utils";
 import { useAddressStore, type SavedAddress } from "@/store/address-store";
 import type { ResolvedCustomer } from "@/components/checkout/auth-step";
 import type { ShippingQuoteOption } from "@/types/shipping";
+import { CheckoutPolicyNotice } from "@/components/checkout/checkout-policy-notice";
 
 export interface DetailsResult {
   full_name: string;
@@ -477,8 +478,8 @@ function ShippingForm({
               {shipping.methodSelectionEnabled ? (
                 <>
                   <p className="text-xs text-steel">
-                    مبلغ قابل پرداخت آنلاین فقط شامل کالاها و مالیات است؛ هزینه ارسال: پرداخت هنگام
-                    تحویل.
+                    مبلغ قابل پرداخت آنلاین فقط شامل قیمت نهایی کالاهاست؛ هزینهٔ ارسال هنگام تحویل
+                    (پس‌کرایه) جداگانه پرداخت می‌شود.
                   </p>
                   <ShippingMethodOptions
                     options={shipping.methodOptions}
@@ -551,7 +552,7 @@ function ShippingForm({
                     />
                   ) : (
                     <p className="text-xs text-steel">
-                      مبلغ پرداخت اینترنتی فقط شامل محصولات و مالیات است؛ پس‌کرایه ارسال جداگانه از
+                      مبلغ پرداخت اینترنتی فقط شامل قیمت نهایی کالاهاست؛ پس‌کرایه ارسال جداگانه از
                       گیرنده دریافت می‌شود.
                     </p>
                   )}
@@ -564,7 +565,8 @@ function ShippingForm({
           </Field>
         </div>
 
-        <div className="mt-6 hidden gap-2 lg:flex">
+        <CheckoutPolicyNotice className="mt-6" />
+        <div className="mt-4 hidden gap-2 lg:flex">
           <Button type="submit" size="lg" className="flex-1 gap-2" disabled={submitting || !canPay || !shippingReady}>
             <Wallet set="bold" />
             {submitting ? "در حال ثبت…" : "انتقال به درگاه پرداخت"}
@@ -591,7 +593,9 @@ function ShippingForm({
 
       {/* lg:hidden must be a utility — class `flex` would otherwise beat
           `.mobile-dock { @apply lg:hidden }` (components layer loses to utilities). */}
-      <div className="mobile-dock flex gap-2 px-4 py-3 lg:hidden">
+      <div className="mobile-dock flex flex-col gap-2 px-4 py-3 lg:hidden">
+        <CheckoutPolicyNotice className="px-0" />
+        <div className="flex gap-2">
         <Button
           type="submit"
           form={formId}
@@ -605,6 +609,7 @@ function ShippingForm({
         <Button type="button" variant="muted" size="lg" onClick={onBack}>
           بازگشت
         </Button>
+        </div>
       </div>
     </>
   );

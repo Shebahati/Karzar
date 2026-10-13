@@ -72,13 +72,13 @@ export function buildPdpStripTrustItems(opts?: {
     {
       key: "authenticity",
       title: "ضمانت اصالت",
-      desc: opts?.isOriginal ? "کالای اصلی" : "نمایندگی رسمی",
+      desc: opts?.isOriginal ? "کالای اصلی" : "تأمین معتبر",
       Icon: ShieldDone,
     },
     {
       key: "return",
-      title: "۷ روز بازگشت",
-      desc: "شرایط مرجوعی",
+      title: "امکان مرجوعی",
+      desc: "طبق شرایط و موارد مشمول",
       Icon: Swap,
     },
     ...SERVICE_ITEMS,

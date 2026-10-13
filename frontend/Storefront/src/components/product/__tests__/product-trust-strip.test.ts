@@ -32,7 +32,11 @@ describe("buildPdpStripTrustItems", () => {
       "payment",
     ]);
     expect(items.find((i) => i.key === "authenticity")?.desc).toBe(
-      "نمایندگی رسمی",
+      "تأمین معتبر",
+    );
+    expect(items.find((i) => i.key === "return")?.title).toBe("امکان مرجوعی");
+    expect(items.find((i) => i.key === "return")?.desc).toBe(
+      "طبق شرایط و موارد مشمول",
     );
   });
 

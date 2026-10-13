@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { FaqPageShell } from "@/components/legal/faq-page-shell";
 import { FAQ_INTRO, FAQ_CATEGORIES } from "@/components/legal/faq-content";
+import { LEGAL_POLICY_UPDATED_LABEL_FA } from "@/lib/legal-policy-meta";
 import { INDEXABLE_STATIC_CANONICALS, selfCanonicalAlternates } from "@/lib/crawl-hygiene";
 
 export const metadata: Metadata = {
@@ -17,6 +18,7 @@ export default function FaqPage() {
       title="سوالات متداول"
       intro={FAQ_INTRO}
       categories={FAQ_CATEGORIES}
+      updatedLabel={LEGAL_POLICY_UPDATED_LABEL_FA}
       sibling={{ label: "قوانین استفاده", href: "/terms" }}
     />
   );

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { STORE_EMAIL, STORE_TELEGRAM_URL } from "@/lib/store-location";
+import { LEGAL_POLICY_UPDATED_LABEL_FA } from "@/lib/legal-policy-meta";
 import { cn } from "@/lib/utils";
 
 export type LegalSection = {
@@ -29,7 +30,7 @@ export function LegalPageShell({
   eyebrow,
   title,
   intro,
-  updatedLabel = "به‌روزرسانی: مرداد ۱۴۰۵",
+  updatedLabel = LEGAL_POLICY_UPDATED_LABEL_FA,
   sections,
   sibling,
   className,
