@@ -1,0 +1,17 @@
+{
+  "recorded_at": "2026-10-14",
+  "origin_main_sha": "ec6ed4d55c10284ab4a0661a6ed9a2cd352bb833",
+  "github_issue": 491,
+  "branch": "infra/ci-risk-aware-acceleration",
+  "backend_ci": {
+    "required_check_names": [
+      "aods",
+      "lint",
+      "test"
+    ],
+    "cov_fail_under": 68
+  },
+  "repo_settings": {
+    "allow_auto_merge": false
+  }
+}

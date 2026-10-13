@@ -66,6 +66,20 @@ USE_POSTGRES_TESTS=1 pytest --cov=app --cov-report=term-missing --cov-fail-under
 
 Do not run the full suite after every small edit. Do not run the full suite for a docs-only change unless a binding rule requires it.
 
+
+## CI (risk-aware)
+
+GitHub Actions uses `scripts/ci/classify_changes.py` with `.github/ci/policy.json` (default-deny: unknown paths → **FULL** tier). Required Protect-main job names stay **`aods`**, **`lint`**, **`test`**.
+
+| Tier | Typical change | Backend pytest (Postgres/Redis) |
+|------|----------------|-----------------------------------|
+| R0 | docs/audit/aods governance | Skipped |
+| R1 | One frontend app or deploy guard only | Skipped |
+| R2 | Backend/app/tests/alembic | Full `--cov-fail-under=68` |
+| FULL | Workflows, unknown paths, mixed stacks | Full |
+
+**Increase checks only:** PR label `ci:full`, **Backend CI** / **CI Full Regression** `workflow_dispatch`, or nightly schedule. Classifier scenarios A–K: `python3 scripts/ci/test_classify_scenarios.py`.
+
 ## Schema and API shape
 
 - Schema changes: Alembic only (`docs/development/standards/alembic-and-schema-change-rules.md`).

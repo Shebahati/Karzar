@@ -1,0 +1,29 @@
+name: CI Workflow Lint
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - ".github/ci/**"
+      - "scripts/ci/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: workflow-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install actionlint
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash
+          sudo mv actionlint /usr/local/bin/
+      - name: Lint workflows
+        run: actionlint

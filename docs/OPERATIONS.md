@@ -144,7 +144,7 @@ DNS A records historically used `api` / `shop` / `admin`. Public shop today is `
 
 ## Deploy
 
-1. CI green on `main` (lint + pytest + **coverage ≥ 68%** — `pyproject.toml`).
+1. CI green on `main` (required checks **`aods`**, **`lint`**, **`test`**; full pytest **coverage ≥ 68%** when the classifier runs backend heavy tier — `pyproject.toml`).
 2. Update [`API_CHANGELOG.md`](API_CHANGELOG.md) if the contract changed.
 3. Owner: set Actions variable `KARZAR_DEPLOY_FREEZE=false` only for the window needed.
 4. Run **Deploy Staging** via GitHub Actions `workflow_dispatch` on `main` — **not** push-auto-deploy (`.github/workflows/deploy-staging.yml`).
@@ -220,3 +220,12 @@ Use this when **external** clients see `502`, `504`, timeouts, or “connection 
 #### Monitoring ownership
 
 Persistent **external uptime + alerting** is owned by [#246](https://github.com/Shebahati/Karzar/issues/246), not #249. #249 covers incident RCA, service restoration, healthcheck correctness, and this runbook.
+
+
+## CI acceleration and auto-merge
+
+- **Classifier SoT:** `scripts/ci/classify_changes.py` + `.github/ci/policy.json` (see `docs/DEVELOPMENT.md`).
+- **Escape hatches (increase only):** PR label `ci:full`; workflows **Backend CI**, **Frontend CI**, and **CI Full Regression** via `workflow_dispatch`; nightly full regression (`ci-full-regression.yml`).
+- **Protect main:** ruleset **Protect main** still requires contexts `aods`, `lint`, `test` with strict policy — do not remove or rename without a governance minute.
+- **Auto-merge:** repository setting `allow_auto_merge` is **false** (2026-10-14 baseline). Enable only after Owner review; when enabled, restrict to PRs at FULL tier or with `ci:full`, green required checks, and no deploy/production side effects.
+- **Safety:** no `pull_request_target` for untrusted code execution; collaborator scope gate unchanged.
