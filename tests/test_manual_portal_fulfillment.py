@@ -365,6 +365,26 @@ def test_expired_failed_with_stock_restock_once(
     )
     order_id = checkout["order_id"]
 
+    async def legacy_sale():
+        from app.db.models.commerce import OrderItem
+        from app.services.stock_ledger_service import record_sale_movement
+
+        async with TestingSessionLocal() as session:
+            item = (
+                await session.execute(
+                    select(OrderItem).where(OrderItem.order_id == order_id).limit(1)
+                )
+            ).scalar_one()
+            await record_sale_movement(
+                session,
+                product_id=item.product_id,
+                quantity=item.quantity,
+                order_id=order_id,
+            )
+            await session.commit()
+
+    asyncio.run(legacy_sale())
+
     async def fail_order():
         async with TestingSessionLocal() as session:
             order = await session.get(Order, order_id)
@@ -1009,7 +1029,7 @@ def test_handoff_emits_single_shipped_notification(
 ):
     calls: list[str] = []
 
-    async def _capture(phone, *, tracking_code, status):
+    async def _capture(phone, *, tracking_code, status, **kwargs):
         calls.append(status)
 
     monkeypatch.setattr(

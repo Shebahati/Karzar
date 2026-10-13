@@ -17,7 +17,10 @@ from app.services.logistics.shipping_methods import (
     PROVIDER_POSTEX,
 )
 from app.services.notification_service import notify_order_status_change
-from app.services.stock_ledger_service import record_return_movement
+from app.services.stock_ledger_service import (
+    ensure_compensating_returns_for_order,
+    ensure_order_sale_movements,
+)
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import decimal_to_api_string
 
@@ -265,6 +268,8 @@ async def transition_order_status(
 
     if target == OrderStatus.PAID.value:
         order.payment_status = PaymentStatus.PAID.value
+        if order.mode == OrderMode.PURCHASE:
+            await ensure_order_sale_movements(db, order, user_id=order.user_id)
 
     if note is not None:
         # Admin annotations go to admin_note; never overwrite the customer checkout note.
@@ -281,6 +286,8 @@ async def transition_order_status(
         phone=order.customer_phone,
         tracking_code=order.tracking_code,
         status=target,
+        db=db,
+        order_id=order.id,
     )
     await db.flush()
     return order
@@ -334,18 +341,11 @@ async def issue_order_quote(
 
 
 async def _restore_stock(db: AsyncSession, order: Order) -> None:
-    """No-op for warehouse counts (Hesabfa-only). Still records return ledger rows."""
+    """Compensate legacy SALE ledger rows only; does not change is_available (Hesabfa-only counts)."""
     from app.crud import product as crud_product
 
     product_ids = [item.product_id for item in order.items]
     if not product_ids:
         return
     await crud_product.get_products_for_update(db, product_ids)
-    for item in order.items:
-        await record_return_movement(
-            db,
-            product_id=item.product_id,
-            quantity=item.quantity,
-            order_id=order.id,
-            user_id=order.user_id,
-        )
+    await ensure_compensating_returns_for_order(db, order, user_id=order.user_id)

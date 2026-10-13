@@ -62,13 +62,21 @@ def _pay_order_mock(order_id: int, authority: str, owner_headers: dict) -> None:
 
 def _mark_order_paid(order_id: int, ref_id: str | None = None) -> None:
     async def _run() -> None:
+        from app.services.stock_ledger_service import ensure_order_sale_movements
+        from sqlalchemy.orm import selectinload
+
         async with TestingSessionLocal() as db:
-            order = await db.get(Order, order_id)
+            order = (
+                await db.execute(
+                    select(Order).where(Order.id == order_id).options(selectinload(Order.items))
+                )
+            ).scalar_one()
             order.payment_status = PaymentStatus.PAID.value
             order.status = OrderStatus.PAID.value
             order.payment_ref_id = ref_id or f"SEP-PAID-REF-{order_id}"
             if not order.payment_authority:
                 order.payment_authority = "SEP-AUTH-TEST"
+            await ensure_order_sale_movements(db, order)
             await db.commit()
 
     asyncio.run(_run())

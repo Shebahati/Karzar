@@ -6,7 +6,9 @@ Domain rules for catalog sellability, checkout, and payment. Accounting detail: 
 
 Site inventory is **binary** `is_available` (موجود / ناموجود).
 
+- **`is_available` means sellable**, not guaranteed on-hand quantity. Concurrent purchases of the same SKU by different customers are allowed; `pending_payment` does not reserve the SKU for other buyers.
 - Warehouse numeric stock lives **only in Hesabfa**. Do not treat `stock_quantity` or `low_stock` as sellable truth.
+- Append-only `stock_movements` **SALE** rows record a **paid** commercial sale (created on transition to `paid`). `pending_payment` checkout does not write SALE. Legacy orders may already have SALE at pending; payment must not duplicate SALE. Unpaid cancel/expiry writes **RETURN** only when a net SALE exists for that order line.
 - `stock_quantity` is a legacy field typically `"0"`. `low_stock` is always `false` at runtime.
 - `GET /products/{id}/stock` is compatibility-only. `POST /products/{id}/stock/adjust` raises — use `is_available`.
 - Content enrichment **never writes** price, stock, or availability.
