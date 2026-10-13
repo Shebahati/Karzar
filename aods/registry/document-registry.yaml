@@ -2013,6 +2013,26 @@ documents:
     notes: >
       Issue #391 INSIZE Wave A final report. Owner: REQUEST_FRESH_INSIZE_STOCK_SOURCE.
 
+  - id: SELLABILITY-391-INSIZE-SOURCE-REQUEST-20261013
+    path: audit/sellability-391-wave-a-insize-2026-10-13/INSIZE_FRESH_STOCK_SOURCE_REQUEST.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/catalog-391-insize-wave-a
+    notes: >
+      Distributor-facing fresh INSIZE stock snapshot request (#391 Wave A).
+
+  - id: SELLABILITY-391-DASQUA-TERMA-SCAN-20261013
+    path: audit/sellability-391-wave-a-insize-2026-10-13/SECONDARY_DASQUA_TERMA_SCAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/catalog-391-insize-wave-a
+    notes: >
+      Read-only DASQUA/TERMA secondary adapter scan for #391.
+
   - id: HERO-REBORN-5-LIVE-REPAIR-20261013
     path: audit/hero-reborn-5-live-repair-2026-10-13/README.md
     class: EVIDENCE
