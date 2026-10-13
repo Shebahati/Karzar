@@ -565,7 +565,7 @@ function ShippingForm({
           </Field>
         </div>
 
-        <CheckoutPolicyNotice className="mt-6" />
+        <CheckoutPolicyNotice className="mt-6 hidden lg:block" />
         <div className="mt-4 hidden gap-2 lg:flex">
           <Button type="submit" size="lg" className="flex-1 gap-2" disabled={submitting || !canPay || !shippingReady}>
             <Wallet set="bold" />
