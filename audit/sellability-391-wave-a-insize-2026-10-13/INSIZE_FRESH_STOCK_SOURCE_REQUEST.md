@@ -1,6 +1,6 @@
 # INSIZE fresh stock source request (distributor)
 
-Wave A strict unlock requires **proven calendar `source_date`** and `CURRENT_ENOUGH` freshness (≤14 days per `docs/catalog/SUPPLIER_STOCK_AUTHORITY.md`).
+Wave A strict unlock requires **proven calendar `source_date`** and authoritative `AVAILABLE` stock with freshness **not** `STALE` or `UNKNOWN` per `docs/catalog/SUPPLIER_STOCK_AUTHORITY.md` (`CURRENT_ENOUGH` ≤14 days or `AGING_BUT_USABLE` ≤45 days). A ≤14-day snapshot is preferred; 15–45 days is still usable under the current contract when date is proven.
 
 ## Please provide
 

@@ -82,6 +82,7 @@
       "canonical": false
     }
   ],
+  "inspected_at": "2026-10-13T19:49:36Z",
   "canonical": {
     "path": "/home/shebahati/KaZar/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx",
     "sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
@@ -92,7 +93,9 @@
     "authority_type": "AVAILABILITY",
     "parser_version": "supplier_stock/1.0.0",
     "normalization_policy_version": "supplier_stock_norm/1.1.0",
-    "received_at": "2026-10-13T19:26:59Z",
+    "received_at": null,
+    "received_at_note": "UNKNOWN — supplier receipt time not independently proven; do not use audit time or filesystem mtime",
+    "inspected_at": "2026-10-13T19:49:36Z",
     "supplier": "INSIZE distributor",
     "brand": "INSIZE"
   }

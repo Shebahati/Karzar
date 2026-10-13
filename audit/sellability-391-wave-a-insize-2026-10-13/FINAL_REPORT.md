@@ -1,8 +1,8 @@
 # Issue #391 — INSIZE Wave A Final Report
 
 **Status:** BLOCKED_ON_FRESH_INSIZE_STOCK_AUTHORITY  
-**Snapshot UTC:** 2026-10-13T19:26:59Z  
-**origin/main:** `ab33f9183b4ae2f3c2c25defd3d5fb257aad63e4`  
+**Snapshot UTC:** 2026-10-13T19:49:36Z  
+**origin/main:** `4786f75dee175bbc72fa6a518927ffb12d3bccc4`  
 **Strict unlock candidates:** 0  
 **APPLY authorized:** NO
 
@@ -45,7 +45,15 @@
 
 ## Commercial delta
 
-See [`COMMERCIAL_DELTA.json`](COMMERCIAL_DELTA.json).
+| Field | Value |
+|-------|------:|
+| SELLABLE_BEFORE | 717 |
+| STRICT_CANDIDATES | 0 |
+| PROJECTED_SELLABLE_AFTER_STRICT | 717 |
+| SOURCE_AVAILABLE_UPPER_BOUND | 727 |
+| THEORETICAL_INSIZE_COHORT_UPPER_BOUND | 1193 |
+
+Full detail: [`COMMERCIAL_DELTA.json`](COMMERCIAL_DELTA.json).
 
 ## Owner decision
 

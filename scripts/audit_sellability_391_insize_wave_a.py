@@ -383,9 +383,7 @@ def candidate_state(
             return "AVAILABLE_BUT_DATE_UNPROVEN"
         if freshness == "STALE":
             return "AVAILABLE_BUT_STALE"
-        if freshness == "AGING_BUT_USABLE":
-            return "AVAILABLE_AGING_REVIEW"
-        if freshness == "CURRENT_ENOUGH":
+        if freshness in {"CURRENT_ENOUGH", "AGING_BUT_USABLE"}:
             return "STRICT_UNLOCK_CANDIDATE"
     return "BLOCKED_OTHER"
 
@@ -399,7 +397,9 @@ def strict_unlock_row(
         return False
     if m.normalized_status != "AVAILABLE":
         return False
-    if validation.freshness != "CURRENT_ENOUGH":
+    if validation.freshness in {"STALE", "UNKNOWN"}:
+        return False
+    if validation.freshness not in {"CURRENT_ENOUGH", "AGING_BUT_USABLE"}:
         return False
     if not validation.source_authority_valid:
         return False
@@ -603,13 +603,16 @@ def main(argv: list[str] | None = None) -> int:
         "freshness_class": "UNKNOWN",
         "source_date_proven": False,
         "sources": sources,
+        "inspected_at": snapshot_utc,
         "canonical": {
             **canonical,
             "original_filename": Path(canonical["path"]).name,
             "authority_type": "AVAILABILITY",
             "parser_version": supplier_stock.PARSER_VERSION,
             "normalization_policy_version": supplier_stock.NORMALIZATION_POLICY_VERSION,
-            "received_at": snapshot_utc,
+            "received_at": None,
+            "received_at_note": "UNKNOWN — supplier receipt time not independently proven; do not use audit time or filesystem mtime",
+            "inspected_at": snapshot_utc,
             "supplier": "INSIZE distributor",
             "brand": "INSIZE",
         },
@@ -757,7 +760,15 @@ def main(argv: list[str] | None = None) -> int:
         "SELLABLE_BEFORE": census["sellable"],
         "STRICT_CANDIDATES": len(strict_rows),
         "PROJECTED_SELLABLE_AFTER_STRICT": census["sellable"] + len(strict_rows),
-        "THEORETICAL_INSIZE_UPPER_BOUND": census["sellable"] + theoretical_upper,
+        "SOURCE_AVAILABLE_UPPER_BOUND": census["sellable"] + theoretical_upper,
+        "SOURCE_AVAILABLE_UPPER_BOUND_note": (
+            "Sellable today plus INSIZE cohort rows normalized AVAILABLE in current source "
+            "(not all 476 cohort members)"
+        ),
+        "THEORETICAL_INSIZE_COHORT_UPPER_BOUND": census["sellable"] + len(insize_cohort),
+        "THEORETICAL_INSIZE_COHORT_UPPER_BOUND_note": (
+            "Sellable today plus entire INSIZE only-availability cohort if every row became sellable"
+        ),
         "INSIZE_COHORT_ONLY_AVAILABILITY": len(insize_cohort),
         "INSIZE_EXACT_MATCHED": sum(
             1 for r in mapping_rows if r["match_method"] != "NOT_FOUND"
@@ -797,7 +808,8 @@ def main(argv: list[str] | None = None) -> int:
         },
         "reproducibility_notes": (
             "Counts comparable when live ONLY_AVAILABILITY membership stable; "
-            "strict gate requires proven source_date CURRENT_ENOUGH."
+            "strict gate requires proven source_date and freshness CURRENT_ENOUGH or "
+            "AGING_BUT_USABLE (not STALE/UNKNOWN) per SUPPLIER_STOCK_AUTHORITY.md."
         ),
     }
     write_json(out_dir / "HISTORICAL_REPRODUCIBILITY.json", hist)
@@ -863,7 +875,7 @@ def main(argv: list[str] | None = None) -> int:
         req.write_text(
             """# INSIZE fresh stock source request (distributor)
 
-Wave A strict unlock requires **proven calendar `source_date`** and `CURRENT_ENOUGH` freshness (≤14 days per `docs/catalog/SUPPLIER_STOCK_AUTHORITY.md`).
+Wave A strict unlock requires **proven calendar `source_date`** and authoritative `AVAILABLE` stock with freshness **not** `STALE` or `UNKNOWN` per `docs/catalog/SUPPLIER_STOCK_AUTHORITY.md` (`CURRENT_ENOUGH` ≤14 days or `AGING_BUT_USABLE` ≤45 days). A ≤14-day snapshot is preferred; 15–45 days is still usable under the current contract when date is proven.
 
 ## Please provide
 
@@ -994,7 +1006,15 @@ Hashes: [`SHA256SUMS.txt`](SHA256SUMS.txt)
 
 ## Commercial delta
 
-See [`COMMERCIAL_DELTA.json`](COMMERCIAL_DELTA.json).
+| Field | Value |
+|-------|------:|
+| SELLABLE_BEFORE | {commercial['SELLABLE_BEFORE']} |
+| STRICT_CANDIDATES | {commercial['STRICT_CANDIDATES']} |
+| PROJECTED_SELLABLE_AFTER_STRICT | {commercial['PROJECTED_SELLABLE_AFTER_STRICT']} |
+| SOURCE_AVAILABLE_UPPER_BOUND | {commercial['SOURCE_AVAILABLE_UPPER_BOUND']} |
+| THEORETICAL_INSIZE_COHORT_UPPER_BOUND | {commercial['THEORETICAL_INSIZE_COHORT_UPPER_BOUND']} |
+
+Full detail: [`COMMERCIAL_DELTA.json`](COMMERCIAL_DELTA.json).
 
 ## Owner decision
 

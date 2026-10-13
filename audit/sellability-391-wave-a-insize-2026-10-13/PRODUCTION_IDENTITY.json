@@ -1,5 +1,5 @@
 {
-  "snapshot_utc": "2026-10-13T19:26:59Z",
+  "snapshot_utc": "2026-10-13T19:49:36Z",
   "transaction_read_only": "on",
   "database": "karzar_staging",
   "db_user": "karzar_staging",
@@ -10,7 +10,7 @@
   "database_volume": "karzar_postgres_data",
   "database_volume_verified": true,
   "alembic": "c1d2e3f4a5b6",
-  "origin_main": "ab33f9183b4ae2f3c2c25defd3d5fb257aad63e4",
+  "origin_main": "4786f75dee175bbc72fa6a518927ffb12d3bccc4",
   "branch": "audit/catalog-391-insize-wave-a",
   "HESABFA_STOCK_SEMANTICS": "UNPROVEN",
   "mutation": {

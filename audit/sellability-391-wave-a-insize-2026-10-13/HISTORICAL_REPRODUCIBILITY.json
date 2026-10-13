@@ -16,5 +16,5 @@
     "NOT_FOUND": 1,
     "STRICT": 0
   },
-  "reproducibility_notes": "Counts comparable when live ONLY_AVAILABILITY membership stable; strict gate requires proven source_date CURRENT_ENOUGH."
+  "reproducibility_notes": "Counts comparable when live ONLY_AVAILABILITY membership stable; strict gate requires proven source_date and freshness CURRENT_ENOUGH or AGING_BUT_USABLE (not STALE/UNKNOWN) per SUPPLIER_STOCK_AUTHORITY.md."
 }
