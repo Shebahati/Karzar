@@ -55,6 +55,13 @@ describe("SiteFooter eNamad trust seal", () => {
     expect(img?.getAttribute("height")).toBe("90");
   });
 
+  it("links Terms, Privacy, and FAQ in the legal column", () => {
+    container = renderIntoContainer(<SiteFooter />);
+    expect(container.querySelector('a[href="/terms"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/privacy"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/faq"]')).not.toBeNull();
+  });
+
   it("groups Enamad under مجوزها و اعتبارها and does not duplicate it", () => {
     container = renderIntoContainer(<SiteFooter />);
 

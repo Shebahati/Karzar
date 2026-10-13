@@ -68,21 +68,22 @@ const SERVICE_ITEMS: PdpTrustItem[] = [
 export function buildPdpStripTrustItems(opts?: {
   isOriginal?: boolean;
 }): PdpTrustItem[] {
-  return [
-    {
+  const items: PdpTrustItem[] = [];
+  if (opts?.isOriginal) {
+    items.push({
       key: "authenticity",
       title: "ضمانت اصالت",
-      desc: opts?.isOriginal ? "کالای اصلی" : "نمایندگی رسمی",
+      desc: "کالای اصلی",
       Icon: ShieldDone,
-    },
-    {
-      key: "return",
-      title: "۷ روز بازگشت",
-      desc: "شرایط مرجوعی",
-      Icon: Swap,
-    },
-    ...SERVICE_ITEMS,
-  ];
+    });
+  }
+  items.push({
+    key: "return",
+    title: "امکان مرجوعی",
+    desc: "طبق شرایط و موارد مشمول",
+    Icon: Swap,
+  });
+  return [...items, ...SERVICE_ITEMS];
 }
 
 function SoftCueStrip({

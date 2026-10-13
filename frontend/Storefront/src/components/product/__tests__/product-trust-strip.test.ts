@@ -22,8 +22,23 @@ describe("buildPdpBuyCardTrust", () => {
 });
 
 describe("buildPdpStripTrustItems", () => {
-  it("includes authenticity, return, and service cues", () => {
+  it("omits authenticity when isOriginal is false", () => {
     const items = buildPdpStripTrustItems({ isOriginal: false });
+    expect(items.map((i) => i.key)).toEqual([
+      "return",
+      "shipping",
+      "support",
+      "payment",
+    ]);
+    expect(items.find((i) => i.key === "authenticity")).toBeUndefined();
+    expect(items.find((i) => i.key === "return")?.title).toBe("امکان مرجوعی");
+    expect(items.find((i) => i.key === "return")?.desc).toBe(
+      "طبق شرایط و موارد مشمول",
+    );
+  });
+
+  it("shows authenticity only when isOriginal is true", () => {
+    const items = buildPdpStripTrustItems({ isOriginal: true });
     expect(items.map((i) => i.key)).toEqual([
       "authenticity",
       "return",
@@ -32,15 +47,9 @@ describe("buildPdpStripTrustItems", () => {
       "payment",
     ]);
     expect(items.find((i) => i.key === "authenticity")?.desc).toBe(
-      "نمایندگی رسمی",
-    );
-  });
-
-  it("uses original goods copy when isOriginal", () => {
-    const items = buildPdpStripTrustItems({ isOriginal: true });
-    expect(items.find((i) => i.key === "authenticity")?.desc).toBe(
       "کالای اصلی",
     );
+    expect(JSON.stringify(items)).not.toContain("نمایندگی رسمی");
   });
 });
 
@@ -58,5 +67,13 @@ describe("buildPdpTrustItems (compat)", () => {
       "payment",
       "warranty",
     ]);
+  });
+
+  it("does not add authenticity chip when isOriginal is false", () => {
+    const items = buildPdpTrustItems({
+      warrantyText: null,
+      isOriginal: false,
+    });
+    expect(items.map((i) => i.key)).not.toContain("authenticity");
   });
 });

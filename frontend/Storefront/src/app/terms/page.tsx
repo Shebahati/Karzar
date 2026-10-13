@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
 import { TERMS_INTRO, TERMS_SECTIONS } from "@/components/legal/terms-content";
+import { LEGAL_POLICY_UPDATED_LABEL_FA } from "@/lib/legal-policy-meta";
 import { INDEXABLE_STATIC_CANONICALS, selfCanonicalAlternates } from "@/lib/crawl-hygiene";
 
 export const metadata: Metadata = {
@@ -17,7 +18,8 @@ export default function TermsPage() {
       title="قوانین استفاده"
       intro={TERMS_INTRO}
       sections={TERMS_SECTIONS}
-      sibling={{ label: "سوالات متداول", href: "/faq" }}
+      updatedLabel={LEGAL_POLICY_UPDATED_LABEL_FA}
+      sibling={{ label: "حریم خصوصی", href: "/privacy" }}
     />
   );
 }

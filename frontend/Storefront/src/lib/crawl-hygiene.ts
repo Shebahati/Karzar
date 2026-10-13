@@ -39,6 +39,7 @@ export const INDEXABLE_STATIC_CANONICALS = {
   about: "/about",
   contact: "/contact",
   terms: "/terms",
+  privacy: "/privacy",
   faq: "/faq",
   blog: "/blog",
   catalog: "/catalog",
@@ -54,6 +55,7 @@ export const SITEMAP_STATIC_PATHS = [
   "/about",
   "/contact",
   "/terms",
+  "/privacy",
   "/faq",
 ] as const;
 

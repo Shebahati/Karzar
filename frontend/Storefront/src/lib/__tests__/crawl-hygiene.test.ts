@@ -67,6 +67,7 @@ describe("indexable static canonicals", () => {
     expect(INDEXABLE_STATIC_CANONICALS.about).toBe("/about");
     expect(INDEXABLE_STATIC_CANONICALS.contact).toBe("/contact");
     expect(INDEXABLE_STATIC_CANONICALS.terms).toBe("/terms");
+    expect(INDEXABLE_STATIC_CANONICALS.privacy).toBe("/privacy");
     expect(INDEXABLE_STATIC_CANONICALS.faq).toBe("/faq");
     expect(INDEXABLE_STATIC_CANONICALS.blog).toBe("/blog");
     expect(INDEXABLE_STATIC_CANONICALS.catalog).toBe("/catalog");
@@ -92,6 +93,7 @@ describe("sitemap static paths", () => {
       "/about",
       "/contact",
       "/terms",
+      "/privacy",
       "/faq",
     ]);
     for (const path of SITEMAP_STATIC_PATHS) {
