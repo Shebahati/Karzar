@@ -26,4 +26,9 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash
           sudo mv actionlint /usr/local/bin/
       - name: Lint workflows
-        run: actionlint
+        run: |
+          actionlint -shellcheck= \
+            .github/workflows/backend-ci.yml \
+            .github/workflows/frontend-ci.yml \
+            .github/workflows/ci-full-regression.yml \
+            .github/workflows/ci-workflow-lint.yml

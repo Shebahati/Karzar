@@ -16,6 +16,7 @@ unclassified_allow:
   - "data/catalog-target/**"
   - "scripts/brand_logo_assets/README.md"
   - "deploy/staging/frontend/README.md"
+  - "audit/ci-acceleration-2026-10-14/**"
 
 documents:
 
