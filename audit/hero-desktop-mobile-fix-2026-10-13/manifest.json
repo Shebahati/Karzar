@@ -1,0 +1,96 @@
+{
+  "commitSha": "a228c291786101dfeb1b9673d223bf5286e1388e",
+  "baseUrl": "http://127.0.0.1:3000",
+  "motion": "no-preference",
+  "viewports": [
+    {
+      "id": "1920x1080",
+      "touch": false,
+      "shots": [
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1920x1080-slide-1.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1920x1080-slide-2.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1920x1080-slide-3.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1920x1080-slide-4.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1920x1080-slide-5.png"
+      ]
+    },
+    {
+      "id": "1440x900",
+      "touch": false,
+      "shots": [
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1440x900-slide-1.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1440x900-slide-2.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1440x900-slide-3.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1440x900-slide-4.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1440x900-slide-5.png"
+      ]
+    },
+    {
+      "id": "1366x768",
+      "touch": false,
+      "shots": [
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1366x768-slide-1.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1366x768-slide-2.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1366x768-slide-3.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1366x768-slide-4.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1366x768-slide-5.png"
+      ]
+    },
+    {
+      "id": "1363x936",
+      "touch": false,
+      "shots": [
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1363x936-slide-1.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1363x936-slide-2.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1363x936-slide-3.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1363x936-slide-4.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/1363x936-slide-5.png"
+      ]
+    },
+    {
+      "id": "768x1024",
+      "touch": true,
+      "shots": [
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/768x1024-slide-1.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/768x1024-slide-2.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/768x1024-slide-3.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/768x1024-slide-4.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/768x1024-slide-5.png"
+      ]
+    },
+    {
+      "id": "390x844",
+      "touch": true,
+      "shots": [
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/390x844-slide-1.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/390x844-slide-2.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/390x844-slide-3.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/390x844-slide-4.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/390x844-slide-5.png"
+      ]
+    },
+    {
+      "id": "360x800",
+      "touch": true,
+      "shots": [
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/360x800-slide-1.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/360x800-slide-2.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/360x800-slide-3.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/360x800-slide-4.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/360x800-slide-5.png"
+      ]
+    },
+    {
+      "id": "430x932",
+      "touch": true,
+      "shots": [
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/430x932-slide-1.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/430x932-slide-2.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/430x932-slide-3.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/430x932-slide-4.png",
+        "/home/shebahati/Projects/Karzar/audit/hero-desktop-mobile-fix-2026-10-13/screenshots/430x932-slide-5.png"
+      ]
+    }
+  ],
+  "capturedAt": "2026-10-13T13:37:30.177Z"
+}

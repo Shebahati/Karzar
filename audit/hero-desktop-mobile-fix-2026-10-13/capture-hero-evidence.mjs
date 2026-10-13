@@ -48,12 +48,20 @@ const SLIDE_TITLES = [
 
 async function waitHeroSettled(page) {
   await page.waitForSelector('section[aria-label="هیرو کارزار"]', { timeout: 60_000 });
-  await page.waitForFunction(() => {
-    const hero = document.querySelector('section[aria-label="هیرو کارزار"]');
-    const img = hero?.querySelector("img");
-    return img && img.complete && img.naturalWidth > 0;
+  await page.waitForSelector('section[aria-label="هیرو کارزار"] h1, section[aria-label="هیرو کارزار"] h2', {
+    timeout: 60_000,
   });
-  await page.waitForTimeout(700);
+  await page
+    .waitForFunction(
+      () => {
+        const hero = document.querySelector('section[aria-label="هیرو کارزار"]');
+        const img = hero?.querySelector("img");
+        return !img || (img.complete && img.naturalWidth > 0);
+      },
+      { timeout: 45_000 },
+    )
+    .catch(() => {});
+  await page.waitForTimeout(1200);
 }
 
 async function swipeNext(page, box) {
@@ -108,7 +116,7 @@ async function main() {
     }
     const context = await browser.newContext(contextOptions);
     const page = await context.newPage();
-    await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
+    await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded", timeout: 120_000 });
     const shots = await captureSlides(page, vp, vp.mobile);
     meta.viewports.push({ id: vp.id, touch: vp.mobile, shots });
     await context.close();
