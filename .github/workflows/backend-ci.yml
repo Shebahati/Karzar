@@ -1,66 +1,72 @@
 name: Backend CI
 
-# Always run on PRs so required checks `lint` / `test` / `aods` report a status even for
-# frontend-only changes (branch protection requires those exact job names).
-# Heavy Python work runs only when backend paths change.
-# AODS gates always run (stdlib + brief requirements install for --gate openapi).
+# Required Protect-main checks: aods, lint, test (stable job names).
+# Risk-aware execution via scripts/ci/classify_changes.py (.github/ci/policy.json).
 on:
+  workflow_dispatch:
+    inputs:
+      force_full:
+        description: Run full backend tier (ignore path classifier reductions)
+        type: boolean
+        default: true
   push:
     branches: [main]
   pull_request:
 
 concurrency:
   group: backend-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
   pull-requests: read
 
 jobs:
-  changes:
-    name: Detect paths
+  classify:
+    name: Classify changes
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
-      backend: ${{ steps.filter.outputs.backend }}
-      deploy_staging: ${{ steps.filter.outputs.deploy_staging }}
+      risk_tier: ${{ steps.classify.outputs.risk_tier }}
+      scenario: ${{ steps.classify.outputs.scenario }}
+      run_backend_lint: ${{ steps.classify.outputs.run_backend_lint }}
+      run_backend_test_heavy: ${{ steps.classify.outputs.run_backend_test_heavy }}
+      run_aods_fast: ${{ steps.classify.outputs.run_aods_fast }}
+      run_aods_openapi: ${{ steps.classify.outputs.run_aods_openapi }}
+      run_deploy_staging_guard: ${{ steps.classify.outputs.run_deploy_staging_guard }}
+      run_audit_script_validation: ${{ steps.classify.outputs.run_audit_script_validation }}
+      changed_readonly_audit_scripts: ${{ steps.classify.outputs.changed_readonly_audit_scripts }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Path filter
-        id: filter
-        uses: dorny/paths-filter@v3
+      - uses: actions/checkout@v4
         with:
-          filters: |
-            backend:
-              - 'app/**'
-              - 'services/**'
-              - 'alembic/**'
-              - 'tests/**'
-              - 'scripts/**'
-              - 'requirements*.txt'
-              - 'pyproject.toml'
-              - 'ruff.toml'
-              - 'mypy.ini'
-              - 'alembic.ini'
-              - 'gunicorn_conf.py'
-              - 'docker-entrypoint.sh'
-              - 'Dockerfile'
-              - 'docker-compose*.yml'
-              - '.github/workflows/backend-ci.yml'
-              - 'aods/**'
-              - 'openapi/**'
-              - 'project-management/**'
-            deploy_staging:
-              - 'deploy/staging/**'
+          fetch-depth: 0
+
+      - name: Fetch origin/main
+        run: git fetch --no-tags origin main:refs/remotes/origin/main
+
+      - name: Classify
+        id: classify
+        env:
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          set -euo pipefail
+          args=(--github-output)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force_full }}" = "true" ]; then
+            args+=(--force-full)
+          elif [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            args+=(--base "HEAD~1" --head HEAD)
+          else
+            args+=(--base origin/main --head HEAD --pr-labels "$PR_LABELS")
+          fi
+          python3 scripts/ci/classify_changes.py "${args[@]}" --step-summary
 
   aods:
     name: aods
+    needs: classify
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -71,106 +77,109 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: AODS fast gates
+        if: needs.classify.outputs.run_aods_fast == 'true'
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python3 aods/tools/aods_validate.py \
+            --gate registry --gate links --gate naming --gate ingestion-boundary
 
       - name: Install runtime deps (OpenAPI gate imports app.main)
+        if: needs.classify.outputs.run_aods_openapi == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: AODS validation gates (baseline-aware)
+      - name: AODS OpenAPI gate
+        if: needs.classify.outputs.run_aods_openapi == 'true'
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: python3 aods/tools/aods_validate.py
+        run: python3 aods/tools/aods_validate.py --gate openapi
 
   lint:
     name: lint
-    needs: changes
+    needs: classify
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Skip Python lint (no backend changes)
-        if: needs.changes.outputs.backend != 'true'
-        run: |
-          echo "No backend paths changed — required check \`lint\` satisfied."
+      - name: Skip Python lint (classifier)
+        if: needs.classify.outputs.run_backend_lint != 'true' && needs.classify.outputs.run_audit_script_validation != 'true'
+        run: echo "No backend lint required (tier=${{ needs.classify.outputs.risk_tier }}, scenario=${{ needs.classify.outputs.scenario }})."
+
+      - name: Validate read-only audit scripts
+        if: needs.classify.outputs.run_audit_script_validation == 'true'
+        run: bash scripts/ci/validate_readonly_audit_scripts.sh '${{ needs.classify.outputs.changed_readonly_audit_scripts }}'
 
       - name: Setup Python
-        if: needs.changes.outputs.backend == 'true'
+        if: needs.classify.outputs.run_backend_lint == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
 
       - name: Install dev dependencies
-        if: needs.changes.outputs.backend == 'true'
+        if: needs.classify.outputs.run_backend_lint == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
       - name: Ruff
-        if: needs.changes.outputs.backend == 'true'
+        if: needs.classify.outputs.run_backend_lint == 'true'
         run: ruff check app tests services/gsc_mcp
 
       - name: Mypy
-        if: needs.changes.outputs.backend == 'true'
+        if: needs.classify.outputs.run_backend_lint == 'true'
         run: mypy app
 
   test:
     name: test
-    needs: changes
+    needs: classify
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: karzar_ci
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
+    timeout-minutes: 25
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Skip backend tests (classifier R0/R1)
+        if: needs.classify.outputs.run_backend_test_heavy != 'true' && needs.classify.outputs.run_deploy_staging_guard != 'true'
+        run: |
+          echo "No Postgres/Redis pytest (tier=${{ needs.classify.outputs.risk_tier }}, scenario=${{ needs.classify.outputs.scenario }})."
 
       - name: Deploy staging Dockerfile guard
-        if: needs.changes.outputs.deploy_staging == 'true'
+        if: needs.classify.outputs.run_deploy_staging_guard == 'true'
         run: bash deploy/staging/scripts/test-dockerfile-pypi-fallback.sh
 
-      - name: Skip Python tests (no backend changes)
-        if: needs.changes.outputs.backend != 'true'
-        run: |
-          echo "No backend paths changed — required check \`test\` satisfied."
-
       - name: Setup Python
-        if: needs.changes.outputs.backend == 'true'
+        if: needs.classify.outputs.run_backend_test_heavy == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements-dev.txt
+            requirements.txt
+
+      - name: Start Postgres and Redis
+        if: needs.classify.outputs.run_backend_test_heavy == 'true'
+        run: bash scripts/ci/start_integration_services.sh
 
       - name: Install dependencies
-        if: needs.changes.outputs.backend == 'true'
+        if: needs.classify.outputs.run_backend_test_heavy == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
           pip install -r services/gsc_mcp/requirements.txt
 
       - name: Run database migrations
-        if: needs.changes.outputs.backend == 'true'
+        if: needs.classify.outputs.run_backend_test_heavy == 'true'
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -189,7 +198,7 @@ jobs:
         run: alembic upgrade head
 
       - name: Run tests with coverage gate
-        if: needs.changes.outputs.backend == 'true'
+        if: needs.classify.outputs.run_backend_test_heavy == 'true'
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -209,3 +218,7 @@ jobs:
         run: |
           pytest --maxfail=1 --disable-warnings \
             --cov=app --cov-report=term-missing --cov-fail-under=68
+
+      - name: Stop integration services
+        if: always() && needs.classify.outputs.run_backend_test_heavy == 'true'
+        run: docker rm -f ci-postgres ci-redis >/dev/null 2>&1 || true

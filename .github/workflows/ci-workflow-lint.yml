@@ -1,0 +1,32 @@
+name: CI Workflow Lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: workflow-lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install actionlint
+        run: |
+          set -euo pipefail
+          ACTIONLINT_VERSION=1.7.7
+          curl -sSfL "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" | tar xz
+          sudo mv actionlint /usr/local/bin/
+          actionlint -version
+      - name: Lint workflows
+        run: |
+          actionlint -shellcheck= \
+            .github/workflows/backend-ci.yml \
+            .github/workflows/frontend-ci.yml \
+            .github/workflows/ci-full-regression.yml \
+            .github/workflows/ci-workflow-lint.yml \
+            .github/workflows/collaborator-scope-gate.yml
