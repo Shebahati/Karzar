@@ -1,5 +1,5 @@
 /**
- * Heroes Reborn 5 desktop + mobile fix evidence (post #481).
+ * Heroes Reborn 5 desktop + mobile fix evidence (post #481 / #490).
  * Prefer production build: `npm run build && npm run start` in frontend/Storefront.
  *
  *   BASE_URL=http://127.0.0.1:3000 node audit/hero-desktop-mobile-fix-2026-10-13/capture-hero-evidence.mjs
@@ -28,73 +28,210 @@ try {
 }
 
 const VIEWPORTS = [
-  { id: "1920x1080", width: 1920, height: 1080, mobile: false },
-  { id: "1440x900", width: 1440, height: 900, mobile: false },
-  { id: "1366x768", width: 1366, height: 768, mobile: false },
-  { id: "1363x936", width: 1363, height: 936, mobile: false },
-  { id: "768x1024", width: 768, height: 1024, mobile: true },
-  { id: "390x844", width: 390, height: 844, mobile: true },
-  { id: "360x800", width: 360, height: 800, mobile: true },
-  { id: "430x932", width: 430, height: 932, mobile: true },
+  { id: "1920x1080", width: 1920, height: 1080, mobile: false, touchSwipe: false },
+  { id: "1366x768", width: 1366, height: 768, mobile: false, touchSwipe: false },
+  /** Compact layout but not phone strip — arrows, not drag strip. */
+  { id: "768x1024", width: 768, height: 1024, mobile: false, touchSwipe: false },
+  { id: "390x844", width: 390, height: 844, mobile: true, touchSwipe: true },
 ];
 
-const SLIDE_TITLES = [
-  "تخفیف‌های ویژه‌ی کارزار",
-  "ابزار اندازه‌گیری",
-  "اینسرت و ابزارهای اینسرتی",
-  "فرز انگشتی",
-  "دستگاه‌های صنعتی",
+const SLIDES = [
+  {
+    index: 0,
+    title: "تخفیف‌های ویژه‌ی کارزار",
+    minCtas: 1,
+  },
+  {
+    index: 1,
+    title: "ابزار اندازه‌گیری",
+    minCtas: 1,
+  },
+  {
+    index: 2,
+    title: "اینسرت و ابزارهای اینسرتی",
+    minCtas: 2,
+    ctaLabels: ["مشاهده اینسرت‌ها", "مشاهده ابزارهای اینسرتی"],
+  },
+  {
+    index: 3,
+    title: "فرز انگشتی",
+    minCtas: 1,
+  },
+  {
+    index: 4,
+    title: "دستگاه‌های صنعتی",
+    minCtas: 1,
+  },
 ];
+
+const TRANSITION_VIEWPORTS = new Set(["390x844", "768x1024"]);
+
+function fail(message) {
+  throw new Error(message);
+}
+
+async function readVisibleHeroTitle(page) {
+  return page.evaluate(() => {
+    const section = document.querySelector('section[aria-label="هیرو کارزار"]');
+    if (!section) return "";
+    const headings = section.querySelectorAll(
+      '[data-testid="campaign-hero-compact"] h1, [data-testid="campaign-hero-compact"] h2, [data-testid="campaign-hero-fullbleed"] h1, [data-testid="campaign-hero-fullbleed"] h2',
+    );
+    for (const el of headings) {
+      const root = el.closest('[data-testid="campaign-hero-compact"], [data-testid="campaign-hero-fullbleed"]');
+      if (!root) continue;
+      if (root.closest(".invisible")) continue;
+      let node = root;
+      while (node && node !== section) {
+        if (node.getAttribute?.("aria-hidden") === "true") break;
+        const style = window.getComputedStyle(node);
+        if (style.opacity === "0" || style.visibility === "hidden" || style.display === "none") break;
+        node = node.parentElement;
+      }
+      if (node && node !== section) continue;
+      const rect = el.getBoundingClientRect();
+      if (rect.width < 8 || rect.height < 8) continue;
+      return el.textContent?.trim() ?? "";
+    }
+    return "";
+  });
+}
+
+async function waitForSlideTitle(page, title, vpId) {
+  const started = Date.now();
+  while (Date.now() - started < 45_000) {
+    const current = await readVisibleHeroTitle(page);
+    if (current === title) return;
+    await page.waitForTimeout(150);
+  }
+  fail(`[${vpId}] timed out waiting for slide title "${title}"`);
+}
 
 async function waitHeroSettled(page) {
-  await page.waitForSelector('section[aria-label="هیرو کارزار"]', { timeout: 60_000 });
-  await page.waitForSelector('section[aria-label="هیرو کارزار"] h1, section[aria-label="هیرو کارزار"] h2', {
-    timeout: 60_000,
-  });
-  await page
-    .waitForFunction(
-      () => {
-        const hero = document.querySelector('section[aria-label="هیرو کارزار"]');
-        const img = hero?.querySelector("img");
-        return !img || (img.complete && img.naturalWidth > 0);
-      },
-      { timeout: 45_000 },
-    )
-    .catch(() => {});
-  await page.waitForTimeout(1200);
+  const hero = page.locator('section[aria-label="هیرو کارزار"]');
+  await hero.waitFor({ state: "visible", timeout: 60_000 });
+  await page.waitForFunction(
+    () => {
+      const section = document.querySelector('section[aria-label="هیرو کارزار"]');
+      const rect = section?.getBoundingClientRect();
+      return rect && rect.height >= 260;
+    },
+    undefined,
+    { timeout: 60_000 },
+  );
+  await page.waitForTimeout(400);
 }
 
-async function swipeNext(page, box) {
-  const startX = box.x + box.width * 0.78;
-  const endX = box.x + box.width * 0.22;
-  const y = box.y + box.height * 0.42;
-  await page.touchscreen.tap(startX, y);
-  await page.mouse.move(startX, y);
-  await page.mouse.down();
-  await page.mouse.move(endX, y, { steps: 12 });
-  await page.mouse.up();
-  await page.waitForTimeout(900);
-}
+async function assertSlide(page, slideSpec, vpId) {
+  const hero = page.locator('section[aria-label="هیرو کارزار"]');
+  const title = await readVisibleHeroTitle(page);
+  if (title !== slideSpec.title) {
+    fail(
+      `[${vpId}] slide ${slideSpec.index + 1}: expected title "${slideSpec.title}", got "${title}"`,
+    );
+  }
 
-async function captureSlides(page, vp, mobile) {
-  const shots = [];
-  for (let i = 0; i < SLIDE_TITLES.length; i++) {
-    await waitHeroSettled(page);
-    const file = path.join(OUT, "screenshots", `${vp.id}-slide-${i + 1}.png`);
-    await page.screenshot({ path: file, fullPage: false });
-    shots.push(file);
-    if (i < SLIDE_TITLES.length - 1) {
-      const hero = page.locator('section[aria-label="هیرو کارزار"]');
-      const box = await hero.boundingBox();
-      if (mobile && box) {
-        await swipeNext(page, box);
-      } else {
-        await hero.getByRole("button", { name: "اسلاید بعدی" }).click();
-        await page.waitForTimeout(900);
+  const box = await hero.boundingBox();
+  if (!box || box.height < 280) {
+    fail(`[${vpId}] slide ${slideSpec.index + 1}: hero height collapsed (${box?.height ?? 0}px)`);
+  }
+
+  const ctas = hero.locator("a").filter({ hasText: /مشاهده/ });
+  const ctaCount = await ctas.count();
+  if (ctaCount < slideSpec.minCtas) {
+    fail(
+      `[${vpId}] slide ${slideSpec.index + 1}: expected ≥${slideSpec.minCtas} CTAs, found ${ctaCount}`,
+    );
+  }
+  if (slideSpec.ctaLabels) {
+    for (const label of slideSpec.ctaLabels) {
+      const link = hero.getByRole("link", { name: label });
+      if (!(await link.count())) {
+        fail(`[${vpId}] slide ${slideSpec.index + 1}: missing CTA "${label}"`);
+      }
+      const ctaBox = await link.first().boundingBox();
+      if (!ctaBox || ctaBox.width < 8 || ctaBox.height < 8) {
+        fail(`[${vpId}] slide ${slideSpec.index + 1}: CTA "${label}" not visible`);
       }
     }
   }
+
+  const media = hero.locator('[data-testid="campaign-hero-compact-media"], img').first();
+  if (await media.count()) {
+    const mediaBox = await media.boundingBox();
+    if (!mediaBox || mediaBox.height < 80) {
+      fail(`[${vpId}] slide ${slideSpec.index + 1}: media band missing or collapsed`);
+    }
+  }
+}
+
+/** RTL carousel: drag finger/content toward physical right → next slide. */
+async function swipeNextTouch(page, context, box) {
+  const startX = box.x + box.width * 0.22;
+  const endX = box.x + box.width * 0.78;
+  const y = box.y + Math.min(box.height * 0.35, box.height - 48);
+  const cdp = await context.newCDPSession(page);
+  const point = (x) => [{ x: Math.round(x), y: Math.round(y), radiusX: 1, radiusY: 1 }];
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: point(startX) });
+  for (let step = 1; step <= 16; step += 1) {
+    const x = startX + ((endX - startX) * step) / 16;
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: point(x) });
+  }
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await page.waitForTimeout(1200);
+}
+
+async function captureSlides(page, vp, context) {
+  const shots = [];
+  for (const slideSpec of SLIDES) {
+    await waitHeroSettled(page);
+    await assertSlide(page, slideSpec, vp.id);
+
+    const file = path.join(OUT, "screenshots", `${vp.id}-slide-${slideSpec.index + 1}.png`);
+    await page.screenshot({ path: file, fullPage: false });
+    shots.push(file);
+
+    if (slideSpec.index < SLIDES.length - 1) {
+      const hero = page.locator('section[aria-label="هیرو کارزار"]');
+      const box = await hero.boundingBox();
+      if (!box) fail(`[${vp.id}] missing hero box before swipe`);
+
+      const nextSpec = SLIDES[slideSpec.index + 1];
+      if (vp.touchSwipe) {
+        let advanced = false;
+        for (let attempt = 0; attempt < 3 && !advanced; attempt += 1) {
+          const swipeBox =
+            (await hero.locator(".cursor-grab").first().boundingBox()) ?? box;
+          await swipeNextTouch(page, context, swipeBox);
+          const title = await readVisibleHeroTitle(page);
+          if (title === nextSpec.title) {
+            advanced = true;
+            break;
+          }
+          await page.waitForTimeout(500);
+        }
+        if (!advanced) {
+          fail(`[${vp.id}] touch swipe did not reach slide "${nextSpec.title}"`);
+        }
+      } else {
+        await hero.getByRole("button", { name: "اسلاید بعدی" }).click();
+        await waitForSlideTitle(page, nextSpec.title, vp.id);
+      }
+      await page.waitForTimeout(400);
+    }
+  }
   return shots;
+}
+
+async function assertDesktopAutoplayControl(page, vpId) {
+  const control = page.getByTestId("hero-autoplay-control");
+  if (!(await control.count())) {
+    fail(`[${vpId}] missing desktop autoplay control`);
+  }
+  const box = await control.boundingBox();
+  if (!box || box.width < 20) {
+    fail(`[${vpId}] autoplay control not clickable`);
+  }
 }
 
 async function main() {
@@ -108,6 +245,9 @@ async function main() {
     const contextOptions = {
       viewport: { width: vp.width, height: vp.height },
       reducedMotion: MOTION === "reduce" ? "reduce" : "no-preference",
+      recordVideo: TRANSITION_VIEWPORTS.has(vp.id)
+        ? { dir: path.join(OUT, "videos"), size: { width: vp.width, height: vp.height } }
+        : undefined,
     };
     if (vp.mobile) {
       Object.assign(contextOptions, devices["Pixel 5"]);
@@ -117,14 +257,64 @@ async function main() {
     const context = await browser.newContext(contextOptions);
     const page = await context.newPage();
     await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded", timeout: 120_000 });
-    const shots = await captureSlides(page, vp, vp.mobile);
-    meta.viewports.push({ id: vp.id, touch: vp.mobile, shots });
+
+    if (!vp.mobile) {
+      await waitHeroSettled(page);
+      await assertDesktopAutoplayControl(page, vp.id);
+    }
+
+    const shots = await captureSlides(page, vp, context);
+
+    const videos = [];
+    const video = page.video();
+    await context.close();
+    if (video) {
+      const videoPath = path.join(OUT, "videos", `${vp.id}-session.webm`);
+      await video.saveAs(videoPath);
+      videos.push(videoPath);
+    }
+
+    meta.viewports.push({ id: vp.id, touchSwipe: vp.touchSwipe, shots, videos });
+  }
+
+  const reduceMeta = [];
+  for (const vp of VIEWPORTS.filter((v) => v.id === "768x1024" || v.id === "390x844")) {
+    const contextOptions = {
+      viewport: { width: vp.width, height: vp.height },
+      reducedMotion: "reduce",
+    };
+    if (vp.mobile) {
+      Object.assign(contextOptions, devices["Pixel 5"]);
+      contextOptions.viewport = { width: vp.width, height: vp.height };
+      contextOptions.hasTouch = true;
+    }
+    const context = await browser.newContext(contextOptions);
+    const page = await context.newPage();
+    await page.goto(`${BASE_URL}/`, { waitUntil: "domcontentloaded", timeout: 120_000 });
+    await waitHeroSettled(page);
+    await assertSlide(page, SLIDES[0], `${vp.id}-reduce`);
+    const shot = path.join(OUT, "screenshots", `${vp.id}-reduce-slide-1.png`);
+    await page.screenshot({ path: shot, fullPage: false });
+    const hero = page.locator('section[aria-label="هیرو کارزار"]');
+    const box = await hero.boundingBox();
+    if (!box) fail(`[${vp.id}-reduce] missing hero box`);
+    await hero.getByRole("button", { name: "اسلاید بعدی" }).click();
+    await waitForSlideTitle(page, SLIDES[1].title, `${vp.id}-reduce`);
+    await waitHeroSettled(page);
+    await assertSlide(page, SLIDES[1], `${vp.id}-reduce`);
+    const shot2 = path.join(OUT, "screenshots", `${vp.id}-reduce-slide-2.png`);
+    await page.screenshot({ path: shot2, fullPage: false });
+    reduceMeta.push({ id: vp.id, shots: [shot, shot2] });
     await context.close();
   }
 
   await writeFile(
     path.join(OUT, "manifest.json"),
-    JSON.stringify({ ...meta, capturedAt: new Date().toISOString() }, null, 2),
+    JSON.stringify(
+      { ...meta, reducedMotion: reduceMeta, capturedAt: new Date().toISOString() },
+      null,
+      2,
+    ),
   );
   await browser.close();
   console.log("Wrote evidence to", OUT);

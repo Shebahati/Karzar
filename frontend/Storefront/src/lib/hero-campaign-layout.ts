@@ -29,7 +29,7 @@ export type CampaignMediaLayout = {
   desktopFocal: string;
   /** Crop anchor for the dedicated compact media band (independent of desktop). */
   mobileFocal: string;
-  /** width / height for the mobile media region. */
+  /** Landscape width/height for the compact media band (interim `-1280.webp` crop). */
   compactAspect: number;
   /** Desktop copy anchor — verified empty region per slide after cover crop. */
   desktopCopyClass: string;
@@ -38,6 +38,16 @@ export type CampaignMediaLayout = {
 };
 
 const DEFAULT_COMPACT_ASPECT = 4 / 3;
+
+/** Master width for compact-band WebP exports (interim landscape + future portrait). */
+export const COMPACT_BAND_ART_WIDTH_PX = 1280;
+
+/** Portrait acceptance target when dedicated mobile art replaces landscape interim. */
+export const COMPACT_BAND_PORTRAIT_ASPECT = 3 / 4;
+
+export const COMPACT_BAND_PORTRAIT_HEIGHT_PX = Math.round(
+  COMPACT_BAND_ART_WIDTH_PX / COMPACT_BAND_PORTRAIT_ASPECT,
+);
 
 const DEFAULT_DESKTOP_COPY =
   "right-[clamp(2rem,7vw,8rem)] top-1/2 -translate-y-1/2 max-w-[min(560px,92vw)]";

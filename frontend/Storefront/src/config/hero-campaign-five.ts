@@ -29,7 +29,7 @@ export type HeroCampaignSlideDef = {
   title: string;
   subtitle: string;
   desktopImage: string;
-  /** Landscape derivative — compact-band crop only until portrait mobile art ships. */
+  /** Interim landscape `-1280.webp` for the compact media band; replace with portrait art per NEEDS_MOBILE_ART. */
   mobileImage: string;
   desktopFocal: string;
   /** Independent compact-band anchor (not a vertical tweak of desktop). */

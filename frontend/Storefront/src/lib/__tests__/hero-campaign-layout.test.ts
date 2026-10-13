@@ -3,6 +3,8 @@ import { buildFiveHeroPublishedPack } from "@/config/hero-campaign-five";
 import {
   CAMPAIGN_COMPACT_MAX_PX,
   CAMPAIGN_MOBILE_SOURCE_MAX_PX,
+  COMPACT_BAND_ART_WIDTH_PX,
+  COMPACT_BAND_PORTRAIT_HEIGHT_PX,
   campaignMediaForSlide,
   isRebornFiveCampaign,
 } from "@/lib/hero-campaign-layout";
@@ -35,5 +37,10 @@ describe("hero campaign layout", () => {
 
   it("aligns mobile picture breakpoint with compact layout", () => {
     expect(CAMPAIGN_MOBILE_SOURCE_MAX_PX).toBe(CAMPAIGN_COMPACT_MAX_PX);
+  });
+
+  it("documents portrait mobile art dimensions", () => {
+    expect(COMPACT_BAND_ART_WIDTH_PX).toBe(1280);
+    expect(COMPACT_BAND_PORTRAIT_HEIGHT_PX).toBe(1707);
   });
 });

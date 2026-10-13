@@ -596,6 +596,9 @@ function HeroSheetStrip({
   const stripShellClass = useCampaignLayout
     ? "relative w-full overflow-hidden"
     : "absolute inset-0 overflow-hidden";
+  const trackClass = useCampaignLayout
+    ? "relative w-full cursor-grab active:cursor-grabbing"
+    : "absolute inset-0 cursor-grab active:cursor-grabbing";
 
   return (
     <div
@@ -605,7 +608,7 @@ function HeroSheetStrip({
     >
       <motion.div
         ref={trackRef}
-        className="absolute inset-0 cursor-grab active:cursor-grabbing"
+        className={trackClass}
         style={{
           x,
           willChange: "transform",
@@ -646,7 +649,7 @@ function HeroSheetStrip({
                 campaignCompact={useCampaignLayout}
               />
             </div>
-            <div className="absolute inset-0">
+            <div className={useCampaignLayout ? "relative z-[1] w-full" : "absolute inset-0"}>
               <SlideCanvas
                 slide={current}
                 reducedMotion={isMobile}
@@ -1027,7 +1030,10 @@ export function DesignedHero({
       }}
     >
       <div
-        className="relative h-full w-full overflow-hidden"
+        className={cn(
+          "relative w-full overflow-hidden",
+          campaignCompact ? "h-auto" : "h-full",
+        )}
         style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       >
         {useSheetStrip ? (
@@ -1043,6 +1049,50 @@ export function DesignedHero({
             onCommitPrev={commitPrev}
             useCampaignLayout={campaignMode}
           />
+        ) : campaignCompact ? (
+          <div className="relative w-full">
+            <div className="invisible pointer-events-none select-none" aria-hidden>
+              <SlideCanvas
+                slide={slide}
+                reducedMotion={reducedMotion || isMobile}
+                blurred={menuOpen}
+                mobilePreset={mobilePreset}
+                isMobile={isMobile}
+                useCampaignLayout={campaignMode}
+                campaignCompact
+              />
+            </div>
+            <div className="absolute inset-x-0 top-0 w-full">
+              <AnimatePresence initial={false} custom={direction} mode="sync">
+                <motion.div
+                  key={slide.id}
+                  custom={direction}
+                  variants={sheetVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={heroSheetTransition(sheetDuration, useDesktopDissolve)}
+                  className="relative w-full"
+                  style={{
+                    willChange: reducedMotion ? undefined : "transform",
+                    backgroundColor: HERO_SHEET_UNDERLAY,
+                  }}
+                >
+                  <SlideCanvas
+                    slide={slide}
+                    reducedMotion={reducedMotion || isMobile}
+                    blurred={menuOpen}
+                    mobilePreset={mobilePreset}
+                    isMobile={isMobile}
+                    priority={activeIndex === 0}
+                    primaryHeading={activeIndex === 0}
+                    useCampaignLayout={campaignMode}
+                    campaignCompact
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
         ) : (
           <AnimatePresence initial={false} custom={direction} mode="sync">
             <motion.div

@@ -124,7 +124,7 @@ export function CampaignHeroSlide({
   if (compact) {
     return (
       <div
-        className={cn("relative flex h-full w-full flex-col overflow-hidden bg-[#121212]", className)}
+        className={cn("relative flex h-auto w-full flex-col overflow-hidden bg-[#121212]", className)}
         data-testid="campaign-hero-compact"
       >
         <div
