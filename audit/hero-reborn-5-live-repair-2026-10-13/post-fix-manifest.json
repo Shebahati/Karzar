@@ -1,0 +1,126 @@
+{
+  "kind": "post-fix-local-prod",
+  "capturedAt": "2026-10-13T15:02:50.963Z",
+  "base": "http://127.0.0.1:3010",
+  "viewports": [
+    {
+      "id": "1920x1080",
+      "layout": {
+        "heroTop": 0,
+        "heroBottom": 920,
+        "nextTop": 940,
+        "gap": 20,
+        "outerH": 920,
+        "heroH": 920,
+        "overlap": false
+      }
+    },
+    {
+      "id": "1440x900",
+      "layout": {
+        "heroTop": 0,
+        "heroBottom": 774,
+        "nextTop": 794,
+        "gap": 20,
+        "outerH": 774,
+        "heroH": 774,
+        "overlap": false
+      }
+    },
+    {
+      "id": "1366x768",
+      "layout": {
+        "heroTop": 0,
+        "heroBottom": 660.46875,
+        "nextTop": 680.46875,
+        "gap": 20,
+        "outerH": 660.46875,
+        "heroH": 660.46875,
+        "overlap": false
+      }
+    },
+    {
+      "id": "768x1024",
+      "layout": {
+        "heroTop": 0,
+        "heroBottom": 824,
+        "nextTop": 844,
+        "gap": 20,
+        "outerH": 824,
+        "heroH": 824,
+        "overlap": false
+      }
+    },
+    {
+      "id": "390x844",
+      "layout": {
+        "heroTop": 0,
+        "heroBottom": 564.5,
+        "nextTop": 584.5,
+        "gap": 20,
+        "outerH": 564.5,
+        "heroH": 564.5,
+        "overlap": false
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "step": "H01→H02",
+      "before": {
+        "img": "/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH05-industrial-machines-native-lossless.webp&w=1920&q=90",
+        "dock": "تخفیف‌هااندازه‌گیریاینسرت و ابزارهای اینسرتیفرز انگشتیدستگاه‌های صنعتیهمه محصولات"
+      },
+      "after": {
+        "title": "تخفیف‌های ویژه‌ی کارزار",
+        "img": "/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-native-lossless.webp&w=1920&q=90",
+        "dock": "تخفیف‌هااندازه‌گیریاینسرت و ابزارهای اینسرتیفرز انگشتیدستگاه‌های صنعتیهمه محصولات"
+      }
+    },
+    {
+      "step": "H02→H03",
+      "before": {
+        "title": "تخفیف‌های ویژه‌ی کارزار",
+        "img": "/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-native-lossless.webp&w=1920&q=90",
+        "dock": "تخفیف‌هااندازه‌گیریاینسرت و ابزارهای اینسرتیفرز انگشتیدستگاه‌های صنعتیهمه محصولات"
+      },
+      "after": {
+        "img": "/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH02-measuring-tools-native-lossless.webp&w=1920&q=90",
+        "dock": "تخفیف‌هااندازه‌گیریاینسرت و ابزارهای اینسرتیفرز انگشتیدستگاه‌های صنعتیهمه محصولات"
+      }
+    },
+    {
+      "step": "H03→H04",
+      "before": {
+        "img": "/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH02-measuring-tools-native-lossless.webp&w=1920&q=90",
+        "dock": "تخفیف‌هااندازه‌گیریاینسرت و ابزارهای اینسرتیفرز انگشتیدستگاه‌های صنعتیهمه محصولات"
+      },
+      "after": {
+        "img": "/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH03-inserts-turning-tools-native-lossless.webp&w=1920&q=90",
+        "dock": "تخفیف‌هااندازه‌گیریاینسرت و ابزارهای اینسرتیفرز انگشتیدستگاه‌های صنعتیهمه محصولات"
+      }
+    },
+    {
+      "step": "H04→H05",
+      "before": {
+        "img": "/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH03-inserts-turning-tools-native-lossless.webp&w=1920&q=90",
+        "dock": "تخفیف‌هااندازه‌گیریاینسرت و ابزارهای اینسرتیفرز انگشتیدستگاه‌های صنعتیهمه محصولات"
+      },
+      "after": {
+        "img": "/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH04-end-mills-native-lossless.webp&w=1920&q=90",
+        "dock": "تخفیف‌هااندازه‌گیریاینسرت و ابزارهای اینسرتیفرز انگشتیدستگاه‌های صنعتیهمه محصولات"
+      }
+    },
+    {
+      "step": "H05→H01",
+      "before": {
+        "img": "/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH04-end-mills-native-lossless.webp&w=1920&q=90",
+        "dock": "تخفیف‌هااندازه‌گیریاینسرت و ابزارهای اینسرتیفرز انگشتیدستگاه‌های صنعتیهمه محصولات"
+      },
+      "after": {
+        "img": "/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH05-industrial-machines-native-lossless.webp&w=1920&q=90",
+        "dock": "تخفیف‌هااندازه‌گیریاینسرت و ابزارهای اینسرتیفرز انگشتیدستگاه‌های صنعتیهمه محصولات"
+      }
+    }
+  ]
+}

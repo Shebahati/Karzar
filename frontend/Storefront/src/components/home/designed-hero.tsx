@@ -726,7 +726,12 @@ export function DesignedHero({
   const [isMobile, setIsMobile] = useState(false);
   const [isCompactLayout, setIsCompactLayout] = useState(false);
   const [sheetNudge, setSheetNudge] = useState<"next" | "prev" | null>(null);
-  const [slideImageReady, setSlideImageReady] = useState(true);
+  const [campaignPending, setCampaignPending] = useState<{
+    index: number;
+    gen: number;
+  } | null>(null);
+  const campaignPendingGenRef = useRef(0);
+  const campaignPendingRef = useRef(campaignPending);
   const [autoplayEpoch, setAutoplayEpoch] = useState(0);
   /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
   const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
@@ -734,6 +739,10 @@ export function DesignedHero({
 
   const menuOpen = menuOpenProp ?? internalMenu;
   const setMenuOpen = onMenuOpenChange ?? setInternalMenu;
+
+  useEffect(() => {
+    campaignPendingRef.current = campaignPending;
+  }, [campaignPending]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -783,19 +792,46 @@ export function DesignedHero({
     setAutoplayEpoch((e) => e + 1);
   }, []);
 
+  const queueCampaignTransition = useCallback(
+    (next: number) => {
+      campaignPendingGenRef.current += 1;
+      setCampaignPending({ index: next, gen: campaignPendingGenRef.current });
+    },
+    [],
+  );
+
+  const onCampaignPendingReady = useCallback(
+    (ready: boolean, gen: number, targetIndex: number) => {
+      if (!ready) return;
+      const pending = campaignPendingRef.current;
+      if (!pending || pending.gen !== gen) return;
+      setCampaignPending(null);
+      setIndex(targetIndex);
+    },
+    [],
+  );
+
   const commitNext = useCallback(() => {
     if (!slideCount) return;
-    if (campaignMode) setSlideImageReady(false);
     setDirection(1);
-    setIndex((i) => (i + 1) % slideCount);
-  }, [slideCount, campaignMode]);
+    const next = (index + 1) % slideCount;
+    if (campaignMode) {
+      queueCampaignTransition(next);
+      return;
+    }
+    setIndex(next);
+  }, [slideCount, campaignMode, index, queueCampaignTransition]);
 
   const commitPrev = useCallback(() => {
     if (!slideCount) return;
-    if (campaignMode) setSlideImageReady(false);
     setDirection(-1);
-    setIndex((i) => (i - 1 + slideCount) % slideCount);
-  }, [slideCount, campaignMode]);
+    const next = (index - 1 + slideCount) % slideCount;
+    if (campaignMode) {
+      queueCampaignTransition(next);
+      return;
+    }
+    setIndex(next);
+  }, [slideCount, campaignMode, index, queueCampaignTransition]);
 
   const goNext = useCallback(() => {
     if (!slideCount) return;
@@ -929,7 +965,10 @@ export function DesignedHero({
       : heroSheetVariants;
   const useSheetStrip = isMobile && !reducedMotion && slideCount > 1;
   const campaignCompact = campaignMode && isCompactLayout;
-  const copyVisible = !campaignMode || slideImageReady || reducedMotion;
+  const pendingSlide =
+    campaignPending !== null && slides[campaignPending.index]
+      ? slides[campaignPending.index]
+      : null;
 
   const compactMinHeight =
     "min-h-[calc((100vw/(4/3))+15.5rem)] max-[430px]:min-h-[calc((100vw/(4/3))+17rem)]";
@@ -984,22 +1023,6 @@ export function DesignedHero({
             onCommitPrev={commitPrev}
             useCampaignLayout={campaignMode}
           />
-        ) : campaignMode ? (
-          <div className="absolute inset-0">
-            <SlideCanvas
-              slide={slide}
-              reducedMotion={reducedMotion || isMobile}
-              blurred={menuOpen}
-              mobilePreset={mobilePreset}
-              isMobile={isMobile}
-              priority={activeIndex === 0}
-              primaryHeading={activeIndex === 0}
-              useCampaignLayout
-              campaignCompact={campaignCompact}
-              contentVisible={copyVisible}
-              onImageReadyChange={setSlideImageReady}
-            />
-          </div>
         ) : (
           <AnimatePresence initial={false} custom={direction} mode="sync">
             <motion.div
@@ -1024,10 +1047,31 @@ export function DesignedHero({
                 isMobile={isMobile}
                 priority={activeIndex === 0}
                 primaryHeading={activeIndex === 0}
+                useCampaignLayout={campaignMode}
+                campaignCompact={campaignCompact}
               />
             </motion.div>
           </AnimatePresence>
         )}
+
+        {pendingSlide && campaignPending ? (
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden opacity-0"
+            aria-hidden
+          >
+            <SlideCanvas
+              key={`campaign-pending-${campaignPending.gen}`}
+              slide={pendingSlide}
+              reducedMotion
+              isMobile={isMobile}
+              useCampaignLayout
+              campaignCompact={campaignCompact}
+              onImageReadyChange={(ready) => {
+                onCampaignPendingReady(ready, campaignPending.gen, campaignPending.index);
+              }}
+            />
+          </div>
+        ) : null}
 
         {slides.length > 1 && !menuOpen ? (
           <>

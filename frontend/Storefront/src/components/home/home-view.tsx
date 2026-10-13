@@ -101,7 +101,11 @@ export function HomeView({
         hides on first scroll — a 62dvh hero then reflows and the page jumps.
         Small viewport units stay locked to the chrome-expanded size.
       */}
-      <div className="relative h-[62svh] max-w-full overflow-x-clip [overflow-anchor:none] md:h-[100svh]">
+      {/*
+        Hero owns its height (fallback 62svh/100svh or campaign min/max). A fixed
+        outer svh wrapper caused gap (desktop) or overflow into the next section (compact campaign).
+      */}
+      <div className="relative max-w-full overflow-x-clip [overflow-anchor:none]">
         <Hero
           initialDesignedHeroPack={initialDesignedHeroPack}
           initialDesignedHeroPackUpdatedAt={initialDesignedHeroPackUpdatedAt}
