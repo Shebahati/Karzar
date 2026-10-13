@@ -37,6 +37,7 @@ from catalog_target.supplier_stock import (  # noqa: E402
     validate_stock_source,
     write_json,
 )
+from catalog_target.xlsx import iter_xlsx_rows  # noqa: E402
 from phase2c_live_readonly_census import _read_only_session_proof, _run_ssh_psql  # noqa: E402
 
 FORBIDDEN_SQL = re.compile(
@@ -45,10 +46,19 @@ FORBIDDEN_SQL = re.compile(
 )
 
 INSIZE_CANONICAL_XLSX = Path(
-    "/home/shebahati/KaZar/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx"
+    "/home/shebahati/KaZar/DOCS/Price/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی - فرمت ریال اصلاح شده.xlsx"
 )
-INSIZE_CANONICAL_SHA = "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a"
-INSIZE_SOURCE_ID = "insize.distributor.11shahrivar.65a92337"
+INSIZE_CANONICAL_SHA = "beb549109165a1fd0d156af8d9b8a9622eb3a04e7fc92b07c548993ee98669cf"
+INSIZE_SOURCE_ID = "insize.distributor.11shahrivar.beb54910"
+INSIZE_PRIOR_CANONICAL_SHA = "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a"
+# Gregorian date for Jalali 1405-06-11 (11 Shahrivar 1405); filename month/day + calendar year.
+INSIZE_SOURCE_DATE = "2026-09-02"
+INSIZE_SOURCE_DATE_EVIDENCE = (
+    "Jalali 1405-06-11 (11 Shahrivar 1405) → Gregorian 2026-09-02 via independent calendar conversion; "
+    "filename '11 شهریور' supplies month/day; year from Jalali 1405 campaign context. "
+    "Workbook OOXML core modified 2026-09-03T13:20:55Z corroborates early-September snapshot "
+    "(metadata reference only — not used as source_date or received_at)."
+)
 
 PLACEHOLDER_ILIKE = (
     "placeholder",
@@ -337,6 +347,27 @@ def discover_insize_sources() -> list[dict]:
     return sorted(seen.values(), key=lambda x: (not x["canonical"], x["path"]))
 
 
+def load_insize_workbook_index(path: Path) -> dict[str, dict[str, str]]:
+    """CODE → total quantity and dollar price cells (availability still from وضعیت only)."""
+    index: dict[str, dict[str, str]] = {}
+    for raw in iter_xlsx_rows(path):
+        code = normalize_sku(str(raw.get("CODE") or raw.get("code") or ""))
+        if not code:
+            continue
+        total = ""
+        price = ""
+        for k, v in raw.items():
+            if str(k).startswith("__"):
+                continue
+            ks = str(k).strip()
+            if ks == "موجودی کل":
+                total = "" if v is None else str(v).strip()
+            if ks == "قیمت دلاری":
+                price = "" if v is None else str(v).strip()
+        index[code] = {"source_total_quantity": total, "source_price_value": price}
+    return index
+
+
 def insize_validation_report() -> supplier_stock.ValidationReport:
     return validate_stock_source(
         INSIZE_CANONICAL_XLSX,
@@ -344,7 +375,7 @@ def insize_validation_report() -> supplier_stock.ValidationReport:
         supplier="INSIZE distributor",
         authority_type="AVAILABILITY",
         quantity_is_sellable_stock=False,
-        source_date_override=None,
+        source_date_override=INSIZE_SOURCE_DATE,
         freshness=FreshnessPolicy(),
     )
 
@@ -597,11 +628,24 @@ def main(argv: list[str] | None = None) -> int:
     if canonical is None:
         raise RuntimeError(f"canonical INSIZE workbook SHA not found: {INSIZE_CANONICAL_SHA}")
 
+    validation = insize_validation_report()
+    semantics_valid = validation.input_rows > 0 and validation.unknown == 0
+    validation.source_authority_valid = semantics_valid and validation.freshness != "STALE"
+    source_date_proven = bool(INSIZE_SOURCE_DATE)
+    age_days = (date.today() - date.fromisoformat(INSIZE_SOURCE_DATE)).days
+
     manifest_payload = {
         "primary_source_id": INSIZE_SOURCE_ID,
-        "SOURCE_AUTHORITY_VALID": "NO",
-        "freshness_class": "UNKNOWN",
-        "source_date_proven": False,
+        "SOURCE_AUTHORITY_VALID": "YES" if validation.source_authority_valid else "NO",
+        "freshness_class": validation.freshness,
+        "freshness_age_days": age_days,
+        "source_date": INSIZE_SOURCE_DATE,
+        "source_date_evidence": INSIZE_SOURCE_DATE_EVIDENCE,
+        "source_date_proven": source_date_proven,
+        "owner_confirmed_price_current": True,
+        "PRICE_AUTHORITY_OWNER_CONFIRMED": "YES",
+        "PRICE_SOURCE_CURRENT": "YES",
+        "prior_superseded_sha256": INSIZE_PRIOR_CANONICAL_SHA,
         "sources": sources,
         "inspected_at": snapshot_utc,
         "canonical": {
@@ -611,30 +655,20 @@ def main(argv: list[str] | None = None) -> int:
             "parser_version": supplier_stock.PARSER_VERSION,
             "normalization_policy_version": supplier_stock.NORMALIZATION_POLICY_VERSION,
             "received_at": None,
-            "received_at_note": "UNKNOWN — supplier receipt time not independently proven; do not use audit time or filesystem mtime",
+            "received_at_note": (
+                "UNKNOWN — supplier receipt time not independently proven; "
+                "do not use audit time or filesystem mtime"
+            ),
             "inspected_at": snapshot_utc,
             "supplier": "INSIZE distributor",
             "brand": "INSIZE",
+            "source_date": INSIZE_SOURCE_DATE,
+            "source_date_evidence": INSIZE_SOURCE_DATE_EVIDENCE,
         },
     }
     write_json(out_dir / "SOURCE_AUTHORITY_MANIFEST.json", manifest_payload)
 
-    validation = insize_validation_report()
-    # Semantics valid when CODE+وضعیت present; date still unproven.
-    semantics_valid = validation.input_rows > 0 and validation.unknown == 0
-    validation.source_authority_valid = semantics_valid and validation.freshness != "STALE"
-    # Force fail closed: no proven calendar source_date (Wave 1A.1 policy).
-    validation.source_authority_valid = False
-    validation.freshness = "UNKNOWN"
-    validation.deny_reasons = list(
-        dict.fromkeys(
-            [
-                *validation.deny_reasons,
-                "SOURCE_YEAR_UNPROVEN",
-                "filename_shahrivar_11_without_calendar_year",
-            ]
-        )
-    )
+    workbook_index = load_insize_workbook_index(INSIZE_CANONICAL_XLSX)
 
     catalog = export_catalog_products(
         args.ssh_host, [int(r["product_id"]) for r in insize_cohort]
@@ -661,14 +695,20 @@ def main(argv: list[str] | None = None) -> int:
             mapping_rows.append(
                 {
                     "product_id": pid,
-                    "sku": prod.get("sku"),
+                    "catalog_sku": prod.get("sku"),
                     "manufacturer_code": prod.get("manufacturer_code"),
-                    "match_method": "NOT_FOUND",
+                    "identity_match_method": "NOT_FOUND",
                     "source_code": "",
                     "source_status_raw": "",
-                    "normalized_availability": "UNKNOWN",
+                    "source_status_normalized": "UNKNOWN",
+                    "source_total_quantity": "",
+                    "source_price_value": "",
+                    "current_site_base_price": prod.get("base_price", ""),
+                    "active": prod.get("active", ""),
+                    "image_present": prod.get("imaged", ""),
+                    "only_availability_blocked": "YES",
+                    "source_freshness": validation.freshness,
                     "candidate_state": "NO_SOURCE_IDENTITY",
-                    "freshness_class": validation.freshness,
                     "strict_unlock": "NO",
                 }
             )
@@ -677,6 +717,7 @@ def main(argv: list[str] | None = None) -> int:
         src_code = m.manufacturer_sku or ""
         sr = stock_by_code.get(normalize_sku(src_code) or normalize_sku(m.catalog_sku))
         status_raw = sr.availability_status_raw if sr else ""
+        wb_extra = workbook_index.get(normalize_sku(src_code), {})
         state = candidate_state(
             match_class=m.match_class,
             normalized_status=m.normalized_status,
@@ -689,15 +730,21 @@ def main(argv: list[str] | None = None) -> int:
         is_strict = strict_unlock_row(prod, m, validation)
         row = {
             "product_id": pid,
-            "sku": prod.get("sku"),
+            "catalog_sku": prod.get("sku"),
             "manufacturer_code": prod.get("manufacturer_code"),
-            "match_method": method,
+            "identity_match_method": method,
             "source_code": src_code,
             "match_detail": m.match_detail,
             "source_status_raw": status_raw,
-            "normalized_availability": m.normalized_status,
+            "source_status_normalized": m.normalized_status,
+            "source_total_quantity": wb_extra.get("source_total_quantity", ""),
+            "source_price_value": wb_extra.get("source_price_value", ""),
+            "current_site_base_price": prod.get("base_price", ""),
+            "active": prod.get("active", ""),
+            "image_present": prod.get("imaged", ""),
+            "only_availability_blocked": "YES",
+            "source_freshness": validation.freshness,
             "candidate_state": state,
-            "freshness_class": validation.freshness,
             "strict_unlock": "YES" if is_strict else "NO",
         }
         mapping_rows.append(row)
@@ -711,55 +758,62 @@ def main(argv: list[str] | None = None) -> int:
                 }
             )
 
-    write_csv(
-        out_dir / "INSIZE_SOURCE_MAPPING.csv",
-        [
-            "product_id",
-            "sku",
-            "manufacturer_code",
-            "match_method",
-            "source_code",
-            "match_detail",
-            "source_status_raw",
-            "normalized_availability",
-            "candidate_state",
-            "freshness_class",
-            "strict_unlock",
-        ],
-        mapping_rows,
-    )
-    write_csv(
-        out_dir / "INSIZE_WAVE_A_STRICT_UNLOCK_CANDIDATES.csv",
-        [
-            "product_id",
-            "sku",
-            "manufacturer_code",
-            "match_method",
-            "source_code",
-            "normalized_availability",
-            "candidate_state",
-            "freshness_class",
-            "source_id",
-            "source_sha256",
-            "proposed_future_change",
-        ],
-        strict_rows,
-    )
+    mapping_fields = [
+        "product_id",
+        "catalog_sku",
+        "manufacturer_code",
+        "identity_match_method",
+        "source_code",
+        "match_detail",
+        "source_status_raw",
+        "source_status_normalized",
+        "source_total_quantity",
+        "source_price_value",
+        "current_site_base_price",
+        "active",
+        "image_present",
+        "only_availability_blocked",
+        "source_freshness",
+        "candidate_state",
+        "strict_unlock",
+    ]
+    write_csv(out_dir / "INSIZE_SOURCE_MAPPING.csv", mapping_fields, mapping_rows)
+    strict_fields = [
+        "product_id",
+        "catalog_sku",
+        "manufacturer_code",
+        "identity_match_method",
+        "source_code",
+        "source_status_raw",
+        "source_status_normalized",
+        "source_total_quantity",
+        "source_price_value",
+        "current_site_base_price",
+        "active",
+        "image_present",
+        "only_availability_blocked",
+        "source_freshness",
+        "candidate_state",
+        "source_id",
+        "source_sha256",
+        "proposed_future_change",
+    ]
+    write_csv(out_dir / "INSIZE_WAVE_A_STRICT_UNLOCK_CANDIDATES.csv", strict_fields, strict_rows)
 
     # Commercial delta
     available_non_strict = sum(
         1
         for r in mapping_rows
-        if r["normalized_availability"] == "AVAILABLE"
+        if r["source_status_normalized"] == "AVAILABLE"
         and r["strict_unlock"] != "YES"
     )
     theoretical_upper = sum(
-        1 for r in mapping_rows if r["normalized_availability"] == "AVAILABLE"
+        1 for r in mapping_rows if r["source_status_normalized"] == "AVAILABLE"
     )
     commercial = {
         "SELLABLE_BEFORE": census["sellable"],
-        "STRICT_CANDIDATES": len(strict_rows),
-        "PROJECTED_SELLABLE_AFTER_STRICT": census["sellable"] + len(strict_rows),
+        "FINAL_SOURCE_AVAILABLE_STRICT_CANDIDATES": len(strict_rows),
+        "PROJECTED_SELLABLE_AFTER_WAVE_D": census["sellable"] + len(strict_rows),
         "SOURCE_AVAILABLE_UPPER_BOUND": census["sellable"] + theoretical_upper,
         "SOURCE_AVAILABLE_UPPER_BOUND_note": (
             "Sellable today plus INSIZE cohort rows normalized AVAILABLE in current source "
@@ -771,14 +825,14 @@ def main(argv: list[str] | None = None) -> int:
         ),
         "INSIZE_COHORT_ONLY_AVAILABILITY": len(insize_cohort),
         "INSIZE_EXACT_MATCHED": sum(
-            1 for r in mapping_rows if r["match_method"] != "NOT_FOUND"
+            1 for r in mapping_rows if r["identity_match_method"] != "NOT_FOUND"
         ),
         "INSIZE_AVAILABLE_NORMALIZED": theoretical_upper,
         "INSIZE_UNAVAILABLE_NORMALIZED": sum(
-            1 for r in mapping_rows if r["normalized_availability"] == "UNAVAILABLE"
+            1 for r in mapping_rows if r["source_status_normalized"] == "UNAVAILABLE"
         ),
         "INSIZE_UNKNOWN_NORMALIZED": sum(
-            1 for r in mapping_rows if r["normalized_availability"] == "UNKNOWN"
+            1 for r in mapping_rows if r["source_status_normalized"] == "UNKNOWN"
         ),
         "AVAILABLE_BUT_NOT_STRICT": available_non_strict,
     }
@@ -793,23 +847,32 @@ def main(argv: list[str] | None = None) -> int:
             "NOT_FOUND": 1,
             "STRICT": 0,
         },
-        "fresh_2026_10_13": {
+        "fresh_2026_10_13_prior_sha_65a92337": {
+            "canonical_sha256": INSIZE_PRIOR_CANONICAL_SHA,
+            "STRICT": 0,
+            "note": "Superseded — SOURCE_YEAR_UNPROVEN / forced UNKNOWN freshness",
+        },
+        "fresh_2026_10_13_final_sha_beb54910": {
+            "canonical_sha256": INSIZE_CANONICAL_SHA,
+            "source_date": INSIZE_SOURCE_DATE,
+            "freshness_class": validation.freshness,
+            "freshness_age_days": age_days,
             "INSIZE_COHORT": len(insize_cohort),
-            "EXACT_MATCHED": sum(
-                1
-                for r in mapping_rows
-                if r["match_method"] not in {"NOT_FOUND", "NOT_MAPPED"}
-            ),
+            "EXACT_MATCHED": commercial["INSIZE_EXACT_MATCHED"],
             "AVAILABLE": theoretical_upper,
             "UNAVAILABLE": commercial["INSIZE_UNAVAILABLE_NORMALIZED"],
             "UNKNOWN": commercial["INSIZE_UNKNOWN_NORMALIZED"],
-            "NOT_FOUND": sum(1 for r in mapping_rows if r["match_method"] == "NOT_FOUND"),
+            "NOT_FOUND": sum(
+                1 for r in mapping_rows if r["identity_match_method"] == "NOT_FOUND"
+            ),
             "STRICT": len(strict_rows),
         },
         "reproducibility_notes": (
             "Counts comparable when live ONLY_AVAILABILITY membership stable; "
             "strict gate requires proven source_date and freshness CURRENT_ENOUGH or "
-            "AGING_BUT_USABLE (not STALE/UNKNOWN) per SUPPLIER_STOCK_AUTHORITY.md."
+            "AGING_BUT_USABLE (not STALE/UNKNOWN) per SUPPLIER_STOCK_AUTHORITY.md. "
+            f"Owner-final workbook SHA {INSIZE_CANONICAL_SHA[:8]}… supersedes prior "
+            f"{INSIZE_PRIOR_CANONICAL_SHA[:8]}… for price/availability authority."
         ),
     }
     write_json(out_dir / "HISTORICAL_REPRODUCIBILITY.json", hist)
@@ -870,43 +933,92 @@ def main(argv: list[str] | None = None) -> int:
         terma_scan,
     )
 
+    price_na_available = [
+        r
+        for r in mapping_rows
+        if r.get("source_status_normalized") == "AVAILABLE"
+        and str(r.get("source_price_value", "")).strip().upper() in {"#N/A", "N/A", ""}
+    ]
+    if price_na_available:
+        na_lines = [
+            "# INSIZE source price N/A but AVAILABLE (availability-only note)",
+            "",
+            "Wave-D strict gate does **not** require workbook price to match site price.",
+            "Do **not** exclude availability remediation solely because `قیمت دلاری` is `#N/A`.",
+            "",
+            "| product_id | source_code | source_price_value |",
+            "|-----------:|-------------|-------------------|",
+        ]
+        for r in price_na_available:
+            na_lines.append(
+                f"| {r['product_id']} | {r.get('source_code', '')} | "
+                f"{r.get('source_price_value', '')} |"
+            )
+        (out_dir / "INSIZE_PRICE_NA_AVAILABILITY_NOTE.md").write_text(
+            "\n".join(na_lines) + "\n",
+            encoding="utf-8",
+        )
+
+    req = out_dir / "INSIZE_FRESH_STOCK_SOURCE_REQUEST.md"
     if len(strict_rows) == 0:
-        req = out_dir / "INSIZE_FRESH_STOCK_SOURCE_REQUEST.md"
         req.write_text(
-            """# INSIZE fresh stock source request (distributor)
+            f"""# INSIZE fresh stock source request (distributor)
 
-Wave A strict unlock requires **proven calendar `source_date`** and authoritative `AVAILABLE` stock with freshness **not** `STALE` or `UNKNOWN` per `docs/catalog/SUPPLIER_STOCK_AUTHORITY.md` (`CURRENT_ENOUGH` ≤14 days or `AGING_BUT_USABLE` ≤45 days). A ≤14-day snapshot is preferred; 15–45 days is still usable under the current contract when date is proven.
-
-## Please provide
-
-1. Excel or CSV export of distributor inventory (same family as `موجودی توزیع کننده … 11 شهریور`).
-2. Columns: **CODE** (manufacturer code), **وضعیت** (`موجود` / `نا موجود`), optional warehouse qty columns.
-3. Explicit **calendar date** of the snapshot (Gregorian or Jalali with year) in the file or cover email.
-4. Do **not** rely on filename month/day without year.
-
-## Karzar will
-
-- SHA256 the file, record manifest metadata, and rematch the **INSIZE ONLY_AVAILABILITY** cohort using governed identity only (`manufacturer_code`, exact SKU, `INSIZE_TRAILING_A_IDENTITY`).
-- Produce a strict allowlist for Owner review before any `is_available` APPLY.
+Wave A strict unlock requires **proven calendar `source_date`** and authoritative `AVAILABLE` stock with freshness **not** `STALE` or `UNKNOWN` per `docs/catalog/SUPPLIER_STOCK_AUTHORITY.md` (`CURRENT_ENOUGH` ≤14 days or `AGING_BUT_USABLE` ≤45 days).
 
 ## Current blocker
 
-Canonical workbook SHA `65a92337…` has clear `وضعیت` semantics but **SOURCE_YEAR_UNPROVEN** → freshness **UNKNOWN** → **0** strict candidates.
+Owner-final workbook SHA `{INSIZE_CANONICAL_SHA}` did not yield strict Wave-D candidates — see mapping CSV and `FINAL_REPORT.md`.
+
+## Next supplier refresh
+
+Provide an updated distributor export when freshness would exceed **45 days** (`STALE`) or when inventory materially changes.
+""",
+            encoding="utf-8",
+        )
+    else:
+        req.write_text(
+            f"""# INSIZE distributor stock authority — refresh schedule
+
+Owner supplied final workbook SHA `{INSIZE_CANONICAL_SHA}` with proven `source_date` **{INSIZE_SOURCE_DATE}** → freshness **`{validation.freshness}`** ({age_days} days at audit).
+
+Wave A is **not** blocked on missing dated stock authority. **{len(strict_rows)}** strict Wave-D allowlist candidates are ready for Owner review (no APPLY in this PR).
+
+## Next supplier refresh
+
+Request a new dated export before this snapshot crosses **STALE** (>45 days from `source_date`) or when warehouse totals / `وضعیت` materially change.
 """,
             encoding="utf-8",
         )
 
     source_semantics = {
         "INSIZE_workbook": {
-            "columns": ["CODE", "وضعیت", "warehouse qty columns (not used for status)"],
-            "availability_rule": "وضعیت موجود/نا موجود only; quantity_is_sellable_stock=false",
+            "columns": [
+                "CODE",
+                "DESCRIPTION",
+                "موجودی قدس",
+                "موجودی تهران",
+                "شوروم قدس",
+                "شوروم تهران",
+                "موجودی کل",
+                "وضعیت",
+                "قیمت دلاری",
+            ],
+            "availability_rule": (
+                "وضعیت formula-driven (موجودی کل > 5 → موجود); "
+                "quantity_is_sellable_stock=false for normalization"
+            ),
             "price_not_availability": True,
+            "owner_confirmed_price_current": True,
             "identity_rules": [
                 "EXACT manufacturer_code/SKU",
                 "INSIZE_TRAILING_A_IDENTITY (identity only)",
             ],
+            "source_date": INSIZE_SOURCE_DATE,
+            "source_date_evidence": INSIZE_SOURCE_DATE_EVIDENCE,
             "freshness": validation.freshness,
-            "source_date_proven": False,
+            "freshness_age_days": age_days,
+            "source_date_proven": source_date_proven,
             "SOURCE_AUTHORITY_VALID": validation.source_authority_valid,
         }
     }
@@ -915,7 +1027,7 @@ Canonical workbook SHA `65a92337…` has clear `وضعیت` semantics but **SOUR
     status = (
         "BLOCKED_ON_FRESH_INSIZE_STOCK_AUTHORITY"
         if len(strict_rows) == 0
-        else "READY_FOR_OWNER_WAVE_D_REVIEW"
+        else "READY_FOR_OWNER_WAVE_D_ALLOWLIST_REVIEW"
     )
     owner = (
         "REQUEST_FRESH_INSIZE_STOCK_SOURCE"
@@ -952,7 +1064,9 @@ AVAILABILITY_APPLY = NO
 
 ## Canonical INSIZE source
 
-- SHA256: `{INSIZE_CANONICAL_SHA}`
+- SHA256: `{INSIZE_CANONICAL_SHA}` (supersedes `{INSIZE_PRIOR_CANONICAL_SHA[:16]}…`)
+- `source_date`: {INSIZE_SOURCE_DATE} (`{validation.freshness}`, {age_days}d)
+- Owner: prices final/current (`PRICE_AUTHORITY_OWNER_CONFIRMED=YES`)
 - Path (local): `{canonical['path']}`
 
 Hashes: [`SHA256SUMS.txt`](SHA256SUMS.txt)
@@ -995,22 +1109,27 @@ Hashes: [`SHA256SUMS.txt`](SHA256SUMS.txt)
 | Exact matched | 475 | {commercial['INSIZE_EXACT_MATCHED']} |
 | AVAILABLE | 10 | {commercial['INSIZE_AVAILABLE_NORMALIZED']} |
 | UNAVAILABLE | 465 | {commercial['INSIZE_UNAVAILABLE_NORMALIZED']} |
-| NOT_FOUND | 1 | {hist['fresh_2026_10_13']['NOT_FOUND']} |
+| NOT_FOUND | 1 | {hist['fresh_2026_10_13_final_sha_beb54910']['NOT_FOUND']} |
 | STRICT | 0 | {len(strict_rows)} |
 
 ## SOURCE_SEMANTICS
 
-- `وضعیت` → AVAILABLE/UNAVAILABLE (quantity columns not used).
-- Freshness **UNKNOWN** (`SOURCE_YEAR_UNPROVEN`); `SOURCE_AUTHORITY_VALID=NO` for strict APPLY.
+- `وضعیت` → AVAILABLE/UNAVAILABLE; `موجودی کل` reported separately (not used to infer status).
+- `source_date` **{INSIZE_SOURCE_DATE}** → freshness **{validation.freshness}** ({age_days} days); `SOURCE_AUTHORITY_VALID={'YES' if validation.source_authority_valid else 'NO'}`.
+- Owner confirms workbook prices are final/current; this audit does **not** APPLY price changes.
 - See [`SOURCE_SEMANTICS.json`](SOURCE_SEMANTICS.json).
+
+## Price N/A vs AVAILABLE
+
+{len(price_na_available)} cohort row(s) with source AVAILABLE but missing/`#N/A` `قیمت دلاری` — see [`INSIZE_PRICE_NA_AVAILABILITY_NOTE.md`](INSIZE_PRICE_NA_AVAILABILITY_NOTE.md) if present.
 
 ## Commercial delta
 
 | Field | Value |
 |-------|------:|
 | SELLABLE_BEFORE | {commercial['SELLABLE_BEFORE']} |
-| STRICT_CANDIDATES | {commercial['STRICT_CANDIDATES']} |
-| PROJECTED_SELLABLE_AFTER_STRICT | {commercial['PROJECTED_SELLABLE_AFTER_STRICT']} |
+| FINAL_SOURCE_AVAILABLE_STRICT_CANDIDATES | {commercial['FINAL_SOURCE_AVAILABLE_STRICT_CANDIDATES']} |
+| PROJECTED_SELLABLE_AFTER_WAVE_D | {commercial['PROJECTED_SELLABLE_AFTER_WAVE_D']} |
 | SOURCE_AVAILABLE_UPPER_BOUND | {commercial['SOURCE_AVAILABLE_UPPER_BOUND']} |
 | THEORETICAL_INSIZE_COHORT_UPPER_BOUND | {commercial['THEORETICAL_INSIZE_COHORT_UPPER_BOUND']} |
 

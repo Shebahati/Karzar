@@ -2000,8 +2000,8 @@ documents:
     owner_role: R-DOC-ARCH
     branch: audit/catalog-391-insize-wave-a
     notes: >
-      Issue #391 read-only INSIZE Wave A evidence. Strict unlock=0;
-      SOURCE_YEAR_UNPROVEN. APPLY AUTHORIZED=NO.
+      Issue #391 read-only INSIZE Wave A evidence. Owner-final workbook beb54910;
+      10 strict Wave-D candidates; APPLY AUTHORIZED=NO.
 
   - id: SELLABILITY-391-INSIZE-FINAL-20261013
     path: audit/sellability-391-wave-a-insize-2026-10-13/FINAL_REPORT.md
@@ -2011,7 +2011,7 @@ documents:
     owner_role: R-DOC-ARCH
     branch: audit/catalog-391-insize-wave-a
     notes: >
-      Issue #391 INSIZE Wave A final report. Owner: REQUEST_FRESH_INSIZE_STOCK_SOURCE.
+      Issue #391 INSIZE Wave A final report. Owner: AUTHORIZE_WAVE_D_ALLOWLIST_REVIEW.
 
   - id: SELLABILITY-391-INSIZE-SOURCE-REQUEST-20261013
     path: audit/sellability-391-wave-a-insize-2026-10-13/INSIZE_FRESH_STOCK_SOURCE_REQUEST.md
@@ -2021,7 +2021,17 @@ documents:
     owner_role: R-DOC-ARCH
     branch: audit/catalog-391-insize-wave-a
     notes: >
-      Distributor-facing fresh INSIZE stock snapshot request (#391 Wave A).
+      INSIZE stock refresh schedule (#391); Wave A no longer blocked on missing dated source.
+
+  - id: SELLABILITY-391-INSIZE-PRICE-NA-20261013
+    path: audit/sellability-391-wave-a-insize-2026-10-13/INSIZE_PRICE_NA_AVAILABILITY_NOTE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/catalog-391-insize-wave-a
+    notes: >
+      #391 INSIZE 8601-100 AVAILABLE with #N/A dollar price; availability-only note.
 
   - id: SELLABILITY-391-DASQUA-TERMA-SCAN-20261013
     path: audit/sellability-391-wave-a-insize-2026-10-13/SECONDARY_DASQUA_TERMA_SCAN.md

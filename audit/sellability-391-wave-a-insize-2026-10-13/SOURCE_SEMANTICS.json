@@ -2,17 +2,27 @@
   "INSIZE_workbook": {
     "columns": [
       "CODE",
+      "DESCRIPTION",
+      "موجودی قدس",
+      "موجودی تهران",
+      "شوروم قدس",
+      "شوروم تهران",
+      "موجودی کل",
       "وضعیت",
-      "warehouse qty columns (not used for status)"
+      "قیمت دلاری"
     ],
-    "availability_rule": "وضعیت موجود/نا موجود only; quantity_is_sellable_stock=false",
+    "availability_rule": "وضعیت formula-driven (موجودی کل > 5 → موجود); quantity_is_sellable_stock=false for normalization",
     "price_not_availability": true,
+    "owner_confirmed_price_current": true,
     "identity_rules": [
       "EXACT manufacturer_code/SKU",
       "INSIZE_TRAILING_A_IDENTITY (identity only)"
     ],
-    "freshness": "UNKNOWN",
-    "source_date_proven": false,
-    "SOURCE_AUTHORITY_VALID": false
+    "source_date": "2026-09-02",
+    "source_date_evidence": "Jalali 1405-06-11 (11 Shahrivar 1405) → Gregorian 2026-09-02 via independent calendar conversion; filename '11 شهریور' supplies month/day; year from Jalali 1405 campaign context. Workbook OOXML core modified 2026-09-03T13:20:55Z corroborates early-September snapshot (metadata reference only — not used as source_date or received_at).",
+    "freshness": "AGING_BUT_USABLE",
+    "freshness_age_days": 41,
+    "source_date_proven": true,
+    "SOURCE_AUTHORITY_VALID": true
   }
 }

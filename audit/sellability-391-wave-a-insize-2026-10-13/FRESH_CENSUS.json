@@ -1,5 +1,5 @@
 {
-  "snapshot_utc": "2026-10-13T19:49:36Z",
+  "snapshot_utc": "2026-10-13T20:02:07Z",
   "live": 6536,
   "soft_deleted": 1,
   "active": 1585,
@@ -23,7 +23,7 @@
   "read_only_proven": true,
   "contract": "audit/sellability-global-root-cause-2026-10-07/CODE_SELLABILITY_CONTRACT.md",
   "identity": {
-    "snapshot_utc": "2026-10-13T19:49:36Z",
+    "snapshot_utc": "2026-10-13T20:02:07Z",
     "transaction_read_only": "on",
     "database": "karzar_staging",
     "db_user": "karzar_staging",

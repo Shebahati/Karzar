@@ -4,9 +4,9 @@ Read-only production evidence. **No APPLY.**
 
 ## Status
 
-- `BLOCKED_ON_FRESH_INSIZE_STOCK_AUTHORITY`
-- Owner decision: `REQUEST_FRESH_INSIZE_STOCK_SOURCE`
-- Strict unlock candidates: **0**
+- `READY_FOR_OWNER_WAVE_D_ALLOWLIST_REVIEW`
+- Owner decision: `AUTHORIZE_WAVE_D_ALLOWLIST_REVIEW`
+- Strict unlock candidates: **10**
 - Sellable now: **717**
 
 ## Safety
@@ -27,7 +27,9 @@ AVAILABILITY_APPLY = NO
 
 ## Canonical INSIZE source
 
-- SHA256: `65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a`
-- Path (local): `/home/shebahati/KaZar/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx`
+- SHA256: `beb549109165a1fd0d156af8d9b8a9622eb3a04e7fc92b07c548993ee98669cf` (supersedes `65a9233762d5ff23…`)
+- `source_date`: 2026-09-02 (`AGING_BUT_USABLE`, 41d)
+- Owner: prices final/current (`PRICE_AUTHORITY_OWNER_CONFIRMED=YES`)
+- Path (local): `/home/shebahati/KaZar/DOCS/Price/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی - فرمت ریال اصلاح شده.xlsx`
 
 Hashes: [`SHA256SUMS.txt`](SHA256SUMS.txt)

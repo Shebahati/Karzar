@@ -1,6 +1,6 @@
 # Secondary read-only DASQUA / TERMA scan
 
-Snapshot UTC: 2026-10-13T19:49:36Z
+Snapshot UTC: 2026-10-13T20:02:07Z
 
 ## DASQUA (ONLY_AVAILABILITY cohort)
 - Rows scanned: 22 (expected 22)

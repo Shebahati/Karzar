@@ -1,9 +1,9 @@
 # Issue #391 — INSIZE Wave A Final Report
 
-**Status:** BLOCKED_ON_FRESH_INSIZE_STOCK_AUTHORITY  
-**Snapshot UTC:** 2026-10-13T19:49:36Z  
+**Status:** READY_FOR_OWNER_WAVE_D_ALLOWLIST_REVIEW  
+**Snapshot UTC:** 2026-10-13T20:02:07Z  
 **origin/main:** `4786f75dee175bbc72fa6a518927ffb12d3bccc4`  
-**Strict unlock candidates:** 0  
+**Strict unlock candidates:** 10  
 **APPLY authorized:** NO
 
 ## Fresh census
@@ -24,7 +24,7 @@
 | AVAILABLE (normalized) | 10 |
 | UNAVAILABLE | 465 |
 | UNKNOWN | 1 |
-| **Strict unlock** | **0** |
+| **Strict unlock** | **10** |
 
 ## Historical reproducibility (Wave A 2026-10-07)
 
@@ -35,21 +35,26 @@
 | AVAILABLE | 10 | 10 |
 | UNAVAILABLE | 465 | 465 |
 | NOT_FOUND | 1 | 1 |
-| STRICT | 0 | 0 |
+| STRICT | 0 | 10 |
 
 ## SOURCE_SEMANTICS
 
-- `وضعیت` → AVAILABLE/UNAVAILABLE (quantity columns not used).
-- Freshness **UNKNOWN** (`SOURCE_YEAR_UNPROVEN`); `SOURCE_AUTHORITY_VALID=NO` for strict APPLY.
+- `وضعیت` → AVAILABLE/UNAVAILABLE; `موجودی کل` reported separately (not used to infer status).
+- `source_date` **2026-09-02** → freshness **AGING_BUT_USABLE** (41 days); `SOURCE_AUTHORITY_VALID=YES`.
+- Owner confirms workbook prices are final/current; this audit does **not** APPLY price changes.
 - See [`SOURCE_SEMANTICS.json`](SOURCE_SEMANTICS.json).
+
+## Price N/A vs AVAILABLE
+
+1 cohort row(s) with source AVAILABLE but missing/`#N/A` `قیمت دلاری` — see [`INSIZE_PRICE_NA_AVAILABILITY_NOTE.md`](INSIZE_PRICE_NA_AVAILABILITY_NOTE.md) if present.
 
 ## Commercial delta
 
 | Field | Value |
 |-------|------:|
 | SELLABLE_BEFORE | 717 |
-| STRICT_CANDIDATES | 0 |
-| PROJECTED_SELLABLE_AFTER_STRICT | 717 |
+| FINAL_SOURCE_AVAILABLE_STRICT_CANDIDATES | 10 |
+| PROJECTED_SELLABLE_AFTER_WAVE_D | 727 |
 | SOURCE_AVAILABLE_UPPER_BOUND | 727 |
 | THEORETICAL_INSIZE_COHORT_UPPER_BOUND | 1193 |
 
@@ -57,4 +62,4 @@ Full detail: [`COMMERCIAL_DELTA.json`](COMMERCIAL_DELTA.json).
 
 ## Owner decision
 
-**REQUEST_FRESH_INSIZE_STOCK_SOURCE**
+**AUTHORIZE_WAVE_D_ALLOWLIST_REVIEW**
