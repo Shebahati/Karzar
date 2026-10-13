@@ -1991,3 +1991,13 @@ documents:
     branch: audit/sellability-wave-a-stock-authority
     notes: >
       Fastest +500 analysis; strict candidates 0.
+
+  - id: HERO-REBORN-5-VISUAL-20261013
+    path: audit/hero-reborn-5-visual-2026-10-13/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/hero-five-reborn-campaign
+    notes: >
+      PR #481 Heroes Reborn 5 visual acceptance: 25 screenshots, transition webms, manifest.json.
