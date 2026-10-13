@@ -173,8 +173,7 @@
     "scripts/audit_manufacturer_code_phase2a.py",
     "scripts/audit_manufacturer_identity_phase2c_discovery.py",
     "scripts/audit_product_naming_phase2d.py",
-    "scripts/audit_product_naming_v1.py",
-    "scripts/audit_safe_readonly.py"
+    "scripts/audit_product_naming_v1.py"
   ],
   "readonly_audit_script_tests": {
     "scripts/audit_manufacturer_identity_phase2c_discovery.py": [

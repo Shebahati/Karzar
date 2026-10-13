@@ -134,13 +134,13 @@ class ClassifierScenarios(unittest.TestCase):
 
 
     def test_script_audit_allowlisted_r1(self):
-        r = run_classifier("scripts/audit_safe_readonly.py")
+        r = run_classifier("scripts/audit_product_naming_v1.py")
         self.assertEqual(r["risk_tier"], "R1")
         self.assertEqual(r["scenario"], "M")
         self.assertTrue(r["run_audit_script_validation"])
         self.assertFalse(r["run_backend_test_heavy"])
         self.assertFalse(r["run_backend_lint"])
-        self.assertIn("scripts/audit_safe_readonly.py", r["changed_readonly_audit_scripts"])
+        self.assertIn("scripts/audit_product_naming_v1.py", r["changed_readonly_audit_scripts"])
 
     def test_script_audit_apply_production_r3(self):
         r = run_classifier("scripts/audit_apply_production.py")
@@ -164,6 +164,20 @@ class ClassifierScenarios(unittest.TestCase):
         r = run_classifier("scripts/audit_apply_production.py")
         self.assertEqual(r["risk_tier"], "R3")
         self.assertNotEqual(r.get("scenario"), "M")
+
+
+    def test_readonly_audit_allowlist_integrity(self):
+        proc = subprocess.run(
+            [sys.executable, str(CLASSIFIER), "--validate-allowlist"],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(
+            proc.returncode,
+            0,
+            proc.stderr or proc.stdout,
+        )
 
 if __name__ == "__main__":
     unittest.main()

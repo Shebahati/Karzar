@@ -503,6 +503,21 @@ def write_github_output(outputs: dict[str, str]) -> None:
                 handle.write(f"{key}={value}\n")
 
 
+
+def validate_readonly_audit_allowlist(policy: dict | None = None) -> list[str]:
+    """Return human-readable errors for allowlist integrity (empty if OK)."""
+    policy = policy or load_policy()
+    errors: list[str] = []
+    for path in policy.get("script_readonly_audit_allowlist", []):
+        if not path.startswith("scripts/"):
+            errors.append(f"{path}: allowlist entry must be under scripts/")
+        if not (REPO / path).is_file():
+            errors.append(f"{path}: allowlisted file does not exist")
+        if _is_script_mutation(path, policy):
+            errors.append(f"{path}: allowlisted path matches mutation/high-risk rules")
+    return errors
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base", default="origin/main")
@@ -514,7 +529,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--github-output", action="store_true")
     parser.add_argument("--step-summary", action="store_true")
+    parser.add_argument("--validate-allowlist", action="store_true")
     args = parser.parse_args(argv)
+
+    if args.validate_allowlist:
+        errors = validate_readonly_audit_allowlist()
+        if errors:
+            for err in errors:
+                print(err, file=sys.stderr)
+            return 1
+        print("readonly audit allowlist OK")
+        return 0
 
     paths = args.paths if args.paths is not None else git_changed_paths(args.base, args.head)
     result = classify(
