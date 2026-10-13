@@ -335,12 +335,14 @@ def test_t17_t21_legacy_dimensions_still_valid_in_seed():
 def test_alembic_head_is_single_descendant_of_s2():
     script = get_alembic_script_directory()
     heads = script.get_heads()
-    assert heads == ["c1d2e3f4a5b6"]
+    assert heads == ["d2e3f4a5b6c7"]
     assert is_runtime_revision_compatible(
         "s2t3u4v5w6x7",
-        "c1d2e3f4a5b6",
+        "d2e3f4a5b6c7",
         script_directory=script,
     )
+    d2 = script.get_revision("d2e3f4a5b6c7")
+    assert d2.down_revision == "c1d2e3f4a5b6"
     rev = script.get_revision("c1d2e3f4a5b6")
     assert rev.down_revision == "u4v5w6x7y8z9"
     # Phase 2A manufacturer_code sits on top of Prompt 150.

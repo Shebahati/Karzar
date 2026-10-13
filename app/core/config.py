@@ -179,6 +179,8 @@ class Settings(BaseSettings):
     KARZAR_MEDIA_PLANE: str | None = None
     # Expected POSTGRES_DB when KARZAR_DATA_PLANE=catalog_staging.
     KARZAR_CATALOG_STAGING_DB_NAME: str = "karzar_catalog_staging"
+    # Expected POSTGRES_DB when KARZAR_DATA_PLANE=staging (application staging).
+    KARZAR_APP_STAGING_DB_NAME: str = "karzar_app_staging"
     # Comma-separated extra live DB names that catalog_staging must never use.
     KARZAR_LIVE_DB_DENYLIST: str = ""
     LOG_TO_FILE: bool = True
@@ -355,6 +357,7 @@ class Settings(BaseSettings):
             postgres_server=self.POSTGRES_SERVER,
             media_plane=self.KARZAR_MEDIA_PLANE,
             catalog_staging_db_name=self.KARZAR_CATALOG_STAGING_DB_NAME,
+            app_staging_db_name=self.KARZAR_APP_STAGING_DB_NAME,
             extra_live_db_names=self.KARZAR_LIVE_DB_DENYLIST or None,
         )
         is_live_plane = identity.data_plane == "live"
