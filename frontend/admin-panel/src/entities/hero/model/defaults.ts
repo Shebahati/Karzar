@@ -89,7 +89,7 @@ export function createId(prefix: string): string {
 export const HERO_FEATURED_SLOT_COUNT = 5;
 
 /** Fixed carousel length — publish requires exactly this many filled slides. */
-export const HERO_SLIDE_SLOT_COUNT = 6;
+export const HERO_SLIDE_SLOT_COUNT = 5;
 
 export { DISCOUNTS_ORB_KEY, DISCOUNTS_CATALOG_HREF };
 
@@ -171,7 +171,7 @@ export function isSlideFilled(slide: HeroSlideDraft): boolean {
 }
 
 /**
- * Always exactly 6 slots. Keep stable ids when possible.
+ * Always exactly five slots. Keep stable ids when possible.
  * Truncate overflow by sortOrder; pad empties; dedupe orb links.
  */
 export function normalizeHeroSlides(
@@ -237,7 +237,7 @@ export function validateHeroProject(project: HeroDesignProject): HeroProjectIssu
   if (filled.length < HERO_SLIDE_SLOT_COUNT) {
     issues.push({
       code: "slide_empty",
-      message: `${HERO_SLIDE_SLOT_COUNT - filled.length} اسلات اسلاید خالی است — هر ۶ اسلات را پر کنید.`,
+      message: `${HERO_SLIDE_SLOT_COUNT - filled.length} اسلات اسلاید خالی است — هر ${HERO_SLIDE_SLOT_COUNT} اسلات را پر کنید.`,
     });
   }
 
@@ -319,7 +319,7 @@ export function createDiscountsOrb(prev?: Partial<HeroOrbCategory>): HeroOrbCate
 function orbFromFinalL1(cat: (typeof FINAL_L1_CATEGORIES)[number]): HeroOrbCategory {
   return {
     key: cat.key,
-    name: cat.name,
+    name: cat.heroDockLabel ?? cat.name,
     icon: CATEGORY_ICON_BY_SLUG[cat.iconSlug] ?? `/category-icons/${cat.slug}.png`,
     productCount: 0,
     heroImage: cat.heroImage,

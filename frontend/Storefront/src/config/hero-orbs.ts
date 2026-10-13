@@ -109,9 +109,12 @@ export const HERO_ORB_MARKETING: HeroOrbMarketing[] = [
 ];
 
 /** @deprecated Prefer `orbsFromRoots` — kept as marketing-shaped fallback when tree is empty. */
+const heroDockDisplayName = (key: string, fallback: string) =>
+  FINAL_L1_CATEGORIES.find((c) => c.key === key)?.heroDockLabel ?? fallback;
+
 export const HERO_ORB_CATEGORIES: HeroOrbDef[] = HERO_ORB_MARKETING.map((m) => ({
   key: m.key,
-  name: m.aliases?.[0] ?? m.key,
+  name: heroDockDisplayName(m.key, m.aliases?.[0] ?? m.key),
   icon: m.icon,
   productCount: 0,
   heroImage: m.heroImage,
@@ -263,9 +266,11 @@ export function orbsFromPublishedDock(
       ? undefined
       : (cat.categoryId != null ? byId.get(cat.categoryId) : undefined) ??
         byName.get(normalizeFa(cat.name));
+    const l1 = FINAL_L1_CATEGORIES.find((c) => c.key === cat.key);
+    const publishedName = cat.name?.trim() ? cat.name : "";
     return {
       key: cat.key,
-      name: root?.name ?? cat.name,
+      name: publishedName || l1?.heroDockLabel || root?.name || cat.name,
       icon:
         cat.icon ||
         resolveCategoryIconUrl(root ?? cat) ||

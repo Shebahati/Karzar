@@ -4,10 +4,15 @@
  * Ease is intentionally soft (less snappy) with a slightly longer settle.
  */
 export const HERO_SHEET_EASE = [0.4, 0.12, 0.2, 1] as const;
+/** Desktop dissolve + restrained nudge (spec ~650ms, ease-out). */
+export const HERO_DESKTOP_EASE = [0.22, 1, 0.36, 1] as const;
 
 export const HERO_SHEET_MS = 0.58;
+export const HERO_DESKTOP_MS = 0.65;
 export const HERO_SHEET_MS_MOBILE = 0.5;
 export const HERO_SHEET_MS_REDUCED = 0.14;
+
+const DESKTOP_NUDGE_PX = 16;
 
 /** Framer swipePower threshold (offset × velocity). */
 export const HERO_SWIPE_CONFIDENCE = 7200;
@@ -50,16 +55,36 @@ export const heroSheetReducedVariants = {
   exit: { opacity: 0, x: 0, zIndex: 1 },
 };
 
+/** Desktop: short translation + incoming fade; outgoing stays opaque underneath. */
+export const heroSheetDesktopVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? -DESKTOP_NUDGE_PX : DESKTOP_NUDGE_PX,
+    opacity: 0,
+    zIndex: 2,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    zIndex: 2,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? DESKTOP_NUDGE_PX : -DESKTOP_NUDGE_PX,
+    opacity: 1,
+    zIndex: 1,
+  }),
+};
+
 export function heroSwipePower(offset: number, velocity: number) {
   return Math.abs(offset) * velocity;
 }
 
-export function heroSheetTransition(duration: number) {
+export function heroSheetTransition(duration: number, desktop = false) {
+  const ease = desktop ? HERO_DESKTOP_EASE : HERO_SHEET_EASE;
   return {
-    x: { duration, ease: HERO_SHEET_EASE },
+    x: { duration, ease },
     // Opacity only used by reduced-motion crossfade; keep in sync with x so
     // we never outrun the sheet and expose the stage underlay as a “flash”.
-    opacity: { duration, ease: HERO_SHEET_EASE },
+    opacity: { duration, ease },
   };
 }
 

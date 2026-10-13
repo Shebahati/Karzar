@@ -29,6 +29,8 @@ export interface FinalL1Category {
   featuredOrder: number | null;
   /** Match live DB names; first entry should be exact `name` */
   aliases: string[];
+  /** Optional hero dock label override (marketing ≠ taxonomy name). */
+  heroDockLabel?: string;
 }
 
 /** Dock-only special — never listed in «همه محصولات». */
@@ -49,7 +51,7 @@ export const DISCOUNTS_SPECIAL = {
 export const FINAL_L1_FEATURED_KEYS = [
   "metrology",
   "inserts",
-  "workholding",
+  "endmills",
   "industrial-machines",
 ] as const;
 
@@ -97,8 +99,10 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     heroImage: "/images/hero/hero-cutting-left.jpg",
     subtitle:
       "اینسرت‌های پوشش‌دار برای سطوح برش متنوع — تعویض سریع، عمر طولانی، کیفیت ثابت",
-    ctaLabel: "مشاهده اینسرت",
+    ctaLabel: "مشاهده اینسرت‌ها",
     featuredOrder: 2,
+    /** Hero dock presentation (taxonomy name remains «اینسرت»). */
+    heroDockLabel: "اینسرت و ابزارهای اینسرتی",
     aliases: ["اینسرت"],
   },
   {
@@ -110,7 +114,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     subtitle:
       "ابزارهای پروفایل و فرز انگشتی برای ماشین‌کاری تمیز — از کاربید تا پوشش‌های پیشرفته",
     ctaLabel: "مشاهده فرز انگشتی",
-    featuredOrder: null,
+    featuredOrder: 3,
     aliases: ["فرز انگشتی", "ابزار انگشتی"],
   },
   {
@@ -155,7 +159,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     subtitle:
       "گیره، فیکسچر و سیستم‌های نگه‌دارنده — ثبات بیشتر، لرزش کمتر، نتیجه تمیزتر در ماشین‌کاری",
     ctaLabel: "مشاهده ابزار گیرشی",
-    featuredOrder: 3,
+    featuredOrder: null,
     aliases: ["ابزار گیرشی"],
   },
   {

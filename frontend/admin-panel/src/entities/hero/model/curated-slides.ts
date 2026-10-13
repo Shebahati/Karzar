@@ -1,6 +1,6 @@
 /**
- * Curated hero seeds — clean industrial slides (photo + type + one CTA).
- * No badges / fake product carousels. Pack uses 6: featured dock (5) + filler.
+ * Curated hero seeds — approved five-hero Reborn campaign (photo + type + CTA).
+ * Order matches featured dock keys; no extra filler slides.
  */
 
 import type {
@@ -34,6 +34,7 @@ type SlideSeed = {
   title: string;
   subtitle: string;
   image: string;
+  mobileImage: string;
   focal: string;
   animation: HeroAnimationPreset;
   minHeight: number;
@@ -52,30 +53,34 @@ type SlideSeed = {
     align: TextAlign;
   };
   ctaPrimary: CtaSeed;
+  ctaSecondary?: CtaSeed;
 };
 
-/** Clean seeds — composition / temperature vary; chrome stays minimal. */
+const REBORN_HERO = "/images/hero/reborn-5";
+
+/** Approved Reborn-5 campaign seeds (order = featured dock). */
 export const CURATED_HERO_SEEDS: SlideSeed[] = [
   {
     orbKey: DISCOUNTS_ORB_KEY,
     name: "تخفیف‌ها",
-    title: "تخفیف‌های ویژه کارزار",
-    subtitle: "ابزار صنعتی منتخب با قیمت رقابتی برای تجهیز کارگاه و خط تولید",
-    image: "/images/hero/hero-accessories-left.jpg",
-    focal: "left 40%",
+    title: "تخفیف‌های ویژه‌ی کارزار",
+    subtitle: "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی.",
+    image: `${REBORN_HERO}/H01-special-offers-native-lossless.webp`,
+    mobileImage: `${REBORN_HERO}/H01-special-offers-1280.webp`,
+    focal: "left 38%",
     animation: "fade-up",
     minHeight: 760,
-    mobilePreset: "copy-focus",
+    mobilePreset: "balanced",
     overlay: {
-      gradientFrom: "rgba(28,10,10,0.2)",
-      gradientTo: "rgba(8,6,6,0.88)",
+      gradientFrom: "rgba(8,8,8,0.12)",
+      gradientTo: "rgba(8,8,8,0.58)",
       gradientAngle: 105,
     },
     typography: {
       position: { x: 6, y: 28 },
-      maxWidth: 420,
-      titleSize: 46,
-      subtitleSize: 16,
+      maxWidth: 460,
+      titleSize: 44,
+      subtitleSize: 17,
       align: "start",
     },
     ctaPrimary: {
@@ -89,361 +94,132 @@ export const CURATED_HERO_SEEDS: SlideSeed[] = [
   {
     orbKey: "metrology",
     name: "اندازه‌گیری",
-    title: "اندازه‌گیری دقیق",
-    subtitle: "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر",
-    image: "/images/hero/hero-metrology-left.jpg",
-    focal: "center left",
-    animation: "fade-in",
-    minHeight: 720,
+    title: "ابزار اندازه‌گیری",
+    subtitle: "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت.",
+    image: `${REBORN_HERO}/H02-measuring-tools-native-lossless.webp`,
+    mobileImage: `${REBORN_HERO}/H02-measuring-tools-1280.webp`,
+    focal: "left 40%",
+    animation: "fade-up",
+    minHeight: 760,
     mobilePreset: "balanced",
     overlay: {
-      gradientFrom: "rgba(10,12,16,0.1)",
-      gradientTo: "rgba(8,10,12,0.86)",
-      gradientAngle: 255,
+      gradientFrom: "rgba(8,8,8,0.12)",
+      gradientTo: "rgba(8,8,8,0.58)",
+      gradientAngle: 105,
     },
     typography: {
-      position: { x: 48, y: 30 },
-      maxWidth: 400,
+      position: { x: 6, y: 28 },
+      maxWidth: 460,
       titleSize: 44,
-      subtitleSize: 16,
-      align: "end",
+      subtitleSize: 17,
+      align: "start",
     },
     ctaPrimary: {
-      label: "مشاهده اندازه‌گیری",
+      label: "مشاهده ابزار اندازه‌گیری",
       href: "/categories/andaze-giri",
       stylePreset: "primary",
       sizePreset: "lg",
-      position: { x: 62, y: 58 },
-    },
-  },
-  {
-    orbKey: "insert-tools",
-    name: "ابزار اینسرتی",
-    title: "ابزار اینسرتی",
-    subtitle: "هلدر و سیستم‌های اینسرتی برای براده‌برداری پایدار و تعویض سریع",
-    image: "/images/hero/hero-cutting-left.jpg",
-    focal: "right 42%",
-    animation: "fade-in",
-    minHeight: 710,
-    mobilePreset: "copy-focus",
-    overlay: {
-      gradientFrom: "rgba(40,40,40,0.22)",
-      gradientTo: "rgba(12,12,12,0.86)",
-      gradientAngle: 70,
-    },
-    typography: {
-      position: { x: 50, y: 30 },
-      maxWidth: 380,
-      titleSize: 42,
-      subtitleSize: 16,
-      align: "end",
-    },
-    ctaPrimary: {
-      label: "مشاهده ابزار اینسرتی",
-      href: "/categories/abzar-inserti",
-      stylePreset: "soft",
-      sizePreset: "lg",
-      position: { x: 58, y: 58 },
+      position: { x: 6, y: 58 },
     },
   },
   {
     orbKey: "inserts",
-    name: "اینسرت",
-    title: "اینسرت کاربیدی",
-    subtitle: "پوشش‌های صنعتی برای سطوح برش متنوع — عمر طولانی، کیفیت ثابت",
-    image: "/images/hero/hero-cutting-left.jpg",
-    focal: "center",
-    animation: "zoom-soft",
-    minHeight: 700,
-    mobilePreset: "media-focus",
+    name: "اینسرت و ابزارهای اینسرتی",
+    title: "اینسرت و ابزارهای اینسرتی",
+    subtitle: "انتخاب ابزار متناسب با جنس قطعه، نوع عملیات و شرایط ماشین‌کاری.",
+    image: `${REBORN_HERO}/H03-inserts-turning-tools-native-lossless.webp`,
+    mobileImage: `${REBORN_HERO}/H03-inserts-turning-tools-1280.webp`,
+    focal: "left 42%",
+    animation: "fade-up",
+    minHeight: 760,
+    mobilePreset: "balanced",
     overlay: {
-      gradientFrom: "rgba(12,12,12,0.45)",
-      gradientTo: "rgba(12,12,12,0.78)",
-      gradientAngle: 180,
+      gradientFrom: "rgba(8,8,8,0.12)",
+      gradientTo: "rgba(8,8,8,0.58)",
+      gradientAngle: 105,
     },
     typography: {
-      position: { x: 24, y: 32 },
-      maxWidth: 440,
+      position: { x: 6, y: 28 },
+      maxWidth: 460,
       titleSize: 44,
-      subtitleSize: 16,
-      align: "center",
+      subtitleSize: 17,
+      align: "start",
     },
     ctaPrimary: {
-      label: "مشاهده اینسرت",
+      label: "مشاهده اینسرت‌ها",
       href: "/categories/insert",
       stylePreset: "primary",
       sizePreset: "lg",
-      position: { x: 38, y: 58 },
+      position: { x: 6, y: 58 },
+    },
+    ctaSecondary: {
+      label: "مشاهده ابزارهای اینسرتی",
+      href: "/categories/abzar-inserti",
+      stylePreset: "soft",
+      sizePreset: "lg",
+      position: { x: 6, y: 68 },
     },
   },
   {
     orbKey: "endmills",
     name: "فرز انگشتی",
-    title: "فرز انگشتی دقیق",
-    subtitle: "ابزار پروفایل و فرز انگشتی برای ماشین‌کاری تمیز",
-    image: "/images/hero/hero-cutting-left.jpg",
+    title: "فرز انگشتی",
+    subtitle: "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف.",
+    image: `${REBORN_HERO}/H04-end-mills-native-lossless.webp`,
+    mobileImage: `${REBORN_HERO}/H04-end-mills-1280.webp`,
     focal: "left 44%",
     animation: "fade-up",
-    minHeight: 720,
+    minHeight: 760,
     mobilePreset: "balanced",
     overlay: {
-      gradientFrom: "rgba(12,12,12,0.15)",
-      gradientTo: "rgba(12,12,12,0.88)",
-      gradientAngle: 92,
+      gradientFrom: "rgba(8,8,8,0.12)",
+      gradientTo: "rgba(8,8,8,0.58)",
+      gradientAngle: 105,
     },
     typography: {
       position: { x: 6, y: 28 },
-      maxWidth: 420,
-      titleSize: 42,
-      subtitleSize: 16,
+      maxWidth: 460,
+      titleSize: 44,
+      subtitleSize: 17,
       align: "start",
     },
     ctaPrimary: {
-      label: "مشاهده فرز انگشتی",
+      label: "مشاهده فرزهای انگشتی",
       href: "/categories/farz-angoshti",
       stylePreset: "primary",
       sizePreset: "lg",
-      position: { x: 6, y: 56 },
-    },
-  },
-  {
-    orbKey: "taps",
-    name: "قلاویز",
-    title: "قلاویز صنعتی",
-    subtitle: "قلاویز دستی و ماشینی برای رزوه‌کاری استاندارد",
-    image: "/images/hero/hero-cutting-left.jpg",
-    focal: "left 36%",
-    animation: "fade-in",
-    minHeight: 690,
-    mobilePreset: "dock-first",
-    overlay: {
-      gradientFrom: "rgba(12,16,22,0.18)",
-      gradientTo: "rgba(12,12,12,0.86)",
-      gradientAngle: 110,
-    },
-    typography: {
-      position: { x: 8, y: 30 },
-      maxWidth: 360,
-      titleSize: 40,
-      subtitleSize: 15,
-      align: "start",
-    },
-    ctaPrimary: {
-      label: "مشاهده قلاویز",
-      href: "/categories/ghalaviz",
-      stylePreset: "soft",
-      sizePreset: "lg",
-      position: { x: 8, y: 56 },
-    },
-  },
-  {
-    orbKey: "drills",
-    name: "مته‌ها",
-    title: "مته‌های صنعتی",
-    subtitle: "مته‌های HSS و کاربید برای سوراخ‌کاری تمیز و تکرارپذیر",
-    image: "/images/hero/hero-cutting-left.jpg",
-    focal: "left 46%",
-    animation: "zoom-soft",
-    minHeight: 720,
-    mobilePreset: "balanced",
-    overlay: {
-      gradientFrom: "rgba(12,12,12,0.14)",
-      gradientTo: "rgba(12,12,12,0.88)",
-      gradientAngle: 90,
-    },
-    typography: {
-      position: { x: 6, y: 28 },
-      maxWidth: 400,
-      titleSize: 42,
-      subtitleSize: 16,
-      align: "start",
-    },
-    ctaPrimary: {
-      label: "مشاهده مته‌ها",
-      href: "/categories/mete",
-      stylePreset: "primary",
-      sizePreset: "lg",
-      position: { x: 6, y: 56 },
-    },
-  },
-  {
-    orbKey: "toolholders",
-    name: "ابزارگیر",
-    title: "ابزارگیر دقیق",
-    subtitle: "هولدر و رابط‌های ابزار برای پایداری بیشتر در اسپیندل",
-    image: "/images/hero/hero-holding-left.jpg",
-    focal: "left 50%",
-    animation: "fade-up",
-    minHeight: 730,
-    mobilePreset: "media-focus",
-    overlay: {
-      gradientFrom: "rgba(12,12,12,0.2)",
-      gradientTo: "rgba(12,12,12,0.84)",
-      gradientAngle: 88,
-    },
-    typography: {
-      position: { x: 6, y: 28 },
-      maxWidth: 400,
-      titleSize: 42,
-      subtitleSize: 16,
-      align: "start",
-    },
-    ctaPrimary: {
-      label: "مشاهده ابزارگیر",
-      href: "/categories/abzar-gir",
-      stylePreset: "primary",
-      sizePreset: "lg",
-      position: { x: 6, y: 56 },
-    },
-  },
-  {
-    orbKey: "workholding",
-    name: "ابزار گیرشی",
-    title: "ثابت‌کاری حرفه‌ای",
-    subtitle: "گیره، فیکسچر و سیستم‌های نگه‌دارنده برای ماشین‌کاری پایدار",
-    image: "/images/hero/hero-holding-left.jpg",
-    focal: "left 46%",
-    animation: "slide-in",
-    minHeight: 740,
-    mobilePreset: "dock-first",
-    overlay: {
-      gradientFrom: "rgba(12,16,20,0.12)",
-      gradientTo: "rgba(6,8,10,0.9)",
-      gradientAngle: 95,
-    },
-    typography: {
-      position: { x: 6, y: 26 },
-      maxWidth: 400,
-      titleSize: 44,
-      subtitleSize: 16,
-      align: "start",
-    },
-    ctaPrimary: {
-      label: "مشاهده ابزار گیرشی",
-      href: "/categories/abzar-gireshi",
-      stylePreset: "on-dark-outline",
-      sizePreset: "lg",
-      position: { x: 6, y: 56 },
+      position: { x: 6, y: 58 },
     },
   },
   {
     orbKey: "industrial-machines",
     name: "دستگاه‌های صنعتی",
-    title: "ظرفیت کارگاه را بالا ببرید",
-    subtitle: "ماشین‌ها و تجهیزات صنعتی با انتخاب تخصصی و پشتیبانی کارزار",
-    image: "/images/hero/hero-machines-left.jpg",
-    focal: "left 34%",
+    title: "دستگاه‌های صنعتی",
+    subtitle: "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما.",
+    image: `${REBORN_HERO}/H05-industrial-machines-native-lossless.webp`,
+    mobileImage: `${REBORN_HERO}/H05-industrial-machines-1280.webp`,
+    focal: "left 36%",
     animation: "fade-up",
-    minHeight: 780,
-    mobilePreset: "media-focus",
+    minHeight: 760,
+    mobilePreset: "balanced",
     overlay: {
-      gradientFrom: "rgba(8,10,14,0.18)",
-      gradientTo: "rgba(4,5,8,0.92)",
-      gradientAngle: 112,
+      gradientFrom: "rgba(8,8,8,0.12)",
+      gradientTo: "rgba(8,8,8,0.58)",
+      gradientAngle: 105,
     },
     typography: {
-      position: { x: 6, y: 24 },
+      position: { x: 6, y: 28 },
       maxWidth: 460,
-      titleSize: 48,
-      subtitleSize: 16,
+      titleSize: 44,
+      subtitleSize: 17,
       align: "start",
     },
     ctaPrimary: {
-      label: "مشاهده دستگاه‌ها",
+      label: "مشاهده دستگاه‌های صنعتی",
       href: "/categories/dastgah-sanati",
       stylePreset: "primary",
       sizePreset: "lg",
-      position: { x: 6, y: 56 },
-    },
-  },
-  {
-    orbKey: "heli-coil",
-    name: "هلی کویل",
-    title: "ترمیم رزوه هلی‌کویل",
-    subtitle: "فنر، قلاویز و کیت‌های هلی‌کویل برای ترمیم رزوه",
-    image: "/images/hero/hero-cutting-left.jpg",
-    focal: "right 42%",
-    animation: "fade-in",
-    minHeight: 700,
-    mobilePreset: "copy-focus",
-    overlay: {
-      gradientFrom: "rgba(20,14,12,0.18)",
-      gradientTo: "rgba(12,12,12,0.86)",
-      gradientAngle: 100,
-    },
-    typography: {
-      position: { x: 6, y: 30 },
-      maxWidth: 380,
-      titleSize: 40,
-      subtitleSize: 15,
-      align: "start",
-    },
-    ctaPrimary: {
-      label: "مشاهده هلی کویل",
-      href: "/categories/heli-coil",
-      stylePreset: "primary",
-      sizePreset: "lg",
-      position: { x: 6, y: 56 },
-    },
-  },
-  {
-    orbKey: "workshop-tools",
-    name: "ابزار کارگاهی",
-    title: "ابزار کارگاهی",
-    subtitle: "ابزار کارگاهی برای کار روزمره کارگاه",
-    image: "/images/hero/hero-holding-left.jpg",
-    focal: "left 55%",
-    animation: "fade-in",
-    minHeight: 700,
-    mobilePreset: "dock-first",
-    overlay: {
-      gradientFrom: "rgba(12,12,12,0.22)",
-      gradientTo: "rgba(12,12,12,0.84)",
-      gradientAngle: 85,
-    },
-    typography: {
-      position: { x: 6, y: 28 },
-      maxWidth: 380,
-      titleSize: 40,
-      subtitleSize: 15,
-      align: "start",
-    },
-    ctaPrimary: {
-      label: "مشاهده ابزار کارگاهی",
-      href: "/categories/abzar-kargahi",
-      stylePreset: "soft",
-      sizePreset: "lg",
-      position: { x: 6, y: 56 },
-    },
-  },
-  {
-    orbKey: "lubricants",
-    name: "روغن و روانکار",
-    title: "روغن و روانکار",
-    subtitle: "روغن برش و روانکار صنعتی برای طول عمر ابزار و کیفیت سطح",
-    image: "/images/hero/hero-accessories-left.jpg",
-    focal: "left 40%",
-    animation: "fade-up",
-    minHeight: 720,
-    mobilePreset: "copy-focus",
-    overlay: {
-      gradientFrom: "rgba(14,16,14,0.16)",
-      gradientTo: "rgba(10,12,10,0.88)",
-      gradientAngle: 96,
-    },
-    typography: {
-      position: { x: 6, y: 28 },
-      maxWidth: 420,
-      titleSize: 42,
-      subtitleSize: 16,
-      align: "start",
-    },
-    ctaPrimary: {
-      label: "مشاهده روغن و روانکار",
-      href: "/categories/roghan-ravankar",
-      stylePreset: "primary",
-      sizePreset: "lg",
-      position: { x: 6, y: 56 },
+      position: { x: 6, y: 58 },
     },
   },
 ];
@@ -479,6 +255,7 @@ export function configFromCuratedSeed(seed: SlideSeed): HeroBuilderConfig {
     background: {
       mode: "image",
       imageUrl: seed.image,
+      mobileImageUrl: seed.mobileImage,
       color: "#121212",
       focal: seed.focal,
     },
@@ -501,7 +278,10 @@ export function configFromCuratedSeed(seed: SlideSeed): HeroBuilderConfig {
       position: seed.typography.position,
       maxWidth: seed.typography.maxWidth,
     },
-    buttons: [buttonFromCta(seed.ctaPrimary)],
+    buttons: [
+      buttonFromCta(seed.ctaPrimary),
+      ...(seed.ctaSecondary ? [buttonFromCta(seed.ctaSecondary)] : []),
+    ],
     badges: [],
     carousel: {
       enabled: false,
@@ -519,43 +299,29 @@ export function configFromCuratedSeed(seed: SlideSeed): HeroBuilderConfig {
 }
 
 /**
- * Build the fixed 6-slide pack: featured dock orbs first (stable keys),
- * then remaining curated seeds until slot count is filled.
+ * Build the fixed five-slide pack from featured dock keys (campaign order).
  */
 export function curatedSlidesFromDock(orbs: HeroOrbCategory[]): HeroSlideDraft[] {
-  const SLIDE_SLOTS = 6; // keep in sync with HERO_SLIDE_SLOT_COUNT in defaults
+  const SLIDE_SLOTS = 5; // keep in sync with HERO_SLIDE_SLOT_COUNT in defaults
   const featured = [...orbs]
     .filter((c) => c.featuredOrder != null)
     .sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0))
-    .slice(0, 5);
+    .slice(0, SLIDE_SLOTS);
 
-  const used = new Set<string>();
   const seeds: SlideSeed[] = [];
   for (const orb of featured) {
     const seed = CURATED_HERO_SEEDS.find((s) => s.orbKey === orb.key);
-    if (seed && !used.has(seed.orbKey)) {
-      seeds.push(seed);
-      used.add(seed.orbKey);
-    }
-  }
-  for (const seed of CURATED_HERO_SEEDS) {
-    if (seeds.length >= SLIDE_SLOTS) break;
-    if (used.has(seed.orbKey)) continue;
-    seeds.push(seed);
-    used.add(seed.orbKey);
+    if (seed) seeds.push(seed);
   }
 
   return seeds.slice(0, SLIDE_SLOTS).map((seed, i) => {
     const orb = orbs.find((o) => o.key === seed.orbKey);
     const config = configFromCuratedSeed(seed);
     if (orb) {
-      config.background.imageUrl = orb.heroImage || seed.image;
-      if (seed.orbKey === DISCOUNTS_ORB_KEY) {
-        config.typography.title = seed.title;
-        config.typography.subtitle = orb.subtitle || seed.subtitle;
-      } else {
-        config.typography.subtitle = orb.subtitle || seed.subtitle;
-      }
+      config.background.imageUrl = seed.image;
+      config.background.mobileImageUrl = seed.mobileImage;
+      config.typography.title = seed.title;
+      config.typography.subtitle = seed.subtitle;
     }
     return {
       id: `slide_${seed.orbKey}`,
