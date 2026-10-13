@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""INSIZE final commercial APPLY — dry-run default; NOT authorized in audit PR."""
+"""INSIZE #258 commercial reconcile APPLY — dry-run default; production write disabled."""
 
 from __future__ import annotations
 
@@ -18,10 +18,10 @@ if str(SCRIPTS) not in sys.path:
 from catalog_target.sales_wave_apply import ApplyAbort, assert_production_apply_authorized  # noqa: E402
 from catalog_target.supplier_stock import FreshnessPolicy, file_sha256  # noqa: E402
 
-from audit_insize_final_commercial_source import (  # noqa: E402
+from audit_insize_commercial_reconcile_258 import (  # noqa: E402
     FX_TOMAN_PER_USD,
-    INSIZE_FINAL_SHA,
-    INSIZE_FINAL_XLSX,
+    INSIZE_OWNER_SOURCE_SHA,
+    INSIZE_OWNER_SOURCE_XLSX,
 )
 
 
@@ -30,34 +30,34 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--evidence-dir",
         type=Path,
-        default=ROOT / "audit" / "insize-final-commercial-source-2026-10-13",
+        default=ROOT / "audit" / "insize-commercial-reconcile-258-2026-10-13",
     )
     p.add_argument("--apply", action="store_true")
     p.add_argument("--confirm-production-write", action="store_true")
     p.add_argument("--confirm-plan-sha256", default="")
     args = p.parse_args(argv)
 
-    plan = args.evidence_dir / "INSIZE_FINAL_COMMERCIAL_DRY_RUN.csv"
+    plan = args.evidence_dir / "INSIZE_COMMERCIAL_RECONCILE_PLAN.csv"
     if not plan.is_file():
         raise SystemExit(f"missing plan: {plan}")
 
-    if file_sha256(INSIZE_FINAL_XLSX) != INSIZE_FINAL_SHA:
+    if file_sha256(INSIZE_OWNER_SOURCE_XLSX) != INSIZE_OWNER_SOURCE_SHA:
         raise SystemExit("source_sha_mismatch")
 
-    freshness = FreshnessPolicy().classify(7)  # Owner-confirmed ~1 week
+    freshness = FreshnessPolicy().classify(7)
     if freshness not in {"CURRENT_ENOUGH", "AGING_BUT_USABLE"}:
         raise SystemExit("BLOCKED_SOURCE_STALE")
 
     plan_sha = hashlib.sha256(plan.read_bytes()).hexdigest()
-    rows = list(csv.DictReader(plan.open(encoding="utf-8")))
-    eligible = [r for r in rows if r.get("eligibility") == "APPLY_ELIGIBLE"]
+    eligible = [
+        r for r in csv.DictReader(plan.open(encoding="utf-8")) if r.get("eligibility") == "APPLY_ELIGIBLE"
+    ]
     report = {
         "mode": "APPLY" if args.apply else "DRY_RUN",
-        "source_sha256": INSIZE_FINAL_SHA,
+        "source_sha256": INSIZE_OWNER_SOURCE_SHA,
         "plan_sha256": plan_sha,
         "fx_toman_per_usd": str(FX_TOMAN_PER_USD),
         "eligible_rows": len(eligible),
-        "freshness_policy_note": "OWNER_CONFIRMED_RECENCY at audit time",
     }
 
     if args.apply:
@@ -67,9 +67,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         if args.confirm_plan_sha256 != plan_sha:
             raise SystemExit("plan_sha_mismatch")
-        raise SystemExit(
-            "APPLY_NOT_ENABLED — implement Owner-authorized transaction path in follow-up"
-        )
+        raise SystemExit("APPLY_NOT_ENABLED — Owner-authorized runbook required")
 
     print(json.dumps(report, indent=2))
     return 0

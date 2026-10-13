@@ -1,7 +1,0 @@
-{
-  "SELLABLE_BEFORE": 159,
-  "SELLABLE_GAIN": 10,
-  "SELLABLE_LOSS": 7,
-  "SELLABLE_AFTER_PROJECTED": 162,
-  "note": "INSIZE-scoped sellable (active, imaged, available, base_price>0)"
-}

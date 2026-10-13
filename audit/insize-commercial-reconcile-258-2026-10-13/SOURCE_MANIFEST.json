@@ -14,5 +14,5 @@
   "fx_cell_k6_rial_per_usd": "3000000",
   "fx_toman_per_usd": "300000",
   "price_formula": "base_price_toman = source_USD \u00d7 300000 (Decimal, no +20%, no tax)",
-  "inspected_at": "2026-10-13T20:37:06Z"
+  "inspected_at": "2026-10-13T20:46:18Z"
 }

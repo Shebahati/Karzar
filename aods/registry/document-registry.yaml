@@ -2032,12 +2032,32 @@ documents:
     notes: >
       PR #481 Heroes Reborn 5 visual acceptance: 25 screenshots, transition webms, manifest.json.
 
-  - id: INSIZE-FINAL-COMMERCIAL-20261013
-    path: audit/insize-final-commercial-source-2026-10-13/README.md
+  - id: INSIZE-COMMERCIAL-RECONCILE-258-20261013
+    path: audit/insize-commercial-reconcile-258-2026-10-13/README.md
     class: EVIDENCE
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
     branch: audit/catalog-258-insize-final-commercial-source
     notes: >
-      #258/#391 INSIZE final commercial reconciliation (SHA 8324b2c1). No APPLY.
+      #258/#391 INSIZE commercial reconciliation (SHA 8324b2c1). No APPLY.
+
+  - id: INSIZE-COMMERCIAL-APPLY-PLAN-258-20261013
+    path: audit/insize-commercial-reconcile-258-2026-10-13/INSIZE_COMMERCIAL_APPLY_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/catalog-258-insize-final-commercial-source
+    notes: >
+      Guarded APPLY plan for INSIZE commercial reconcile (#258). Not authorized.
+
+  - id: INSIZE-COMMERCIAL-ROLLBACK-PLAN-258-20261013
+    path: audit/insize-commercial-reconcile-258-2026-10-13/INSIZE_COMMERCIAL_ROLLBACK_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: audit/catalog-258-insize-final-commercial-source
+    notes: >
+      Rollback plan + manifest pointers for INSIZE commercial reconcile (#258).

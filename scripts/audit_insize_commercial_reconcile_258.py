@@ -40,6 +40,8 @@ INSIZE_FINAL_XLSX = Path(
     "/home/shebahati/KaZar/DOCS/موجودی توزیع کننده 11 شهریور - دلار 300 هزار تومان - نهایی.xlsx"
 )
 INSIZE_FINAL_SHA = "8324b2c175a703ab0ff7364da4a33f82c440d592cdc10d990c133bed39ac2989"
+INSIZE_OWNER_SOURCE_XLSX = INSIZE_FINAL_XLSX
+INSIZE_OWNER_SOURCE_SHA = INSIZE_FINAL_SHA
 SUPERSEDED_SHA_BEB549 = "beb549109165a1fd0d156af8d9b8a9622eb3a04e7fc92b07c548993ee98669cf"
 FX_TOMAN_PER_USD = Decimal("300000")
 AVAILABLE_TOKENS = {"موجود"}
@@ -242,13 +244,19 @@ def load_source_rows(path: Path) -> list[SourceRow]:
         price_raw = _cell(raw, "قیمت دلاری")
         valid, usd = parse_usd_price(price_raw)
         derived = usd * FX_TOMAN_PER_USD if usd is not None else None
-        parts = [parse_quantity(x)[0] for x in (qg, qt, sg, st)]
-        sum_parts = sum(p for p in parts if p is not None)
+        def _wh_qty(raw: str) -> int | None:
+            q, inv = parse_quantity(raw)
+            if inv:
+                return None
+            return 0 if q is None else q
+
+        parts = [_wh_qty(x) for x in (qg, qt, sg, st)]
+        sum_parts = sum(parts) if all(p is not None for p in parts) else None
         total_n, total_inv = parse_quantity(total)
         formula_qty_ok = (
-            total_n is not None
+            sum_parts is not None
+            and total_n is not None
             and not total_inv
-            and all(p is not None for p in parts)
             and sum_parts == total_n
         )
         norm = normalize_status(status_raw)
@@ -387,6 +395,80 @@ def availability_compliance(cur_avail: bool, prop_avail: bool | None) -> str:
     return "TRUE_TO_FALSE" if cur_avail and not prop_avail else "FALSE_TO_TRUE"
 
 
+def is_sellable_state(
+    prod: dict[str, str],
+    *,
+    is_available: bool,
+    base_price: Decimal | None,
+) -> bool:
+    active = (prod.get("is_active") or "").lower() in {"t", "true", "1"}
+    imaged = (prod.get("image_present") or "").lower() in {"t", "true", "1"}
+    return (
+        active
+        and imaged
+        and is_available
+        and base_price is not None
+        and base_price > 0
+    )
+
+
+def post_apply_state(
+    prod: dict[str, str],
+    dr: dict[str, str],
+) -> tuple[bool, Decimal | None]:
+    """Simulate post-APPLY state for one catalog row from dry-run plan."""
+    cur_avail = (prod.get("is_available") or "").lower() in {"t", "true", "1"}
+    cur_price = parse_site_price(prod.get("base_price") or "")
+    if dr.get("eligibility") != "APPLY_ELIGIBLE":
+        return cur_avail, cur_price
+    prop_a = (dr.get("proposed_is_available") or "").strip().lower()
+    if prop_a in {"true", "t", "1"}:
+        avail = True
+    elif prop_a in {"false", "f", "0"}:
+        avail = False
+    else:
+        avail = cur_avail
+    prop_p_raw = (dr.get("proposed_base_price") or "").strip()
+    price = parse_site_price(prop_p_raw) if prop_p_raw else None
+    return avail, price
+
+
+def sellability_projection(catalog: list[dict[str, str]], dry_rows: list[dict[str, str]]) -> dict:
+    by_pid = {r["product_id"]: r for r in dry_rows}
+    before = sum(
+        1
+        for p in catalog
+        if is_sellable_state(
+            p,
+            is_available=(p.get("is_available") or "").lower() in {"t", "true", "1"},
+            base_price=parse_site_price(p.get("base_price") or ""),
+        )
+    )
+    gain = loss = 0
+    after = 0
+    for p in catalog:
+        dr = by_pid[p["product_id"]]
+        pre = is_sellable_state(
+            p,
+            is_available=(p.get("is_available") or "").lower() in {"t", "true", "1"},
+            base_price=parse_site_price(p.get("base_price") or ""),
+        )
+        avail, price = post_apply_state(p, dr)
+        post = is_sellable_state(p, is_available=avail, base_price=price)
+        if post and not pre:
+            gain += 1
+        if pre and not post:
+            loss += 1
+        if post:
+            after += 1
+    return {
+        "SELLABLE_BEFORE": before,
+        "SELLABLE_GAIN": gain,
+        "SELLABLE_LOSS": loss,
+        "SELLABLE_AFTER_PROJECTED": after,
+    }
+
+
 def write_csv(path: Path, fieldnames: list[str], rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as f:
@@ -411,7 +493,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--out-dir",
         type=Path,
-        default=ROOT / "audit" / "insize-final-commercial-source-2026-10-13",
+        default=ROOT / "audit" / "insize-commercial-reconcile-258-2026-10-13",
     )
     args = p.parse_args(argv)
 
@@ -523,8 +605,7 @@ def main(argv: list[str] | None = None) -> int:
 
     price_classes = Counter()
     avail_classes = Counter()
-    sellable_gain = 0
-    sellable_loss = 0
+    action_counts = Counter()
 
     for prod in catalog:
         pid = prod["product_id"]
@@ -600,34 +681,33 @@ def main(argv: list[str] | None = None) -> int:
                 hold_reason = "unknown_source_status"
 
         mapped_ok = sr is not None and map_class in {"EXACT", "GOVERNED_ALIAS"}
-        pclass = price_compliance(prop_avail, prop_price, cur_price, mapped_ok)
-        price_classes[pclass] += 1
-        aclass = availability_compliance(cur_avail, prop_avail)
-        avail_classes[aclass] += 1
 
-        cur_sell = (prod.get("current_sellable") or "").lower() in {"t", "true", "1"}
-        prop_sell = (
-            mapped_ok
-            and prop_avail is True
-            and prop_price is not None
-            and (prod.get("image_present") or "").lower() in {"t", "true", "1"}
-            and (prod.get("is_active") or "").lower() in {"t", "true", "1"}
-        )
-        if prop_sell and not cur_sell:
-            sellable_gain += 1
-        if cur_sell and not prop_sell:
-            sellable_loss += 1
-
-        avail_action, price_action, combo = classify_actions(
-            cur_avail, cur_price, prop_avail, prop_price
-        )
         if not mapped_ok:
-            combo = "HOLD_IDENTITY"
-            eligibility = "HOLD"
+            prop_avail = None
+            prop_price = None
+            avail_action = "NO_CHANGE"
+            price_action = "CLEAR_PRICE" if cur_price is not None else "NO_CHANGE"
+            combo = "HOLD_CLEAR_PRICE" if price_action == "CLEAR_PRICE" else "HOLD_IDENTITY"
+            eligibility = "APPLY_ELIGIBLE" if price_action == "CLEAR_PRICE" else "NO_CHANGE"
             if not hold_reason:
                 hold_reason = map_class
+            pclass = "PRICE_MUST_BE_CLEARED" if cur_price is not None else "UNMATCHED"
+            aclass = "HOLD"
         else:
-            eligibility = "APPLY_ELIGIBLE" if combo not in {"NO_CHANGE", "HOLD_IDENTITY"} else "NO_CHANGE"
+            avail_action, price_action, combo = classify_actions(
+                cur_avail, cur_price, prop_avail, prop_price
+            )
+            pclass = price_compliance(prop_avail, prop_price, cur_price, mapped_ok)
+            aclass = availability_compliance(cur_avail, prop_avail)
+            eligibility = (
+                "APPLY_ELIGIBLE" if combo not in {"NO_CHANGE", "HOLD_IDENTITY"} else "NO_CHANGE"
+            )
+
+        price_classes[pclass] += 1
+        avail_classes[aclass] += 1
+        action_counts[avail_action] += 1
+        action_counts[price_action] += 1
+        action_counts[f"combined:{combo}"] += 1
 
         orig = parse_site_price(prod.get("original_price") or "")
         if prop_avail and prop_price is not None and orig is not None and orig != prop_price:
@@ -651,6 +731,7 @@ def main(argv: list[str] | None = None) -> int:
                 "identity_method": identity_method,
                 "source_code": source_code,
                 "owner_case": owner_case,
+                "map_class": map_class,
             }
         )
 
@@ -679,39 +760,71 @@ def main(argv: list[str] | None = None) -> int:
                 "source_price_usd": sr.price_usd_raw if sr else "",
                 "source_price_toman": toman_decimal_str(prop_price) if prop_price else "",
                 "current_is_available": prod.get("is_available"),
-                "proposed_is_available": "true"
-                if prop_avail is True
-                else ("false" if prop_avail is False else ""),
+                "proposed_is_available": (
+                    prod.get("is_available")
+                    if not mapped_ok
+                    else (
+                        "true"
+                        if prop_avail is True
+                        else ("false" if prop_avail is False else "")
+                    )
+                ),
                 "current_base_price": prod.get("base_price"),
-                "proposed_base_price": toman_decimal_str(prop_price) if prop_price is not None else "",
+                "proposed_base_price": (
+                    ""
+                    if prop_price is None
+                    else toman_decimal_str(prop_price)
+                ),
                 "availability_action": avail_action,
                 "price_action": price_action,
                 "combined_action": combo,
                 "expected_current_hash": state_hash(prod),
                 "eligibility": eligibility,
                 "hold_reason": hold_reason,
+                "owner_case": owner_case,
+                "map_class": map_class,
                 "price_compliance": pclass,
                 "availability_compliance": aclass,
             }
         )
 
-    counts = _scalar_sellable_counts(args.ssh_host)
-    sellable_before = counts["sellable_before_insize_scope"]
-    sellable_after = sellable_before + sellable_gain - sellable_loss
-
+    plan_projection = sellability_projection(catalog, dry_rows)
     json.dump(
         {
-            "SELLABLE_BEFORE": sellable_before,
-            "SELLABLE_GAIN": sellable_gain,
-            "SELLABLE_LOSS": sellable_loss,
-            "SELLABLE_AFTER_PROJECTED": sellable_after,
-            "note": "INSIZE-scoped sellable (active, imaged, available, base_price>0)",
+            "ACTUAL_APPLY_PLAN_PROJECTION": plan_projection,
+            "OWNER_POLICY_FULL_PROJECTION": plan_projection,
+            "note": "INSIZE-scoped sellable (active, imaged, available, base_price>0); "
+            "simulated from APPLY_ELIGIBLE mutations only",
         },
         (out_dir / "SELLABILITY_PROJECTION.json").open("w"),
         indent=2,
     )
 
     apply_eligible = sum(1 for r in dry_rows if r["eligibility"] == "APPLY_ELIGIBLE")
+    hold_total = sum(1 for r in dry_rows if r.get("combined_action", "").startswith("HOLD"))
+    hold_priced_before = sum(
+        1
+        for r in dry_rows
+        if r.get("combined_action", "").startswith("HOLD")
+        and parse_site_price(r.get("current_base_price") or "")
+    )
+    hold_price_clears = sum(1 for r in dry_rows if r.get("combined_action") == "HOLD_CLEAR_PRICE")
+    hold_priced_after = sum(
+        1
+        for r in dry_rows
+        if r.get("combined_action", "").startswith("HOLD")
+        and parse_site_price(r.get("proposed_base_price") or "")
+    )
+    dry_by_pid = {r["product_id"]: r for r in dry_rows}
+    priced_without_authority_after = 0
+    for p in catalog:
+        dr = dry_by_pid[p["product_id"]]
+        _, post_price = post_apply_state(p, dr)
+        if post_price is None:
+            continue
+        if dr.get("owner_case") != "CASE_A":
+            priced_without_authority_after += 1
+
     map_counts = Counter(m["map_class"] for m in mapping_rows)
     json.dump(
         {
@@ -723,6 +836,14 @@ def main(argv: list[str] | None = None) -> int:
             ),
             "unmatched_or_hold": len(unmatched_rows),
             "apply_eligible_rows": apply_eligible,
+            "mutation_actions": {k: v for k, v in action_counts.items()},
+            "hold_price_policy": {
+                "hold_total": hold_total,
+                "priced_hold_before": hold_priced_before,
+                "hold_price_clears_added": hold_price_clears,
+                "priced_hold_after_proposed": hold_priced_after,
+            },
+            "priced_insize_without_authoritative_source_after_plan": priced_without_authority_after,
             "price_compliance": dict(price_classes),
             "availability_compliance": dict(avail_classes),
             "pr488_superseded_note": (
@@ -739,7 +860,34 @@ def main(argv: list[str] | None = None) -> int:
         ["product_id", "sku", "manufacturer_code", "map_class", "identity_method", "source_code", "owner_case"],
         mapping_rows,
     )
-    write_csv(out_dir / "INSIZE_FINAL_COMMERCIAL_DRY_RUN.csv", list(dry_rows[0].keys()), dry_rows)
+    plan_fields = list(dry_rows[0].keys()) if dry_rows else ["product_id"]
+    write_csv(out_dir / "INSIZE_COMMERCIAL_RECONCILE_PLAN.csv", plan_fields, dry_rows)
+    rollback_rows = [
+        {
+            "product_id": dr["product_id"],
+            "sku": dr["sku"],
+            "pre_is_available": dr["current_is_available"],
+            "pre_base_price": dr["current_base_price"],
+            "proposed_is_available": dr["proposed_is_available"],
+            "proposed_base_price": dr["proposed_base_price"],
+            "expected_current_hash": dr["expected_current_hash"],
+        }
+        for dr in dry_rows
+        if dr.get("eligibility") == "APPLY_ELIGIBLE"
+    ]
+    write_csv(
+        out_dir / "INSIZE_COMMERCIAL_ROLLBACK_MANIFEST.csv",
+        [
+            "product_id",
+            "sku",
+            "pre_is_available",
+            "pre_base_price",
+            "proposed_is_available",
+            "proposed_base_price",
+            "expected_current_hash",
+        ],
+        rollback_rows,
+    )
     write_csv(
         out_dir / "INSIZE_UNMATCHED_COMMERCIAL_REVIEW.csv",
         list(unmatched_rows[0].keys()) if unmatched_rows else ["product_id"],
@@ -751,45 +899,56 @@ def main(argv: list[str] | None = None) -> int:
         merch_conflicts,
     )
 
-    (out_dir / "APPLY_PLAN.md").write_text(
-        f"""# INSIZE final commercial APPLY plan (NOT AUTHORIZED)
+    (out_dir / "INSIZE_COMMERCIAL_APPLY_PLAN.md").write_text(
+        f"""# INSIZE commercial APPLY plan (NOT AUTHORIZED)
 
 - Source SHA256: `{INSIZE_FINAL_SHA}`
-- Dry-run CSV: `INSIZE_FINAL_COMMERCIAL_DRY_RUN.csv`
-- Default: dry-run only via future `scripts/apply_insize_final_commercial.py`
-- Requires: reviewed plan SHA, expected-current hashes, INSIZE brand guard, transaction, rollback manifest
+- Plan CSV: `INSIZE_COMMERCIAL_RECONCILE_PLAN.csv`
+- Rollback: `INSIZE_COMMERCIAL_ROLLBACK_MANIFEST.csv` (explicit pre/post values)
+- CLI: `scripts/apply_insize_commercial_reconcile_258.py` (dry-run default)
+- Future APPLY journal must record exact before/after, batch id, timestamp, success/failure
 - **No `--apply` in this PR**
 """,
         encoding="utf-8",
     )
-    (out_dir / "ROLLBACK_PLAN.md").write_text(
-        """# Rollback plan (evidence only)
+    (out_dir / "INSIZE_COMMERCIAL_ROLLBACK_PLAN.md").write_text(
+        """# INSIZE commercial rollback plan (evidence only)
 
-Pre-apply state captured in `expected_current_hash` per dry-run row.
-Rollback restores `is_available` and `base_price` from pre-apply journal — not executed.
+Use `INSIZE_COMMERCIAL_ROLLBACK_MANIFEST.csv` for reversible pre-apply values
+(`pre_is_available`, `pre_base_price`). Hashes are stale guards only — not rollback data.
+
+Post-APPLY journal must capture exact before/after per row. Rollback not executed in this PR.
 """,
         encoding="utf-8",
     )
     (out_dir / "README.md").write_text(
-        f"""# INSIZE final commercial source reconciliation (#258, #391)
+        f"""# INSIZE commercial source reconciliation (#258, #391)
 
 **Status:** evidence only — **NO APPLY**
 
-- Owner source: `8324b2c1…` (300k Toman/USD, `K6=3,000,000` RIAL)
+- Owner source SHA: `8324b2c1…` (300k Toman/USD, `K6=3,000,000` RIAL)
 - Freshness: `CURRENT_ENOUGH` (`OWNER_CONFIRMED_RECENCY`)
 - Supersedes PR #488 workbook `beb54910…`
 
-See `COMMERCIAL_DELTA.json`, `INSIZE_FINAL_COMMERCIAL_DRY_RUN.csv`, `SELLABILITY_PROJECTION.json`.
+See `INSIZE_COMMERCIAL_RECONCILE_PLAN.csv`, `COMMERCIAL_DELTA.json`, `SELLABILITY_PROJECTION.json`.
 """,
         encoding="utf-8",
     )
+
+    if formula_ok != len(source_rows):
+        raise SystemExit(
+            f"formula_consistency_failed:{formula_ok}/{len(source_rows)}"
+        )
 
     sha256sums(out_dir)
     summary = {
         "catalog": len(catalog),
         "source_rows": len(source_rows),
+        "formula_ok": formula_ok,
         "apply_eligible": apply_eligible,
-        "sellable_projection": sellable_after,
+        "hold_price_clears": hold_price_clears,
+        "priced_without_authority_after": priced_without_authority_after,
+        "sellable_projection": plan_projection,
         "price_compliance": dict(price_classes),
     }
     print(json.dumps(summary, indent=2))
