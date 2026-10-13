@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils";
 
 /** Intrinsic sizes for v2 hero art (Next image optimizer input dimensions). */
 const HERO_DESKTOP_INTRINSIC = { width: 1672, height: 941 } as const;
-const HERO_MOBILE_INTRINSIC = { width: 941, height: 1672 } as const;
+/** Reborn-5 mobile derivatives are landscape 1280×720 WebP (not portrait art). */
+const HERO_MOBILE_INTRINSIC = { width: 1280, height: 720 } as const;
 
 export type HeroBackgroundPictureSources = {
   desktop: Pick<
@@ -74,6 +75,7 @@ type HeroBackgroundImageProps = {
   className?: string;
   style?: CSSProperties;
   fallback?: ReactNode;
+  onLoad?: () => void;
 };
 
 type HeroBackgroundPictureProps = {
@@ -81,6 +83,7 @@ type HeroBackgroundPictureProps = {
   className?: string;
   style: CSSProperties;
   fallback?: ReactNode;
+  onLoad?: () => void;
 };
 
 function HeroBackgroundPicture({
@@ -88,6 +91,7 @@ function HeroBackgroundPicture({
   className,
   style,
   fallback = null,
+  onLoad,
 }: HeroBackgroundPictureProps) {
   const [failed, setFailed] = useState(false);
   const { desktop, mobileSrcSet, loading } = picture;
@@ -112,6 +116,7 @@ function HeroBackgroundPicture({
         className={cn("absolute inset-0 h-full w-full object-cover", className)}
         style={style}
         onError={() => setFailed(true)}
+        onLoad={onLoad}
       />
     </picture>
   );
@@ -130,6 +135,7 @@ export function HeroBackgroundImage({
   className,
   style,
   fallback,
+  onLoad,
 }: HeroBackgroundImageProps) {
   const picture = buildHeroBackgroundPictureSources({
     desktopSrc,
@@ -152,6 +158,7 @@ export function HeroBackgroundImage({
         className={className ?? "object-cover"}
         style={objectStyle}
         fallback={fallback}
+        onLoad={onLoad}
         {...(priority
           ? { priority: true, fetchPriority: "high" as const, quality: HERO_IMAGE_QUALITY }
           : { loading: "lazy" as const, quality: HERO_IMAGE_QUALITY })}
@@ -165,6 +172,7 @@ export function HeroBackgroundImage({
       className={className}
       style={objectStyle}
       fallback={fallback}
+      onLoad={onLoad}
     />
   );
 }

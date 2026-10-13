@@ -102,10 +102,11 @@ function MaterialOrb({
     disc,
     accent &&
       cn(
-        "bg-[#D02327]",
-        glowAccent,
-        "group-hover:scale-[1.07] group-hover:bg-[#c01f23]",
-        glowAccentHover,
+        "bg-[color-mix(in_srgb,#ffffff_22%,rgba(255,255,255,0.55))]",
+        "ring-2 ring-inset ring-white/35",
+        glowGlass,
+        "group-hover:scale-[1.06] group-hover:bg-[color-mix(in_srgb,#ffffff_30%,rgba(255,255,255,0.62))]",
+        glowGlassHover,
         "group-active:scale-[0.96]",
       ),
     // Selected: soft #D02327 wash over brighter glass + clearer lift.
@@ -146,7 +147,7 @@ function MaterialOrb({
     size === "sm" && "mt-2.5 max-w-[5.4rem] text-[11.5px] sm:max-w-[5.87rem] sm:text-[12.5px]",
     size === "lg" && "mt-2.5 max-w-[4.75rem] text-[10px] sm:max-w-[5.5rem] sm:text-[11px]",
     "transition-[opacity,color] duration-[380ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-    accent && "text-white/95 group-hover:text-white",
+    accent && "text-white/90 group-hover:text-white",
     !accent && selected && "text-white group-hover:text-white",
     !accent && !selected && !dimmed && "text-white/92 group-hover:text-white",
     !accent && dimmed && !selected && "text-white/82 group-hover:text-white/94",

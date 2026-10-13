@@ -42,7 +42,12 @@ import {
   orbsFromPublishedDock,
   orbsFromRoots,
 } from "@/config/hero-orbs";
+import { CampaignHeroSlide } from "@/components/home/campaign-hero-slide";
 import { HeroBackgroundImage } from "@/lib/hero-background-image";
+import {
+  CAMPAIGN_COMPACT_MAX_PX,
+  isRebornFiveCampaign,
+} from "@/lib/hero-campaign-layout";
 import { composeHeroForMobile, type MobileComposePreset } from "@/lib/mobile-hero-compose";
 import { cn } from "@/lib/utils";
 import type { CategoryTreeNode } from "@/types/category";
@@ -119,6 +124,10 @@ function SlideCanvas({
   isMobile,
   priority,
   primaryHeading = false,
+  useCampaignLayout,
+  campaignCompact,
+  contentVisible = true,
+  onImageReadyChange,
 }: {
   slide: DesignedHeroSlide;
   reducedMotion: boolean;
@@ -127,7 +136,25 @@ function SlideCanvas({
   isMobile?: boolean;
   priority?: boolean;
   primaryHeading?: boolean;
+  useCampaignLayout?: boolean;
+  campaignCompact?: boolean;
+  contentVisible?: boolean;
+  onImageReadyChange?: (ready: boolean) => void;
 }) {
+  if (useCampaignLayout) {
+    return (
+      <CampaignHeroSlide
+        slide={slide}
+        compact={Boolean(campaignCompact)}
+        priority={priority}
+        primaryHeading={primaryHeading}
+        contentVisible={contentVisible}
+        onImageReadyChange={onImageReadyChange}
+        className={cn(blurred && "scale-[1.015] opacity-40 transition duration-300")}
+      />
+    );
+  }
+
   const composed =
     isMobile && mobilePreset ? composeHeroForMobile(slide.config, mobilePreset) : null;
   const config = composed?.config ?? slide.config;
@@ -399,6 +426,7 @@ function HeroSheetStrip({
   onNudgeHandled,
   onCommitNext,
   onCommitPrev,
+  useCampaignLayout,
 }: {
   slides: DesignedHeroSlide[];
   index: number;
@@ -409,6 +437,7 @@ function HeroSheetStrip({
   onNudgeHandled: () => void;
   onCommitNext: () => void;
   onCommitPrev: () => void;
+  useCampaignLayout?: boolean;
 }) {
   const count = slides.length;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -549,10 +578,14 @@ function HeroSheetStrip({
     ],
   );
 
+  const stripShellClass = useCampaignLayout
+    ? "relative min-h-[calc((100vw/(4/3))+15.5rem)] w-full overflow-hidden"
+    : "absolute inset-0 overflow-hidden";
+
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 overflow-hidden"
+      className={stripShellClass}
       style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
     >
       <motion.div
@@ -594,6 +627,8 @@ function HeroSheetStrip({
                 blurred={menuOpen}
                 mobilePreset={nextPreset}
                 isMobile={isMobile}
+                useCampaignLayout={useCampaignLayout}
+                campaignCompact={useCampaignLayout}
               />
             </div>
             <div className="absolute inset-0">
@@ -605,6 +640,8 @@ function HeroSheetStrip({
                 isMobile={isMobile}
                 priority={index === 0}
                 primaryHeading={index === 0}
+                useCampaignLayout={useCampaignLayout}
+                campaignCompact={useCampaignLayout}
               />
             </div>
             <div
@@ -618,6 +655,8 @@ function HeroSheetStrip({
                 blurred={menuOpen}
                 mobilePreset={prevPreset}
                 isMobile={isMobile}
+                useCampaignLayout={useCampaignLayout}
+                campaignCompact={useCampaignLayout}
               />
             </div>
           </>
@@ -630,6 +669,8 @@ function HeroSheetStrip({
             isMobile={isMobile}
             priority={index === 0}
             primaryHeading={index === 0}
+            useCampaignLayout={useCampaignLayout}
+            campaignCompact={useCampaignLayout}
           />
         )}
       </motion.div>
@@ -674,13 +715,19 @@ export function DesignedHero({
     return HERO_ORB_CATEGORIES;
   }, [roots, publishedDockCategories]);
 
+  const campaignMode = useMemo(() => isRebornFiveCampaign(slides), [slides]);
+
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [paused, setPaused] = useState(false);
+  const [focusPaused, setFocusPaused] = useState(false);
   const [internalMenu, setInternalMenu] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isCompactLayout, setIsCompactLayout] = useState(false);
   const [sheetNudge, setSheetNudge] = useState<"next" | "prev" | null>(null);
+  const [slideImageReady, setSlideImageReady] = useState(true);
+  const [autoplayEpoch, setAutoplayEpoch] = useState(0);
   /** Fine-pointer split: visual left/right half of hero shows only that arrow. */
   const [arrowSide, setArrowSide] = useState<"left" | "right" | null>(null);
   const regionRef = useRef<HTMLElement>(null);
@@ -697,12 +744,20 @@ export function DesignedHero({
   }, []);
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsMobile(mq.matches);
+    const mobileMq = window.matchMedia("(max-width: 767px)");
+    const compactMq = window.matchMedia(`(max-width: ${CAMPAIGN_COMPACT_MAX_PX}px)`);
+    const update = () => {
+      setIsMobile(mobileMq.matches);
+      setIsCompactLayout(campaignMode ? compactMq.matches : mobileMq.matches);
+    };
     update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
+    mobileMq.addEventListener("change", update);
+    compactMq.addEventListener("change", update);
+    return () => {
+      mobileMq.removeEventListener("change", update);
+      compactMq.removeEventListener("change", update);
+    };
+  }, [campaignMode]);
 
   const slideCount = slides.length;
   const activeIndex = slideCount
@@ -724,45 +779,106 @@ export function DesignedHero({
 
   const packMobilePreset = (pack.mobilePreset ?? "balanced") as MobileComposePreset;
 
+  const bumpAutoplayEpoch = useCallback(() => {
+    setAutoplayEpoch((e) => e + 1);
+  }, []);
+
   const commitNext = useCallback(() => {
     if (!slideCount) return;
+    if (campaignMode) setSlideImageReady(false);
     setDirection(1);
     setIndex((i) => (i + 1) % slideCount);
-  }, [slideCount]);
+  }, [slideCount, campaignMode]);
 
   const commitPrev = useCallback(() => {
     if (!slideCount) return;
+    if (campaignMode) setSlideImageReady(false);
     setDirection(-1);
     setIndex((i) => (i - 1 + slideCount) % slideCount);
-  }, [slideCount]);
+  }, [slideCount, campaignMode]);
 
   const goNext = useCallback(() => {
     if (!slideCount) return;
+    bumpAutoplayEpoch();
     // Mobile strip: nudge-driven settle; desktop AnimatePresence: commit index.
     if (isMobile && !reducedMotion) {
       setSheetNudge((n) => n ?? "next");
       return;
     }
     commitNext();
-  }, [slideCount, isMobile, reducedMotion, commitNext]);
+  }, [slideCount, isMobile, reducedMotion, commitNext, bumpAutoplayEpoch]);
 
   const goPrev = useCallback(() => {
     if (!slideCount) return;
+    bumpAutoplayEpoch();
     if (isMobile && !reducedMotion) {
       setSheetNudge((n) => n ?? "prev");
       return;
     }
     commitPrev();
-  }, [slideCount, isMobile, reducedMotion, commitPrev]);
+  }, [slideCount, isMobile, reducedMotion, commitPrev, bumpAutoplayEpoch]);
+
+  const autoplayBlocked = paused || focusPaused || menuOpen;
+
+  const toggleAutoplay = useCallback(() => {
+    setFocusPaused(false);
+    setPaused((p) => !p);
+  }, []);
 
   // Desktop-only autoplay — mobile stays swipe/manual (saves timers + slide churn).
   useEffect(() => {
-    if (isMobile || slideCount <= 1 || paused || reducedMotion || menuOpen) return;
+    if (isMobile || slideCount <= 1 || autoplayBlocked || reducedMotion) return;
     const t = window.setInterval(() => {
       commitNext();
     }, AUTOPLAY_MS);
     return () => window.clearInterval(t);
-  }, [isMobile, slideCount, paused, reducedMotion, menuOpen, commitNext]);
+  }, [isMobile, slideCount, autoplayBlocked, reducedMotion, commitNext, autoplayEpoch]);
+
+  useEffect(() => {
+    const onVis = () => {
+      if (document.hidden) setPaused(true);
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+
+  useEffect(() => {
+    const el = regionRef.current;
+    if (!el) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (menuOpen) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          setMenuOpen(false);
+        }
+        return;
+      }
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.isContentEditable ||
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT")
+      ) {
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setFocusPaused(true);
+        goNext();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setFocusPaused(true);
+        goPrev();
+      } else if (e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        toggleAutoplay();
+      }
+    };
+    el.addEventListener("keydown", onKey);
+    return () => el.removeEventListener("keydown", onKey);
+  }, [menuOpen, goNext, goPrev, setMenuOpen, toggleAutoplay]);
 
   if (!slide) return null;
 
@@ -812,6 +928,17 @@ export function DesignedHero({
       ? heroSheetDesktopVariants
       : heroSheetVariants;
   const useSheetStrip = isMobile && !reducedMotion && slideCount > 1;
+  const campaignCompact = campaignMode && isCompactLayout;
+  const copyVisible = !campaignMode || slideImageReady || reducedMotion;
+
+  const compactMinHeight =
+    "min-h-[calc((100vw/(4/3))+15.5rem)] max-[430px]:min-h-[calc((100vw/(4/3))+17rem)]";
+
+  const sectionHeightClass = campaignMode
+    ? campaignCompact
+      ? cn("h-auto", compactMinHeight)
+      : "h-[min(calc(100vw*941/1672),86svh)] min-h-[520px] max-h-[920px]"
+    : "h-[62svh] md:h-[100svh]";
 
   return (
     <section
@@ -819,13 +946,17 @@ export function DesignedHero({
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="هیرو کارزار"
-      className="group/hero relative h-[62svh] w-full max-w-full overflow-x-clip outline-none md:h-[100svh]"
+      className={cn(
+        "group/hero relative w-full max-w-full overflow-x-clip outline-none",
+        sectionHeightClass,
+      )}
       style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => {
         setPaused(false);
         setArrowSide(null);
       }}
+      onFocus={() => setFocusPaused(true)}
       onPointerMove={(e) => {
         if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
         const rect = e.currentTarget.getBoundingClientRect();
@@ -834,7 +965,10 @@ export function DesignedHero({
       }}
     >
       <div
-        className="relative h-full w-full overflow-hidden"
+        className={cn(
+          "relative w-full overflow-hidden",
+          campaignCompact ? compactMinHeight : "h-full",
+        )}
         style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       >
         {useSheetStrip ? (
@@ -848,7 +982,24 @@ export function DesignedHero({
             onNudgeHandled={() => setSheetNudge(null)}
             onCommitNext={commitNext}
             onCommitPrev={commitPrev}
+            useCampaignLayout={campaignMode}
           />
+        ) : campaignMode ? (
+          <div className="absolute inset-0">
+            <SlideCanvas
+              slide={slide}
+              reducedMotion={reducedMotion || isMobile}
+              blurred={menuOpen}
+              mobilePreset={mobilePreset}
+              isMobile={isMobile}
+              priority={activeIndex === 0}
+              primaryHeading={activeIndex === 0}
+              useCampaignLayout
+              campaignCompact={campaignCompact}
+              contentVisible={copyVisible}
+              onImageReadyChange={setSlideImageReady}
+            />
+          </div>
         ) : (
           <AnimatePresence initial={false} custom={direction} mode="sync">
             <motion.div
@@ -897,10 +1048,25 @@ export function DesignedHero({
             >
               <ChevronRight set="bold" size={36} />
             </button>
+            {!isMobile && !reducedMotion && slideCount > 1 ? (
+              <button
+                type="button"
+                onClick={toggleAutoplay}
+                className={cn(
+                  "pointer-events-auto absolute top-4 z-30 rounded-full px-3 py-2 text-xs font-bold",
+                  "bg-black/65 text-white ring-1 ring-white/25 backdrop-blur-md",
+                  "end-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                )}
+                aria-pressed={autoplayBlocked}
+                aria-label={autoplayBlocked ? "ادامه پخش خودکار" : "توقف پخش خودکار"}
+              >
+                {autoplayBlocked ? "ادامه" : "توقف"}
+              </button>
+            ) : null}
           </>
         ) : null}
 
-        {!isMobile ? (
+        {!isMobile && !campaignCompact ? (
           <HeroCategoryOrbs
             activeIndex={orbActive}
             roots={roots}

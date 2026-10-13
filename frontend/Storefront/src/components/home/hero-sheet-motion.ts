@@ -59,7 +59,7 @@ export const heroSheetReducedVariants = {
 export const heroSheetDesktopVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? -DESKTOP_NUDGE_PX : DESKTOP_NUDGE_PX,
-    opacity: 0,
+    opacity: 1,
     zIndex: 2,
   }),
   center: {
