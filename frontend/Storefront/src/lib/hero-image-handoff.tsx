@@ -118,7 +118,7 @@ export function HeroImageHandoff(props: HandoffProps) {
         desktopSrc={displayed.desktopSrc}
         mobileSrc={shownMobile}
         focal={displayed.focal}
-        priority={priority && !preloading && ready}
+        priority={priority && !preloading}
         className={imageClassName ?? "object-cover"}
         sizes={displayed.compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
         onLoad={handleVisibleLoad}
