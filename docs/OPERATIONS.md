@@ -8,12 +8,14 @@ Runbook for environments, backup, deploy, and incidents. Commerce/payment policy
 |-----|-----------|---------|-------|
 | Development | `development` | `docker-compose.yml` + `docker-compose.dev.yml` | Bind-mount; OTP echo OK when `DEBUG=true` |
 | Staging (label) | `staging` | `docker-compose.yml` + `docker-compose.staging.yml` | No bind-mount; `DEBUG=false`; HTTPS |
-| Production | `production` | `docker-compose.yml` + secrets | Redis required; **mock payment forbidden** |
+| Production | `production` | `docker-compose.yml` + secrets | Redis required; runtime hardening via `APP_ENV=production` |
 | Catalog staging (isolated) | `staging` + `KARZAR_DATA_PLANE=catalog_staging` | `docker-compose.catalog-staging.yml` | Separate DB + uploads; see [`CATALOG_STAGING_ISOLATION.md`](CATALOG_STAGING_ISOLATION.md) |
 
-Templates: `.env.example`, `.env.staging.example`, `.env.catalog-staging.example`. Never commit real secrets.
+Templates: `.env.example`, `.env.staging.example`, `.env.catalog-staging.example`. Never commit real secrets. `.env.staging.example` documents CR-011 live plane identity with **intentionally non-bootable** mock/console provider placeholders — copy is not production-ready; live provider and callback values are operator-managed on the VPS only.
 
 **Topology:** the historic “staging” deploy targets the **same VPS** as public traffic (`karzartools.com`). That stack is the **live** data plane (`CR-011`): `APP_ENV=staging` is a process label; default `KARZAR_DATA_PLANE` is `live`. It is **not** safe for catalog APPLY rehearsal. Use the isolated catalog-staging Compose project for that work.
+
+**Live data-plane side effects:** `PAYMENT_PROVIDER=mock`, `SMS_PROVIDER=console`, and SEP without `SEP_TERMINAL_ID` are refused whenever the validated data plane is `live` — including the temporary CR-011 period where `APP_ENV=staging` still serves production traffic. `APP_ENV=production` adds separate runtime hardening (HTTPS, trusted hosts, docs off). Application staging (isolated) is not implemented yet ([#250](https://github.com/Shebahati/Karzar/issues/250)).
 
 ## Networking
 

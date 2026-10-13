@@ -1,5 +1,7 @@
 """P3 security hardening tests: throttles, SSRF guards, production config."""
 
+from pathlib import Path
+
 import pytest
 from app.core.config import Settings
 from app.core.request_throttle import InMemoryRequestThrottle
@@ -236,6 +238,166 @@ class TestProductionConfigGuards:
         )
         with pytest.raises(ValidationError, match="TRUSTED_HOSTS"):
             Settings(**kwargs)
+
+
+class TestEnvStagingExampleTemplate:
+    """`.env.staging.example` must not read as production-ready SEP/Faraz config."""
+
+    def test_staging_example_uses_fail_closed_provider_placeholders(self):
+        text = Path(".env.staging.example").read_text(encoding="utf-8")
+        assert "PAYMENT_PROVIDER=mock" in text
+        assert "SMS_PROVIDER=console" in text
+        assert "intentionally non-bootable on the live data plane" in text
+        assert "PAYMENT_PROVIDER=mock is intentionally refused on live" in text
+        assert "SMS_PROVIDER=console is intentionally refused on live" in text
+        assert not any(
+            line.strip().startswith("PAYMENT_PROVIDER=sep") for line in text.splitlines()
+        )
+        assert not any(
+            line.strip().startswith("SMS_PROVIDER=faraz") for line in text.splitlines()
+        )
+
+
+class TestLivePlaneProviderGuards:
+    """CR-011: inferred live plane must enforce provider side-effect guards."""
+
+    def _hardened_base(self) -> dict:
+        return {
+            "POSTGRES_USER": "karzar_staging",
+            "POSTGRES_PASSWORD": "test",
+            "POSTGRES_SERVER": "db",
+            "POSTGRES_DB": "karzar_staging",
+            "SECRET_KEY": "x" * 40,
+            "ADMIN_STEP_UP_PIN": "9382746150",
+            "DEBUG": False,
+            "REDIS_HOST": "127.0.0.1",
+            "OTP_DEV_ECHO": False,
+            "CORS_ORIGINS": "https://www.example.com",
+            "APP_ENV": "staging",
+            "ENFORCE_HTTPS": True,
+            "TRUSTED_HOSTS": "api.example.com",
+            "ENABLE_API_DOCS": False,
+        }
+
+    def test_inferred_live_rejects_mock_payment(self):
+        kwargs = self._hardened_base()
+        kwargs["PAYMENT_PROVIDER"] = "mock"
+        kwargs["SMS_PROVIDER"] = "faraz"
+        with pytest.raises(ValidationError, match="not allowed on the live data plane"):
+            Settings(_env_file=None, **kwargs)
+
+    def test_explicit_live_rejects_mock_payment(self):
+        kwargs = self._hardened_base()
+        kwargs["KARZAR_DATA_PLANE"] = "live"
+        kwargs["PAYMENT_PROVIDER"] = "mock"
+        kwargs["SMS_PROVIDER"] = "faraz"
+        with pytest.raises(ValidationError, match="not allowed on the live data plane"):
+            Settings(_env_file=None, **kwargs)
+
+    def test_inferred_live_rejects_console_sms(self):
+        kwargs = self._hardened_base()
+        kwargs["PAYMENT_PROVIDER"] = "zarinpal"
+        kwargs["SMS_PROVIDER"] = "console"
+        with pytest.raises(ValidationError, match="console is not allowed on the live data plane"):
+            Settings(_env_file=None, **kwargs)
+
+    def test_explicit_live_sep_requires_terminal(self):
+        kwargs = self._hardened_base()
+        kwargs["KARZAR_DATA_PLANE"] = "live"
+        kwargs["PAYMENT_PROVIDER"] = "sep"
+        kwargs["SMS_PROVIDER"] = "faraz"
+        kwargs["SEP_TERMINAL_ID"] = ""
+        with pytest.raises(ValidationError, match="SEP_TERMINAL_ID is required"):
+            Settings(_env_file=None, **kwargs)
+
+    def test_legacy_live_plane_accepts_real_providers(self):
+        kwargs = self._hardened_base()
+        kwargs["KARZAR_DATA_PLANE"] = "live"
+        kwargs["PAYMENT_PROVIDER"] = "sep"
+        kwargs["SEP_TERMINAL_ID"] = "test-terminal-fixture"
+        kwargs["SMS_PROVIDER"] = "faraz"
+        Settings(_env_file=None, **kwargs)
+
+    def test_development_allows_mock_and_console(self):
+        Settings(
+            _env_file=None,
+            POSTGRES_USER="test",
+            POSTGRES_PASSWORD="test",
+            POSTGRES_SERVER="localhost",
+            POSTGRES_DB="karzar_db",
+            SECRET_KEY="x" * 40,
+            ADMIN_STEP_UP_PIN="9382746150",
+            APP_ENV="development",
+            KARZAR_DATA_PLANE="development",
+            DEBUG=True,
+            PAYMENT_PROVIDER="mock",
+            SMS_PROVIDER="console",
+        )
+
+    def test_catalog_staging_allows_mock_and_console(self):
+        Settings(
+            _env_file=None,
+            POSTGRES_USER="test",
+            POSTGRES_PASSWORD="test",
+            POSTGRES_SERVER="db",
+            POSTGRES_DB="karzar_catalog_staging",
+            SECRET_KEY="x" * 40,
+            ADMIN_STEP_UP_PIN="9382746150",
+            APP_ENV="staging",
+            KARZAR_DATA_PLANE="catalog_staging",
+            KARZAR_MEDIA_PLANE="catalog_staging",
+            DEBUG=False,
+            REDIS_HOST="127.0.0.1",
+            OTP_DEV_ECHO=False,
+            CORS_ORIGINS="http://127.0.0.1:8010",
+            PAYMENT_PROVIDER="mock",
+            SMS_PROVIDER="console",
+        )
+
+    def test_production_role_requires_live_plane(self):
+        with pytest.raises(ValidationError, match="APP_ENV=production requires KARZAR_DATA_PLANE=live"):
+            Settings(
+                _env_file=None,
+                POSTGRES_USER="test",
+                POSTGRES_PASSWORD="test",
+                POSTGRES_SERVER="db",
+                POSTGRES_DB="karzar_catalog_staging",
+                SECRET_KEY="x" * 40,
+                ADMIN_STEP_UP_PIN="9382746150",
+                APP_ENV="production",
+                KARZAR_DATA_PLANE="catalog_staging",
+                KARZAR_MEDIA_PLANE="catalog_staging",
+                DEBUG=False,
+                REDIS_HOST="127.0.0.1",
+                TRUSTED_HOSTS="api.example.com",
+                ENFORCE_HTTPS=True,
+                ENABLE_API_DOCS=False,
+                PAYMENT_PROVIDER="mock",
+                SMS_PROVIDER="console",
+            )
+
+    def test_production_app_env_still_rejects_mock_on_live_plane(self):
+        kwargs = {
+            "POSTGRES_USER": "test",
+            "POSTGRES_PASSWORD": "test",
+            "POSTGRES_SERVER": "localhost",
+            "POSTGRES_DB": "test",
+            "SECRET_KEY": "x" * 40,
+            "ADMIN_STEP_UP_PIN": "9382746150",
+            "DEBUG": False,
+            "REDIS_HOST": "127.0.0.1",
+            "OTP_DEV_ECHO": False,
+            "CORS_ORIGINS": "https://shop.example.com",
+            "APP_ENV": "production",
+            "TRUSTED_HOSTS": "api.example.com",
+            "ENFORCE_HTTPS": True,
+            "ENABLE_API_DOCS": False,
+            "PAYMENT_PROVIDER": "mock",
+            "SMS_PROVIDER": "kavenegar",
+            "SMS_KAVENEGAR_API_KEY": "test-key",
+        }
+        with pytest.raises(ValidationError, match="not allowed on the live data plane"):
+            Settings(_env_file=None, **kwargs)
 
 
 @pytest.mark.usefixtures("override_database")

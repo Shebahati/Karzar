@@ -348,7 +348,7 @@ class Settings(BaseSettings):
         from app.core.data_plane import validate_data_plane
 
         # Fail closed when a claimed catalog-staging plane resolves to a live DB.
-        validate_data_plane(
+        identity = validate_data_plane(
             app_env=self.APP_ENV,
             data_plane_explicit=self.KARZAR_DATA_PLANE,
             postgres_db=self.POSTGRES_DB,
@@ -357,6 +357,7 @@ class Settings(BaseSettings):
             catalog_staging_db_name=self.KARZAR_CATALOG_STAGING_DB_NAME,
             extra_live_db_names=self.KARZAR_LIVE_DB_DENYLIST or None,
         )
+        is_live_plane = identity.data_plane == "live"
 
         weak_pins = {
             "000000",
@@ -374,6 +375,12 @@ class Settings(BaseSettings):
         is_production = self.APP_ENV == "production"
         harden = (not self.DEBUG) or is_production
 
+        if is_production and not is_live_plane:
+            raise ValueError(
+                "APP_ENV=production requires KARZAR_DATA_PLANE=live "
+                f"(validated data plane is {identity.data_plane!r})"
+            )
+
         if is_production:
             if self.DEBUG:
                 raise ValueError("DEBUG must be False when APP_ENV=production")
@@ -381,16 +388,20 @@ class Settings(BaseSettings):
                 raise ValueError("TRUSTED_HOSTS is required when APP_ENV=production")
             if not self.ENFORCE_HTTPS:
                 raise ValueError("ENFORCE_HTTPS must be True when APP_ENV=production")
-            if self.PAYMENT_PROVIDER == "mock":
-                raise ValueError("PAYMENT_PROVIDER=mock is not allowed when APP_ENV=production")
-            if self.PAYMENT_PROVIDER == "sep" and not (self.SEP_TERMINAL_ID or "").strip():
-                raise ValueError(
-                    "SEP_TERMINAL_ID is required when PAYMENT_PROVIDER=sep and APP_ENV=production"
-                )
-            if self.SMS_PROVIDER == "console":
-                raise ValueError("SMS_PROVIDER=console is not allowed when APP_ENV=production")
             if self.ENABLE_API_DOCS:
                 raise ValueError("ENABLE_API_DOCS must be False when APP_ENV=production")
+
+        if is_live_plane:
+            if self.PAYMENT_PROVIDER == "mock":
+                raise ValueError(
+                    "PAYMENT_PROVIDER=mock is not allowed on the live data plane"
+                )
+            if self.PAYMENT_PROVIDER == "sep" and not (self.SEP_TERMINAL_ID or "").strip():
+                raise ValueError(
+                    "SEP_TERMINAL_ID is required when PAYMENT_PROVIDER=sep on the live data plane"
+                )
+            if self.SMS_PROVIDER == "console":
+                raise ValueError("SMS_PROVIDER=console is not allowed on the live data plane")
 
         if self.PAYMENT_PROVIDER == "sep":
             from urllib.parse import urlparse
