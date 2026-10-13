@@ -31,15 +31,26 @@ describe("CampaignHeroSlide layout", () => {
     expect(html).toContain("تخفیف‌های ویژه‌ی کارزار");
   });
 
-  it("keeps mobile slide full-bleed without detached copy panel", () => {
+  it("stacks compact media and copy in separate regions", () => {
     const pack = buildFiveHeroPublishedPack();
     const slide = pack.slides[1]!;
     const html = renderToStaticMarkup(
       <CampaignHeroSlide slide={slide} compact primaryHeading={false} />,
     );
 
-    expect(html).toContain('data-testid="campaign-hero-fullbleed"');
-    expect(html).not.toContain("flex-col bg-[#1a1a1a]");
+    expect(html).toContain('data-testid="campaign-hero-compact"');
+    expect(html).toContain('data-testid="campaign-hero-compact-media"');
+    expect(html).not.toContain('data-testid="campaign-hero-fullbleed"');
     expect(html).toContain("ابزار اندازه‌گیری");
+  });
+
+  it("lifts H01 desktop copy above the default vertical center", () => {
+    const pack = buildFiveHeroPublishedPack();
+    const slide = pack.slides[0]!;
+    const html = renderToStaticMarkup(
+      <CampaignHeroSlide slide={slide} compact={false} primaryHeading />,
+    );
+    expect(html).toContain("top-[34%]");
+    expect(html).not.toContain("top-1/2");
   });
 });

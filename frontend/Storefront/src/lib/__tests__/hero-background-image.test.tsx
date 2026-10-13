@@ -145,6 +145,19 @@ describe("HeroBackgroundImage", () => {
     expect(source?.getAttribute("srcset")).not.toMatch(/\/images\/hero\/v2\/mobile\//);
   });
 
+  it("aligns picture mobile media query with campaign compact breakpoint when requested", () => {
+    container = renderIntoContainer(
+      <HeroBackgroundImage
+        desktopSrc={desktop}
+        mobileSrc={mobile}
+        mobileSourceMaxWidthPx={1023}
+        fallback={fallback}
+      />,
+    );
+    const source = container.querySelector("picture source");
+    expect(source?.getAttribute("media")).toBe("(max-width: 1023px)");
+  });
+
   it("does not force decoding=sync on the LCP image", () => {
     container = renderIntoContainer(
       <HeroBackgroundImage

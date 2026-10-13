@@ -594,7 +594,7 @@ function HeroSheetStrip({
   );
 
   const stripShellClass = useCampaignLayout
-    ? "relative min-h-[calc((100vw/(4/3))+15.5rem)] w-full overflow-hidden"
+    ? "relative w-full overflow-hidden"
     : "absolute inset-0 overflow-hidden";
 
   return (
@@ -991,7 +991,11 @@ export function DesignedHero({
       ? slides[campaignPending.index]
       : null;
 
-  const sectionHeightClass = "h-[62svh] md:h-[100svh]";
+  const sectionHeightClass = campaignMode
+    ? campaignCompact
+      ? "h-auto min-h-0"
+      : "h-[100svh]"
+    : "h-[62svh] md:h-[100svh]";
 
   return (
     <section
@@ -1113,10 +1117,12 @@ export function DesignedHero({
                 type="button"
                 onClick={toggleAutoplay}
                 className={cn(
-                  "pointer-events-auto absolute top-4 z-30 grid h-10 w-10 place-items-center rounded-full",
+                  "pointer-events-auto absolute z-[45] grid h-11 w-11 place-items-center rounded-full",
+                  "top-[calc(5.75rem+env(safe-area-inset-top,0px))] end-4",
                   "bg-black/55 text-white ring-1 ring-white/30 backdrop-blur-md",
-                  "end-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                 )}
+                data-testid="hero-autoplay-control"
                 aria-pressed={userPaused}
                 aria-label={userPaused ? "ادامه پخش خودکار" : "توقف پخش خودکار"}
               >

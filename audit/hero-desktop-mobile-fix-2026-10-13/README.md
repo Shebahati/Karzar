@@ -1,4 +1,6 @@
-# Hero desktop/mobile fix — visual evidence (PR #483)
+# Hero desktop/mobile fix — visual evidence
+
+See [`NEEDS_MOBILE_ART.md`](NEEDS_MOBILE_ART.md) for remaining portrait asset work.
 
 Captured against **production build** (`npm run build && npm run start`, `NEXT_PUBLIC_USE_MOCK=true`).
 

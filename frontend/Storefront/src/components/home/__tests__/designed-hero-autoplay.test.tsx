@@ -255,4 +255,13 @@ describe("DesignedHero autoplay control", () => {
     expect(visibleText).not.toBe("توقف");
     expect(btn.querySelector("svg")).toBeTruthy();
   });
+
+  it("places autoplay control below the fixed header hit layer", () => {
+    const { container } = mountHero();
+    const btn = container.querySelector('[data-testid="hero-autoplay-control"]') as HTMLButtonElement;
+    expect(btn).toBeTruthy();
+    expect(btn.className).toContain("top-[calc(5.75rem");
+    expect(btn.className).toContain("z-[45]");
+    expect(btn.className).toContain("h-11");
+  });
 });

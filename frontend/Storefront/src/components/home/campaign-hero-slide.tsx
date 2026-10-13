@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 import {
+  CAMPAIGN_MOBILE_SOURCE_MAX_PX,
   campaignDesktopImageUrl,
   campaignMediaForSlide,
 } from "@/lib/hero-campaign-layout";
@@ -51,8 +52,10 @@ function HeroCopyStack({
       <div className="mt-3 h-px w-10 bg-[rgba(208,35,39,0.85)]" aria-hidden />
       <p
         className={cn(
-          "mt-3 max-w-prose font-normal leading-relaxed drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]",
-          compact ? "text-sm sm:text-[15px]" : "text-[clamp(0.95rem,1.1vw,1.0625rem)]",
+          "mt-3 max-w-prose font-normal leading-relaxed",
+          compact
+            ? "text-sm leading-relaxed sm:text-[15px]"
+            : "text-[clamp(0.95rem,1.1vw,1.0625rem)] drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]",
         )}
         style={{ color: t.subtitleColor }}
       >
@@ -114,8 +117,49 @@ export function CampaignHeroSlide({
 }) {
   const media = campaignMediaForSlide(slide.id);
   const imageUrl = campaignDesktopImageUrl(slide);
-  const focal = compact ? media.compactFocal : media.desktopFocal;
+  const focal = compact ? media.mobileFocal : media.desktopFocal;
   const overlayOpacity = slide.config.overlay.opacity;
+  const mobileSrc = slide.config.background.mobileImageUrl;
+
+  if (compact) {
+    return (
+      <div
+        className={cn("relative flex h-full w-full flex-col overflow-hidden bg-[#121212]", className)}
+        data-testid="campaign-hero-compact"
+      >
+        <div
+          className="relative w-full shrink-0 overflow-hidden"
+          style={{ aspectRatio: `${media.compactAspect}` }}
+          data-testid="campaign-hero-compact-media"
+        >
+          <HeroImageHandoff
+            key={slide.id}
+            slideKey={slide.id}
+            desktopSrc={imageUrl}
+            mobileSrc={mobileSrc}
+            focal={focal}
+            priority={priority}
+            mobileSourceMaxWidthPx={CAMPAIGN_MOBILE_SOURCE_MAX_PX}
+            onReadyChange={onImageReadyChange}
+            className="absolute inset-0 h-full w-full"
+            imageClassName="object-cover"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.55)_0%,transparent_55%)]"
+            aria-hidden
+          />
+        </div>
+        <div className={cn("relative z-10 flex flex-col bg-[#121212]", media.compactCopyClass)}>
+          <HeroCopyStack
+            slide={slide}
+            compact
+            primaryHeading={primaryHeading}
+            visible={contentVisible}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -126,7 +170,7 @@ export function CampaignHeroSlide({
         key={slide.id}
         slideKey={slide.id}
         desktopSrc={imageUrl}
-        mobileSrc={slide.config.background.mobileImageUrl}
+        mobileSrc={mobileSrc}
         focal={focal}
         priority={priority}
         onReadyChange={onImageReadyChange}
@@ -151,27 +195,17 @@ export function CampaignHeroSlide({
 
       <div
         className={cn(
-          "absolute z-20 flex w-full max-w-[min(560px,92vw)] flex-col text-right",
-          compact
-            ? "bottom-[max(5.25rem,16vw)] left-5 right-5"
-            : "right-[clamp(2rem,7vw,8rem)] top-1/2 -translate-y-1/2",
+          "absolute z-20 flex flex-col text-right",
+          media.desktopCopyClass,
         )}
       >
         <HeroCopyStack
           slide={slide}
-          compact={compact}
+          compact={false}
           primaryHeading={primaryHeading}
           visible={contentVisible}
         />
       </div>
     </div>
   );
-}
-
-export function CampaignHeroSlideLayer({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  return <div className="absolute inset-0">{children}</div>;
 }
