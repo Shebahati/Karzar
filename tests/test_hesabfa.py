@@ -444,5 +444,21 @@ async def test_hesabfa_post_refuses_when_disabled(monkeypatch):
     monkeypatch.setattr(settings, "HESABFA_ENABLED", False)
     reset_hesabfa_client_for_tests()
     hf = HesabfaClient(api_key="k", login_token="t")
+    async_client_constructions = 0
+
+    class _ForbiddenAsyncClient:
+        def __init__(self, *args, **kwargs):  # noqa: ANN002, ANN003
+            nonlocal async_client_constructions
+            async_client_constructions += 1
+            raise AssertionError("httpx.AsyncClient must not be constructed when disabled")
+
+        async def __aenter__(self):
+            raise AssertionError("httpx.AsyncClient must not be entered when disabled")
+
+        async def __aexit__(self, *args):  # noqa: ANN002
+            return False
+
+    monkeypatch.setattr("app.services.hesabfa.client.httpx.AsyncClient", _ForbiddenAsyncClient)
     with pytest.raises(HesabfaDisabledError, match="hesabfa_disabled"):
         await hf._post("item/getItems", {"queryInfo": {"take": 1, "skip": 0}})
+    assert async_client_constructions == 0

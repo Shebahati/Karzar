@@ -1844,6 +1844,17 @@ documents:
       2026-09-29. Evidence only. Not Canon. Does not authorize item/save
       or activation APPLY.
 
+  - id: HESABFA-EMERGENCY-REMOTE-20261014
+    path: audit/hesabfa-emergency-remote-2026-10-14T094914Z/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: hotfix/hesabfa-emergency-disconnect
+    notes: >
+      Emergency read-only full Hesabfa remote inventory before Owner freeze
+      (3792 items; 2620 inactive). No API activation. Karzar disconnect evidence.
+
   - id: DEPLOY-OWNERSHIP-CLEANUP-README-20261007
     path: audit/deployment-ownership-cleanup-2026-10-07/README.md
     class: EVIDENCE
