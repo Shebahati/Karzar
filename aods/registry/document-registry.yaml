@@ -2064,6 +2064,16 @@ documents:
     notes: >
       PR #495 LOCAL_BUILD_EVIDENCE: production standalone hero strip metrics, webm, H03 screenshots.
 
+  - id: HERO-COPY-COMPOSITION-20261014
+    path: audit/hero-copy-composition-2026-10-14/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: fix/storefront-hero-copy-composition
+    notes: >
+      Desktop RTL copy safe shell + compact copy spacing; LOCAL_BUILD screenshots and metrics.
+
   - id: INSIZE-COMMERCIAL-RECONCILE-258-20261013
     path: audit/insize-commercial-reconcile-258-2026-10-13/README.md
     class: EVIDENCE
