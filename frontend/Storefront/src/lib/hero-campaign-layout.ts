@@ -25,53 +25,61 @@ export const CAMPAIGN_MOBILE_SOURCE_MAX_PX = CAMPAIGN_COMPACT_MAX_PX;
 /** Legacy non-campaign hero mobile art (phone-only). */
 export const DEFAULT_MOBILE_SOURCE_MAX_PX = 767;
 
+/** Shared with SiteHeader overlay — copy safe area starts below header + gap. */
+export const CAMPAIGN_DESKTOP_HEADER_CLEARANCE =
+  "calc(5.75rem + env(safe-area-inset-top, 0px) + 1.5rem)";
+
+export const CAMPAIGN_DESKTOP_SHELL_MAX_WIDTH_PX = 1440;
+
+export const CAMPAIGN_DESKTOP_COPY_MAX_WIDTH = "min(520px, 38vw)";
+
+export const CAMPAIGN_DESKTOP_SAFE_PADDING_X = "clamp(2rem, 5vw, 6rem)";
+
+export const CAMPAIGN_DESKTOP_MIN_EDGE_MARGIN_PX = 48;
+
+export const CAMPAIGN_COMPACT_SAFE_PADDING_X = "clamp(1.25rem, 5vw, 1.5rem)";
+
+export const CAMPAIGN_DESKTOP_MAX_VERTICAL_NUDGE_PX = 32;
+
 export type CampaignMediaLayout = {
   desktopFocal: string;
-  /** Crop anchor for the dedicated compact media band (independent of desktop). */
   mobileFocal: string;
-  /** Landscape width/height for the compact media band (interim `-1280.webp` crop). */
   compactAspect: number;
-  /** Desktop copy anchor — verified empty region per slide after cover crop. */
-  desktopCopyClass: string;
-  /** Compact copy sits below the media band (never over product geometry). */
+  /** Small optical vertical nudge (px), not absolute positioning. */
+  desktopVerticalNudgePx: number;
   compactCopyClass: string;
 };
 
 const DEFAULT_COMPACT_ASPECT = 4 / 3;
 
-/** Master width for compact-band WebP exports (interim landscape + future portrait). */
 export const COMPACT_BAND_ART_WIDTH_PX = 1280;
 
-/** Portrait acceptance target when dedicated mobile art replaces landscape interim. */
 export const COMPACT_BAND_PORTRAIT_ASPECT = 3 / 4;
 
 export const COMPACT_BAND_PORTRAIT_HEIGHT_PX = Math.round(
   COMPACT_BAND_ART_WIDTH_PX / COMPACT_BAND_PORTRAIT_ASPECT,
 );
 
-const DEFAULT_DESKTOP_COPY =
-  "right-[clamp(2rem,7vw,8rem)] top-1/2 -translate-y-1/2 max-w-[min(560px,92vw)]";
-
-/** Extra bottom room so dual CTAs (e.g. H03) stay above the following homepage section. */
 const DEFAULT_COMPACT_COPY =
-  "relative w-full px-5 pb-[max(2rem,env(safe-area-inset-bottom,0px))] pt-4";
+  "relative w-full px-[clamp(1.25rem,5vw,1.5rem)] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pt-3";
 
-function desktopCopyClassFor(def: HeroCampaignSlideDef): string {
+function desktopVerticalNudgeFor(def: HeroCampaignSlideDef): number {
   switch (def.linkedOrbKey) {
     case "discounts":
-      // Lift copy above the drill shank / rear region at tall desktop ratios.
-      return "right-[clamp(2.25rem,7.5vw,9rem)] top-[34%] max-w-[min(520px,90vw)]";
+      return -12;
     case "endmills":
-      // Keep subtitle off the translucent tool tube on the right product group.
-      return "right-[clamp(2.5rem,8vw,9.5rem)] top-[38%] max-w-[min(500px,88vw)]";
+      return 8;
     case "industrial-machines":
-      return "right-[clamp(2rem,7vw,8.5rem)] top-[36%] max-w-[min(540px,90vw)]";
+      return 4;
+    case "inserts":
+      return 0;
+    case "metrology":
+      return 0;
     default:
-      return DEFAULT_DESKTOP_COPY;
+      return 0;
   }
 }
 
-/** Wider media band when 4:3 would clip the main product group. */
 function compactAspectFor(def: HeroCampaignSlideDef): number {
   switch (def.linkedOrbKey) {
     case "industrial-machines":
@@ -90,15 +98,19 @@ export function campaignMediaForSlide(slideId: string): CampaignMediaLayout {
       desktopFocal: "left 40%",
       mobileFocal: "28% center",
       compactAspect: DEFAULT_COMPACT_ASPECT,
-      desktopCopyClass: DEFAULT_DESKTOP_COPY,
+      desktopVerticalNudgePx: 0,
       compactCopyClass: DEFAULT_COMPACT_COPY,
     };
   }
+  const nudge = desktopVerticalNudgeFor(def);
   return {
     desktopFocal: def.desktopFocal,
     mobileFocal: def.mobileFocal,
     compactAspect: compactAspectFor(def),
-    desktopCopyClass: desktopCopyClassFor(def),
+    desktopVerticalNudgePx: Math.max(
+      -CAMPAIGN_DESKTOP_MAX_VERTICAL_NUDGE_PX,
+      Math.min(CAMPAIGN_DESKTOP_MAX_VERTICAL_NUDGE_PX, nudge),
+    ),
     compactCopyClass: DEFAULT_COMPACT_COPY,
   };
 }
@@ -107,7 +119,6 @@ export function campaignDesktopImageUrl(slide: DesignedHeroSlide): string {
   return slide.config.background.imageUrl;
 }
 
-/** CTA slots reserved in compact geometry (two on H03 inserts). */
 export function campaignCompactCtaCount(slide: DesignedHeroSlide): number {
   return slide.config.buttons.length;
 }
@@ -116,7 +127,6 @@ export function campaignCompactMediaAspect(slide: DesignedHeroSlide): number {
   return campaignMediaForSlide(slide.id).compactAspect;
 }
 
-/** Slide with the most compact copy chrome (used to validate shared stage reserve). */
 export function campaignTallestCompactCopySlide(
   slides: DesignedHeroSlide[],
 ): DesignedHeroSlide {
@@ -129,4 +139,9 @@ export function campaignTallestCompactCopySlide(
     const tallestAspect = campaignCompactMediaAspect(tallest);
     return aspect < tallestAspect ? slide : tallest;
   });
+}
+
+/** @deprecated Per-slide absolute copy classes removed — use desktop copy shell in CampaignHeroSlide. */
+export function usesLegacyDesktopCopyPositioning(): boolean {
+  return false;
 }

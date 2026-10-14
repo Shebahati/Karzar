@@ -35,16 +35,16 @@ export function CampaignHeroGeometrySizer({ slide }: { slide: DesignedHeroSlide 
         >
           {t.title}
         </div>
-        <div className="mt-3 h-px w-10 bg-[rgba(208,35,39,0.85)]" aria-hidden />
+        <div className="mt-2 h-px w-10 bg-[rgba(208,35,39,0.85)]" aria-hidden />
         <p
-          className="mt-3 max-w-prose text-sm font-normal leading-relaxed sm:text-[15px]"
+          className="mt-2 w-full text-sm font-normal leading-relaxed sm:text-[15px]"
           style={{ color: t.subtitleColor }}
         >
           {t.subtitle}
         </p>
         {buttons.length ? (
           <div
-            className="mt-4 flex flex-wrap items-center justify-start gap-3"
+            className="mt-3 flex w-full flex-wrap items-center justify-start gap-2.5"
             data-testid="campaign-geometry-cta-row"
           >
             {buttons.map((button) => (

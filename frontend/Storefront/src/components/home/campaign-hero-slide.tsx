@@ -3,6 +3,10 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import {
+  CAMPAIGN_DESKTOP_COPY_MAX_WIDTH,
+  CAMPAIGN_DESKTOP_HEADER_CLEARANCE,
+  CAMPAIGN_DESKTOP_SAFE_PADDING_X,
+  CAMPAIGN_DESKTOP_SHELL_MAX_WIDTH_PX,
   CAMPAIGN_MOBILE_SOURCE_MAX_PX,
   campaignDesktopImageUrl,
   campaignMediaForSlide,
@@ -33,29 +37,37 @@ function HeroCopyStack({
 
   return (
     <div
+      dir="rtl"
       className={cn(
-        "flex flex-col text-right transition-opacity duration-300",
+        "flex w-full flex-col items-start text-right transition-opacity duration-300",
         !visible && "pointer-events-none opacity-0",
         visible && "opacity-100",
       )}
       aria-hidden={!visible}
+      data-testid="campaign-hero-copy-stack"
     >
       <TitleTag
         className={cn(
-          "font-extrabold leading-[1.2] tracking-tight drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)]",
+          "w-full font-extrabold leading-[1.2] tracking-tight drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)]",
           compact ? "text-[clamp(1.35rem,5.2vw,1.65rem)]" : "text-[clamp(1.75rem,2.4vw,2.75rem)]",
         )}
         style={{ color: t.titleColor }}
       >
         {t.title}
       </TitleTag>
-      <div className="mt-3 h-px w-10 bg-[rgba(208,35,39,0.85)]" aria-hidden />
+      <div
+        className={cn(
+          "h-px w-10 bg-[rgba(208,35,39,0.85)]",
+          compact ? "mt-2" : "mt-3",
+        )}
+        aria-hidden
+      />
       <p
         className={cn(
-          "mt-3 max-w-prose font-normal leading-relaxed",
+          "w-full font-normal leading-relaxed",
           compact
-            ? "text-sm leading-relaxed sm:text-[15px]"
-            : "text-[clamp(0.95rem,1.1vw,1.0625rem)] drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]",
+            ? "mt-2 text-sm leading-relaxed sm:text-[15px]"
+            : "mt-3 max-w-none text-[clamp(0.95rem,1.1vw,1.0625rem)] drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]",
         )}
         style={{ color: t.subtitleColor }}
       >
@@ -64,9 +76,10 @@ function HeroCopyStack({
       {buttons.length ? (
         <div
           className={cn(
-            "mt-5 flex flex-wrap items-center justify-start gap-3",
-            compact ? "mt-4" : "mt-6",
+            "flex w-full flex-wrap items-center justify-start gap-2.5",
+            compact ? "mt-3" : "mt-5",
           )}
+          data-testid="campaign-hero-cta-row"
         >
           {buttons.map((button) => {
             const href = button.action.type === "href" ? button.action.value : "/catalog";
@@ -209,17 +222,39 @@ export function CampaignHeroSlide({
       />
 
       <div
-        className={cn(
-          "absolute z-20 flex flex-col text-right",
-          media.desktopCopyClass,
-        )}
+        className="absolute inset-0 z-20 flex"
+        data-testid="campaign-hero-desktop-copy-shell"
+        dir="ltr"
       >
-        <HeroCopyStack
-          slide={slide}
-          compact={false}
-          primaryHeading={primaryHeading}
-          visible={contentVisible}
-        />
+        <div
+          className="mx-auto flex h-full w-full flex-col"
+          style={{
+            maxWidth: `${CAMPAIGN_DESKTOP_SHELL_MAX_WIDTH_PX}px`,
+            paddingInline: CAMPAIGN_DESKTOP_SAFE_PADDING_X,
+            paddingTop: CAMPAIGN_DESKTOP_HEADER_CLEARANCE,
+            paddingBottom: "clamp(1.5rem, 3vw, 2.5rem)",
+          }}
+        >
+          <div className="flex min-h-0 flex-1 items-center justify-end">
+            <div
+              className="w-full max-w-[min(520px,38vw)] text-right"
+              style={{
+                transform: media.desktopVerticalNudgePx
+                  ? `translateY(${media.desktopVerticalNudgePx}px)`
+                  : undefined,
+              }}
+              data-testid="campaign-hero-desktop-copy-column"
+              dir="rtl"
+            >
+              <HeroCopyStack
+                slide={slide}
+                compact={false}
+                primaryHeading={primaryHeading}
+                visible={contentVisible}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

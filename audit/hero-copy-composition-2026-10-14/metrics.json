@@ -1,0 +1,770 @@
+{
+  "summary": {
+    "gitSha": "632d18e00a9a9b28e08ac026c7b097701429a245",
+    "SLIDE_IDENTITY_MISMATCH_COUNT": 0,
+    "RIGHT_CLIP_COUNT": 0,
+    "TOP_CLIP_COUNT": 0,
+    "HEADER_OVERLAP_COUNT": 0
+  },
+  "slides": [
+    {
+      "viewport": "desktop-1366",
+      "slideId": "H01",
+      "expectedTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "visibleTitleText": "تخفیف‌های ویژه‌ی کارزار",
+      "hero": {
+        "top": 0,
+        "bottom": 768,
+        "right": 1366,
+        "left": 0,
+        "width": 1366
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 329.515625,
+        "right": 1297.703125,
+        "left": 778.625,
+        "bottom": 490.484375,
+        "width": 519.078125
+      },
+      "titleRect": {
+        "top": 329.515625,
+        "right": 1297.703125,
+        "left": 778.625,
+        "bottom": 378.6875
+      },
+      "copyCenterX": 1038.1640625,
+      "heroCenterX": 683,
+      "physicalRightMargin": 68.296875,
+      "headerClearance": 265.515625
+    },
+    {
+      "viewport": "desktop-1366",
+      "slideId": "H02",
+      "expectedTitle": "ابزار اندازه‌گیری",
+      "visibleTitleText": "ابزار اندازه‌گیری",
+      "hero": {
+        "top": 0,
+        "bottom": 768,
+        "right": 1366,
+        "left": 0,
+        "width": 1366
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 341.515625,
+        "right": 1284.28125,
+        "left": 765.2030639648438,
+        "bottom": 502.484375,
+        "width": 519.0781860351562
+      },
+      "titleRect": {
+        "top": 341.515625,
+        "right": 1284.28125,
+        "left": 765.2030639648438,
+        "bottom": 390.6875
+      },
+      "copyCenterX": 1024.7421569824219,
+      "heroCenterX": 683,
+      "physicalRightMargin": 81.71875,
+      "headerClearance": 277.515625
+    },
+    {
+      "viewport": "desktop-1366",
+      "slideId": "H03",
+      "expectedTitle": "اینسرت و ابزارهای اینسرتی",
+      "visibleTitleText": "اینسرت و ابزارهای اینسرتی",
+      "hero": {
+        "top": 0,
+        "bottom": 768,
+        "right": 1366,
+        "left": 0,
+        "width": 1366
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 341.515625,
+        "right": 1287.171630859375,
+        "left": 768.0935668945312,
+        "bottom": 502.484375,
+        "width": 519.0780639648438
+      },
+      "titleRect": {
+        "top": 341.515625,
+        "right": 1287.171630859375,
+        "left": 768.0935668945312,
+        "bottom": 390.6875
+      },
+      "copyCenterX": 1027.6325988769531,
+      "heroCenterX": 683,
+      "physicalRightMargin": 78.828369140625,
+      "headerClearance": 277.515625
+    },
+    {
+      "viewport": "desktop-1366",
+      "slideId": "H04",
+      "expectedTitle": "فرز انگشتی",
+      "visibleTitleText": "فرز انگشتی",
+      "hero": {
+        "top": 0,
+        "bottom": 768,
+        "right": 1366,
+        "left": 0,
+        "width": 1366
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 349.515625,
+        "right": 1284.3851318359375,
+        "left": 765.3070678710938,
+        "bottom": 510.484375,
+        "width": 519.0780639648438
+      },
+      "titleRect": {
+        "top": 349.515625,
+        "right": 1284.3851318359375,
+        "left": 765.3070678710938,
+        "bottom": 398.6875
+      },
+      "copyCenterX": 1024.8460998535156,
+      "heroCenterX": 683,
+      "physicalRightMargin": 81.6148681640625,
+      "headerClearance": 285.515625
+    },
+    {
+      "viewport": "desktop-1366",
+      "slideId": "H05",
+      "expectedTitle": "دستگاه‌های صنعتی",
+      "visibleTitleText": "دستگاه‌های صنعتی",
+      "hero": {
+        "top": 0,
+        "bottom": 768,
+        "right": 1366,
+        "left": 0,
+        "width": 1366
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 345.515625,
+        "right": 1283.559814453125,
+        "left": 764.4817504882812,
+        "bottom": 506.484375,
+        "width": 519.0780639648438
+      },
+      "titleRect": {
+        "top": 345.515625,
+        "right": 1283.559814453125,
+        "left": 764.4817504882812,
+        "bottom": 394.6875
+      },
+      "copyCenterX": 1024.0207824707031,
+      "heroCenterX": 683,
+      "physicalRightMargin": 82.440185546875,
+      "headerClearance": 281.515625
+    },
+    {
+      "viewport": "desktop-1920",
+      "slideId": "H01",
+      "expectedTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "visibleTitleText": "تخفیف‌های ویژه‌ی کارزار",
+      "hero": {
+        "top": 0,
+        "bottom": 1080,
+        "right": 1920,
+        "left": 0,
+        "width": 1920
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 475.75,
+        "right": 1584,
+        "left": 1064,
+        "bottom": 656.25,
+        "width": 520
+      },
+      "titleRect": {
+        "top": 475.75,
+        "right": 1584,
+        "left": 1064,
+        "bottom": 541.75
+      },
+      "copyCenterX": 1324,
+      "heroCenterX": 960,
+      "physicalRightMargin": 336,
+      "headerClearance": 411.75
+    },
+    {
+      "viewport": "desktop-1920",
+      "slideId": "H02",
+      "expectedTitle": "ابزار اندازه‌گیری",
+      "visibleTitleText": "ابزار اندازه‌گیری",
+      "hero": {
+        "top": 0,
+        "bottom": 1080,
+        "right": 1920,
+        "left": 0,
+        "width": 1920
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 487.75,
+        "right": 1579.642578125,
+        "left": 1059.642578125,
+        "bottom": 668.25,
+        "width": 520
+      },
+      "titleRect": {
+        "top": 487.75,
+        "right": 1579.642578125,
+        "left": 1059.642578125,
+        "bottom": 553.75
+      },
+      "copyCenterX": 1319.642578125,
+      "heroCenterX": 960,
+      "physicalRightMargin": 340.357421875,
+      "headerClearance": 423.75
+    },
+    {
+      "viewport": "desktop-1920",
+      "slideId": "H03",
+      "expectedTitle": "اینسرت و ابزارهای اینسرتی",
+      "visibleTitleText": "اینسرت و ابزارهای اینسرتی",
+      "hero": {
+        "top": 0,
+        "bottom": 1080,
+        "right": 1920,
+        "left": 0,
+        "width": 1920
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 487.75,
+        "right": 1570.3685302734375,
+        "left": 1050.3685302734375,
+        "bottom": 668.25,
+        "width": 520
+      },
+      "titleRect": {
+        "top": 487.75,
+        "right": 1570.3685302734375,
+        "left": 1050.3685302734375,
+        "bottom": 553.75
+      },
+      "copyCenterX": 1310.3685302734375,
+      "heroCenterX": 960,
+      "physicalRightMargin": 349.6314697265625,
+      "headerClearance": 423.75
+    },
+    {
+      "viewport": "desktop-1920",
+      "slideId": "H04",
+      "expectedTitle": "فرز انگشتی",
+      "visibleTitleText": "فرز انگشتی",
+      "hero": {
+        "top": 0,
+        "bottom": 1080,
+        "right": 1920,
+        "left": 0,
+        "width": 1920
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 495.75,
+        "right": 1576.4915771484375,
+        "left": 1056.4915771484375,
+        "bottom": 676.25,
+        "width": 520
+      },
+      "titleRect": {
+        "top": 495.75,
+        "right": 1576.4915771484375,
+        "left": 1056.4915771484375,
+        "bottom": 561.75
+      },
+      "copyCenterX": 1316.4915771484375,
+      "heroCenterX": 960,
+      "physicalRightMargin": 343.5084228515625,
+      "headerClearance": 431.75
+    },
+    {
+      "viewport": "desktop-1920",
+      "slideId": "H05",
+      "expectedTitle": "دستگاه‌های صنعتی",
+      "visibleTitleText": "دستگاه‌های صنعتی",
+      "hero": {
+        "top": 0,
+        "bottom": 1080,
+        "right": 1920,
+        "left": 0,
+        "width": 1920
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 491.75,
+        "right": 1570.262939453125,
+        "left": 1050.262939453125,
+        "bottom": 672.25,
+        "width": 520
+      },
+      "titleRect": {
+        "top": 491.75,
+        "right": 1570.262939453125,
+        "left": 1050.262939453125,
+        "bottom": 557.75
+      },
+      "copyCenterX": 1310.262939453125,
+      "heroCenterX": 960,
+      "physicalRightMargin": 349.737060546875,
+      "headerClearance": 427.75
+    },
+    {
+      "viewport": "mobile-390",
+      "slideId": "H01",
+      "expectedTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "visibleTitleText": "تخفیف‌های ویژه‌ی کارزار",
+      "hero": {
+        "top": 0,
+        "bottom": 844,
+        "right": 390,
+        "left": 0,
+        "width": 390
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 327.296875,
+        "right": 358,
+        "left": 209.8125,
+        "bottom": 584.6875,
+        "width": 148.1875
+      },
+      "titleRect": {
+        "top": 327.296875,
+        "right": 358,
+        "left": 209.8125,
+        "bottom": 411.296875
+      },
+      "copyCenterX": 283.90625,
+      "heroCenterX": 195,
+      "physicalRightMargin": 32,
+      "headerClearance": 263.296875
+    },
+    {
+      "viewport": "mobile-390",
+      "slideId": "H02",
+      "expectedTitle": "ابزار اندازه‌گیری",
+      "visibleTitleText": "ابزار اندازه‌گیری",
+      "hero": {
+        "top": 0,
+        "bottom": 455.390625,
+        "right": 390,
+        "left": 0,
+        "width": 390
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 304.5,
+        "right": 390,
+        "left": 0,
+        "bottom": 455.390625,
+        "width": 390
+      },
+      "titleRect": {
+        "top": 304.5,
+        "right": 390,
+        "left": 0,
+        "bottom": 336.890625
+      },
+      "copyCenterX": 195,
+      "heroCenterX": 195,
+      "physicalRightMargin": 0,
+      "headerClearance": 240.5
+    },
+    {
+      "viewport": "mobile-390",
+      "slideId": "H03",
+      "expectedTitle": "اینسرت و ابزارهای اینسرتی",
+      "visibleTitleText": "اینسرت و ابزارهای اینسرتی",
+      "hero": {
+        "top": 0,
+        "bottom": 455.390625,
+        "right": 390,
+        "left": 0,
+        "width": 390
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 304.5,
+        "right": 390,
+        "left": 0,
+        "bottom": 455.390625,
+        "width": 390
+      },
+      "titleRect": {
+        "top": 304.5,
+        "right": 390,
+        "left": 0,
+        "bottom": 336.890625
+      },
+      "copyCenterX": 195,
+      "heroCenterX": 195,
+      "physicalRightMargin": 0,
+      "headerClearance": 240.5
+    },
+    {
+      "viewport": "mobile-390",
+      "slideId": "H04",
+      "expectedTitle": "فرز انگشتی",
+      "visibleTitleText": "فرز انگشتی",
+      "hero": {
+        "top": 0,
+        "bottom": 455.390625,
+        "right": 390,
+        "left": 0,
+        "width": 390
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 327.25,
+        "right": 390,
+        "left": 0,
+        "bottom": 455.390625,
+        "width": 390
+      },
+      "titleRect": {
+        "top": 327.25,
+        "right": 390,
+        "left": 0,
+        "bottom": 359.640625
+      },
+      "copyCenterX": 195,
+      "heroCenterX": 195,
+      "physicalRightMargin": 0,
+      "headerClearance": 263.25
+    },
+    {
+      "viewport": "mobile-390",
+      "slideId": "H05",
+      "expectedTitle": "دستگاه‌های صنعتی",
+      "visibleTitleText": "دستگاه‌های صنعتی",
+      "hero": {
+        "top": 0,
+        "bottom": 455.390625,
+        "right": 390,
+        "left": 0,
+        "width": 390
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 304.5,
+        "right": 390,
+        "left": 0,
+        "bottom": 455.390625,
+        "width": 390
+      },
+      "titleRect": {
+        "top": 304.5,
+        "right": 390,
+        "left": 0,
+        "bottom": 336.890625
+      },
+      "copyCenterX": 195,
+      "heroCenterX": 195,
+      "physicalRightMargin": 0,
+      "headerClearance": 240.5
+    },
+    {
+      "viewport": "tablet-1023",
+      "slideId": "H01",
+      "expectedTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "visibleTitleText": "تخفیف‌های ویژه‌ی کارزار",
+      "hero": {
+        "top": 0,
+        "bottom": 768,
+        "right": 1023,
+        "left": 0,
+        "width": 1023
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 337.75,
+        "right": 971.859375,
+        "left": 583.125,
+        "bottom": 491.546875,
+        "width": 388.734375
+      },
+      "titleRect": {
+        "top": 337.75,
+        "right": 971.859375,
+        "left": 583.125,
+        "bottom": 379.75
+      },
+      "copyCenterX": 777.4921875,
+      "heroCenterX": 511.5,
+      "physicalRightMargin": 51.140625,
+      "headerClearance": 273.75
+    },
+    {
+      "viewport": "tablet-1023",
+      "slideId": "H02",
+      "expectedTitle": "ابزار اندازه‌گیری",
+      "visibleTitleText": "ابزار اندازه‌گیری",
+      "hero": {
+        "top": 0,
+        "bottom": 916.234375,
+        "right": 1023,
+        "left": 0,
+        "width": 1023
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 779.25,
+        "right": 1023,
+        "left": 0,
+        "bottom": 916.234375,
+        "width": 1023
+      },
+      "titleRect": {
+        "top": 779.25,
+        "right": 1023,
+        "left": 0,
+        "bottom": 818.859375
+      },
+      "copyCenterX": 511.5,
+      "heroCenterX": 511.5,
+      "physicalRightMargin": 0,
+      "headerClearance": 715.25
+    },
+    {
+      "viewport": "tablet-1023",
+      "slideId": "H03",
+      "expectedTitle": "اینسرت و ابزارهای اینسرتی",
+      "visibleTitleText": "اینسرت و ابزارهای اینسرتی",
+      "hero": {
+        "top": 0,
+        "bottom": 916.234375,
+        "right": 1023,
+        "left": 0,
+        "width": 1023
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 694,
+        "right": 1023,
+        "left": 0,
+        "bottom": 830.984375,
+        "width": 1023
+      },
+      "titleRect": {
+        "top": 694,
+        "right": 1023,
+        "left": 0,
+        "bottom": 733.609375
+      },
+      "copyCenterX": 511.5,
+      "heroCenterX": 511.5,
+      "physicalRightMargin": 0,
+      "headerClearance": 630
+    },
+    {
+      "viewport": "tablet-1023",
+      "slideId": "H04",
+      "expectedTitle": "فرز انگشتی",
+      "visibleTitleText": "فرز انگشتی",
+      "hero": {
+        "top": 0,
+        "bottom": 916.234375,
+        "right": 1023,
+        "left": 0,
+        "width": 1023
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 779.25,
+        "right": 1023,
+        "left": 0,
+        "bottom": 916.234375,
+        "width": 1023
+      },
+      "titleRect": {
+        "top": 779.25,
+        "right": 1023,
+        "left": 0,
+        "bottom": 818.859375
+      },
+      "copyCenterX": 511.5,
+      "heroCenterX": 511.5,
+      "physicalRightMargin": 0,
+      "headerClearance": 715.25
+    },
+    {
+      "viewport": "tablet-1023",
+      "slideId": "H05",
+      "expectedTitle": "دستگاه‌های صنعتی",
+      "visibleTitleText": "دستگاه‌های صنعتی",
+      "hero": {
+        "top": 0,
+        "bottom": 916.234375,
+        "right": 1023,
+        "left": 0,
+        "width": 1023
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 651.375,
+        "right": 1023,
+        "left": 0,
+        "bottom": 788.359375,
+        "width": 1023
+      },
+      "titleRect": {
+        "top": 651.375,
+        "right": 1023,
+        "left": 0,
+        "bottom": 690.984375
+      },
+      "copyCenterX": 511.5,
+      "heroCenterX": 511.5,
+      "physicalRightMargin": 0,
+      "headerClearance": 587.375
+    },
+    {
+      "viewport": "tablet-1024",
+      "slideId": "H01",
+      "expectedTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "visibleTitleText": "تخفیف‌های ویژه‌ی کارزار",
+      "hero": {
+        "top": 0,
+        "bottom": 768,
+        "right": 1024,
+        "left": 0,
+        "width": 1024
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 337.734375,
+        "right": 972.8125,
+        "left": 583.703125,
+        "bottom": 491.53125,
+        "width": 389.109375
+      },
+      "titleRect": {
+        "top": 337.734375,
+        "right": 972.8125,
+        "left": 583.703125,
+        "bottom": 379.734375
+      },
+      "copyCenterX": 778.2578125,
+      "heroCenterX": 512,
+      "physicalRightMargin": 51.1875,
+      "headerClearance": 273.734375
+    },
+    {
+      "viewport": "tablet-1024",
+      "slideId": "H03",
+      "expectedTitle": "اینسرت و ابزارهای اینسرتی",
+      "visibleTitleText": "اینسرت و ابزارهای اینسرتی",
+      "hero": {
+        "top": 0,
+        "bottom": 768,
+        "right": 1024,
+        "left": 0,
+        "width": 1024
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 338.34375,
+        "right": 960.797607421875,
+        "left": 571.688232421875,
+        "bottom": 514.9375,
+        "width": 389.109375
+      },
+      "titleRect": {
+        "top": 338.34375,
+        "right": 960.797607421875,
+        "left": 571.688232421875,
+        "bottom": 380.34375
+      },
+      "copyCenterX": 766.242919921875,
+      "heroCenterX": 512,
+      "physicalRightMargin": 63.202392578125,
+      "headerClearance": 274.34375
+    },
+    {
+      "viewport": "tablet-1024",
+      "slideId": "H05",
+      "expectedTitle": "دستگاه‌های صنعتی",
+      "visibleTitleText": "دستگاه‌های صنعتی",
+      "hero": {
+        "top": 0,
+        "bottom": 768,
+        "right": 1024,
+        "left": 0,
+        "width": 1024
+      },
+      "header": {
+        "bottom": 64
+      },
+      "copy": {
+        "top": 342.34375,
+        "right": 958.3429565429688,
+        "left": 569.2335815429688,
+        "bottom": 518.9375,
+        "width": 389.109375
+      },
+      "titleRect": {
+        "top": 342.34375,
+        "right": 958.3429565429688,
+        "left": 569.2335815429688,
+        "bottom": 384.34375
+      },
+      "copyCenterX": 763.7882690429688,
+      "heroCenterX": 512,
+      "physicalRightMargin": 65.65704345703125,
+      "headerClearance": 278.34375
+    }
+  ]
+}
