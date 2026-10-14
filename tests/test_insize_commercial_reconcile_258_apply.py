@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import csv
 import os
 import sys
 import tempfile
@@ -28,6 +27,7 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     assert_apply_authorization_gates,
     classify_owner_freshness,
     load_plan_rows,
+    proposed_values_for_row,
     rollback_plan_rows,
     state_hash,
     stale_hash_guard,
@@ -388,6 +388,71 @@ class EnvGateTests(unittest.TestCase):
                 )
 
 
+class StaleGuardHelperTests(unittest.TestCase):
+    def test_stale_hash_guard_detects_drift(self):
+        plan = PlanRow(
+            product_id=1,
+            sku="A",
+            combined_action="CLEAR_PRICE",
+            availability_action="NO_CHANGE",
+            price_action="CLEAR_PRICE",
+            expected_current_hash="deadbeef",
+            proposed_is_available=True,
+            proposed_base_price=None,
+            current_is_available=True,
+            current_base_price=Decimal("1"),
+        )
+        live = {
+            1: {
+                "product_id": "1",
+                "sku": "A",
+                "brand_id": "1",
+                "is_active": "true",
+                "is_available": "true",
+                "base_price": "2",
+                "deleted_at": "",
+                "image_present": "false",
+            }
+        }
+        guard = stale_hash_guard([plan], live)
+        self.assertFalse(guard.ok)
+
+
+class RollbackSkeletonTests(unittest.TestCase):
+    def test_rollback_aborts_on_post_apply_drift(self):
+        row = RollbackRow(
+            product_id=5,
+            sku="S5",
+            pre_is_available=False,
+            pre_base_price=Decimal("100"),
+            proposed_is_available=True,
+            proposed_base_price=Decimal("200"),
+            expected_current_hash="x",
+        )
+        live = {
+            5: {
+                "product_id": "5",
+                "sku": "S5",
+                "brand_id": "1",
+                "is_active": "true",
+                "is_available": "true",
+                "base_price": "999",
+                "deleted_at": "",
+                "image_present": "false",
+            }
+        }
+        conn = FakeConn(live)
+        result = rollback_plan_rows(
+            conn,
+            [row],
+            batch_id="rb",
+            metadata={"started_at": "t"},
+            journal_dir=Path(tempfile.mkdtemp()),
+        )
+        self.assertFalse(result.committed)
+        self.assertEqual(result.aborted_reason, "ROLLBACK_DRIFT")
+
+
 class ActionSemanticsTests(unittest.TestCase):
     def test_clear_price_action_sets_null_target(self):
         row = PlanRow(
@@ -402,9 +467,7 @@ class ActionSemanticsTests(unittest.TestCase):
             current_is_available=True,
             current_base_price=Decimal("100"),
         )
-        avail, price = __import__(
-            "catalog_target.insize_commercial_reconcile_258", fromlist=["proposed_values_for_row"]
-        ).proposed_values_for_row(row)
+        avail, price = proposed_values_for_row(row)
         self.assertTrue(avail)
         self.assertIsNone(price)
 
