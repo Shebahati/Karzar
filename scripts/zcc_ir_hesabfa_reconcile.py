@@ -487,6 +487,11 @@ def main(argv: list[str] | None = None) -> int:
     if not args.apply and not args.precheck_only:
         return 0
 
+    from app.core.config import settings
+
+    if not settings.HESABFA_ENABLED:
+        raise SystemExit("hesabfa_disabled")
+
     if args.confirm_count != EXPECTED_COUNT or args.confirm_plan_sha256 != plan_sha:
         parser.error("confirmed plan hash and count must match the generated 201-SKU plan")
     if not args.audit_dir or not args.deployed_git_sha:
