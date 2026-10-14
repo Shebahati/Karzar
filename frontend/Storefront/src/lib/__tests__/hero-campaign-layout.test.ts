@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildFiveHeroPublishedPack } from "@/config/hero-campaign-five";
 import {
   CAMPAIGN_COMPACT_MAX_PX,
+  CAMPAIGN_DESKTOP_COPY_MAX_WIDTH,
   CAMPAIGN_DESKTOP_MAX_VERTICAL_NUDGE_PX,
   CAMPAIGN_DESKTOP_MIN_EDGE_MARGIN_PX,
   CAMPAIGN_MOBILE_SOURCE_MAX_PX,
@@ -83,5 +84,9 @@ describe("hero campaign layout", () => {
 
   it("documents minimum desktop edge margin contract", () => {
     expect(CAMPAIGN_DESKTOP_MIN_EDGE_MARGIN_PX).toBeGreaterThanOrEqual(48);
+  });
+
+  it("uses physical max width token for desktop copy column", () => {
+    expect(CAMPAIGN_DESKTOP_COPY_MAX_WIDTH).toContain("520px");
   });
 });

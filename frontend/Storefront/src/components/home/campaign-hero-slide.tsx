@@ -224,6 +224,7 @@ export function CampaignHeroSlide({
       <div
         className="absolute inset-0 z-20 flex"
         data-testid="campaign-hero-desktop-copy-shell"
+        dir="ltr"
       >
         <div
           className="mx-auto flex h-full w-full flex-col"
@@ -236,14 +237,14 @@ export function CampaignHeroSlide({
         >
           <div className="flex min-h-0 flex-1 items-center justify-end">
             <div
-              className="w-full text-right"
+              className="w-full max-w-[min(520px,38vw)] text-right"
               style={{
-                maxWidth: CAMPAIGN_DESKTOP_COPY_MAX_WIDTH,
                 transform: media.desktopVerticalNudgePx
                   ? `translateY(${media.desktopVerticalNudgePx}px)`
                   : undefined,
               }}
               data-testid="campaign-hero-desktop-copy-column"
+              dir="rtl"
             >
               <HeroCopyStack
                 slide={slide}

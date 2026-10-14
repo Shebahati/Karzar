@@ -5,7 +5,9 @@
 
 ## Change summary
 
-Desktop campaign hero copy uses a shared safe shell (`campaign-hero-desktop-copy-shell`) with header clearance, horizontal `clamp(2rem, 5vw, 6rem)` padding, and a right-aligned RTL copy column (`max-width: min(520px, 38vw)`). Per-slide `top-[NN%]` absolute positioning removed.
+Desktop campaign hero copy uses an **LTR positioning shell** (`dir="ltr"`) with `justify-end` so the block sits on the **physical right**, plus an inner **RTL copy column** (`dir="rtl"`). Header clearance + horizontal padding unchanged. Per-slide `top-[NN%]` absolute positioning removed.
+
+Capture harness waits for expected slide titles (campaign pending/image load) and asserts physical geometry on 1366×768 (`physicalRightMargin` in **[48, 160]** px).
 
 ## Capture
 

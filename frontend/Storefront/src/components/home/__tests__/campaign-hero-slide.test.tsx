@@ -51,8 +51,13 @@ describe("CampaignHeroSlide layout", () => {
       <CampaignHeroSlide slide={slide} compact={false} primaryHeading />,
     );
     expect(html).toContain('data-testid="campaign-hero-desktop-copy-shell"');
+    expect(html).toMatch(
+      /data-testid="campaign-hero-desktop-copy-shell"[^>]*dir="ltr"/,
+    );
+    expect(html).toMatch(
+      /data-testid="campaign-hero-desktop-copy-column"[^>]*dir="rtl"/,
+    );
     expect(html).toContain('data-testid="campaign-hero-copy-stack"');
-    expect(html).toContain('dir="rtl"');
     expect(html).not.toMatch(/top-\[3[0-9]%/);
     expect(html).not.toContain("top-1/2");
     expect(html).not.toContain("-translate-y-1/2");
