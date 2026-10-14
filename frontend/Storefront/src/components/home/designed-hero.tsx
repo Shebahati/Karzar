@@ -594,8 +594,11 @@ function HeroSheetStrip({
   );
 
   const stripShellClass = useCampaignLayout
-    ? "relative min-h-[calc((100vw/(4/3))+15.5rem)] w-full overflow-hidden"
+    ? "relative w-full overflow-hidden"
     : "absolute inset-0 overflow-hidden";
+  const trackClass = useCampaignLayout
+    ? "relative w-full cursor-grab active:cursor-grabbing"
+    : "absolute inset-0 cursor-grab active:cursor-grabbing";
 
   return (
     <div
@@ -605,7 +608,7 @@ function HeroSheetStrip({
     >
       <motion.div
         ref={trackRef}
-        className="absolute inset-0 cursor-grab active:cursor-grabbing"
+        className={trackClass}
         style={{
           x,
           willChange: "transform",
@@ -646,7 +649,7 @@ function HeroSheetStrip({
                 campaignCompact={useCampaignLayout}
               />
             </div>
-            <div className="absolute inset-0">
+            <div className={useCampaignLayout ? "relative z-[1] w-full" : "absolute inset-0"}>
               <SlideCanvas
                 slide={current}
                 reducedMotion={isMobile}
@@ -991,7 +994,11 @@ export function DesignedHero({
       ? slides[campaignPending.index]
       : null;
 
-  const sectionHeightClass = "h-[62svh] md:h-[100svh]";
+  const sectionHeightClass = campaignMode
+    ? campaignCompact
+      ? "h-auto min-h-0"
+      : "h-[100svh]"
+    : "h-[62svh] md:h-[100svh]";
 
   return (
     <section
@@ -1023,7 +1030,10 @@ export function DesignedHero({
       }}
     >
       <div
-        className="relative h-full w-full overflow-hidden"
+        className={cn(
+          "relative w-full overflow-hidden",
+          campaignCompact ? "h-auto" : "h-full",
+        )}
         style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       >
         {useSheetStrip ? (
@@ -1039,6 +1049,50 @@ export function DesignedHero({
             onCommitPrev={commitPrev}
             useCampaignLayout={campaignMode}
           />
+        ) : campaignCompact ? (
+          <div className="relative w-full">
+            <div className="invisible pointer-events-none select-none" aria-hidden>
+              <SlideCanvas
+                slide={slide}
+                reducedMotion={reducedMotion || isMobile}
+                blurred={menuOpen}
+                mobilePreset={mobilePreset}
+                isMobile={isMobile}
+                useCampaignLayout={campaignMode}
+                campaignCompact
+              />
+            </div>
+            <div className="absolute inset-x-0 top-0 w-full">
+              <AnimatePresence initial={false} custom={direction} mode="sync">
+                <motion.div
+                  key={slide.id}
+                  custom={direction}
+                  variants={sheetVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={heroSheetTransition(sheetDuration, useDesktopDissolve)}
+                  className="relative w-full"
+                  style={{
+                    willChange: reducedMotion ? undefined : "transform",
+                    backgroundColor: HERO_SHEET_UNDERLAY,
+                  }}
+                >
+                  <SlideCanvas
+                    slide={slide}
+                    reducedMotion={reducedMotion || isMobile}
+                    blurred={menuOpen}
+                    mobilePreset={mobilePreset}
+                    isMobile={isMobile}
+                    priority={activeIndex === 0}
+                    primaryHeading={activeIndex === 0}
+                    useCampaignLayout={campaignMode}
+                    campaignCompact
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
         ) : (
           <AnimatePresence initial={false} custom={direction} mode="sync">
             <motion.div
@@ -1113,10 +1167,12 @@ export function DesignedHero({
                 type="button"
                 onClick={toggleAutoplay}
                 className={cn(
-                  "pointer-events-auto absolute top-4 z-30 grid h-10 w-10 place-items-center rounded-full",
+                  "pointer-events-auto absolute z-[45] grid h-11 w-11 place-items-center rounded-full",
+                  "top-[calc(5.75rem+env(safe-area-inset-top,0px))] end-4",
                   "bg-black/55 text-white ring-1 ring-white/30 backdrop-blur-md",
-                  "end-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                 )}
+                data-testid="hero-autoplay-control"
                 aria-pressed={userPaused}
                 aria-label={userPaused ? "ادامه پخش خودکار" : "توقف پخش خودکار"}
               >

@@ -4,6 +4,7 @@ import { getImageProps } from "next/image";
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { SafeImage } from "@/components/ui/safe-image";
 import { HERO_IMAGE_QUALITY } from "@/lib/cwv";
+import { DEFAULT_MOBILE_SOURCE_MAX_PX } from "@/lib/hero-campaign-layout";
 import { cn } from "@/lib/utils";
 
 /** Intrinsic sizes for v2 hero art (Next image optimizer input dimensions). */
@@ -24,6 +25,7 @@ type BuildHeroBackgroundPictureSourcesArgs = {
   desktopSrc: string;
   mobileSrc?: string | null;
   priority?: boolean;
+  mobileSourceMaxWidthPx?: number;
 };
 
 /** Build optimized `/_next/image` srcsets for art-directed hero backgrounds. */
@@ -31,6 +33,7 @@ export function buildHeroBackgroundPictureSources({
   desktopSrc,
   mobileSrc,
   priority = false,
+  mobileSourceMaxWidthPx = DEFAULT_MOBILE_SOURCE_MAX_PX,
 }: BuildHeroBackgroundPictureSourcesArgs): HeroBackgroundPictureSources | null {
   if (!mobileSrc) return null;
 
@@ -72,6 +75,7 @@ type HeroBackgroundImageProps = {
   focal?: string;
   priority?: boolean;
   sizes?: string;
+  mobileSourceMaxWidthPx?: number;
   className?: string;
   style?: CSSProperties;
   fallback?: ReactNode;
@@ -80,6 +84,7 @@ type HeroBackgroundImageProps = {
 
 type HeroBackgroundPictureProps = {
   picture: HeroBackgroundPictureSources;
+  mobileSourceMaxWidthPx: number;
   className?: string;
   style: CSSProperties;
   fallback?: ReactNode;
@@ -88,6 +93,7 @@ type HeroBackgroundPictureProps = {
 
 function HeroBackgroundPicture({
   picture,
+  mobileSourceMaxWidthPx,
   className,
   style,
   fallback = null,
@@ -102,7 +108,7 @@ function HeroBackgroundPicture({
 
   return (
     <picture className="absolute inset-0 block">
-      <source media="(max-width: 767px)" srcSet={mobileSrcSet} />
+      <source media={`(max-width: ${mobileSourceMaxWidthPx}px)`} srcSet={mobileSrcSet} />
       <img
         src={desktop.src}
         srcSet={desktop.srcSet}
@@ -132,6 +138,7 @@ export function HeroBackgroundImage({
   focal,
   priority = false,
   sizes = "(max-width: 1024px) 100vw, 100vw",
+  mobileSourceMaxWidthPx = DEFAULT_MOBILE_SOURCE_MAX_PX,
   className,
   style,
   fallback,
@@ -141,6 +148,7 @@ export function HeroBackgroundImage({
     desktopSrc,
     mobileSrc,
     priority,
+    mobileSourceMaxWidthPx,
   });
 
   const objectStyle: CSSProperties = {
@@ -169,6 +177,7 @@ export function HeroBackgroundImage({
   return (
     <HeroBackgroundPicture
       picture={picture}
+      mobileSourceMaxWidthPx={mobileSourceMaxWidthPx}
       className={className}
       style={objectStyle}
       fallback={fallback}

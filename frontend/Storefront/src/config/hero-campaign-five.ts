@@ -29,8 +29,11 @@ export type HeroCampaignSlideDef = {
   title: string;
   subtitle: string;
   desktopImage: string;
+  /** Interim landscape `-1280.webp` for the compact media band; replace with portrait art per NEEDS_MOBILE_ART. */
   mobileImage: string;
-  focal: string;
+  desktopFocal: string;
+  /** Independent compact-band anchor (not a vertical tweak of desktop). */
+  mobileFocal: string;
   primaryCta: { label: string; href: string };
   secondaryCta?: { label: string; href: string };
   dockLabel: string;
@@ -49,7 +52,8 @@ export const HERO_CAMPAIGN_FIVE_SLIDES: HeroCampaignSlideDef[] = [
     subtitle: "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی.",
     desktopImage: `${REBORN}/H01-special-offers-native-lossless.webp`,
     mobileImage: `${REBORN}/H01-special-offers-1280.webp`,
-    focal: "left 38%",
+    desktopFocal: "left 36%",
+    mobileFocal: "24% 52%",
     primaryCta: { label: "مشاهده تخفیف‌ها", href: DISCOUNTS_CATALOG_HREF },
   },
   {
@@ -62,7 +66,8 @@ export const HERO_CAMPAIGN_FIVE_SLIDES: HeroCampaignSlideDef[] = [
     subtitle: "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت.",
     desktopImage: `${REBORN}/H02-measuring-tools-native-lossless.webp`,
     mobileImage: `${REBORN}/H02-measuring-tools-1280.webp`,
-    focal: "left 40%",
+    desktopFocal: "left 40%",
+    mobileFocal: "26% 48%",
     primaryCta: {
       label: "مشاهده ابزار اندازه‌گیری",
       href: "/categories/andaze-giri",
@@ -78,7 +83,8 @@ export const HERO_CAMPAIGN_FIVE_SLIDES: HeroCampaignSlideDef[] = [
     subtitle: "انتخاب ابزار متناسب با جنس قطعه، نوع عملیات و شرایط ماشین‌کاری.",
     desktopImage: `${REBORN}/H03-inserts-turning-tools-native-lossless.webp`,
     mobileImage: `${REBORN}/H03-inserts-turning-tools-1280.webp`,
-    focal: "left 42%",
+    desktopFocal: "left 42%",
+    mobileFocal: "28% 50%",
     primaryCta: { label: "مشاهده اینسرت‌ها", href: "/categories/insert" },
     secondaryCta: {
       label: "مشاهده ابزارهای اینسرتی",
@@ -95,7 +101,8 @@ export const HERO_CAMPAIGN_FIVE_SLIDES: HeroCampaignSlideDef[] = [
     subtitle: "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف.",
     desktopImage: `${REBORN}/H04-end-mills-native-lossless.webp`,
     mobileImage: `${REBORN}/H04-end-mills-1280.webp`,
-    focal: "left 44%",
+    desktopFocal: "left 44%",
+    mobileFocal: "30% 46%",
     primaryCta: {
       label: "مشاهده فرزهای انگشتی",
       href: "/categories/farz-angoshti",
@@ -111,7 +118,8 @@ export const HERO_CAMPAIGN_FIVE_SLIDES: HeroCampaignSlideDef[] = [
     subtitle: "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما.",
     desktopImage: `${REBORN}/H05-industrial-machines-native-lossless.webp`,
     mobileImage: `${REBORN}/H05-industrial-machines-1280.webp`,
-    focal: "left 36%",
+    desktopFocal: "left 34%",
+    mobileFocal: "22% 54%",
     primaryCta: {
       label: "مشاهده دستگاه‌های صنعتی",
       href: "/categories/dastgah-sanati",
@@ -186,7 +194,7 @@ function slideFromCampaign(def: HeroCampaignSlideDef): DesignedHeroSlide {
         imageUrl: def.desktopImage,
         mobileImageUrl: def.mobileImage,
         color: "#121212",
-        focal: def.focal,
+        focal: def.desktopFocal,
       },
       overlay: SHARED_OVERLAY,
       typography: {

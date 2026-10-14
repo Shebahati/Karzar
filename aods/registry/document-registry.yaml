@@ -2013,15 +2013,25 @@ documents:
     notes: >
       Post-#484 full-bleed five-hero layout restore; geometry probe + five-slide screenshots.
 
+  - id: HERO-DESKTOP-MOBILE-NEEDS-ART-20261013
+    path: audit/hero-desktop-mobile-fix-2026-10-13/NEEDS_MOBILE_ART.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: fix/hero-desktop-mobile-presentation
+    notes: >
+      Portrait mobile art blocker for Heroes Reborn 5 compact band (H01–H05).
+
   - id: HERO-DESKTOP-MOBILE-FIX-20261013
     path: audit/hero-desktop-mobile-fix-2026-10-13/README.md
     class: EVIDENCE
     rank: 6
     status: current
     owner_role: R-DOC-ARCH
-    branch: fix/hero-desktop-mobile
+    branch: fix/hero-desktop-mobile-presentation
     notes: >
-      PR #483 hero desktop/mobile recomposition evidence (production build, normal motion).
+      Five-hero desktop/mobile fix evidence; NEEDS_MOBILE_ART for portrait assets.
 
   - id: HERO-REBORN-5-VISUAL-20261013
     path: audit/hero-reborn-5-visual-2026-10-13/README.md

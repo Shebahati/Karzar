@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HeroBackgroundImage } from "@/lib/hero-background-image";
+import { DEFAULT_MOBILE_SOURCE_MAX_PX } from "@/lib/hero-campaign-layout";
 import { cn } from "@/lib/utils";
 
 type HandoffProps = {
@@ -10,6 +11,7 @@ type HandoffProps = {
   mobileSrc?: string | null;
   focal: string;
   priority?: boolean;
+  mobileSourceMaxWidthPx?: number;
   onReadyChange?: (ready: boolean) => void;
   className?: string;
   imageClassName?: string;
@@ -22,10 +24,11 @@ export type VisualCandidate = {
   mobileSrc: string | null | undefined;
   focal: string;
   compactMedia: boolean;
+  mobileSourceMaxWidthPx: number;
 };
 
 export function candidateId(c: VisualCandidate): string {
-  return `${c.slideKey}\0${c.desktopSrc}\0${c.focal}\0${c.mobileSrc ?? ""}\0${c.compactMedia ? 1 : 0}`;
+  return `${c.slideKey}\0${c.desktopSrc}\0${c.focal}\0${c.mobileSrc ?? ""}\0${c.compactMedia ? 1 : 0}\0${c.mobileSourceMaxWidthPx}`;
 }
 
 export function sameCandidate(a: VisualCandidate, b: VisualCandidate): boolean {
@@ -39,6 +42,7 @@ function propsToCandidate(p: HandoffProps): VisualCandidate {
     mobileSrc: p.mobileSrc,
     focal: p.focal,
     compactMedia: Boolean(p.compactMedia),
+    mobileSourceMaxWidthPx: p.mobileSourceMaxWidthPx ?? DEFAULT_MOBILE_SOURCE_MAX_PX,
   };
 }
 
@@ -53,6 +57,7 @@ export function HeroImageHandoff(props: HandoffProps) {
     mobileSrc,
     focal,
     compactMedia,
+    mobileSourceMaxWidthPx,
     priority,
     onReadyChange,
     className,
@@ -66,8 +71,9 @@ export function HeroImageHandoff(props: HandoffProps) {
         mobileSrc,
         focal,
         compactMedia,
+        mobileSourceMaxWidthPx,
       }),
-    [slideKey, desktopSrc, mobileSrc, focal, compactMedia],
+    [slideKey, desktopSrc, mobileSrc, focal, compactMedia, mobileSourceMaxWidthPx],
   );
   const incomingId = candidateId(incoming);
   const incomingRef = useRef(incoming);
@@ -118,6 +124,7 @@ export function HeroImageHandoff(props: HandoffProps) {
         desktopSrc={displayed.desktopSrc}
         mobileSrc={shownMobile}
         focal={displayed.focal}
+        mobileSourceMaxWidthPx={displayed.mobileSourceMaxWidthPx}
         priority={priority && !preloading}
         className={imageClassName ?? "object-cover"}
         sizes={displayed.compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
@@ -133,6 +140,7 @@ export function HeroImageHandoff(props: HandoffProps) {
             desktopSrc={incoming.desktopSrc}
             mobileSrc={incomingMobile}
             focal={incoming.focal}
+            mobileSourceMaxWidthPx={incoming.mobileSourceMaxWidthPx}
             className={imageClassName ?? "object-cover"}
             sizes={incoming.compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
             onLoad={() => handlePreloadLoad(incomingId)}
