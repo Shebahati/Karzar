@@ -11,6 +11,10 @@ class HesabfaNotConfiguredError(HesabfaError):
     """Raised when Hesabfa is disabled or secrets are missing."""
 
 
+class HesabfaDisabledError(HesabfaError):
+    """Raised when HESABFA_ENABLED is false — no outbound HTTP is permitted."""
+
+
 class HesabfaApiError(HesabfaError):
     """Remote API returned Success=false or an HTTP failure."""
 

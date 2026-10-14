@@ -1,5 +1,26 @@
 # Hesabfa (حسابفا) Level-4 integration
 
+## TEMPORARY OWNER FREEZE (emergency)
+
+Karzar ↔ Hesabfa integration is **completely disabled** until explicit Owner
+re-authorization. Required production flags:
+
+- `HESABFA_ENABLED=false`
+- `HESABFA_ADMIN_READS_ENABLED=false`
+- `HESABFA_TEST_MODE=true`
+
+While frozen:
+
+- Site product lifecycle does **not** affect Hesabfa (no outbound HTTP).
+- No item creation, mapping sync, stock read, contact sync, invoice sync, or admin reads.
+- `HesabfaClient._post()` refuses every path with `hesabfa_disabled` before auth or HTTP.
+
+Historical mappings and invoice records are **not** deleted. Hesabfa remains an
+independent accounting system. Mass remote item activation via `item/save` is still
+**not** authorized until existing-item update semantics are proven in-repo.
+
+Emergency read-only inventory: `scripts/hesabfa_emergency_remote_inventory.py`.
+
 ## Scope (locked product decisions)
 
 | Concern | Direction |

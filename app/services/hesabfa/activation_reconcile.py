@@ -101,6 +101,10 @@ def refuse_activation_apply() -> None:
     existing ProductCode; never mutate the site product. Until then this
     function is the only apply entry point.
     """
+    from app.core.config import settings
+
+    if not settings.HESABFA_ENABLED:
+        raise ActivationApplyBlocked("hesabfa_disabled")
     raise ActivationApplyBlocked(ITEM_SAVE_CONTRACT_EVIDENCE)
 
 
