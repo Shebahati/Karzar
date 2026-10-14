@@ -35,15 +35,19 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     ApplyAbort,
     apply_plan_rows,
     assert_apply_authorization_gates,
+    assert_expected_production_database_identity,
     assert_plan_matches_evidence,
     classify_owner_freshness,
+    fetch_database_identity,
+    load_apply_journal,
     load_plan_rows,
-    load_rollback_rows,
     load_source_manifest,
     production_preflight,
     rollback_plan_rows,
     sha256_file,
+    validate_production_source_xlsx,
     validate_source_sha256,
+    validate_apply_journal_for_rollback,
     writer_contract_summary,
 )
 from catalog_target.sales_wave_apply import (  # noqa: E402
@@ -116,17 +120,11 @@ def main(argv: list[str] | None = None) -> int:
     if freshness_class == "STALE":
         raise SystemExit("BLOCKED_SOURCE_STALE")
 
-    if args.source_xlsx.is_file():
+    if args.production_preflight or args.apply:
+        validate_production_source_xlsx(args.source_xlsx)
+    elif args.source_xlsx.is_file():
         validate_source_sha256(args.source_xlsx, expected=INSIZE_OWNER_SOURCE_SHA)
-
-    elif args.apply and not args.source_xlsx.is_file():
-        raise ApplyAbort("apply_requires_source_xlsx_for_sha_validation")
-
-    if (
-        not args.source_xlsx.is_file()
-        and not args.production_preflight
-        and os.environ.get("CI")
-    ):
+    elif os.environ.get("CI"):
         print(
             "WARN: source xlsx missing; skipping live SHA validation (CI plan-only dry-run)",
             file=sys.stderr,
@@ -171,6 +169,8 @@ def main(argv: list[str] | None = None) -> int:
         )
         if not args.database_url:
             raise ApplyAbort("apply_requires_database_url")
+        db_identity = fetch_database_identity(args.database_url)
+        assert_expected_production_database_identity(db_identity)
         batch_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         metadata = {
             "started_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -178,7 +178,7 @@ def main(argv: list[str] | None = None) -> int:
             "plan_sha256": plan_sha,
             "rollback_manifest_sha256": rollback_sha,
             "git_sha": _git_head(),
-            "database_identity": {"database_url": args.database_url.split("@")[-1]},
+            "database_identity": db_identity,
             "authorization": OWNER_AUTH_APPLY,
         }
         conn = connect_runtime_db(args.database_url)
@@ -190,6 +190,7 @@ def main(argv: list[str] | None = None) -> int:
                 batch_id=batch_id,
                 metadata=metadata,
                 journal_dir=journal_dir,
+                database_url=args.database_url,
             )
         finally:
             conn.close()
@@ -221,25 +222,38 @@ def main(argv: list[str] | None = None) -> int:
         )
         if not args.database_url:
             raise ApplyAbort("rollback_requires_database_url")
-        rollback_rows = load_rollback_rows(rollback_path)
+        db_identity = fetch_database_identity(args.database_url)
+        assert_expected_production_database_identity(db_identity)
         batch_id = args.confirm_batch_id
+        apply_journal = load_apply_journal(journal_dir, batch_id)
+        validate_apply_journal_for_rollback(
+            apply_journal,
+            batch_id=batch_id,
+            source_sha256=OWNER_SOURCE_SHA256,
+            plan_sha256=plan_sha,
+            rollback_manifest_sha256=rollback_sha,
+            database_identity=db_identity,
+            expected_rows=len(plan_rows),
+        )
         metadata = {
             "started_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "source_sha256": OWNER_SOURCE_SHA256,
             "plan_sha256": plan_sha,
             "rollback_manifest_sha256": rollback_sha,
             "git_sha": _git_head(),
-            "database_identity": {"database_url": args.database_url.split("@")[-1]},
+            "database_identity": db_identity,
             "authorization": OWNER_AUTH_ROLLBACK,
+            "apply_journal_batch_id": batch_id,
         }
         conn = connect_runtime_db(args.database_url)
         try:
             result = rollback_plan_rows(
                 conn,
-                rollback_rows,
+                apply_journal=apply_journal,
                 batch_id=batch_id,
                 metadata=metadata,
                 journal_dir=journal_dir,
+                database_url=args.database_url,
             )
         finally:
             conn.close()
