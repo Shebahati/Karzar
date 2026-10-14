@@ -1,0 +1,53 @@
+{
+  "PRODUCTION_CONNECTION": "YES",
+  "PRODUCTION_READ_ONLY": "YES",
+  "PRODUCTION_MUTATION": "NO",
+  "DATABASE_MUTATION": "NO",
+  "PRICE_APPLY": "NO",
+  "AVAILABILITY_APPLY": "NO",
+  "HESABFA_MUTATION": "NO",
+  "DEPLOYMENT": "NO",
+  "source_sha256": "8324b2c175a703ab0ff7364da4a33f82c440d592cdc10d990c133bed39ac2989",
+  "plan_sha256": "ee9ebeea6219f953c91fae40716cb0cbddfa04d8f5f9de3f2b0f5a08865eb5b0",
+  "rollback_manifest_sha256": "58f8497ba43c9ea74ad3b862b7c1d9de0eebb8054f460d70929a5e51a9397ca7",
+  "effective_source_age_days": 7,
+  "freshness_classification": "CURRENT_ENOUGH",
+  "freshness_basis": "OWNER_CONFIRMED_RECENCY",
+  "database_identity": {
+    "transaction_read_only": "on",
+    "mutation_capable_statements_executed": "0"
+  },
+  "transaction_read_only": "on",
+  "rows_checked": 711,
+  "hash_matches": 711,
+  "stale_guard": {
+    "ok": true,
+    "expected_count": 711,
+    "match_count": 711,
+    "mismatches": []
+  },
+  "plan_stats": {
+    "eligible_count": 711,
+    "combined_actions": {
+      "CLEAR_PRICE": 607,
+      "SET_AVAILABLE": 55,
+      "HOLD_CLEAR_PRICE": 42,
+      "SET_AVAILABLE_AND_PRICE": 1,
+      "SET_AVAILABLE_CLEAR_PRICE": 1,
+      "SET_UNAVAILABLE_AND_CLEAR_PRICE": 4,
+      "SET_PRICE": 1
+    },
+    "price_actions": {
+      "CLEAR_PRICE": 654,
+      "NO_CHANGE": 55,
+      "SET_PRICE": 2
+    },
+    "availability_actions": {
+      "NO_CHANGE": 650,
+      "SET_AVAILABLE": 57,
+      "SET_UNAVAILABLE": 4
+    }
+  },
+  "STATUS": "READY",
+  "mode": "production_preflight"
+}

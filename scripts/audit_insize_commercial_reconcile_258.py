@@ -27,6 +27,7 @@ from catalog_target.insize_trailing_a_identity import (  # noqa: E402
     MATCH_DETAIL as INSIZE_TRAILING_A_DETAIL,
     match_source_code_to_catalog_skus,
 )
+from catalog_target.insize_commercial_reconcile_258 import state_hash  # noqa: E402
 from catalog_target.supplier_stock import file_sha256, parse_quantity  # noqa: E402
 from catalog_target.xlsx import iter_xlsx_rows, read_xlsx_cell  # noqa: E402
 from phase2c_live_readonly_census import _read_only_session_proof, _run_ssh_psql  # noqa: E402
@@ -300,22 +301,6 @@ def parse_site_price(raw: str) -> Decimal | None:
         return Decimal(s).quantize(Decimal("1"))
     except InvalidOperation:
         return None
-
-
-def state_hash(row: dict[str, str]) -> str:
-    payload = "|".join(
-        [
-            row.get("product_id", ""),
-            row.get("sku", ""),
-            row.get("brand_id", ""),
-            row.get("is_active", ""),
-            row.get("is_available", ""),
-            row.get("base_price", ""),
-            row.get("deleted_at", "") or "NULL",
-            row.get("image_present", ""),
-        ]
-    )
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def propose_commercial(sr: SourceRow) -> tuple[bool | None, Decimal | None, str]:
