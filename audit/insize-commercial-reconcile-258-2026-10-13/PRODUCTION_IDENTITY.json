@@ -1,0 +1,18 @@
+{
+  "snapshot_utc": "2026-10-13T20:46:18Z",
+  "origin_main": "4786f75dee175bbc72fa6a518927ffb12d3bccc4",
+  "branch": "audit/catalog-258-insize-final-commercial-source",
+  "transaction_read_only": "on",
+  "mutation": {
+    "PRODUCTION_MUTATION": "NO",
+    "DATABASE_MUTATION": "NO",
+    "PRICE_APPLY": "NO",
+    "AVAILABILITY_APPLY": "NO",
+    "HESABFA_MUTATION": "NO",
+    "DEPLOYMENT": "NO"
+  },
+  "read_only_proof": {
+    "transaction_read_only": "on",
+    "mutation_capable_statements_executed": "0"
+  }
+}

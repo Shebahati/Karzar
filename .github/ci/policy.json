@@ -1,0 +1,187 @@
+{
+  "_comment": "Central CI risk policy. scripts/ci/classify_changes.py is the sole interpreter.",
+  "version": 2,
+  "default_unknown": "FULL",
+  "full_regression_label": "ci:full",
+  "risk_tiers": {
+    "R0": "Docs/audit/aods governance registry only \u2014 required checks skip Postgres, Redis, Playwright.",
+    "R1": "Single-stack light work \u2014 unit/lint on one stack; no backend integration DB; storefront e2e only on sensitive paths.",
+    "R2": "Backend or cross-cutting code \u2014 full backend lint + Postgres/Redis pytest with cov-fail-under=68.",
+    "R3": "Critical \u2014 payment/order/auth/deploy/migrations/apply scripts and CI control plane \u2014 strong backend + OpenAPI + targeted frontend/e2e.",
+    "FULL": "Conservative exhaustive \u2014 all applicable stacks (unknown paths, ci:full, force-full, workflow edits)."
+  },
+  "path_rules": [
+    {
+      "id": "docs_only",
+      "prefixes": [
+        "docs/",
+        "audit/",
+        "project-management/",
+        "README.md",
+        "AGENTS.md",
+        "LICENSE",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "id": "frontend_storefront",
+      "prefixes": [
+        "frontend/Storefront/"
+      ]
+    },
+    {
+      "id": "frontend_admin",
+      "prefixes": [
+        "frontend/admin-panel/"
+      ]
+    },
+    {
+      "id": "aods_governance",
+      "prefixes": [
+        "aods/registry/",
+        "aods/AODS-CHARTER.md",
+        "aods/90-governance/",
+        "aods/10-repository-intelligence/",
+        "aods/README.md"
+      ]
+    },
+    {
+      "id": "aods_tools",
+      "prefixes": [
+        "aods/tools/"
+      ]
+    },
+    {
+      "id": "backend_heavy",
+      "prefixes": [
+        "app/",
+        "services/",
+        "tests/",
+        "alembic/",
+        "openapi/",
+        "requirements.txt",
+        "requirements-dev.txt",
+        "pyproject.toml",
+        "ruff.toml",
+        "mypy.ini",
+        "alembic.ini",
+        "gunicorn_conf.py",
+        "docker-entrypoint.sh",
+        "Dockerfile",
+        "docker-compose"
+      ]
+    },
+    {
+      "id": "ci_meta",
+      "prefixes": [
+        ".github/ci/",
+        "scripts/ci/"
+      ]
+    },
+    {
+      "id": "workflows",
+      "prefixes": [
+        ".github/workflows/"
+      ]
+    },
+    {
+      "id": "deploy",
+      "prefixes": [
+        "deploy/"
+      ]
+    },
+    {
+      "id": "critical_r3",
+      "prefixes": [
+        "app/api/endpoints/payment",
+        "app/api/endpoints/order",
+        "app/api/endpoints/auth",
+        "app/services/payment",
+        "app/services/sep_",
+        "app/services/order",
+        "app/services/auth",
+        "app/services/sms_service.py",
+        "app/services/hesabfa/",
+        "app/core/auth",
+        "app/core/payment",
+        "app/utils/otp",
+        "app/crud/cart",
+        "app/crud/payment",
+        "app/crud/otp",
+        "alembic/"
+      ]
+    }
+  ],
+  "script_mutation_prefixes": [
+    "scripts/apply_",
+    "scripts/reconcile_prices_availability.py",
+    "scripts/insize_price_update.py",
+    "scripts/hesabfa_",
+    "scripts/clear_hesabfa_pulled_stock.py",
+    "scripts/catalog_target/sales_wave_apply.py",
+    "scripts/catalog_target/public_sale_safety_apply.py",
+    "scripts/ops/",
+    "scripts/zcc_ir_import.py",
+    "scripts/zcc_ir_category_b_draft_import.py"
+  ],
+  "openapi_triggers": {
+    "prefixes": [
+      "app/",
+      "openapi/",
+      "requirements.txt",
+      "requirements-dev.txt",
+      "aods/tools/"
+    ]
+  },
+  "storefront_e2e_triggers": {
+    "prefixes": [
+      "frontend/Storefront/e2e/",
+      "frontend/Storefront/playwright.config",
+      "frontend/Storefront/package.json",
+      "frontend/Storefront/package-lock.json",
+      "frontend/Storefront/src/middleware.ts",
+      "frontend/Storefront/src/app/checkout/",
+      "frontend/Storefront/src/app/cart/",
+      "frontend/Storefront/src/app/login/",
+      "frontend/Storefront/src/app/account/",
+      "frontend/Storefront/src/features/checkout/",
+      "frontend/Storefront/src/features/cart/",
+      "frontend/Storefront/src/features/auth/",
+      "frontend/Storefront/src/services/payments.ts",
+      "frontend/Storefront/src/services/cart.ts",
+      "frontend/Storefront/src/lib/payment-url.ts",
+      "frontend/Storefront/src/lib/pending-payment.ts",
+      "frontend/Storefront/src/lib/session",
+      "frontend/Storefront/src/lib/auth",
+      "frontend/Storefront/src/components/checkout/"
+    ]
+  },
+  "script_mutation_name_markers": [
+    "apply_",
+    "_apply",
+    "_writer",
+    "_backfill",
+    "_import",
+    "_sync",
+    "_seed",
+    "production_mutation"
+  ],
+  "script_readonly_audit_allowlist": [
+    "scripts/audit_active_product_shopmill_watermarks.py",
+    "scripts/audit_existing_product_images.py",
+    "scripts/audit_insize_commercial_reconcile_258.py",
+    "scripts/audit_manufacturer_code_phase2a.py",
+    "scripts/audit_manufacturer_identity_phase2c_discovery.py",
+    "scripts/audit_product_naming_phase2d.py",
+    "scripts/audit_product_naming_v1.py"
+  ],
+  "readonly_audit_script_tests": {
+    "scripts/audit_manufacturer_identity_phase2c_discovery.py": [
+      "tests/test_phase2c_manufacturer_identity_discovery.py",
+      "tests/test_phase2c_evidence.py"
+    ],
+    "scripts/audit_product_naming_phase2d.py": [
+      "tests/test_product_naming_phase2d_oem.py"
+    ]
+  }
+}
