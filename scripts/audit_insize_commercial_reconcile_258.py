@@ -22,12 +22,12 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-from catalog_target.core import canonicalize_brand, normalize_sku  # noqa: E402
+from catalog_target.core import normalize_sku  # noqa: E402,I001
+from catalog_target.insize_commercial_reconcile_258 import state_hash  # noqa: E402
 from catalog_target.insize_trailing_a_identity import (  # noqa: E402
     MATCH_DETAIL as INSIZE_TRAILING_A_DETAIL,
     match_source_code_to_catalog_skus,
 )
-from catalog_target.insize_commercial_reconcile_258 import state_hash  # noqa: E402
 from catalog_target.supplier_stock import file_sha256, parse_quantity  # noqa: E402
 from catalog_target.xlsx import iter_xlsx_rows, read_xlsx_cell  # noqa: E402
 from phase2c_live_readonly_census import _read_only_session_proof, _run_ssh_psql  # noqa: E402
@@ -716,7 +716,6 @@ def main(argv: list[str] | None = None) -> int:
                 "identity_method": identity_method,
                 "source_code": source_code,
                 "owner_case": owner_case,
-                "map_class": map_class,
             }
         )
 
@@ -885,7 +884,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     (out_dir / "INSIZE_COMMERCIAL_APPLY_PLAN.md").write_text(
-        f"""# INSIZE commercial APPLY plan (NOT AUTHORIZED)
+        """# INSIZE commercial APPLY plan (NOT AUTHORIZED)
 
 - Source SHA256: `{INSIZE_FINAL_SHA}`
 - Plan CSV: `INSIZE_COMMERCIAL_RECONCILE_PLAN.csv`
@@ -907,7 +906,7 @@ Post-APPLY journal must capture exact before/after per row. Rollback not execute
         encoding="utf-8",
     )
     (out_dir / "README.md").write_text(
-        f"""# INSIZE commercial source reconciliation (#258, #391)
+        """# INSIZE commercial source reconciliation (#258, #391)
 
 **Status:** evidence only — **NO APPLY**
 

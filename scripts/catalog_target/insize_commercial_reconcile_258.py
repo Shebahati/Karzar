@@ -8,7 +8,6 @@ import hashlib
 import json
 import re
 import subprocess
-import uuid
 from collections import Counter
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
@@ -18,9 +17,6 @@ from typing import Any, Protocol
 
 from catalog_target.sales_wave_apply import (
     ApplyAbort,
-    AsyncpgApplyConnection,
-    assert_production_apply_authorized,
-    connect_runtime_db,
     normalize_database_url,
 )
 from catalog_target.supplier_stock import FreshnessPolicy, file_sha256
@@ -115,8 +111,8 @@ def parse_price_text(raw: str) -> Decimal | None:
         return None
     try:
         val = Decimal(s)
-    except InvalidOperation:
-        raise ApplyAbort(f"malformed_price:{raw!r}")
+    except InvalidOperation as exc:
+        raise ApplyAbort(f"malformed_price:{raw!r}") from exc
     if val == 0:
         raise ApplyAbort("forbidden_zero_base_price")
     return val.quantize(Decimal("1"))
@@ -777,17 +773,6 @@ def rollback_plan_rows(
             mismatches.append({"product_id": str(row.product_id), "reason": "missing"})
             continue
         actual = state_hash(live_row)
-        # Post-apply state should match proposed_* in manifest before rollback.
-        prop_catalog = {
-            "product_id": str(row.product_id),
-            "sku": row.sku,
-            "brand_id": live_row.get("brand_id", ""),
-            "is_active": live_row.get("is_active", ""),
-            "is_available": "true" if row.proposed_is_available else "false",
-            "base_price": "" if row.proposed_base_price is None else str(row.proposed_base_price),
-            "deleted_at": live_row.get("deleted_at", "") or "NULL",
-            "image_present": live_row.get("image_present", ""),
-        }
         if parse_bool_text(live_row.get("is_available") or "") != row.proposed_is_available:
             mismatches.append({"product_id": str(row.product_id), "reason": "availability_drift"})
         live_price = parse_price_text(live_row.get("base_price") or "")

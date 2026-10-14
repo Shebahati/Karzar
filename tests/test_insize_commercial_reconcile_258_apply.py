@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import csv
-import os
 import sys
 import tempfile
 import unittest
@@ -11,7 +9,6 @@ from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
-from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -20,17 +17,13 @@ if str(SCRIPTS) not in sys.path:
 
 from apply_insize_commercial_reconcile_258 import main as apply_main  # noqa: E402
 from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
-    OWNER_AUTH_APPLY,
     OWNER_SOURCE_SHA256,
     PlanRow,
-    RollbackRow,
     apply_plan_rows,
     assert_apply_authorization_gates,
     classify_owner_freshness,
     load_plan_rows,
-    rollback_plan_rows,
     state_hash,
-    stale_hash_guard,
 )
 from catalog_target.sales_wave_apply import ApplyAbort  # noqa: E402
 
