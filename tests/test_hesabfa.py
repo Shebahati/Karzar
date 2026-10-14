@@ -25,7 +25,11 @@ from app.services.hesabfa.client import (
     hesabfa_integration_active,
     reset_hesabfa_client_for_tests,
 )
-from app.services.hesabfa.exceptions import HesabfaApiError, HesabfaNotConfiguredError
+from app.services.hesabfa.exceptions import (
+    HesabfaApiError,
+    HesabfaDisabledError,
+    HesabfaNotConfiguredError,
+)
 from app.services.hesabfa.invoices import create_invoice_for_paid_order
 from app.services.hesabfa.mapping import sync_item_mappings_by_sku
 from app.services.hesabfa.sales import website_paid_sales
@@ -433,3 +437,12 @@ def test_hesabfa_client_skips_when_disabled(monkeypatch):
     monkeypatch.setattr(settings, "HESABFA_ENABLED", False)
     reset_hesabfa_client_for_tests()
     assert hesabfa_integration_active() is False
+
+
+@pytest.mark.asyncio
+async def test_hesabfa_post_refuses_when_disabled(monkeypatch):
+    monkeypatch.setattr(settings, "HESABFA_ENABLED", False)
+    reset_hesabfa_client_for_tests()
+    hf = HesabfaClient(api_key="k", login_token="t")
+    with pytest.raises(HesabfaDisabledError, match="hesabfa_disabled"):
+        await hf._post("item/getItems", {"queryInfo": {"take": 1, "skip": 0}})

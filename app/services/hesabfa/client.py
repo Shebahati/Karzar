@@ -8,7 +8,11 @@ import httpx
 
 from app.core.config import settings
 from app.core.logging import get_logger
-from app.services.hesabfa.exceptions import HesabfaApiError, HesabfaNotConfiguredError
+from app.services.hesabfa.exceptions import (
+    HesabfaApiError,
+    HesabfaDisabledError,
+    HesabfaNotConfiguredError,
+)
 
 logger = get_logger(__name__)
 
@@ -64,6 +68,8 @@ class HesabfaClient:
         return payload
 
     async def _post(self, path: str, body: dict[str, Any] | None = None) -> Any:
+        if not settings.HESABFA_ENABLED:
+            raise HesabfaDisabledError("hesabfa_disabled")
         url = f"{self.base_url}/{path.lstrip('/')}"
         payload = {**self._auth_payload(), **(body or {})}
         # Never log apiKey / loginToken / password.

@@ -1,0 +1,16 @@
+{
+  "snapshot_utc": "2026-10-14T09:49:14Z",
+  "reported_total": 3792,
+  "fetched_count": 3792,
+  "TOTAL_REMOTE": 3792,
+  "ACTIVE_BEFORE": 1172,
+  "INACTIVE_BEFORE": 2620,
+  "UNKNOWN_ACTIVE": 0,
+  "remote_inventory_stats": {
+    "UNIQUE_CODE": 3792,
+    "UNIQUE_PRODUCT_CODE": 3733,
+    "BLANK_PRODUCT_CODE": 56,
+    "DUPLICATE_PRODUCT_CODE_GROUPS": 3
+  },
+  "ACTIVATION_APPLY_STATUS": "BLOCKED_SAFE_HESABFA_ACTIVATION_METHOD_NOT_PROVEN"
+}
