@@ -105,6 +105,7 @@ export function CampaignHeroSlide({
   primaryHeading,
   contentVisible = true,
   onImageReadyChange,
+  stageFill,
   className,
 }: {
   slide: DesignedHeroSlide;
@@ -113,6 +114,8 @@ export function CampaignHeroSlide({
   primaryHeading?: boolean;
   contentVisible?: boolean;
   onImageReadyChange?: (ready: boolean) => void;
+  /** Stretch to shared strip stage height (geometry grid shell). */
+  stageFill?: boolean;
   className?: string;
 }) {
   const media = campaignMediaForSlide(slide.id);
@@ -124,12 +127,19 @@ export function CampaignHeroSlide({
   if (compact) {
     return (
       <div
-        className={cn("relative flex h-auto w-full flex-col overflow-hidden bg-[#121212]", className)}
+        className={cn(
+          "relative flex w-full flex-col overflow-hidden bg-[#121212]",
+          stageFill ? "h-full min-h-full" : "h-auto",
+          className,
+        )}
         data-testid="campaign-hero-compact"
       >
         <div
-          className="relative w-full shrink-0 overflow-hidden"
-          style={{ aspectRatio: `${media.compactAspect}` }}
+          className={cn(
+            "relative w-full shrink-0 overflow-hidden",
+            stageFill && "min-h-0 flex-1",
+          )}
+          style={stageFill ? undefined : { aspectRatio: `${media.compactAspect}` }}
           data-testid="campaign-hero-compact-media"
         >
           <HeroImageHandoff
@@ -149,7 +159,12 @@ export function CampaignHeroSlide({
             aria-hidden
           />
         </div>
-        <div className={cn("relative z-10 flex flex-col bg-[#121212]", media.compactCopyClass)}>
+        <div
+          className={cn(
+            "relative z-10 flex shrink-0 flex-col bg-[#121212]",
+            media.compactCopyClass,
+          )}
+        >
           <HeroCopyStack
             slide={slide}
             compact

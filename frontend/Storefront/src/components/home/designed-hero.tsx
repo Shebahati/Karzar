@@ -42,6 +42,7 @@ import {
   orbsFromPublishedDock,
   orbsFromRoots,
 } from "@/config/hero-orbs";
+import { CampaignHeroGeometrySizer } from "@/components/home/campaign-hero-geometry-sizer";
 import { CampaignHeroSlide } from "@/components/home/campaign-hero-slide";
 import { HeroBackgroundImage } from "@/lib/hero-background-image";
 import {
@@ -143,6 +144,7 @@ function SlideCanvas({
   campaignCompact,
   contentVisible = true,
   onImageReadyChange,
+  campaignStageFill,
 }: {
   slide: DesignedHeroSlide;
   reducedMotion: boolean;
@@ -155,6 +157,8 @@ function SlideCanvas({
   campaignCompact?: boolean;
   contentVisible?: boolean;
   onImageReadyChange?: (ready: boolean) => void;
+  /** Fill shared strip stage height (compact campaign mobile strip). */
+  campaignStageFill?: boolean;
 }) {
   if (useCampaignLayout) {
     return (
@@ -165,6 +169,7 @@ function SlideCanvas({
         primaryHeading={primaryHeading}
         contentVisible={contentVisible}
         onImageReadyChange={onImageReadyChange}
+        stageFill={campaignStageFill}
         className={cn(blurred && "scale-[1.015] opacity-40 transition duration-300")}
       />
     );
@@ -497,9 +502,11 @@ function HeroSheetStrip({
     (target: number, commit: () => void) => {
       const w = widthRef.current;
       if (!w) {
-        settlingRef.current = false;
-        commit();
+        flushSync(() => {
+          commit();
+        });
         x.set(0);
+        settlingRef.current = false;
         setLocked(false);
         restoreTrackInteraction();
         return;
@@ -514,8 +521,7 @@ function HeroSheetStrip({
         duration: settleMs,
         ease: HERO_SHEET_EASE,
         onComplete: () => {
-          // Index + x reset must paint together — otherwise x→0 with stale
-          // panels flashes the previous slide (reads as a white/empty gap).
+          // Settle completes first; then atomic React commit; then strip x reset.
           flushSync(() => {
             commit();
           });
@@ -594,10 +600,10 @@ function HeroSheetStrip({
   );
 
   const stripShellClass = useCampaignLayout
-    ? "relative w-full overflow-hidden"
+    ? "relative grid w-full grid-cols-1 grid-rows-1 overflow-hidden"
     : "absolute inset-0 overflow-hidden";
   const trackClass = useCampaignLayout
-    ? "relative w-full cursor-grab active:cursor-grabbing"
+    ? "relative col-start-1 row-start-1 h-full min-h-0 w-full cursor-grab active:cursor-grabbing overflow-hidden"
     : "absolute inset-0 cursor-grab active:cursor-grabbing";
 
   return (
@@ -606,6 +612,17 @@ function HeroSheetStrip({
       className={stripShellClass}
       style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
     >
+      {useCampaignLayout ? (
+        slides.map((s) => (
+          <div
+            key={`campaign-strip-sizer-${s.id}`}
+            className="invisible col-start-1 row-start-1 w-full select-none pointer-events-none"
+            aria-hidden
+          >
+            <CampaignHeroGeometrySizer slide={s} />
+          </div>
+        ))
+      ) : null}
       <motion.div
         ref={trackRef}
         className={trackClass}
@@ -647,9 +664,14 @@ function HeroSheetStrip({
                 isMobile={isMobile}
                 useCampaignLayout={useCampaignLayout}
                 campaignCompact={useCampaignLayout}
+                campaignStageFill={useCampaignLayout}
               />
             </div>
-            <div className={useCampaignLayout ? "relative z-[1] w-full" : "absolute inset-0"}>
+            <div
+              className={
+                useCampaignLayout ? "absolute inset-0 z-[1]" : "absolute inset-0"
+              }
+            >
               <SlideCanvas
                 slide={current}
                 reducedMotion={isMobile}
@@ -660,6 +682,7 @@ function HeroSheetStrip({
                 primaryHeading={index === 0}
                 useCampaignLayout={useCampaignLayout}
                 campaignCompact={useCampaignLayout}
+                campaignStageFill={useCampaignLayout}
               />
             </div>
             <div
@@ -675,10 +698,11 @@ function HeroSheetStrip({
                 isMobile={isMobile}
                 useCampaignLayout={useCampaignLayout}
                 campaignCompact={useCampaignLayout}
+                campaignStageFill={useCampaignLayout}
               />
             </div>
           </>
-        ) : (
+        ) : useCampaignLayout ? null : (
           <SlideCanvas
             slide={current}
             reducedMotion={isMobile}
@@ -836,22 +860,48 @@ export function DesignedHero({
     setDirection(1);
     const next = (index + 1) % slideCount;
     if (campaignMode) {
+      // Compact (mobile/tablet strip + reduced-motion): sync index; desktop full-bleed keeps preload gate.
+      if (isCompactLayout) {
+        setCampaignPending(null);
+        setIndex(next);
+        return;
+      }
       queueCampaignTransition(next);
       return;
     }
     setIndex(next);
-  }, [slideCount, campaignMode, index, queueCampaignTransition]);
+  }, [slideCount, campaignMode, isCompactLayout, index, queueCampaignTransition]);
 
   const commitPrev = useCallback(() => {
     if (!slideCount) return;
     setDirection(-1);
     const next = (index - 1 + slideCount) % slideCount;
     if (campaignMode) {
+      if (isCompactLayout) {
+        setCampaignPending(null);
+        setIndex(next);
+        return;
+      }
       queueCampaignTransition(next);
       return;
     }
     setIndex(next);
-  }, [slideCount, campaignMode, index, queueCampaignTransition]);
+  }, [slideCount, campaignMode, isCompactLayout, index, queueCampaignTransition]);
+
+  /** Mobile sheet strip: index must update in the same flushSync as x→0 (no campaign pending). */
+  const commitNextStrip = useCallback(() => {
+    if (!slideCount) return;
+    setDirection(1);
+    setCampaignPending(null);
+    setIndex((index + 1) % slideCount);
+  }, [slideCount, index]);
+
+  const commitPrevStrip = useCallback(() => {
+    if (!slideCount) return;
+    setDirection(-1);
+    setCampaignPending(null);
+    setIndex((index - 1 + slideCount) % slideCount);
+  }, [slideCount, index]);
 
   const goNext = useCallback(() => {
     if (!slideCount) return;
@@ -1032,7 +1082,7 @@ export function DesignedHero({
       <div
         className={cn(
           "relative w-full overflow-hidden",
-          campaignCompact ? "h-auto" : "h-full",
+          campaignCompact ? "z-[1] h-auto" : "h-full",
         )}
         style={{ backgroundColor: HERO_SHEET_UNDERLAY }}
       >
@@ -1045,24 +1095,46 @@ export function DesignedHero({
             isMobile={isMobile}
             nudge={sheetNudge}
             onNudgeHandled={() => setSheetNudge(null)}
-            onCommitNext={commitNext}
-            onCommitPrev={commitPrev}
+            onCommitNext={commitNextStrip}
+            onCommitPrev={commitPrevStrip}
             useCampaignLayout={campaignMode}
           />
         ) : campaignCompact ? (
-          <div className="relative w-full">
-            <div className="invisible pointer-events-none select-none" aria-hidden>
-              <SlideCanvas
-                slide={slide}
-                reducedMotion={reducedMotion || isMobile}
-                blurred={menuOpen}
-                mobilePreset={mobilePreset}
-                isMobile={isMobile}
-                useCampaignLayout={campaignMode}
-                campaignCompact
-              />
-            </div>
-            <div className="absolute inset-x-0 top-0 w-full">
+          <div
+            className={cn(
+              "relative w-full",
+              campaignMode && "grid grid-cols-1 grid-rows-1",
+            )}
+          >
+            {campaignMode ? (
+              slides.map((s) => (
+                <div
+                  key={`campaign-compact-sizer-${s.id}`}
+                  className="invisible col-start-1 row-start-1 w-full select-none pointer-events-none"
+                  aria-hidden
+                >
+                  <CampaignHeroGeometrySizer slide={s} />
+                </div>
+              ))
+            ) : (
+              <div className="invisible pointer-events-none select-none" aria-hidden>
+                <SlideCanvas
+                  slide={slide}
+                  reducedMotion={reducedMotion || isMobile}
+                  blurred={menuOpen}
+                  mobilePreset={mobilePreset}
+                  isMobile={isMobile}
+                  useCampaignLayout={campaignMode}
+                  campaignCompact
+                />
+              </div>
+            )}
+            <div
+              className={cn(
+                "absolute inset-x-0 top-0 w-full",
+                campaignMode && "col-start-1 row-start-1",
+              )}
+            >
               <AnimatePresence initial={false} custom={direction} mode="sync">
                 <motion.div
                   key={slide.id}
@@ -1124,7 +1196,7 @@ export function DesignedHero({
           </AnimatePresence>
         )}
 
-        {pendingSlide && campaignPending ? (
+        {pendingSlide && campaignPending && !useSheetStrip ? (
           <div
             className="pointer-events-none absolute inset-0 overflow-hidden opacity-0"
             aria-hidden

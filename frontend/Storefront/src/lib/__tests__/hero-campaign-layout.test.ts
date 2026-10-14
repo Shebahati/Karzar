@@ -5,7 +5,9 @@ import {
   CAMPAIGN_MOBILE_SOURCE_MAX_PX,
   COMPACT_BAND_ART_WIDTH_PX,
   COMPACT_BAND_PORTRAIT_HEIGHT_PX,
+  campaignCompactCtaCount,
   campaignMediaForSlide,
+  campaignTallestCompactCopySlide,
   isRebornFiveCampaign,
 } from "@/lib/hero-campaign-layout";
 
@@ -42,5 +44,22 @@ describe("hero campaign layout", () => {
   it("documents portrait mobile art dimensions", () => {
     expect(COMPACT_BAND_ART_WIDTH_PX).toBe(1280);
     expect(COMPACT_BAND_PORTRAIT_HEIGHT_PX).toBe(1707);
+  });
+
+  it("treats H03 inserts as tallest compact copy reserve (two CTAs)", () => {
+    const pack = buildFiveHeroPublishedPack();
+    const tallest = campaignTallestCompactCopySlide(pack.slides);
+    expect(tallest.config.linkedOrbKey).toBe("inserts");
+    expect(campaignCompactCtaCount(tallest)).toBe(2);
+    expect(pack.slides.every((s) => campaignCompactCtaCount(s) <= 2)).toBe(true);
+  });
+
+  it("assigns per-slide compact media aspect for geometry reserve", () => {
+    const pack = buildFiveHeroPublishedPack();
+    const aspects = new Set(
+      pack.slides.map((s) => campaignMediaForSlide(s.id).compactAspect),
+    );
+    expect(aspects.size).toBeGreaterThan(1);
+    expect(pack.slides).toHaveLength(5);
   });
 });

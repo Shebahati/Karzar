@@ -1,0 +1,19 @@
+{
+  "gitSha": "203995fddf7725e61953a5ccd050baf9dd7a1f74",
+  "pr": 495,
+  "evidenceType": "LOCAL_BUILD_EVIDENCE",
+  "baseUrl": "http://127.0.0.1:3098/",
+  "files": [
+    "README.md",
+    "metrics.json",
+    "measurements.csv",
+    "390x844-forward-3cycles.webm",
+    "H03-rest-390x844.png",
+    "mid-h02-h03-390.png",
+    "mid-h03-h04-390.png",
+    "static-1023x768.png",
+    "static-1024x768.png",
+    "static-1366x768.png",
+    "run-acceptance.mjs"
+  ]
+}

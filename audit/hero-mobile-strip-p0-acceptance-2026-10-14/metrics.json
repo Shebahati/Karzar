@@ -1,0 +1,1294 @@
+{
+  "gitSha": "203995fddf7725e61953a5ccd050baf9dd7a1f74",
+  "buildCommand": "cd frontend/Storefront && NEXT_PUBLIC_USE_MOCK=true NEXT_PUBLIC_MOCK_LATENCY_MS=0 NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api/v1 NEXT_PUBLIC_SITE_URL=https://www.karzartools.com npm run build",
+  "serveCommand": "cd frontend/Storefront/.next/standalone && PORT=3098 HOSTNAME=127.0.0.1 node server.js",
+  "baseUrl": "http://127.0.0.1:3098",
+  "label": "LOCAL_BUILD_EVIDENCE",
+  "capturedAt": "2026-10-14T12:35:25.212Z",
+  "sessions": [
+    {
+      "viewport": "390x844",
+      "reducedMotion": false,
+      "splashVisible": false,
+      "heroImage": {
+        "ok": true,
+        "naturalWidth": 390,
+        "naturalHeight": 219
+      },
+      "initialTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "measurements": [
+        {
+          "label": "c1-before-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-after-swipe-0",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-before-swipe-1",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-after-swipe-1",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-before-swipe-2",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-after-swipe-2",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-before-swipe-3",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-after-swipe-3",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-before-swipe-4",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-after-swipe-4",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c2-before-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c2-after-swipe-0",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c2-before-swipe-1",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c2-after-swipe-1",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c2-before-swipe-2",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c2-after-swipe-2",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c2-before-swipe-3",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c2-after-swipe-3",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c2-before-swipe-4",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c2-after-swipe-4",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c3-before-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c3-after-swipe-0",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c3-before-swipe-1",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c3-after-swipe-1",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c3-before-swipe-2",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c3-after-swipe-2",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c3-before-swipe-3",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c3-after-swipe-3",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c3-before-swipe-4",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c3-after-swipe-4",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "rev-after-0",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "rev-after-1",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "rev-after-2",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "rev-after-3",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "rev-after-4",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        }
+      ],
+      "staleReturnCount": 0,
+      "ctaClipCount": 0,
+      "sizerImageRequests": 0,
+      "imageRequests": [
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH02-measuring-tools-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH03-inserts-turning-tools-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH04-end-mills-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH05-industrial-machines-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH02-measuring-tools-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH05-industrial-machines-1280.webp&w=640&q=90"
+      ],
+      "heroImageAfterWait": {
+        "ok": true,
+        "naturalWidth": 390,
+        "naturalHeight": 219
+      },
+      "h03AtRest": {
+        "ok": true,
+        "ctas": [
+          {
+            "label": "مشاهده اینسرت‌ها",
+            "found": true,
+            "top": 394.890625,
+            "bottom": 438.890625,
+            "insideHero": true,
+            "intersectionRatio": 1
+          },
+          {
+            "label": "مشاهده ابزارهای اینسرتی",
+            "found": true,
+            "top": 450.890625,
+            "bottom": 494.890625,
+            "insideHero": true,
+            "intersectionRatio": 1
+          }
+        ]
+      },
+      "h03Boundaries": {
+        "currentMediaBottom": 260,
+        "panelCount": 3,
+        "panels": [
+          {
+            "slideId": null,
+            "mediaBottom": 260,
+            "copyTop": 260
+          },
+          {
+            "slideId": null,
+            "mediaBottom": 316,
+            "copyTop": 316
+          },
+          {
+            "slideId": null,
+            "mediaBottom": 316,
+            "copyTop": 316
+          }
+        ]
+      },
+      "mid_h02_h03": [
+        {
+          "phase": 0.08333333333333333,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 0.16666666666666666,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 0.25,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 0.3333333333333333,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 0.4166666666666667,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 0.5,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 0.5833333333333334,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 0.6666666666666666,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 0.75,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 0.8333333333333334,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 0.9166666666666666,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": 1,
+          "title": "ابزار اندازه‌گیری"
+        },
+        {
+          "phase": "settled",
+          "title": "ابزار اندازه‌گیری"
+        }
+      ],
+      "mid_h02_h03_boundary": {
+        "currentMediaBottom": 260,
+        "panelCount": 3,
+        "panels": [
+          {
+            "slideId": null,
+            "mediaBottom": 260,
+            "copyTop": 260
+          },
+          {
+            "slideId": null,
+            "mediaBottom": 316,
+            "copyTop": 316
+          },
+          {
+            "slideId": null,
+            "mediaBottom": 316,
+            "copyTop": 316
+          }
+        ]
+      },
+      "mid_h03_h04": [
+        {
+          "phase": 0.08333333333333333,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 0.16666666666666666,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 0.25,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 0.3333333333333333,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 0.4166666666666667,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 0.5,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 0.5833333333333334,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 0.6666666666666666,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 0.75,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 0.8333333333333334,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 0.9166666666666666,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": 1,
+          "title": "اینسرت و ابزارهای اینسرتی"
+        },
+        {
+          "phase": "settled",
+          "title": "اینسرت و ابزارهای اینسرتی"
+        }
+      ],
+      "mid_h03_h04_boundary": {
+        "currentMediaBottom": 316,
+        "panelCount": 3,
+        "panels": [
+          {
+            "slideId": null,
+            "mediaBottom": 316,
+            "copyTop": 316
+          },
+          {
+            "slideId": null,
+            "mediaBottom": 260,
+            "copyTop": 260
+          },
+          {
+            "slideId": null,
+            "mediaBottom": 316,
+            "copyTop": 316
+          }
+        ]
+      },
+      "maxHeroHeightDelta": 0,
+      "maxNextSectionYDelta": 0
+    },
+    {
+      "viewport": "360x800",
+      "reducedMotion": false,
+      "splashVisible": false,
+      "heroImage": {
+        "ok": true,
+        "naturalWidth": 360,
+        "naturalHeight": 202
+      },
+      "initialTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "measurements": [
+        {
+          "label": "c1-before-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 474.890625,
+          "heroHeight": 474.890625,
+          "nextSectionTop": 506.890625
+        },
+        {
+          "label": "c1-after-swipe-0",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 474.890625,
+          "heroHeight": 474.890625,
+          "nextSectionTop": 506.890625
+        },
+        {
+          "label": "c1-before-swipe-1",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 474.890625,
+          "heroHeight": 474.890625,
+          "nextSectionTop": 506.890625
+        },
+        {
+          "label": "c1-after-swipe-1",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 474.890625,
+          "heroHeight": 474.890625,
+          "nextSectionTop": 506.890625
+        },
+        {
+          "label": "c1-before-swipe-2",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 474.890625,
+          "heroHeight": 474.890625,
+          "nextSectionTop": 506.890625
+        },
+        {
+          "label": "c1-after-swipe-2",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 474.890625,
+          "heroHeight": 474.890625,
+          "nextSectionTop": 506.890625
+        },
+        {
+          "label": "c1-before-swipe-3",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 474.890625,
+          "heroHeight": 474.890625,
+          "nextSectionTop": 506.890625
+        },
+        {
+          "label": "c1-after-swipe-3",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 474.890625,
+          "heroHeight": 474.890625,
+          "nextSectionTop": 506.890625
+        },
+        {
+          "label": "c1-before-swipe-4",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 474.890625,
+          "heroHeight": 474.890625,
+          "nextSectionTop": 506.890625
+        },
+        {
+          "label": "c1-after-swipe-4",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 474.890625,
+          "heroHeight": 474.890625,
+          "nextSectionTop": 506.890625
+        }
+      ],
+      "staleReturnCount": 0,
+      "ctaClipCount": 0,
+      "sizerImageRequests": 0,
+      "imageRequests": [
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH02-measuring-tools-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH03-inserts-turning-tools-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH04-end-mills-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH05-industrial-machines-1280.webp&w=640&q=90"
+      ],
+      "heroImageAfterWait": {
+        "ok": true,
+        "naturalWidth": 360,
+        "naturalHeight": 202
+      },
+      "h03AtRest": {
+        "ok": true,
+        "ctas": [
+          {
+            "label": "مشاهده اینسرت‌ها",
+            "found": true,
+            "top": 374.890625,
+            "bottom": 418.890625,
+            "insideHero": true,
+            "intersectionRatio": 1
+          },
+          {
+            "label": "مشاهده ابزارهای اینسرتی",
+            "found": true,
+            "top": 430.890625,
+            "bottom": 474.890625,
+            "insideHero": true,
+            "intersectionRatio": 1
+          }
+        ]
+      },
+      "maxHeroHeightDelta": 0,
+      "maxNextSectionYDelta": 0
+    },
+    {
+      "viewport": "430x932",
+      "reducedMotion": false,
+      "splashVisible": false,
+      "heroImage": {
+        "ok": true,
+        "naturalWidth": 430,
+        "naturalHeight": 241
+      },
+      "initialTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "measurements": [
+        {
+          "label": "c1-before-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 502.53125,
+          "heroHeight": 502.53125,
+          "nextSectionTop": 534.53125
+        },
+        {
+          "label": "c1-after-swipe-0",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 502.53125,
+          "heroHeight": 502.53125,
+          "nextSectionTop": 534.53125
+        },
+        {
+          "label": "c1-before-swipe-1",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 502.53125,
+          "heroHeight": 502.53125,
+          "nextSectionTop": 534.53125
+        },
+        {
+          "label": "c1-after-swipe-1",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 502.53125,
+          "heroHeight": 502.53125,
+          "nextSectionTop": 534.53125
+        },
+        {
+          "label": "c1-before-swipe-2",
+          "slide": "اینسرت و ابزارهای اینسرتی",
+          "heroTop": 0,
+          "heroBottom": 502.53125,
+          "heroHeight": 502.53125,
+          "nextSectionTop": 534.53125
+        },
+        {
+          "label": "c1-after-swipe-2",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 502.53125,
+          "heroHeight": 502.53125,
+          "nextSectionTop": 534.53125
+        },
+        {
+          "label": "c1-before-swipe-3",
+          "slide": "فرز انگشتی",
+          "heroTop": 0,
+          "heroBottom": 502.53125,
+          "heroHeight": 502.53125,
+          "nextSectionTop": 534.53125
+        },
+        {
+          "label": "c1-after-swipe-3",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 502.53125,
+          "heroHeight": 502.53125,
+          "nextSectionTop": 534.53125
+        },
+        {
+          "label": "c1-before-swipe-4",
+          "slide": "دستگاه‌های صنعتی",
+          "heroTop": 0,
+          "heroBottom": 502.53125,
+          "heroHeight": 502.53125,
+          "nextSectionTop": 534.53125
+        },
+        {
+          "label": "c1-after-swipe-4",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 502.53125,
+          "heroHeight": 502.53125,
+          "nextSectionTop": 534.53125
+        }
+      ],
+      "staleReturnCount": 0,
+      "ctaClipCount": 0,
+      "sizerImageRequests": 0,
+      "imageRequests": [
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH02-measuring-tools-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH03-inserts-turning-tools-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH04-end-mills-1280.webp&w=640&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH05-industrial-machines-1280.webp&w=640&q=90"
+      ],
+      "heroImageAfterWait": {
+        "ok": true,
+        "naturalWidth": 430,
+        "naturalHeight": 241
+      },
+      "h03AtRest": {
+        "ok": true,
+        "ctas": [
+          {
+            "label": "مشاهده اینسرت‌ها",
+            "found": true,
+            "top": 458.53125,
+            "bottom": 502.53125,
+            "insideHero": true,
+            "intersectionRatio": 1
+          },
+          {
+            "label": "مشاهده ابزارهای اینسرتی",
+            "found": true,
+            "top": 458.53125,
+            "bottom": 502.53125,
+            "insideHero": true,
+            "intersectionRatio": 1
+          }
+        ]
+      },
+      "maxHeroHeightDelta": 0,
+      "maxNextSectionYDelta": 0
+    },
+    {
+      "viewport": "768x1024",
+      "reducedMotion": false,
+      "splashVisible": false,
+      "heroImage": {
+        "ok": true,
+        "naturalWidth": 768,
+        "naturalHeight": 432
+      },
+      "initialTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "measurements": [
+        {
+          "label": "c1-before-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-after-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-before-swipe-1",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-after-swipe-1",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-before-swipe-2",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-after-swipe-2",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-before-swipe-3",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-after-swipe-3",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-before-swipe-4",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-after-swipe-4",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        }
+      ],
+      "staleReturnCount": 0,
+      "ctaClipCount": 0,
+      "sizerImageRequests": 0,
+      "imageRequests": [
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-native-lossless.webp&w=828&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-1280.webp&w=828&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH02-measuring-tools-1280.webp&w=828&q=90"
+      ],
+      "heroImageAfterWait": {
+        "ok": true,
+        "naturalWidth": 768,
+        "naturalHeight": 432
+      },
+      "maxHeroHeightDelta": 0,
+      "maxNextSectionYDelta": 0
+    },
+    {
+      "viewport": "820x1180",
+      "reducedMotion": false,
+      "splashVisible": false,
+      "heroImage": {
+        "ok": true,
+        "naturalWidth": 820,
+        "naturalHeight": 461
+      },
+      "initialTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "measurements": [
+        {
+          "label": "c1-before-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 779.984375,
+          "heroHeight": 779.984375,
+          "nextSectionTop": 823.984375
+        },
+        {
+          "label": "c1-after-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 779.984375,
+          "heroHeight": 779.984375,
+          "nextSectionTop": 823.984375
+        },
+        {
+          "label": "c1-before-swipe-1",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 779.984375,
+          "heroHeight": 779.984375,
+          "nextSectionTop": 823.984375
+        },
+        {
+          "label": "c1-after-swipe-1",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 779.984375,
+          "heroHeight": 779.984375,
+          "nextSectionTop": 823.984375
+        },
+        {
+          "label": "c1-before-swipe-2",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 779.984375,
+          "heroHeight": 779.984375,
+          "nextSectionTop": 823.984375
+        },
+        {
+          "label": "c1-after-swipe-2",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 779.984375,
+          "heroHeight": 779.984375,
+          "nextSectionTop": 823.984375
+        },
+        {
+          "label": "c1-before-swipe-3",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 779.984375,
+          "heroHeight": 779.984375,
+          "nextSectionTop": 823.984375
+        },
+        {
+          "label": "c1-after-swipe-3",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 779.984375,
+          "heroHeight": 779.984375,
+          "nextSectionTop": 823.984375
+        },
+        {
+          "label": "c1-before-swipe-4",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 779.984375,
+          "heroHeight": 779.984375,
+          "nextSectionTop": 823.984375
+        },
+        {
+          "label": "c1-after-swipe-4",
+          "slide": "ابزار اندازه‌گیری",
+          "heroTop": 0,
+          "heroBottom": 779.984375,
+          "heroHeight": 779.984375,
+          "nextSectionTop": 823.984375
+        }
+      ],
+      "staleReturnCount": 0,
+      "ctaClipCount": 0,
+      "sizerImageRequests": 0,
+      "imageRequests": [
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-native-lossless.webp&w=828&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-1280.webp&w=828&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH02-measuring-tools-1280.webp&w=828&q=90"
+      ],
+      "heroImageAfterWait": {
+        "ok": true,
+        "naturalWidth": 820,
+        "naturalHeight": 461
+      },
+      "maxHeroHeightDelta": 0,
+      "maxNextSectionYDelta": 0
+    },
+    {
+      "viewport": "1023x768",
+      "reducedMotion": false,
+      "splashVisible": false,
+      "heroImage": {
+        "ok": true,
+        "naturalWidth": 1023,
+        "naturalHeight": 575
+      },
+      "initialTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "measurements": [],
+      "staleReturnCount": 0,
+      "ctaClipCount": 0,
+      "sizerImageRequests": 0,
+      "imageRequests": [
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-native-lossless.webp&w=1080&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-1280.webp&w=1080&q=90"
+      ],
+      "heroImageAfterWait": {
+        "ok": true,
+        "naturalWidth": 1023,
+        "naturalHeight": 575
+      }
+    },
+    {
+      "viewport": "1024x768",
+      "reducedMotion": false,
+      "splashVisible": false,
+      "heroImage": {
+        "ok": true,
+        "naturalWidth": 1024,
+        "naturalHeight": 576
+      },
+      "initialTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "measurements": [],
+      "staleReturnCount": 0,
+      "ctaClipCount": 0,
+      "sizerImageRequests": 0,
+      "imageRequests": [
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-native-lossless.webp&w=1080&q=90"
+      ],
+      "heroImageAfterWait": {
+        "ok": true,
+        "naturalWidth": 1024,
+        "naturalHeight": 576
+      }
+    },
+    {
+      "viewport": "390x844",
+      "reducedMotion": true,
+      "splashVisible": false,
+      "heroImage": {
+        "ok": true,
+        "naturalWidth": 390,
+        "naturalHeight": 219
+      },
+      "initialTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "measurements": [
+        {
+          "label": "c1-before-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-after-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-before-swipe-1",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-after-swipe-1",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-before-swipe-2",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-after-swipe-2",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-before-swipe-3",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-after-swipe-3",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-before-swipe-4",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        },
+        {
+          "label": "c1-after-swipe-4",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 494.890625,
+          "heroHeight": 494.890625,
+          "nextSectionTop": 526.890625
+        }
+      ],
+      "staleReturnCount": 0,
+      "ctaClipCount": 0,
+      "sizerImageRequests": 0,
+      "imageRequests": [
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-1280.webp&w=640&q=90"
+      ],
+      "heroImageAfterWait": {
+        "ok": true,
+        "naturalWidth": 390,
+        "naturalHeight": 219
+      },
+      "maxHeroHeightDelta": 0,
+      "maxNextSectionYDelta": 0
+    },
+    {
+      "viewport": "768x1024",
+      "reducedMotion": true,
+      "splashVisible": false,
+      "heroImage": {
+        "ok": true,
+        "naturalWidth": 768,
+        "naturalHeight": 432
+      },
+      "initialTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "measurements": [
+        {
+          "label": "c1-before-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-after-swipe-0",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-before-swipe-1",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-after-swipe-1",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-before-swipe-2",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-after-swipe-2",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-before-swipe-3",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-after-swipe-3",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-before-swipe-4",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        },
+        {
+          "label": "c1-after-swipe-4",
+          "slide": "تخفیف‌های ویژه‌ی کارزار",
+          "heroTop": 0,
+          "heroBottom": 740.984375,
+          "heroHeight": 740.984375,
+          "nextSectionTop": 784.984375
+        }
+      ],
+      "staleReturnCount": 0,
+      "ctaClipCount": 0,
+      "sizerImageRequests": 0,
+      "imageRequests": [
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-native-lossless.webp&w=828&q=90",
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-1280.webp&w=828&q=90"
+      ],
+      "heroImageAfterWait": {
+        "ok": true,
+        "naturalWidth": 768,
+        "naturalHeight": 432
+      },
+      "maxHeroHeightDelta": 0,
+      "maxNextSectionYDelta": 0
+    },
+    {
+      "viewport": "1366x768",
+      "reducedMotion": false,
+      "splashVisible": false,
+      "heroImage": {
+        "ok": true,
+        "naturalWidth": 1189,
+        "naturalHeight": 669
+      },
+      "initialTitle": "تخفیف‌های ویژه‌ی کارزار",
+      "measurements": [],
+      "staleReturnCount": 0,
+      "ctaClipCount": 0,
+      "sizerImageRequests": 0,
+      "imageRequests": [
+        "http://127.0.0.1:3098/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2FH01-special-offers-native-lossless.webp&w=1920&q=90"
+      ],
+      "heroImageAfterWait": {
+        "ok": true,
+        "naturalWidth": 1189,
+        "naturalHeight": 669
+      }
+    }
+  ],
+  "summary": {
+    "STALE_SLIDE_RETURN_COUNT": 0,
+    "STALE_SLIDE_RETURN_FRAMES": 0,
+    "MAX_SETTLED_HERO_HEIGHT_DELTA": 0,
+    "MAX_NEXT_SECTION_Y_DELTA": 0,
+    "CTA_CLIP_COUNT": 0,
+    "SIZER_IMAGE_REQUESTS": 0,
+    "SPLASH_VISIBLE": false,
+    "HORIZONTAL_OVERFLOW": 0,
+    "DARK_FLASH_COUNT": 0,
+    "WHITE_FLASH_COUNT": 0,
+    "PAGE_VERTICAL_JUMP_COUNT": 0,
+    "FINGER_LIFT_SNAP_COUNT": 0,
+    "MEDIA_CLIP_COUNT": 0,
+    "DESKTOP_BLACKOUT": "KNOWN_REMAINING_ISSUE",
+    "ACCEPTANCE_BLOCKED": false
+  }
+}

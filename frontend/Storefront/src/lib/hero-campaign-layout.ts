@@ -52,7 +52,9 @@ export const COMPACT_BAND_PORTRAIT_HEIGHT_PX = Math.round(
 const DEFAULT_DESKTOP_COPY =
   "right-[clamp(2rem,7vw,8rem)] top-1/2 -translate-y-1/2 max-w-[min(560px,92vw)]";
 
-const DEFAULT_COMPACT_COPY = "relative w-full px-5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-4";
+/** Extra bottom room so dual CTAs (e.g. H03) stay above the following homepage section. */
+const DEFAULT_COMPACT_COPY =
+  "relative w-full px-5 pb-[max(2rem,env(safe-area-inset-bottom,0px))] pt-4";
 
 function desktopCopyClassFor(def: HeroCampaignSlideDef): string {
   switch (def.linkedOrbKey) {
@@ -103,4 +105,28 @@ export function campaignMediaForSlide(slideId: string): CampaignMediaLayout {
 
 export function campaignDesktopImageUrl(slide: DesignedHeroSlide): string {
   return slide.config.background.imageUrl;
+}
+
+/** CTA slots reserved in compact geometry (two on H03 inserts). */
+export function campaignCompactCtaCount(slide: DesignedHeroSlide): number {
+  return slide.config.buttons.length;
+}
+
+export function campaignCompactMediaAspect(slide: DesignedHeroSlide): number {
+  return campaignMediaForSlide(slide.id).compactAspect;
+}
+
+/** Slide with the most compact copy chrome (used to validate shared stage reserve). */
+export function campaignTallestCompactCopySlide(
+  slides: DesignedHeroSlide[],
+): DesignedHeroSlide {
+  return slides.reduce((tallest, slide) => {
+    const count = campaignCompactCtaCount(slide);
+    const tallestCount = campaignCompactCtaCount(tallest);
+    if (count > tallestCount) return slide;
+    if (count < tallestCount) return tallest;
+    const aspect = campaignCompactMediaAspect(slide);
+    const tallestAspect = campaignCompactMediaAspect(tallest);
+    return aspect < tallestAspect ? slide : tallest;
+  });
 }
