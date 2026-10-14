@@ -17,8 +17,8 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-from apply_insize_commercial_reconcile_258 import main as apply_main  # noqa: E402
-from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
+from apply_insize_commercial_reconcile_258 import main as apply_main  # noqa: E402, I001
+from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402, I001
     OWNER_AUTH_APPLY,
     OWNER_SOURCE_SHA256,
     PlanRow,
@@ -32,7 +32,7 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     state_hash,
     stale_hash_guard,
 )
-from catalog_target.sales_wave_apply import ApplyAbort  # noqa: E402
+from catalog_target.sales_wave_apply import ApplyAbort  # noqa: E402, I001
 
 EVIDENCE = ROOT / "audit" / "insize-commercial-reconcile-258-2026-10-13"
 PLAN = EVIDENCE / "INSIZE_COMMERCIAL_RECONCILE_PLAN.csv"
