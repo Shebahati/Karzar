@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import csv
+import os
 import sys
 import tempfile
 import unittest
@@ -9,6 +11,7 @@ from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -17,13 +20,17 @@ if str(SCRIPTS) not in sys.path:
 
 from apply_insize_commercial_reconcile_258 import main as apply_main  # noqa: E402
 from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
+    OWNER_AUTH_APPLY,
     OWNER_SOURCE_SHA256,
     PlanRow,
+    RollbackRow,
     apply_plan_rows,
     assert_apply_authorization_gates,
     classify_owner_freshness,
     load_plan_rows,
+    rollback_plan_rows,
     state_hash,
+    stale_hash_guard,
 )
 from catalog_target.sales_wave_apply import ApplyAbort  # noqa: E402
 
@@ -64,7 +71,10 @@ class FakeCursor:
             self.rowcount = len(self._rows)
             return
         if sql_l.startswith("update "):
-            new_price, new_avail, pid, sku = params
+            if len(params) == 6:
+                new_price, new_avail, pid, sku, _exp_price, _exp_avail = params
+            else:
+                new_price, new_avail, pid, sku = params
             if self.fail_on_pid == int(pid):
                 self.rowcount = 0
                 return
@@ -305,6 +315,98 @@ class ApplyTransactionTests(unittest.TestCase):
         )
         self.assertFalse(result.committed)
         self.assertEqual(conn.store[10]["base_price"], "5000")
+
+
+
+class DryRunTests(unittest.TestCase):
+    def test_dry_run_zero_writes(self):
+        plan = [
+            PlanRow(
+                product_id=10,
+                sku="S10",
+                combined_action="CLEAR_PRICE",
+                availability_action="NO_CHANGE",
+                price_action="CLEAR_PRICE",
+                expected_current_hash=state_hash(
+                    {
+                        "product_id": "10",
+                        "sku": "S10",
+                        "brand_id": "1",
+                        "is_active": "true",
+                        "is_available": "true",
+                        "base_price": "5000",
+                        "deleted_at": "",
+                        "image_present": "true",
+                    }
+                ),
+                proposed_is_available=True,
+                proposed_base_price=None,
+                current_is_available=True,
+                current_base_price=Decimal("5000"),
+            )
+        ]
+        live = {
+            10: {
+                "product_id": "10",
+                "sku": "S10",
+                "brand_id": "1",
+                "is_active": "true",
+                "is_available": "true",
+                "base_price": "5000",
+                "deleted_at": "",
+                "image_present": "true",
+            }
+        }
+        conn = FakeConn(live)
+        result = apply_plan_rows(
+            conn,
+            plan,
+            dry_run=True,
+            batch_id="dry",
+            metadata={"started_at": "t"},
+            journal_dir=Path(tempfile.mkdtemp()),
+        )
+        self.assertFalse(result.committed)
+        self.assertEqual(result.rows_written, 0)
+        self.assertEqual(conn.store[10]["base_price"], "5000")
+
+
+class EnvGateTests(unittest.TestCase):
+    def test_missing_category_b_env(self):
+        with mock.patch.dict(os.environ, {"KARZAR_ALLOW_PRODUCTION_WRITE": "1"}, clear=True):
+            with self.assertRaises(ApplyAbort):
+                assert_apply_authorization_gates(
+                    apply=True,
+                    rollback=False,
+                    confirm_production_write=True,
+                    confirm_source_sha256=OWNER_SOURCE_SHA256,
+                    confirm_plan_sha256="abc",
+                    confirm_mutation_count=711,
+                    owner_authorization=OWNER_AUTH_APPLY,
+                    plan_sha256="abc",
+                    eligible_count=711,
+                )
+
+
+class ActionSemanticsTests(unittest.TestCase):
+    def test_clear_price_action_sets_null_target(self):
+        row = PlanRow(
+            product_id=1,
+            sku="A",
+            combined_action="CLEAR_PRICE",
+            availability_action="NO_CHANGE",
+            price_action="CLEAR_PRICE",
+            expected_current_hash="x",
+            proposed_is_available=True,
+            proposed_base_price=None,
+            current_is_available=True,
+            current_base_price=Decimal("100"),
+        )
+        avail, price = __import__(
+            "catalog_target.insize_commercial_reconcile_258", fromlist=["proposed_values_for_row"]
+        ).proposed_values_for_row(row)
+        self.assertTrue(avail)
+        self.assertIsNone(price)
 
 
 if __name__ == "__main__":

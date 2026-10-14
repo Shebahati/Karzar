@@ -32,6 +32,7 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     OWNER_SOURCE_SHA256,
     PLAN_CSV_NAME,
     ROLLBACK_CSV_NAME,
+    ApplyAbort,
     apply_plan_rows,
     assert_apply_authorization_gates,
     assert_plan_matches_evidence,
@@ -46,7 +47,6 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     writer_contract_summary,
 )
 from catalog_target.sales_wave_apply import (  # noqa: E402
-    ApplyAbort,
     assert_production_apply_authorized,
     connect_runtime_db,
 )
@@ -118,6 +118,19 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.source_xlsx.is_file():
         validate_source_sha256(args.source_xlsx, expected=INSIZE_OWNER_SOURCE_SHA)
+
+    elif args.apply and not args.source_xlsx.is_file():
+        raise ApplyAbort("apply_requires_source_xlsx_for_sha_validation")
+
+    if (
+        not args.source_xlsx.is_file()
+        and not args.production_preflight
+        and os.environ.get("CI")
+    ):
+        print(
+            "WARN: source xlsx missing; skipping live SHA validation (CI plan-only dry-run)",
+            file=sys.stderr,
+        )
 
     journal_dir = args.journal_dir or (evidence / "apply-journals")
 

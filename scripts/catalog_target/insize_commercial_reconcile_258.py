@@ -6,6 +6,7 @@ import asyncio
 import csv
 import hashlib
 import json
+import os
 import re
 import subprocess
 from collections import Counter
@@ -413,6 +414,8 @@ UPDATE_COMMERCIAL_SQL = """
 UPDATE products
 SET base_price = %s, is_available = %s
 WHERE id = %s AND sku = %s AND deleted_at IS NULL
+  AND base_price IS NOT DISTINCT FROM %s
+  AND is_available IS NOT DISTINCT FROM %s
 """
 
 
@@ -594,6 +597,28 @@ def assert_apply_authorization_gates(
             raise ApplyAbort("missing_confirm_batch_id")
     if not confirm_production_write:
         raise ApplyAbort("missing_confirm_production_write")
+    if os.getenv("KARZAR_ALLOW_PRODUCTION_WRITE", "").strip() != "1":
+        raise ApplyAbort("missing_KARZAR_ALLOW_PRODUCTION_WRITE")
+    if os.getenv("KARZAR_INGESTION_CATEGORY", "").strip().upper() != "B":
+        raise ApplyAbort("missing_KARZAR_INGESTION_CATEGORY=B")
+
+
+verify_stale_guard = stale_hash_guard
+
+
+@dataclass
+class ApplyJournal:
+    batch_id: str
+    started_at: str | None
+    finished_at: str
+    committed: bool
+    rows_written: int
+    stale_guard: dict[str, Any]
+    metadata: dict[str, Any] = field(default_factory=dict)
+    rows: list[dict[str, Any]] = field(default_factory=list)
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 def writer_contract_summary() -> dict[str, Any]:
@@ -703,6 +728,8 @@ def apply_plan_rows(
                 prop_avail,
                 plan.product_id,
                 plan.sku,
+                _price_db_value(before_price),
+                before_avail,
             ),
         )
         ok = getattr(cur, "rowcount", 0) == 1
@@ -811,6 +838,8 @@ def rollback_plan_rows(
                 row.pre_is_available,
                 row.product_id,
                 row.sku,
+                _price_db_value(before_price),
+                before_avail,
             ),
         )
         if getattr(cur, "rowcount", 0) != 1:
