@@ -1,0 +1,43 @@
+{
+  "generated_at_utc": "2026-10-06T11:11:47.499788+00:00",
+  "kind": "insize_pilot_recovery",
+  "rows": [
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3741,
+      "sku": "0213-500A",
+      "target_base_price": "13980000",
+      "timestamp": "2026-10-06T11:11:47.499623+00:00",
+      "workbook_CODE": "0213-A500"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 3812,
+      "sku": "6297-1A",
+      "target_base_price": "3870000",
+      "timestamp": "2026-10-06T11:11:47.499650+00:00",
+      "workbook_CODE": "6297-1"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 4098,
+      "sku": "7527-1D",
+      "target_base_price": "6840000",
+      "timestamp": "2026-10-06T11:11:47.499659+00:00",
+      "workbook_CODE": "7527-D1"
+    },
+    {
+      "identity_mapping_type": "INSIZE_IDENTITY_ALIAS",
+      "old_base_price": null,
+      "product_id": 4100,
+      "sku": "7527-2D",
+      "target_base_price": "7800000",
+      "timestamp": "2026-10-06T11:11:47.499667+00:00",
+      "workbook_CODE": "7527-D2"
+    }
+  ],
+  "version": 1
+}
