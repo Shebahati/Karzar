@@ -368,7 +368,7 @@ def content_ready(
 
 @dataclass
 class MatchResult:
-    method: str  # exact | ambiguous | unmatched
+    method: str  # exact | WORKBOOK_TRAILING_A_ALIAS | INSIZE_IDENTITY_ALIAS | *_AMBIGUOUS | unmatched
     workbook_code: str | None = None
     candidates: list[str] = field(default_factory=list)
 
@@ -380,6 +380,170 @@ def match_exact(sku: str, workbook_by_code: dict[str, WorkbookRow]) -> MatchResu
     if key in workbook_by_code:
         return MatchResult(method="exact", workbook_code=workbook_by_code[key].code)
     return MatchResult(method="unmatched")
+
+
+def strip_exactly_one_terminal_workbook_A(code: str | None) -> str | None:
+    """Strip exactly one terminal ASCII ``A`` from a normalized workbook CODE.
+
+    INSIZE workbook-only alias direction: ``XA`` → ``X``.
+    Does not strip internal letters, prefixes, or more than one terminal ``A``.
+    Returns ``None`` when the code does not end with a single removable ``A``.
+    """
+    key = normalize_sku(code)
+    if len(key) < 2 or not key.endswith("A"):
+        return None
+    alias = key[:-1]
+    return alias or None
+
+
+def match_insize_workbook_terminal_a_alias(
+    sku: str,
+    workbook_by_code: dict[str, WorkbookRow],
+    *,
+    insize_db_skus: frozenset[str] | set[str],
+    brand_is_insize: bool = True,
+) -> MatchResult:
+    """INSIZE-only fallback after exact match fails: workbook ``XA`` → DB ``X``.
+
+    Collision gates (any failure → ``WORKBOOK_TRAILING_A_AMBIGUOUS`` / unmatched):
+    - brand must be INSIZE (caller sets ``brand_is_insize``);
+    - workbook ``XA`` has no exact Karzar ``XA`` product;
+    - workbook does not also contain exact non-A code ``X`` (Case C);
+    - exactly one candidate workbook ``XA`` row after normalize;
+    - alias ``X`` matches the requested DB SKU uniquely in the INSIZE set.
+    """
+    if not brand_is_insize:
+        return MatchResult(method="unmatched")
+
+    key = normalize_sku(sku)
+    if not key:
+        return MatchResult(method="unmatched")
+
+    # Exact always wins — caller should prefer match_exact first; defend here too.
+    if key in workbook_by_code:
+        return MatchResult(method="exact", workbook_code=workbook_by_code[key].code)
+
+    xa = key + "A"
+    wb = workbook_by_code.get(xa)
+    if wb is None:
+        return MatchResult(method="unmatched")
+
+    # Case B: workbook XA exact-matches DB XA → never alias to X.
+    if xa in insize_db_skus:
+        return MatchResult(
+            method="WORKBOOK_TRAILING_A_AMBIGUOUS",
+            workbook_code=wb.code,
+            candidates=[xa, key],
+        )
+
+    alias = strip_exactly_one_terminal_workbook_A(wb.code)
+    if alias != key:
+        return MatchResult(method="unmatched", workbook_code=wb.code)
+
+    return MatchResult(
+        method="WORKBOOK_TRAILING_A_ALIAS",
+        workbook_code=wb.code,
+        candidates=[alias],
+    )
+
+
+DEFAULT_INSIZE_IDENTITY_ALIAS_CSV = (
+    Path(__file__).resolve().parents[1]
+    / "docs"
+    / "architecture"
+    / "specs"
+    / "product-naming-v1"
+    / "INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv"
+)
+
+
+@dataclass(frozen=True)
+class InsizeIdentityAlias:
+    site_sku: str
+    authoritative_source_code: str
+    evidence_refs: str
+    reason: str
+    status: str
+
+
+def load_insize_identity_aliases(
+    path: Path | None = None,
+    *,
+    proven_only: bool = True,
+) -> dict[str, InsizeIdentityAlias]:
+    """Load auditable site-SKU → authoritative source-CODE aliases (INSIZE-only)."""
+    import csv
+
+    csv_path = Path(path) if path is not None else DEFAULT_INSIZE_IDENTITY_ALIAS_CSV
+    if not csv_path.is_file():
+        return {}
+    out: dict[str, InsizeIdentityAlias] = {}
+    with csv_path.open(encoding="utf-8", newline="") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            status = (row.get("status") or "").strip().upper()
+            if proven_only and status != "PROVEN":
+                continue
+            site = normalize_sku(row.get("site_sku"))
+            source = normalize_sku(row.get("authoritative_source_code"))
+            if not site or not source:
+                continue
+            out[site] = InsizeIdentityAlias(
+                site_sku=site,
+                authoritative_source_code=source,
+                evidence_refs=(row.get("evidence_refs") or "").strip(),
+                reason=(row.get("reason") or "").strip(),
+                status=status or "PROVEN",
+            )
+    return out
+
+
+def match_insize_identity_alias(
+    sku: str,
+    workbook_by_code: dict[str, WorkbookRow],
+    *,
+    aliases: dict[str, InsizeIdentityAlias] | None = None,
+    insize_db_skus: frozenset[str] | set[str] | None = None,
+    brand_is_insize: bool = True,
+) -> MatchResult:
+    """INSIZE explicit identity alias after exact and workbook-trailing-A fail.
+
+    Maps a frozen site SKU to an authoritative workbook/source CODE from the
+    auditable registry. Never mutates SKUs. Exact workbook match still wins.
+    """
+    if not brand_is_insize:
+        return MatchResult(method="unmatched")
+
+    key = normalize_sku(sku)
+    if not key:
+        return MatchResult(method="unmatched")
+
+    if key in workbook_by_code:
+        return MatchResult(method="exact", workbook_code=workbook_by_code[key].code)
+
+    registry = aliases if aliases is not None else load_insize_identity_aliases()
+    alias = registry.get(key)
+    if alias is None:
+        return MatchResult(method="unmatched")
+
+    source_key = normalize_sku(alias.authoritative_source_code)
+    wb = workbook_by_code.get(source_key)
+    if wb is None:
+        return MatchResult(method="unmatched", candidates=[source_key])
+
+    # Competing DB product already owning the authoritative source SKU.
+    if insize_db_skus is not None and source_key in insize_db_skus:
+        return MatchResult(
+            method="IDENTITY_ALIAS_AMBIGUOUS",
+            workbook_code=wb.code,
+            candidates=[source_key, key],
+        )
+
+    return MatchResult(
+        method="INSIZE_IDENTITY_ALIAS",
+        workbook_code=wb.code,
+        candidates=[source_key],
+    )
 
 
 def duplicate_workbook_codes(rows: Iterable[WorkbookRow]) -> dict[str, int]:

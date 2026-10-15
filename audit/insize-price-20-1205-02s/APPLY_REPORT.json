@@ -1,0 +1,67 @@
+{
+  "STATUS": "APPLIED_VERIFIED",
+  "workbook_sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "K6_rate": "2500000",
+  "alias_csv": "/tmp/INSIZE_SITE_TO_SOURCE_CODE_ALIASES.csv",
+  "wave_health": {
+    "exact_ok": 688,
+    "exact_need": 0,
+    "trailing_ok": 134,
+    "trailing_need": 0,
+    "prior_alias_ok": 4,
+    "prior_alias_need": 0
+  },
+  "canary": {
+    "sku": "1106-1002",
+    "usd": "526.8",
+    "toman": "131700000"
+  },
+  "proof_summary": {
+    "PROVEN": 3,
+    "already_correct": 0,
+    "requiring_update": 3,
+    "rejected": []
+  },
+  "apply": {
+    "updated": 3,
+    "rollback_rows": 3,
+    "recovery_snapshot_path": "/tmp/insize-1205-02s-audit/RECOVERY_1205_02S_20261006T112203Z.json",
+    "recovery_snapshot_sha256": "faf10600c8737847884f4ea9a0243f405bb3a8287440fa9cf64d9e24a8f28c63"
+  },
+  "rollback": {
+    "artifact": "/tmp/insize-1205-02s-audit/1205_FAMILY_ROLLBACK.csv",
+    "rows": 3,
+    "sha256": "1fc763ba6f5f6ef16592c56921343fcf82ad4995c0a11fe76d95eb44043b4da3",
+    "recovery_json": "/tmp/insize-1205-02s-audit/RECOVERY_1205_02S_20261006T112203Z.json",
+    "recovery_sha256": "faf10600c8737847884f4ea9a0243f405bb3a8287440fa9cf64d9e24a8f28c63"
+  },
+  "post_apply": {
+    "new_requiring_update": 0,
+    "new_already_correct": 3,
+    "exact_need": 0,
+    "trailing_need": 0,
+    "prior_alias_need": 0
+  },
+  "idempotency": {
+    "new_cohort_updates": 0,
+    "exact_cohort_updates": 0,
+    "trailing_a_cohort_updates": 0,
+    "prior_alias_cohort_updates": 0
+  },
+  "api_samples": [
+    {
+      "product_id": 3470,
+      "http": 200,
+      "sku": "1205-1502",
+      "base_price": "6480000"
+    },
+    {
+      "product_id": 3472,
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "product_id": 3473,
+      "error": "HTTP Error 404: Not Found"
+    }
+  ]
+}

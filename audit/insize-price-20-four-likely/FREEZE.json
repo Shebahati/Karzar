@@ -1,0 +1,196 @@
+{
+  "sha": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "K6": "2500000",
+  "wave_health": {
+    "exact_ok": 688,
+    "exact_need": 0,
+    "trailing_ok": 134,
+    "trailing_need": 0
+  },
+  "candidates": [
+    {
+      "site_sku": "0213-500A",
+      "source_code": "0213-A500",
+      "site_products": [
+        {
+          "product_id": 3741,
+          "sku": "0213-500A",
+          "manufacturer_code": null,
+          "name": "ترمومتر دیجیتال اینسایز(Insize) لیزری 380 درجه مدل 500A-0213",
+          "brand": "INSIZE | اینسایز",
+          "category": "متر",
+          "base_price": null,
+          "is_active": false,
+          "is_available": false,
+          "created_at": "2026-07-20 12:52:41.224246+00:00",
+          "updated_at": "2026-08-11 10:12:10.185782+00:00"
+        }
+      ],
+      "competing_db_source_sku": [],
+      "workbook_source": {
+        "code": "0213-A500",
+        "usd": "55.92",
+        "desc": "INFRARED THERMOMETER",
+        "row": 58,
+        "price_class": "VALID_WORKBOOK_PRICE",
+        "target_toman": "13980000"
+      },
+      "workbook_exact_site_sku": null,
+      "family_workbook_codes": [
+        {
+          "code": "0213-A500",
+          "usd": "55.92",
+          "desc": "INFRARED THERMOMETER",
+          "row": 58
+        }
+      ]
+    },
+    {
+      "site_sku": "6297-1A",
+      "source_code": "6297-1",
+      "site_products": [
+        {
+          "product_id": 3812,
+          "sku": "6297-1A",
+          "manufacturer_code": null,
+          "name": "پایه ساعت شیطونکی اینسایز (Insize) مدل 1A-6297",
+          "brand": "INSIZE | اینسایز",
+          "category": "ساعت شیطانکی",
+          "base_price": null,
+          "is_active": false,
+          "is_available": false,
+          "created_at": "2026-07-20 12:52:56.469152+00:00",
+          "updated_at": "2026-08-11 10:12:07.688527+00:00"
+        }
+      ],
+      "competing_db_source_sku": [],
+      "workbook_source": {
+        "code": "6297-1",
+        "usd": "15.48",
+        "desc": "DIAL TEST INDICATOR UNIVERSAL HOLDER",
+        "row": 44103,
+        "price_class": "VALID_WORKBOOK_PRICE",
+        "target_toman": "3870000"
+      },
+      "workbook_exact_site_sku": null,
+      "family_workbook_codes": [
+        {
+          "code": "6297-1",
+          "usd": "15.48",
+          "desc": "DIAL TEST INDICATOR UNIVERSAL HOLDER",
+          "row": 44103
+        },
+        {
+          "code": "6297-2",
+          "usd": "13.2",
+          "desc": "DIAL TEST INDICATOR UNIVERSAL HOLDER",
+          "row": 44104
+        },
+        {
+          "code": "6297-3",
+          "usd": "12.48",
+          "desc": "DIAL TEST INDICATOR UNIVERSAL HOLDER",
+          "row": 44105
+        }
+      ]
+    },
+    {
+      "site_sku": "7527-1D",
+      "source_code": "7527-D1",
+      "site_products": [
+        {
+          "product_id": 4098,
+          "sku": "7527-1D",
+          "manufacturer_code": null,
+          "name": "ذره بین 10x چراغ دار اینسایز (Insize) مدل 1D-7527",
+          "brand": "INSIZE | اینسایز",
+          "category": "انواع کولیس",
+          "base_price": null,
+          "is_active": false,
+          "is_available": false,
+          "created_at": "2026-07-20 12:53:53.035315+00:00",
+          "updated_at": "2026-08-11 10:10:32.530888+00:00"
+        }
+      ],
+      "competing_db_source_sku": [],
+      "workbook_source": {
+        "code": "7527-D1",
+        "usd": "27.36",
+        "desc": "MEASURING MAGNIFIER (WITH ILLUMINATION)",
+        "row": 47229,
+        "price_class": "VALID_WORKBOOK_PRICE",
+        "target_toman": "6840000"
+      },
+      "workbook_exact_site_sku": null,
+      "family_workbook_codes": [
+        {
+          "code": "7527-D1",
+          "usd": "27.36",
+          "desc": "MEASURING MAGNIFIER (WITH ILLUMINATION)",
+          "row": 47229
+        },
+        {
+          "code": "7527-D1B",
+          "usd": "29.16",
+          "desc": "MEASURING MAGNIFIERS (WITH ILLUMINATION)",
+          "row": 46390
+        },
+        {
+          "code": "7527-D2",
+          "usd": "31.2",
+          "desc": "MEASURING MAGNIFIER (WITH ILLUMINATION)",
+          "row": 46391
+        }
+      ]
+    },
+    {
+      "site_sku": "7527-2D",
+      "source_code": "7527-D2",
+      "site_products": [
+        {
+          "product_id": 4100,
+          "sku": "7527-2D",
+          "manufacturer_code": null,
+          "name": "ذره بین 10x چراغ دار اینسایز (Insize) مدل 2D-7527",
+          "brand": "INSIZE | اینسایز",
+          "category": "انواع کولیس",
+          "base_price": null,
+          "is_active": false,
+          "is_available": false,
+          "created_at": "2026-07-20 12:53:53.347604+00:00",
+          "updated_at": "2026-08-11 10:10:32.169883+00:00"
+        }
+      ],
+      "competing_db_source_sku": [],
+      "workbook_source": {
+        "code": "7527-D2",
+        "usd": "31.2",
+        "desc": "MEASURING MAGNIFIER (WITH ILLUMINATION)",
+        "row": 46391,
+        "price_class": "VALID_WORKBOOK_PRICE",
+        "target_toman": "7800000"
+      },
+      "workbook_exact_site_sku": null,
+      "family_workbook_codes": [
+        {
+          "code": "7527-D1",
+          "usd": "27.36",
+          "desc": "MEASURING MAGNIFIER (WITH ILLUMINATION)",
+          "row": 47229
+        },
+        {
+          "code": "7527-D1B",
+          "usd": "29.16",
+          "desc": "MEASURING MAGNIFIERS (WITH ILLUMINATION)",
+          "row": 46390
+        },
+        {
+          "code": "7527-D2",
+          "usd": "31.2",
+          "desc": "MEASURING MAGNIFIER (WITH ILLUMINATION)",
+          "row": 46391
+        }
+      ]
+    }
+  ]
+}

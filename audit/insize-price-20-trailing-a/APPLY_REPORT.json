@@ -1,0 +1,172 @@
+{
+  "STATUS": "APPLIED_VERIFIED",
+  "workbook_sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "workbook_filename": "موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx",
+  "K6_rate": "2500000",
+  "price_rule": "ROUND_HALF_UP(USD×K6)/10 Toman; workbook already +20%",
+  "identity": {
+    "utc_timestamp": "2026-10-06T10:53:06.620335+00:00",
+    "host_proof": "42c1b9f1bbde",
+    "expected_host": "srv5944957438",
+    "expected_db": "karzar_staging",
+    "container_proof": "lathe_api",
+    "volume_proof": "karzar_postgres_data",
+    "current_database": "karzar_staging",
+    "git_sha": "UNKNOWN",
+    "app_env": "staging"
+  },
+  "identity_ok": true,
+  "identity_errors": [],
+  "matcher_direction": "WORKBOOK CODE ending A -> DB SKU without A",
+  "discovery": {
+    "previous_exact_aligned": 688,
+    "previous_unmatched": 171,
+    "exact_updates_required": 0,
+    "exact_invalid_workbook_price": 12,
+    "workbook_codes_ending_A": 1714,
+    "safe_workbook_a_to_db_no_a": 134,
+    "exact_match_wins": 0,
+    "non_a_workbook_collisions": 17,
+    "multiple_source_collisions": 0,
+    "source_na_excluded": 0,
+    "alias_sku_missing": 37,
+    "ambiguous": 0,
+    "remaining_genuine_unmatched": 37,
+    "alias_already_correct": 0,
+    "alias_requiring_update": 134
+  },
+  "gates": {
+    "ok": true,
+    "ambiguous_db": []
+  },
+  "canary": {
+    "sku": "1106-1002",
+    "usd": "526.8",
+    "rate": "2500000",
+    "toman": "131700000"
+  },
+  "artifacts": {
+    "dry_run": "/tmp/insize-price-20-trailing-a-audit/WORKBOOK_TRAILING_A_DRY_RUN.csv",
+    "ambiguous": "/tmp/insize-price-20-trailing-a-audit/WORKBOOK_TRAILING_A_AMBIGUOUS.csv",
+    "excluded": "/tmp/insize-price-20-trailing-a-audit/WORKBOOK_TRAILING_A_EXCLUDED.csv",
+    "remaining": "/tmp/insize-price-20-trailing-a-audit/REMAINING_UNMATCHED.csv"
+  },
+  "apply": {
+    "updated": 134,
+    "skipped_idempotent": 0,
+    "recovery_snapshot_path": "/tmp/insize-price-20-trailing-a-audit/RECOVERY_TRAILING_A_20261006T105305Z.json",
+    "recovery_snapshot_sha256": "4a432daa03d74cf85ac181d0cfdca123fb8bf62402ab0f56ddfb7a3e1761f154",
+    "rollback_rows": 134
+  },
+  "rollback": {
+    "artifact": "/tmp/insize-price-20-trailing-a-audit/WORKBOOK_TRAILING_A_ROLLBACK.csv",
+    "rows": 134,
+    "sha256": "1d73d039ab2597f33a965bfd31c84a1495182d66063c57bc7edb16ea311d677f",
+    "recovery_json": "/tmp/insize-price-20-trailing-a-audit/RECOVERY_TRAILING_A_20261006T105305Z.json",
+    "recovery_sha256": "4a432daa03d74cf85ac181d0cfdca123fb8bf62402ab0f56ddfb7a3e1761f154"
+  },
+  "post_apply": {
+    "exact_aligned": 688,
+    "exact_updates_required": 0,
+    "alias_requiring_update": 0,
+    "alias_already_correct": 134,
+    "remaining_unmatched": 37,
+    "WORKBOOK_TRAILING_A_PRICE_MISMATCH_COUNT": 0
+  },
+  "idempotency": {
+    "exact_cohort_updates": 0,
+    "workbook_trailing_a_updates": 0
+  },
+  "api_samples": [
+    {
+      "product_id": 1920,
+      "http": 200,
+      "sku": "3109-100",
+      "base_price": "23100000",
+      "workbook_CODE": "3109-100A",
+      "workbook_USD": "92.4",
+      "K6": "2500000",
+      "target_toman": "23100000",
+      "db_base_price": "23100000.00",
+      "db_api_agree": true
+    },
+    {
+      "product_id": 3772,
+      "http": 200,
+      "sku": "3260-25",
+      "base_price": "11400000",
+      "workbook_CODE": "3260-25A",
+      "workbook_USD": "45.6",
+      "K6": "2500000",
+      "target_toman": "11400000",
+      "db_base_price": "11400000.00",
+      "db_api_agree": true
+    },
+    {
+      "product_id": 3914,
+      "error": "HTTP Error 404: Not Found",
+      "workbook_CODE": "2122-35A",
+      "workbook_USD": "289.2",
+      "K6": "2500000",
+      "target_toman": "72300000",
+      "db_base_price": "72300000.00",
+      "db_api_agree": false
+    },
+    {
+      "product_id": 1834,
+      "http": 200,
+      "sku": "1183-150",
+      "base_price": "24660000",
+      "workbook_CODE": "1183-150A",
+      "workbook_USD": "98.64",
+      "K6": "2500000",
+      "target_toman": "24660000",
+      "db_base_price": "24660000.00",
+      "db_api_agree": true
+    },
+    {
+      "product_id": 1795,
+      "http": 200,
+      "sku": "1120-150",
+      "base_price": "22410000",
+      "workbook_CODE": "1120-150A",
+      "workbook_USD": "89.64",
+      "K6": "2500000",
+      "target_toman": "22410000",
+      "db_base_price": "22410000.00",
+      "db_api_agree": true
+    },
+    {
+      "product_id": 1860,
+      "http": 200,
+      "sku": "1311-150",
+      "base_price": "13140000",
+      "workbook_CODE": "1311-150A",
+      "workbook_USD": "52.56",
+      "K6": "2500000",
+      "target_toman": "13140000",
+      "db_base_price": "13140000.00",
+      "db_api_agree": true
+    },
+    {
+      "product_id": 1861,
+      "error": "HTTP Error 404: Not Found",
+      "workbook_CODE": "1311-200A",
+      "workbook_USD": "59.52",
+      "K6": "2500000",
+      "target_toman": "14880000",
+      "db_base_price": "14880000.00",
+      "db_api_agree": false
+    },
+    {
+      "product_id": 1862,
+      "error": "HTTP Error 404: Not Found",
+      "workbook_CODE": "1311-300A",
+      "workbook_USD": "93.12",
+      "K6": "2500000",
+      "target_toman": "23280000",
+      "db_base_price": "23280000.00",
+      "db_api_agree": false
+    }
+  ]
+}

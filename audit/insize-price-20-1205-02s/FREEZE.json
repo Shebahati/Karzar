@@ -1,0 +1,234 @@
+{
+  "workbook_sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "K6": "2500000",
+  "candidates": [
+    {
+      "product_id": 3470,
+      "site_sku": "1205-1502",
+      "source": "1205-1502S",
+      "current_base_price": "5073600",
+      "active": true
+    },
+    {
+      "product_id": 3472,
+      "site_sku": "1205-2002",
+      "source": "1205-2002S",
+      "current_base_price": "7694400",
+      "active": false
+    },
+    {
+      "product_id": 3473,
+      "site_sku": "1205-3002",
+      "source": "1205-3002S",
+      "current_base_price": "12835200",
+      "active": false
+    }
+  ],
+  "workbook_1205_family": [
+    {
+      "row": 14184,
+      "code": "1205-1501S",
+      "description": "VERNIER CALIPER",
+      "usd": "31.32",
+      "target_toman": "7830000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 51512,
+      "code": "1205-1502E",
+      "description": "VERNIER CALIPER",
+      "usd": "30.24",
+      "target_toman": "7560000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 225,
+      "code": "1205-1502S",
+      "description": "VERNIER CALIPER",
+      "usd": "25.92",
+      "target_toman": "6480000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14185,
+      "code": "1205-1503S",
+      "description": "VERNIER CALIPER",
+      "usd": "26.76",
+      "target_toman": "6690000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14186,
+      "code": "1205-150S",
+      "description": "VERNIER CALIPER",
+      "usd": "25.92",
+      "target_toman": "6480000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14187,
+      "code": "1205-2001S",
+      "description": "VERNIER CALIPER",
+      "usd": "47.76",
+      "target_toman": "11940000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 51513,
+      "code": "1205-2002E",
+      "description": "VERNIER CALIPER",
+      "usd": "45.48",
+      "target_toman": "11370000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 36,
+      "code": "1205-2002S",
+      "description": "VERNIER CALIPER",
+      "usd": "39.24",
+      "target_toman": "9810000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14188,
+      "code": "1205-2003S",
+      "description": "VERNIER CALIPER",
+      "usd": "43.92",
+      "target_toman": "10980000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14189,
+      "code": "1205-200S",
+      "description": "VERNIER CALIPER",
+      "usd": "39.36",
+      "target_toman": "9840000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14190,
+      "code": "1205-2501S",
+      "description": "VERNIER CALIPER",
+      "usd": "122.4",
+      "target_toman": "30600000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14191,
+      "code": "1205-2502S",
+      "description": "VERNIER CALIPER",
+      "usd": "84.48",
+      "target_toman": "21120000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14192,
+      "code": "1205-2503S",
+      "description": "VERNIER CALIPER",
+      "usd": "98.28",
+      "target_toman": "24570000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14193,
+      "code": "1205-250S",
+      "description": "VERNIER CALIPER",
+      "usd": "82.08",
+      "target_toman": "20520000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14194,
+      "code": "1205-3001S",
+      "description": "VERNIER CALIPER",
+      "usd": "81.24",
+      "target_toman": "20310000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 51514,
+      "code": "1205-3002E",
+      "description": "VERNIER CALIPER",
+      "usd": "78.48",
+      "target_toman": "19620000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 37,
+      "code": "1205-3002S",
+      "description": "VERNIER CALIPER",
+      "usd": "65.76",
+      "target_toman": "16440000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14195,
+      "code": "1205-3003S",
+      "description": "VERNIER CALIPER",
+      "usd": "78.12",
+      "target_toman": "19530000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    },
+    {
+      "row": 14196,
+      "code": "1205-300S",
+      "description": "VERNIER CALIPER",
+      "usd": "66",
+      "target_toman": "16500000",
+      "price_class": "VALID_WORKBOOK_PRICE",
+      "duplicate": false
+    }
+  ],
+  "oem_suffix_semantics": {
+    "S_series": "1205 stainless vernier family; bare *S = graduation 0.05mm/1/128 accuracy ±0.05",
+    "digit_2_in_code": "within 1205 family, *02S = graduation 0.02mm/0.001 accuracy ±0.03 (OEM 108A)",
+    "E_suffix": "present only in distributor workbook (*02E); no OEM 108A/product_list identity found",
+    "product_list_convention": "Asal list uses 1205-{range}2 for OEM 1205-{range}2S and 1205-{range}S for OEM 1205-{range}S"
+  },
+  "historical": {
+    "site_suffix_1": "OEM *01S (0.02mm metric-only) — no Karzar 1205-*01 siblings in DB",
+    "site_suffix_2": "product_list/OEM 0.02mm dual-scale form written as 1205-*02 (= OEM 1205-*02S)",
+    "evidence": "BACKFILL_EXACT_LIVE product_list codes; OEM 108A page43; scripts/insize_price_update.py 1205-2002S→1205-2002"
+  },
+  "aliases_registered": [
+    {
+      "site_sku": "1205-1502",
+      "authoritative_source_code": "1205-1502S",
+      "evidence_refs": "OEM 108A EXACT 1205-1502S vernier graduation 0.02mm/0.001 accuracy ±0.03mm; Asal product_list SHA6973018c page5 code 1205-1502 0/02mm stainless 15cm (list omits terminal S); site specs resolution 0.02mm accuracy ±0.03; sibling DB 1205-150S is distinct 0.05mm OEM 1205-150S; workbook 1205-1502E has no OEM/product_list identity",
+      "reason": "Site/product_list 1205-1502 is OEM/workbook 1205-1502S (0.02mm dual-scale); NOT 1205-150S and NOT workbook-only 1205-1502E",
+      "status": "PROVEN"
+    },
+    {
+      "site_sku": "1205-2002",
+      "authoritative_source_code": "1205-2002S",
+      "evidence_refs": "OEM 108A EXACT 1205-2002S vernier graduation 0.02mm/0.001 accuracy ±0.03mm; Asal product_list SHA6973018c page5 code 1205-2002 0/02mm; site specs resolution 0.02mm accuracy ±0.03; sibling DB 1205-200S distinct 0.05mm; historical scripts/insize_price_update.py documents 1205-2002S→1205-2002; workbook 1205-2002E lacks OEM identity",
+      "reason": "Site/product_list 1205-2002 is OEM/workbook 1205-2002S; NOT 1205-200S and NOT 1205-2002E",
+      "status": "PROVEN"
+    },
+    {
+      "site_sku": "1205-3002",
+      "authoritative_source_code": "1205-3002S",
+      "evidence_refs": "OEM 108A EXACT 1205-3002S vernier graduation 0.02mm/0.001 accuracy ±0.03mm; Asal product_list SHA6973018c page5 code 1205-3002 0/02mm; site specs resolution 0.02mm accuracy ±0.03; sibling DB 1205-300S distinct 0.05mm; workbook 1205-3002E lacks OEM identity",
+      "reason": "Site/product_list 1205-3002 is OEM/workbook 1205-3002S; NOT 1205-300S and NOT 1205-3002E",
+      "status": "PROVEN"
+    }
+  ]
+}
