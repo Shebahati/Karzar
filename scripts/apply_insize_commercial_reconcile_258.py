@@ -35,10 +35,9 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     ApplyAbort,
     apply_plan_rows,
     assert_apply_authorization_gates,
-    assert_expected_production_database_identity,
     assert_plan_matches_evidence,
     classify_owner_freshness,
-    fetch_database_identity,
+    resolve_production_database_identity,
     load_apply_journal,
     load_plan_rows,
     load_source_manifest,
@@ -169,8 +168,10 @@ def main(argv: list[str] | None = None) -> int:
         )
         if not args.database_url:
             raise ApplyAbort("apply_requires_database_url")
-        db_identity = fetch_database_identity(args.database_url)
-        assert_expected_production_database_identity(db_identity)
+        db_identity = resolve_production_database_identity(
+            database_url=args.database_url,
+            ssh_host=args.ssh_host,
+        )
         batch_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         metadata = {
             "started_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -222,8 +223,10 @@ def main(argv: list[str] | None = None) -> int:
         )
         if not args.database_url:
             raise ApplyAbort("rollback_requires_database_url")
-        db_identity = fetch_database_identity(args.database_url)
-        assert_expected_production_database_identity(db_identity)
+        db_identity = resolve_production_database_identity(
+            database_url=args.database_url,
+            ssh_host=args.ssh_host,
+        )
         batch_id = args.confirm_batch_id
         apply_journal = load_apply_journal(journal_dir, batch_id)
         validate_apply_journal_for_rollback(

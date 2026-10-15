@@ -33,10 +33,13 @@ OWNER_AUTH_ROLLBACK = "AUTHORIZE_INSIZE_FINAL_COMMERCIAL_ROLLBACK"
 DEFAULT_ATTESTED_SOURCE_AGE_DAYS = 7
 
 # Live Karzar VPS catalog DB (CR-011 historic name).
+EXPECTED_LIVE_VPS_HOST = "srv5944957438"
 EXPECTED_PRODUCTION_DATABASE: dict[str, str] = {
     "current_database": "karzar_staging",
     "current_user": "karzar_staging",
     "postgres_container": "lathe_postgres",
+    "expected_live_host": EXPECTED_LIVE_VPS_HOST,
+    "pg_system_identifier": "7664189378775347234",
 }
 
 PLACEHOLDER_ILIKE = (
@@ -265,21 +268,102 @@ def validate_production_source_xlsx(path: Path) -> dict[str, str]:
     return {"SOURCE_FILE_PRESENT": "YES", "SOURCE_SHA_MATCH": "YES"}
 
 
-def assert_expected_production_database_identity(observed: dict[str, Any]) -> None:
+def _identity_fingerprint(observed: dict[str, Any]) -> str:
+    return str(observed.get("pg_system_identifier") or "").strip()
+
+
+def assert_expected_production_database_identity(
+    observed: dict[str, Any],
+    *,
+    ssh_reference: dict[str, Any] | None = None,
+) -> None:
     db = str(observed.get("current_database") or "").strip()
     user = str(observed.get("current_user") or "").strip()
-    if db != EXPECTED_PRODUCTION_DATABASE["current_database"]:
-        raise ApplyAbort(f"BLOCKED_DATABASE_IDENTITY_MISMATCH:database={db!r}")
-    if user != EXPECTED_PRODUCTION_DATABASE["current_user"]:
-        raise ApplyAbort(f"BLOCKED_DATABASE_IDENTITY_MISMATCH:user={user!r}")
+    fp = _identity_fingerprint(observed)
+    expected = EXPECTED_PRODUCTION_DATABASE
+    if db != expected["current_database"]:
+        raise ApplyAbort("BLOCKED_DATABASE_IDENTITY_MISMATCH")
+    if user != expected["current_user"]:
+        raise ApplyAbort("BLOCKED_DATABASE_IDENTITY_MISMATCH")
+    if fp != expected["pg_system_identifier"]:
+        raise ApplyAbort("BLOCKED_DATABASE_IDENTITY_MISMATCH")
+    host = str(observed.get("expected_live_host") or observed.get("live_host_proof") or "").strip()
+    if host and host != expected["expected_live_host"]:
+        raise ApplyAbort("BLOCKED_DATABASE_IDENTITY_MISMATCH")
+    container = str(observed.get("postgres_container") or "").strip()
+    if container and container != expected["postgres_container"]:
+        raise ApplyAbort("BLOCKED_DATABASE_IDENTITY_MISMATCH")
+    if ssh_reference is not None:
+        if _identity_fingerprint(ssh_reference) != fp:
+            raise ApplyAbort("BLOCKED_DATABASE_IDENTITY_MISMATCH")
+        if str(ssh_reference.get("current_database") or "") != db:
+            raise ApplyAbort("BLOCKED_DATABASE_IDENTITY_MISMATCH")
 
 
-def database_identity_matches(observed: dict[str, Any]) -> bool:
+def database_identity_matches(
+    observed: dict[str, Any],
+    *,
+    ssh_reference: dict[str, Any] | None = None,
+) -> bool:
     try:
-        assert_expected_production_database_identity(observed)
+        assert_expected_production_database_identity(observed, ssh_reference=ssh_reference)
     except ApplyAbort:
         return False
     return True
+
+
+async def _fetch_pg_system_identifier_async(conn: Any) -> str:
+    try:
+        row = await conn.fetchrow("SELECT system_identifier::text FROM pg_control_system()")
+        if row and row[0]:
+            return str(row[0]).strip()
+    except Exception:
+        pass
+    return ""
+
+
+def fetch_production_identity_ssh_reference(ssh_host: str = "karzar-vps") -> dict[str, str]:
+    from phase2c_live_readonly_census import _run_ssh_psql
+
+    host_proof = subprocess.run(
+        ["ssh", "-o", "BatchMode=yes", ssh_host, "hostname"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    db = _run_ssh_psql("SELECT current_database();", ssh_host=ssh_host).splitlines()[-1].strip()
+    user = _run_ssh_psql("SELECT current_user;", ssh_host=ssh_host).splitlines()[-1].strip()
+    sys_id = _run_ssh_psql(
+        "SELECT system_identifier::text FROM pg_control_system();",
+        ssh_host=ssh_host,
+    ).splitlines()[-1].strip()
+    proof = read_only_session_proof_ssh(ssh_host)
+    return {
+        "current_database": db,
+        "current_user": user,
+        "pg_system_identifier": sys_id,
+        "postgres_container": EXPECTED_PRODUCTION_DATABASE["postgres_container"],
+        "expected_live_host": EXPECTED_LIVE_VPS_HOST,
+        "live_host_proof": host_proof,
+        "transaction_read_only": proof.get("transaction_read_only", ""),
+    }
+
+
+def resolve_production_database_identity(
+    *,
+    database_url: str = "",
+    ssh_host: str = "karzar-vps",
+) -> dict[str, Any]:
+    ssh_reference = fetch_production_identity_ssh_reference(ssh_host)
+    if database_url:
+        url_identity = fetch_database_identity(database_url)
+        url_identity["database_url_host"] = normalize_database_url(database_url).split("@")[-1]
+        assert_expected_production_database_identity(url_identity, ssh_reference=ssh_reference)
+        merged = {**ssh_reference, **url_identity}
+        merged["pg_system_identifier"] = ssh_reference["pg_system_identifier"]
+        return merged
+    assert_expected_production_database_identity(ssh_reference)
+    return ssh_reference
 
 
 def load_plan_rows(plan_csv: Path) -> list[PlanRow]:
@@ -550,10 +634,14 @@ async def fetch_database_identity_async(database_url: str) -> dict[str, str]:
                    COALESCE(inet_server_addr()::text, '') AS server_addr
             """
         )
+        sys_id = await _fetch_pg_system_identifier_async(conn)
         return {
             "current_database": row["current_database"],
             "current_user": row["current_user"],
             "server_addr": row["server_addr"] or "",
+            "pg_system_identifier": sys_id,
+            "postgres_container": EXPECTED_PRODUCTION_DATABASE["postgres_container"],
+            "expected_live_host": EXPECTED_LIVE_VPS_HOST,
         }
     finally:
         await conn.close()
@@ -564,17 +652,7 @@ def fetch_database_identity(database_url: str) -> dict[str, str]:
 
 
 def fetch_database_identity_ssh(ssh_host: str) -> dict[str, str]:
-    from phase2c_live_readonly_census import _run_ssh_psql
-
-    db = _run_ssh_psql("SELECT current_database();", ssh_host=ssh_host).splitlines()[-1].strip()
-    user = _run_ssh_psql("SELECT current_user;", ssh_host=ssh_host).splitlines()[-1].strip()
-    proof = read_only_session_proof_ssh(ssh_host)
-    return {
-        "current_database": db,
-        "current_user": user,
-        "postgres_container": EXPECTED_PRODUCTION_DATABASE["postgres_container"],
-        "transaction_read_only": proof.get("transaction_read_only", ""),
-    }
+    return fetch_production_identity_ssh_reference(ssh_host)
 
 
 async def fetch_hash_rows_readonly_async(database_url: str, product_ids: list[int]) -> dict[int, dict[str, str]]:
@@ -762,8 +840,19 @@ def write_journal_atomic(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     data = json.dumps(payload, indent=2)
-    tmp.write_text(data, encoding="utf-8")
+    with tmp.open("w", encoding="utf-8") as handle:
+        handle.write(data)
+        handle.flush()
+        os.fsync(handle.fileno())
     os.replace(tmp, path)
+    try:
+        dir_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(dir_fd)
+        finally:
+            os.close(dir_fd)
+    except OSError:
+        pass
 
 
 def load_apply_journal(journal_dir: Path, batch_id: str) -> dict[str, Any]:
@@ -799,6 +888,8 @@ def validate_apply_journal_for_rollback(
         raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
     stored = journal.get("database_identity") or {}
     if stored.get("current_database") != database_identity.get("current_database"):
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
+    if stored.get("pg_system_identifier") != database_identity.get("pg_system_identifier"):
         raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
     if journal.get("POST_COMMIT_VERIFICATION") != "PASS":
         raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
@@ -1048,23 +1139,73 @@ def apply_plan_rows(
             )
         rows_written += 1
 
+    commit_ack = False
     try:
         conn.commit()
+        commit_ack = True
     except Exception:
+        commit_ack = False
+
+    verify_report: dict[str, Any] = {"POST_COMMIT_VERIFICATION": "SKIPPED"}
+    if not commit_ack and database_url:
+        live_post = fetch_hash_rows_readonly(database_url, product_ids)
+        verify_report = verify_post_apply_hashes(live_post, [asdict(r) for r in journal_rows])
+        ambiguous = _build_journal(
+            batch_id=batch_id,
+            metadata=metadata,
+            committed=False,
+            rows_written=rows_written,
+            guard=guard,
+            rows=journal_rows,
+            mode="APPLY",
+            journal_phase="COMMIT_OUTCOME_UNKNOWN",
+            post_commit=verify_report,
+        )
+        ambiguous["COMMIT_OUTCOME_UNKNOWN"] = "YES"
+        ambiguous["MANUAL_REVIEW_REQUIRED"] = "YES"
+        if verify_report.get("ok"):
+            ambiguous["COMMITTED"] = "YES"
+            ambiguous["committed"] = True
+            ambiguous["POST_COMMIT_VERIFICATION"] = "PASS"
+            ambiguous["observed_post_apply_state_verified"] = "YES"
+        writer(journal_path, ambiguous)
+        return ApplyResult(
+            mode="apply",
+            committed=bool(verify_report.get("ok")),
+            rows_written=rows_written,
+            batch_id=batch_id,
+            stale_guard=guard,
+            journal_path=journal_path,
+            journal=ambiguous,
+            production_apply_executed=bool(verify_report.get("ok")),
+            aborted_reason="COMMIT_OUTCOME_UNKNOWN",
+        )
+    if not commit_ack:
         aborted = _build_journal(
             batch_id=batch_id,
             metadata=metadata,
             committed=False,
-            rows_written=0,
+            rows_written=rows_written,
             guard=guard,
             rows=journal_rows,
             mode="APPLY",
-            journal_phase="ABORTED",
+            journal_phase="COMMIT_OUTCOME_UNKNOWN",
         )
+        aborted["COMMIT_OUTCOME_UNKNOWN"] = "YES"
+        aborted["MANUAL_REVIEW_REQUIRED"] = "YES"
         writer(journal_path, aborted)
-        raise
+        return ApplyResult(
+            mode="apply",
+            committed=False,
+            rows_written=rows_written,
+            batch_id=batch_id,
+            stale_guard=guard,
+            journal_path=journal_path,
+            journal=aborted,
+            production_apply_executed=False,
+            aborted_reason="COMMIT_OUTCOME_UNKNOWN",
+        )
 
-    verify_report: dict[str, Any] = {"POST_COMMIT_VERIFICATION": "SKIPPED"}
     if database_url:
         live_post = fetch_hash_rows_readonly(database_url, product_ids)
         verify_report = verify_post_apply_hashes(live_post, [asdict(r) for r in journal_rows])
@@ -1213,7 +1354,18 @@ WHERE id = %s AND sku = %s AND deleted_at IS NULL
         mode="ROLLBACK",
         journal_phase="PRE_COMMIT",
     )
-    writer(journal_path, pre_journal)
+    try:
+        writer(journal_path, pre_journal)
+    except OSError:
+        conn.rollback()
+        return ApplyResult(
+            mode="rollback",
+            committed=False,
+            rows_written=0,
+            batch_id=batch_id,
+            stale_guard=guard,
+            aborted_reason="JOURNAL_WRITE_FAILED",
+        )
 
     cur = conn.cursor()
     rows_written = 0
@@ -1231,12 +1383,47 @@ WHERE id = %s AND sku = %s AND deleted_at IS NULL
             )
         rows_written += 1
 
-    conn.commit()
+    commit_ack = False
+    try:
+        conn.commit()
+        commit_ack = True
+    except Exception:
+        commit_ack = False
 
     verify_report: dict[str, Any] = {"POST_ROLLBACK_VERIFICATION": "SKIPPED"}
     if database_url:
         live_post = fetch_hash_rows_readonly(database_url, product_ids)
         verify_report = verify_post_rollback_hashes(live_post, [asdict(r) for r in rollback_journal_rows])
+
+    if not commit_ack:
+        ambiguous = _build_journal(
+            batch_id=batch_id,
+            metadata={**metadata, "rollback": True},
+            committed=bool(verify_report.get("ok")),
+            rows_written=rows_written,
+            guard=guard,
+            rows=rollback_journal_rows,
+            mode="ROLLBACK",
+            journal_phase="COMMIT_OUTCOME_UNKNOWN",
+            post_commit=verify_report,
+        )
+        ambiguous["COMMIT_OUTCOME_UNKNOWN"] = "YES"
+        ambiguous["MANUAL_REVIEW_REQUIRED"] = "YES"
+        if verify_report.get("ok"):
+            ambiguous["COMMITTED"] = "YES"
+            ambiguous["committed"] = True
+        writer(journal_path, ambiguous)
+        return ApplyResult(
+            mode="rollback",
+            committed=bool(verify_report.get("ok")),
+            rows_written=rows_written,
+            batch_id=batch_id,
+            stale_guard=guard,
+            journal_path=journal_path,
+            journal=ambiguous,
+            production_apply_executed=bool(verify_report.get("ok")),
+            aborted_reason="COMMIT_OUTCOME_UNKNOWN",
+        )
 
     final_journal = _build_journal(
         batch_id=batch_id,
@@ -1319,16 +1506,19 @@ def production_preflight(
     rollback_sha_match = rollback_sha == LOCKED_ROLLBACK_MANIFEST_SHA256
     stats = assert_plan_matches_evidence(plan_rows, evidence_dir)
     product_ids = [r.product_id for r in plan_rows]
+    ssh_reference = fetch_production_identity_ssh_reference(ssh_host)
     if database_url:
         db_identity = fetch_database_identity(database_url)
         db_identity["database_url_host"] = normalize_database_url(database_url).split("@")[-1]
         live = fetch_hash_rows_readonly(database_url, product_ids)
         tro = "on"
+        identity_match = database_identity_matches(db_identity, ssh_reference=ssh_reference)
+        db_identity = {**ssh_reference, **db_identity, "pg_system_identifier": ssh_reference["pg_system_identifier"]}
     else:
-        db_identity = fetch_database_identity_ssh(ssh_host)
+        db_identity = ssh_reference
         live = fetch_hash_rows_ssh(ssh_host, product_ids)
         tro = db_identity.get("transaction_read_only", "")
-    identity_match = database_identity_matches(db_identity)
+        identity_match = database_identity_matches(db_identity)
     guard = stale_hash_guard(plan_rows, live)
     status = "READY"
     if not guard.ok:
