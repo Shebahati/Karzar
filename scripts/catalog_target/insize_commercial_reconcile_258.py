@@ -98,6 +98,37 @@ def state_hash(row: dict[str, str]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def canonical_price_text(raw: str) -> str:
+    """Normalize integral PostgreSQL Decimal text for post-apply hashing (e.g. 3210000.00 → 3210000)."""
+    s = (raw or "").strip()
+    if not s or s.lower() in {"none", "null"}:
+        return ""
+    try:
+        value = Decimal(s)
+    except InvalidOperation:
+        return s
+    if value.is_nan() or value.is_infinite():
+        return s
+    if value == value.to_integral_value():
+        return str(value.to_integral_value())
+    return s
+
+
+def canonicalize_post_state_for_hash(row: dict[str, str]) -> dict[str, str]:
+    """Post-commit / rollback drift hashing only — does not alter pre-apply stale guard."""
+    out = dict(row)
+    out["base_price"] = canonical_price_text(str(row.get("base_price") or ""))
+    return out
+
+
+def post_state_hash(row: dict[str, str]) -> str:
+    return state_hash(canonicalize_post_state_for_hash(row))
+
+
+def prices_semantically_equal(left: str, right: str) -> bool:
+    return canonical_price_text(left) == canonical_price_text(right)
+
+
 def _image_exists_sql(alias: str = "p") -> str:
     clauses = " AND ".join(
         f"pi.image_url NOT ILIKE '%{tok}%'" for tok in PLACEHOLDER_ILIKE
@@ -567,10 +598,10 @@ def compute_expected_post_hash(live_row: dict[str, str], plan: PlanRow) -> str:
     prop_avail, prop_price = proposed_values_for_row(plan)
     projected = dict(live_row)
     if plan_mutates_price(plan):
-        projected["base_price"] = "" if prop_price is None else str(prop_price)
+        projected["base_price"] = canonical_price_text("" if prop_price is None else str(prop_price))
     if plan_mutates_availability(plan):
         projected["is_available"] = "true" if prop_avail else "false"
-    return state_hash(projected)
+    return post_state_hash(projected)
 
 
 def build_mutation_sql(
@@ -883,7 +914,17 @@ def load_apply_journal(journal_dir: Path, batch_id: str) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def validate_apply_journal_for_rollback(
+def post_apply_reverification_artifact_path(evidence_dir: Path, batch_id: str) -> Path:
+    return evidence_dir / f"POST_APPLY_REVERIFICATION_{batch_id}.json"
+
+
+def load_post_apply_reverification_artifact(path: Path) -> dict[str, Any]:
+    if not path.is_file():
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def validate_committed_apply_journal_core(
     journal: dict[str, Any],
     *,
     batch_id: str,
@@ -893,6 +934,7 @@ def validate_apply_journal_for_rollback(
     database_identity: dict[str, Any],
     expected_rows: int = EXPECTED_ELIGIBLE_ROWS,
 ) -> None:
+    """Committed APPLY journal binding for rollback (excludes post-apply verification status)."""
     if journal.get("mode") != "APPLY":
         raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
     if journal.get("batch_id") != batch_id:
@@ -900,6 +942,8 @@ def validate_apply_journal_for_rollback(
     if journal.get("COMMITTED") != "YES" or not journal.get("committed"):
         raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
     if int(journal.get("ROWS_WRITTEN") or 0) != expected_rows:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
+    if len(journal.get("rows") or []) != expected_rows:
         raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
     if journal.get("source_sha256") != source_sha256:
         raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
@@ -912,10 +956,194 @@ def validate_apply_journal_for_rollback(
         raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
     if stored.get("pg_system_identifier") != database_identity.get("pg_system_identifier"):
         raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
-    if journal.get("POST_COMMIT_VERIFICATION") != "PASS":
-        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
-    if len(journal.get("rows") or []) != expected_rows:
-        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_APPLY_JOURNAL")
+
+
+def validate_post_apply_reverification_binding(
+    artifact: dict[str, Any],
+    *,
+    batch_id: str,
+    original_journal_sha256: str,
+    source_sha256: str,
+    plan_sha256: str,
+    rollback_manifest_sha256: str,
+    database_identity: dict[str, Any],
+    expected_rows: int = EXPECTED_ELIGIBLE_ROWS,
+) -> None:
+    """Strong binding between immutable APPLY journal bytes and a READ_ONLY semantic re-verify PASS."""
+    if artifact.get("STATUS") != "PASS" or not artifact.get("ok"):
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if artifact.get("reverification_mode") != "READ_ONLY":
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if artifact.get("batch_id") != batch_id:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if str(artifact.get("original_journal_sha256") or "") != original_journal_sha256:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if artifact.get("source_sha256") != source_sha256:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if artifact.get("plan_sha256") != plan_sha256:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if artifact.get("rollback_manifest_sha256") != rollback_manifest_sha256:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    stored = artifact.get("database_identity") or {}
+    if stored.get("current_database") != database_identity.get("current_database"):
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if stored.get("pg_system_identifier") != database_identity.get("pg_system_identifier"):
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if int(artifact.get("rows_checked") or 0) != expected_rows:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if int(artifact.get("semantic_match_count") or 0) != expected_rows:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if int(artifact.get("semantic_mismatch_count") or 0) != 0:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if int(artifact.get("POST_APPLY_SEMANTIC_MATCH_COUNT") or 0) != expected_rows:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+    if int(artifact.get("POST_APPLY_SEMANTIC_MISMATCH_COUNT") or 0) != 0:
+        raise ApplyAbort("BLOCK_ROLLBACK_NO_VALID_POST_APPLY_REVERIFICATION")
+
+
+def authorize_rollback_post_apply_verification(
+    journal: dict[str, Any],
+    *,
+    batch_id: str,
+    original_journal_path: Path,
+    evidence_dir: Path,
+    source_sha256: str,
+    plan_sha256: str,
+    rollback_manifest_sha256: str,
+    database_identity: dict[str, Any],
+    expected_rows: int = EXPECTED_ELIGIBLE_ROWS,
+) -> str:
+    if journal.get("POST_COMMIT_VERIFICATION") == "PASS":
+        return "journal_post_commit_pass"
+    journal_sha = sha256_file(original_journal_path)
+    artifact_path = post_apply_reverification_artifact_path(evidence_dir, batch_id)
+    artifact = load_post_apply_reverification_artifact(artifact_path)
+    validate_post_apply_reverification_binding(
+        artifact,
+        batch_id=batch_id,
+        original_journal_sha256=journal_sha,
+        source_sha256=source_sha256,
+        plan_sha256=plan_sha256,
+        rollback_manifest_sha256=rollback_manifest_sha256,
+        database_identity=database_identity,
+        expected_rows=expected_rows,
+    )
+    return "bound_post_apply_reverification_pass"
+
+
+def validate_apply_journal_for_rollback(
+    journal: dict[str, Any],
+    *,
+    batch_id: str,
+    source_sha256: str,
+    plan_sha256: str,
+    rollback_manifest_sha256: str,
+    database_identity: dict[str, Any],
+    expected_rows: int = EXPECTED_ELIGIBLE_ROWS,
+    evidence_dir: Path,
+    original_journal_path: Path,
+) -> str:
+    validate_committed_apply_journal_core(
+        journal,
+        batch_id=batch_id,
+        source_sha256=source_sha256,
+        plan_sha256=plan_sha256,
+        rollback_manifest_sha256=rollback_manifest_sha256,
+        database_identity=database_identity,
+        expected_rows=expected_rows,
+    )
+    return authorize_rollback_post_apply_verification(
+        journal,
+        batch_id=batch_id,
+        original_journal_path=original_journal_path,
+        evidence_dir=evidence_dir,
+        source_sha256=source_sha256,
+        plan_sha256=plan_sha256,
+        rollback_manifest_sha256=rollback_manifest_sha256,
+        database_identity=database_identity,
+        expected_rows=expected_rows,
+    )
+
+
+def prove_rollback_binding_eligibility(
+    *,
+    batch_id: str,
+    journal_dir: Path,
+    evidence_dir: Path,
+    database_identity: dict[str, Any],
+    source_sha256: str = OWNER_SOURCE_SHA256,
+    plan_sha256: str = LOCKED_PLAN_SHA256,
+    rollback_manifest_sha256: str = LOCKED_ROLLBACK_MANIFEST_SHA256,
+    expected_rows: int = EXPECTED_ELIGIBLE_ROWS,
+) -> dict[str, Any]:
+    """Read-only proof that rollback journal binding would pass (does not execute rollback)."""
+    journal_path = _journal_path(journal_dir, batch_id)
+    journal = json.loads(journal_path.read_text(encoding="utf-8"))
+    verification_source = validate_apply_journal_for_rollback(
+        journal,
+        batch_id=batch_id,
+        source_sha256=source_sha256,
+        plan_sha256=plan_sha256,
+        rollback_manifest_sha256=rollback_manifest_sha256,
+        database_identity=database_identity,
+        expected_rows=expected_rows,
+        evidence_dir=evidence_dir,
+        original_journal_path=journal_path,
+    )
+    reverify_path = post_apply_reverification_artifact_path(evidence_dir, batch_id)
+    return {
+        "batch_id": batch_id,
+        "rollback_binding_eligible": True,
+        "post_apply_verification_source": verification_source,
+        "original_journal_sha256": sha256_file(journal_path),
+        "original_POST_COMMIT_VERIFICATION": journal.get("POST_COMMIT_VERIFICATION"),
+        "post_apply_reverification_path": str(reverify_path),
+        "post_apply_reverification_present": reverify_path.is_file(),
+    }
+
+
+def validate_committed_apply_journal_for_reverify(
+    journal: dict[str, Any],
+    *,
+    batch_id: str,
+    live_database_identity: dict[str, Any],
+    expected_rows: int = EXPECTED_ELIGIBLE_ROWS,
+) -> None:
+    """Fail closed before READ_ONLY live row checks."""
+    validate_committed_apply_journal_core(
+        journal,
+        batch_id=batch_id,
+        source_sha256=OWNER_SOURCE_SHA256,
+        plan_sha256=LOCKED_PLAN_SHA256,
+        rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+        database_identity=live_database_identity,
+        expected_rows=expected_rows,
+    )
+    stored = journal.get("database_identity") or {}
+    if stored.get("current_database") != live_database_identity.get("current_database"):
+        raise ApplyAbort("BLOCK_POST_APPLY_REVERIFY_JOURNAL_INVALID")
+    if stored.get("pg_system_identifier") != live_database_identity.get("pg_system_identifier"):
+        raise ApplyAbort("BLOCK_POST_APPLY_REVERIFY_JOURNAL_INVALID")
+
+
+def post_apply_hash_matches(live: dict[str, str], expected_post_hash: str) -> bool:
+    """True when live matches journal expected_post_hash (literal or integral scale-normalized)."""
+    return state_hash(live) == expected_post_hash or post_state_hash(live) == expected_post_hash
+
+
+def _post_apply_difference_class(
+    live: dict[str, str],
+    expected_post_hash: str,
+) -> str:
+    actual_literal = state_hash(live)
+    actual_semantic = post_state_hash(live)
+    if actual_literal == expected_post_hash and actual_semantic == expected_post_hash:
+        return "EXACT_LITERAL_MATCH"
+    if actual_literal == expected_post_hash:
+        return "LEGACY_LITERAL_MATCH"
+    if actual_semantic == expected_post_hash:
+        return "DECIMAL_SCALE_ONLY"
+    return "COMMERCIAL_DRIFT"
 
 
 def verify_post_apply_hashes(
@@ -924,6 +1152,8 @@ def verify_post_apply_hashes(
 ) -> dict[str, Any]:
     mismatches: list[dict[str, str]] = []
     match_count = 0
+    semantic_match_count = 0
+    decimal_scale_only_rows: list[dict[str, str]] = []
     for row in journal_rows:
         pid = int(row["product_id"])
         live = live_by_id.get(pid)
@@ -931,24 +1161,44 @@ def verify_post_apply_hashes(
         if live is None:
             mismatches.append({"product_id": str(pid), "reason": "missing_live_row"})
             continue
-        actual = state_hash(live)
-        if actual == expected_post:
+        actual_literal = state_hash(live)
+        actual_semantic = post_state_hash(live)
+        diff_class = _post_apply_difference_class(live, expected_post)
+        if post_apply_hash_matches(live, expected_post):
+            semantic_match_count += 1
             match_count += 1
+            if diff_class == "DECIMAL_SCALE_ONLY":
+                decimal_scale_only_rows.append(
+                    {
+                        "product_id": str(pid),
+                        "sku": live.get("sku", ""),
+                        "literal_hash": actual_literal,
+                        "semantic_hash": actual_semantic,
+                        "expected_post_hash": expected_post,
+                        "live_base_price": live.get("base_price", ""),
+                        "canonical_base_price": canonical_price_text(live.get("base_price", "")),
+                    }
+                )
         else:
             mismatches.append(
                 {
                     "product_id": str(pid),
                     "reason": "post_hash_mismatch",
+                    "difference_class": diff_class,
                     "expected_post_hash": expected_post,
-                    "actual_hash": actual,
+                    "actual_hash_literal": actual_literal,
+                    "actual_hash_semantic": actual_semantic,
                 }
             )
-    ok = match_count == len(journal_rows) and not mismatches
+    ok = semantic_match_count == len(journal_rows) and not mismatches
     return {
         "ok": ok,
         "POST_COMMIT_VERIFICATION": "PASS" if ok else "FAIL",
         "POST_COMMIT_MATCH_COUNT": match_count,
-        "POST_COMMIT_MISMATCH_COUNT": len(journal_rows) - match_count,
+        "POST_COMMIT_MISMATCH_COUNT": len(journal_rows) - semantic_match_count,
+        "POST_APPLY_SEMANTIC_MATCH_COUNT": semantic_match_count,
+        "POST_APPLY_SEMANTIC_MISMATCH_COUNT": len(journal_rows) - semantic_match_count,
+        "decimal_scale_only_rows": decimal_scale_only_rows,
         "mismatches": mismatches,
     }
 
@@ -1271,17 +1521,18 @@ def rollback_post_apply_drift_guard(
         if live_row is None:
             mismatches.append({"product_id": str(pid), "reason": "missing"})
             continue
-        actual = state_hash(live_row)
         expected_post = str(row.get("expected_post_hash") or "")
-        if actual == expected_post:
+        if post_apply_hash_matches(live_row, expected_post):
             match_count += 1
         else:
+            actual = post_state_hash(live_row)
             mismatches.append(
                 {
                     "product_id": str(pid),
                     "reason": "post_apply_hash_drift",
                     "expected_post_hash": expected_post,
                     "actual_hash": actual,
+                    "actual_hash_literal": state_hash(live_row),
                 }
             )
     return StaleGuardResult(
@@ -1506,6 +1757,79 @@ def _build_journal(
     if post_commit:
         payload.update(post_commit)
     return payload
+
+
+def readonly_reverify_post_apply_journal(
+    *,
+    batch_id: str,
+    journal_dir: Path,
+    ssh_host: str = "karzar-vps",
+    database_url: str = "",
+    journal_path: Path | None = None,
+    expected_rows: int = EXPECTED_ELIGIBLE_ROWS,
+) -> dict[str, Any]:
+    """Read-only semantic re-verification of a committed APPLY journal (no DB writes)."""
+    path = journal_path or _journal_path(journal_dir, batch_id)
+    journal = json.loads(path.read_text(encoding="utf-8"))
+    rows = list(journal.get("rows") or [])
+    product_ids = [int(r["product_id"]) for r in rows]
+    if database_url:
+        db_identity = resolve_production_database_identity(
+            database_url=database_url,
+            ssh_host=ssh_host,
+        )
+    else:
+        db_identity = fetch_production_identity_ssh_reference(ssh_host)
+    validate_committed_apply_journal_for_reverify(
+        journal,
+        batch_id=batch_id,
+        live_database_identity=db_identity,
+        expected_rows=expected_rows,
+    )
+    if database_url:
+        live_by_id = fetch_hash_rows_readonly(database_url, product_ids)
+    else:
+        live_by_id = fetch_hash_rows_ssh(ssh_host, product_ids)
+    verify = verify_post_apply_hashes(live_by_id, rows)
+    original_journal_sha256 = sha256_file(path)
+    spotlight: dict[str, Any] = {}
+    for pid in (2079, 3691):
+        live = live_by_id.get(pid)
+        journal_row = next((r for r in rows if int(r["product_id"]) == pid), None)
+        if live and journal_row:
+            expected = str(journal_row.get("expected_post_hash") or "")
+            spotlight[str(pid)] = {
+                "sku": live.get("sku", ""),
+                "is_available": live.get("is_available"),
+                "base_price_live": live.get("base_price", ""),
+                "after_base_price_journal": journal_row.get("after_base_price", ""),
+                "commercial_state_match": post_apply_hash_matches(live, expected),
+                "difference_class": _post_apply_difference_class(live, expected),
+                "expected_post_hash": expected,
+                "semantic_hash_live": post_state_hash(live),
+                "literal_hash_live": state_hash(live),
+            }
+    return {
+        "batch_id": batch_id,
+        "original_journal_path": str(path),
+        "original_journal_sha256": original_journal_sha256,
+        "original_COMMITTED": journal.get("COMMITTED"),
+        "original_ROWS_WRITTEN": journal.get("ROWS_WRITTEN"),
+        "original_POST_COMMIT_VERIFICATION": journal.get("POST_COMMIT_VERIFICATION"),
+        "source_sha256": journal.get("source_sha256"),
+        "plan_sha256": journal.get("plan_sha256"),
+        "rollback_manifest_sha256": journal.get("rollback_manifest_sha256"),
+        "reverification_mode": "READ_ONLY",
+        "rows_checked": len(rows),
+        "semantic_match_count": verify.get("POST_APPLY_SEMANTIC_MATCH_COUNT", 0),
+        "semantic_mismatch_count": verify.get("POST_APPLY_SEMANTIC_MISMATCH_COUNT", 0),
+        "decimal_scale_only_rows": verify.get("decimal_scale_only_rows", []),
+        "database_identity": db_identity,
+        "git_sha": journal.get("git_sha", ""),
+        "product_spotlight": spotlight,
+        "STATUS": "PASS" if verify.get("ok") else "FAIL",
+        **verify,
+    }
 
 
 def production_preflight(

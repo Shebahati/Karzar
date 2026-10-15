@@ -27,15 +27,26 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     apply_plan_rows,
     assert_expected_production_database_identity,
     assert_locked_commercial_artifacts,
+    authorize_rollback_post_apply_verification,
     build_mutation_sql,
+    canonical_price_text,
     compute_expected_post_hash,
     load_apply_journal,
     load_plan_rows,
+    post_apply_hash_matches,
+    post_apply_reverification_artifact_path,
+    post_state_hash,
+    prices_semantically_equal,
     production_preflight,
+    prove_rollback_binding_eligibility,
+    readonly_reverify_post_apply_journal,
     rollback_plan_rows,
     rollback_post_apply_drift_guard,
+    sha256_file,
     state_hash,
     validate_apply_journal_for_rollback,
+    validate_committed_apply_journal_for_reverify,
+    validate_post_apply_reverification_binding,
     validate_production_source_xlsx,
     verify_post_apply_hashes,
     verify_post_rollback_hashes,
@@ -86,6 +97,31 @@ def _valid_apply_journal(**overrides: object) -> dict:
     }
     base.update(overrides)
     return base
+
+
+def _write_journal_file(journal: dict, journal_dir: Path, batch_id: str = "batch-1") -> Path:
+    path = journal_dir / f"INSIZE_COMMERCIAL_APPLY_JOURNAL_{batch_id}.json"
+    path.write_text(json.dumps(journal), encoding="utf-8")
+    return path
+
+
+def _bound_reverify_artifact(journal_path: Path, *, batch_id: str = "batch-1", rows: int = 1) -> dict:
+    return {
+        "STATUS": "PASS",
+        "ok": True,
+        "reverification_mode": "READ_ONLY",
+        "batch_id": batch_id,
+        "original_journal_sha256": sha256_file(journal_path),
+        "source_sha256": OWNER_SOURCE_SHA256,
+        "plan_sha256": LOCKED_PLAN_SHA256,
+        "rollback_manifest_sha256": LOCKED_ROLLBACK_MANIFEST_SHA256,
+        "database_identity": dict(CANONICAL_IDENTITY),
+        "rows_checked": rows,
+        "semantic_match_count": rows,
+        "semantic_mismatch_count": 0,
+        "POST_APPLY_SEMANTIC_MATCH_COUNT": rows,
+        "POST_APPLY_SEMANTIC_MISMATCH_COUNT": 0,
+    }
 
 
 class ProductionPreflightTests(unittest.TestCase):
@@ -221,19 +257,37 @@ class ApplyJournalBindingTests(unittest.TestCase):
         with self.assertRaises(ApplyAbort):
             load_apply_journal(Path(tempfile.mkdtemp()), "missing")
 
-    def _validate(self, journal: dict, **kwargs: object) -> None:
-        validate_apply_journal_for_rollback(
-            journal,
-            batch_id=str(kwargs.get("batch_id", journal.get("batch_id"))),
-            source_sha256=OWNER_SOURCE_SHA256,
-            plan_sha256=LOCKED_PLAN_SHA256,
-            rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
-            database_identity=CANONICAL_IDENTITY,
-            expected_rows=int(kwargs.get("expected_rows", 1)),
-        )
+    def _validate(self, journal: dict, *, evidence_dir: Path | None = None, **kwargs: object) -> str:
+        batch_id = str(kwargs.get("batch_id", journal.get("batch_id")))
+        expected_rows = int(kwargs.get("expected_rows", 1))
+        with tempfile.TemporaryDirectory() as tmp:
+            journal_dir = Path(tmp) / "apply-journals"
+            journal_dir.mkdir()
+            evidence = Path(tmp)
+            if evidence_dir is None:
+                evidence_dir = evidence
+            journal_path = _write_journal_file(journal, journal_dir, batch_id=batch_id)
+            if journal.get("POST_COMMIT_VERIFICATION") != "PASS":
+                artifact = _bound_reverify_artifact(journal_path, batch_id=batch_id, rows=expected_rows)
+                post_apply_reverification_artifact_path(evidence_dir, batch_id).write_text(
+                    json.dumps(artifact),
+                    encoding="utf-8",
+                )
+            return validate_apply_journal_for_rollback(
+                journal,
+                batch_id=batch_id,
+                source_sha256=OWNER_SOURCE_SHA256,
+                plan_sha256=LOCKED_PLAN_SHA256,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                database_identity=CANONICAL_IDENTITY,
+                expected_rows=expected_rows,
+                evidence_dir=evidence_dir,
+                original_journal_path=journal_path,
+            )
 
     def test_valid_journal_accepted(self):
-        self._validate(_valid_apply_journal())
+        source = self._validate(_valid_apply_journal())
+        self.assertEqual(source, "journal_post_commit_pass")
 
     def test_wrong_batch_blocked(self):
         with self.assertRaises(ApplyAbort):
@@ -243,9 +297,29 @@ class ApplyJournalBindingTests(unittest.TestCase):
         with self.assertRaises(ApplyAbort):
             self._validate(_valid_apply_journal(COMMITTED="NO", committed=False))
 
-    def test_post_verify_fail_blocked(self):
-        with self.assertRaises(ApplyAbort):
-            self._validate(_valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL"))
+    def test_post_verify_fail_without_reverify_blocked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            journal_dir = Path(tmp) / "apply-journals"
+            journal_dir.mkdir()
+            evidence = Path(tmp)
+            journal = _valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL")
+            journal_path = _write_journal_file(journal, journal_dir)
+            with self.assertRaises(ApplyAbort):
+                validate_apply_journal_for_rollback(
+                    journal,
+                    batch_id="batch-1",
+                    source_sha256=OWNER_SOURCE_SHA256,
+                    plan_sha256=LOCKED_PLAN_SHA256,
+                    rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                    database_identity=CANONICAL_IDENTITY,
+                    expected_rows=1,
+                    evidence_dir=evidence,
+                    original_journal_path=journal_path,
+                )
+
+    def test_post_verify_fail_with_bound_reverify_accepted(self):
+        source = self._validate(_valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL"))
+        self.assertEqual(source, "bound_post_apply_reverification_pass")
 
 
 class PostCommitVerificationTests(unittest.TestCase):
@@ -269,19 +343,125 @@ class PostCommitVerificationTests(unittest.TestCase):
         self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
 
 
+class PostApplyDecimalCanonicalizationTests(unittest.TestCase):
+    def test_canonical_price_scale_equivalence(self):
+        self.assertEqual(canonical_price_text("3210000"), canonical_price_text("3210000.00"))
+        self.assertEqual(canonical_price_text("17040000"), canonical_price_text("17040000.00"))
+        self.assertNotEqual(canonical_price_text("3210000"), canonical_price_text("3210001.00"))
+        self.assertTrue(prices_semantically_equal("3210000", "3210000.0"))
+        self.assertNotEqual(canonical_price_text(""), canonical_price_text("0"))
+
+    def test_product_2079_and_3691_regression_hashes(self):
+        base = {
+            "product_id": "2079",
+            "sku": "7110-300",
+            "brand_id": "3",
+            "is_active": "true",
+            "is_available": "true",
+            "deleted_at": "",
+            "image_present": "true",
+        }
+        row_int = {**base, "base_price": "3210000"}
+        row_scale = {**base, "base_price": "3210000.00"}
+        expected = "16c2ac657f756c70b317cf4c210d04d52cfa16a5f42f45e041bb45a00b551d3a"
+        self.assertEqual(post_state_hash(row_int), expected)
+        self.assertEqual(post_state_hash(row_scale), expected)
+        self.assertNotEqual(state_hash(row_scale), expected)
+
+        base2 = {**base, "product_id": "3691", "sku": "7110-1000"}
+        row2_int = {**base2, "base_price": "17040000"}
+        row2_scale = {**base2, "base_price": "17040000.00"}
+        expected2 = "7fb0a8aec72be3e97cb5fc30e8b005ad9e35576c3e43d898d7b396696a4cc6e7"
+        self.assertEqual(post_state_hash(row2_int), expected2)
+        self.assertEqual(post_state_hash(row2_scale), expected2)
+
+    def _hash_row(self, **overrides: str) -> dict[str, str]:
+        base = {
+            "product_id": "1",
+            "sku": "A",
+            "brand_id": "3",
+            "is_active": "true",
+            "is_available": "true",
+            "base_price": "100",
+            "deleted_at": "",
+            "image_present": "true",
+        }
+        base.update(overrides)
+        return base
+
+    def test_decimal_scale_passes_post_verify(self):
+        expected = post_state_hash(self._hash_row(base_price="3210000"))
+        live = self._hash_row(base_price="3210000.00")
+        self.assertTrue(post_apply_hash_matches(live, expected))
+        report = verify_post_apply_hashes(
+            {1: live},
+            [{"product_id": 1, "expected_post_hash": expected}],
+        )
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "PASS")
+        self.assertEqual(report["POST_APPLY_SEMANTIC_MATCH_COUNT"], 1)
+
+    def test_legacy_literal_db_scale_in_journal_expected(self):
+        expected = state_hash(self._hash_row(base_price="8760000.00"))
+        live = self._hash_row(base_price="8760000.00")
+        self.assertTrue(post_apply_hash_matches(live, expected))
+
+    def test_availability_drift_still_fails(self):
+        expected = post_state_hash(self._hash_row())
+        drifted = self._hash_row(is_available="false")
+        report = verify_post_apply_hashes(
+            {1: drifted},
+            [{"product_id": 1, "expected_post_hash": expected}],
+        )
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
+
+    def test_brand_drift_still_fails(self):
+        expected = post_state_hash(self._hash_row())
+        drifted = self._hash_row(brand_id="999")
+        report = verify_post_apply_hashes({1: drifted}, [{"product_id": 1, "expected_post_hash": expected}])
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
+
+    def test_image_present_drift_still_fails(self):
+        expected = post_state_hash(self._hash_row())
+        drifted = self._hash_row(image_present="false")
+        report = verify_post_apply_hashes({1: drifted}, [{"product_id": 1, "expected_post_hash": expected}])
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
+
+    def test_sku_drift_still_fails(self):
+        expected = post_state_hash(self._hash_row())
+        drifted = self._hash_row(sku="OTHER")
+        report = verify_post_apply_hashes({1: drifted}, [{"product_id": 1, "expected_post_hash": expected}])
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
+
+    def test_is_active_drift_still_fails(self):
+        expected = post_state_hash(self._hash_row())
+        drifted = self._hash_row(is_active="false")
+        report = verify_post_apply_hashes({1: drifted}, [{"product_id": 1, "expected_post_hash": expected}])
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
+
+    def test_rollback_drift_allows_decimal_scale_only(self):
+        live = self._hash_row(base_price="3210000")
+        expected_post = post_state_hash(live)
+        db_live = self._hash_row(base_price="3210000.00")
+        guard = rollback_post_apply_drift_guard(
+            [{"product_id": 1, "expected_post_hash": expected_post}],
+            {1: db_live},
+        )
+        self.assertTrue(guard.ok)
+
+
 class RollbackDriftTests(unittest.TestCase):
     def _row(self, live: dict[str, str], expected_post: str) -> dict:
         return {"product_id": int(live["product_id"]), "expected_post_hash": expected_post}
 
     def test_exact_post_hash_allowed(self):
         live = _live_for_plan(ApplyTransactionTests()._mini_plan()[0])
-        h = state_hash(live)
+        h = post_state_hash(live)
         guard = rollback_post_apply_drift_guard([self._row(live, h)], {int(live["product_id"]): live})
         self.assertTrue(guard.ok)
 
     def test_brand_drift_blocked(self):
         live = _live_for_plan(ApplyTransactionTests()._mini_plan()[0])
-        h = state_hash(live)
+        h = post_state_hash(live)
         drifted = dict(live)
         drifted["brand_id"] = "999"
         guard = rollback_post_apply_drift_guard([self._row(live, h)], {int(live["product_id"]): drifted})
@@ -404,16 +584,24 @@ class RollbackAcceptanceTests(unittest.TestCase):
 
 class ApplyJournalBindingExtraTests(unittest.TestCase):
     def test_wrong_rows_written_blocked(self):
-        with self.assertRaises(ApplyAbort):
-            validate_apply_journal_for_rollback(
-                _valid_apply_journal(ROWS_WRITTEN=EXPECTED_ELIGIBLE_ROWS),
-                batch_id="batch-1",
-                source_sha256=OWNER_SOURCE_SHA256,
-                plan_sha256=LOCKED_PLAN_SHA256,
-                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
-                database_identity=CANONICAL_IDENTITY,
-                expected_rows=1,
-            )
+        with tempfile.TemporaryDirectory() as tmp:
+            journal_dir = Path(tmp) / "apply-journals"
+            journal_dir.mkdir()
+            evidence = Path(tmp)
+            journal = _valid_apply_journal(ROWS_WRITTEN=EXPECTED_ELIGIBLE_ROWS)
+            journal_path = _write_journal_file(journal, journal_dir)
+            with self.assertRaises(ApplyAbort):
+                validate_apply_journal_for_rollback(
+                    journal,
+                    batch_id="batch-1",
+                    source_sha256=OWNER_SOURCE_SHA256,
+                    plan_sha256=LOCKED_PLAN_SHA256,
+                    rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                    database_identity=CANONICAL_IDENTITY,
+                    expected_rows=1,
+                    evidence_dir=evidence,
+                    original_journal_path=journal_path,
+                )
 
 
 
@@ -437,15 +625,22 @@ class LockedArtifactHelperTests(unittest.TestCase):
 
 class ApplyJournalBindingNegativeTests(unittest.TestCase):
     def _call(self, journal):
-        validate_apply_journal_for_rollback(
-            journal,
-            batch_id="batch-1",
-            source_sha256=OWNER_SOURCE_SHA256,
-            plan_sha256=LOCKED_PLAN_SHA256,
-            rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
-            database_identity=CANONICAL_IDENTITY,
-            expected_rows=1,
-        )
+        with tempfile.TemporaryDirectory() as tmp:
+            journal_dir = Path(tmp) / "apply-journals"
+            journal_dir.mkdir()
+            evidence = Path(tmp)
+            journal_path = _write_journal_file(journal, journal_dir)
+            validate_apply_journal_for_rollback(
+                journal,
+                batch_id="batch-1",
+                source_sha256=OWNER_SOURCE_SHA256,
+                plan_sha256=LOCKED_PLAN_SHA256,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+                evidence_dir=evidence,
+                original_journal_path=journal_path,
+            )
 
     def test_wrong_source_sha_in_journal_blocked(self):
         with self.assertRaises(ApplyAbort):
@@ -461,16 +656,348 @@ class ApplyJournalBindingNegativeTests(unittest.TestCase):
 
     def test_wrong_pg_system_identifier_blocked(self):
         identity = {**CANONICAL_IDENTITY, "pg_system_identifier": "wrong"}
+        with tempfile.TemporaryDirectory() as tmp:
+            journal_dir = Path(tmp) / "apply-journals"
+            journal_dir.mkdir()
+            evidence = Path(tmp)
+            journal = _valid_apply_journal()
+            journal_path = _write_journal_file(journal, journal_dir)
+            with self.assertRaises(ApplyAbort):
+                validate_apply_journal_for_rollback(
+                    journal,
+                    batch_id="batch-1",
+                    source_sha256=OWNER_SOURCE_SHA256,
+                    plan_sha256=LOCKED_PLAN_SHA256,
+                    rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                    database_identity=identity,
+                    expected_rows=1,
+                    evidence_dir=evidence,
+                    original_journal_path=journal_path,
+                )
+
+
+class PostApplyReverifyJournalGateTests(unittest.TestCase):
+    def test_uncommitted_journal_blocked(self):
+        journal = _valid_apply_journal(COMMITTED="NO", committed=False)
         with self.assertRaises(ApplyAbort):
-            validate_apply_journal_for_rollback(
+            validate_committed_apply_journal_for_reverify(
+                journal,
+                batch_id="batch-1",
+                live_database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_wrong_batch_id_blocked(self):
+        with self.assertRaises(ApplyAbort):
+            validate_committed_apply_journal_for_reverify(
+                _valid_apply_journal(),
+                batch_id="other",
+                live_database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_wrong_rows_written_blocked(self):
+        with self.assertRaises(ApplyAbort):
+            validate_committed_apply_journal_for_reverify(
+                _valid_apply_journal(ROWS_WRITTEN=2),
+                batch_id="batch-1",
+                live_database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_wrong_row_count_blocked(self):
+        with self.assertRaises(ApplyAbort):
+            validate_committed_apply_journal_for_reverify(
+                _valid_apply_journal(
+                    rows=[
+                        {
+                            "product_id": 5,
+                            "sku": "S5",
+                            "expected_post_hash": "post",
+                        },
+                        {
+                            "product_id": 6,
+                            "sku": "S6",
+                            "expected_post_hash": "post",
+                        },
+                    ]
+                ),
+                batch_id="batch-1",
+                live_database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_wrong_source_sha_blocked(self):
+        with self.assertRaises(ApplyAbort):
+            validate_committed_apply_journal_for_reverify(
+                _valid_apply_journal(source_sha256="bad"),
+                batch_id="batch-1",
+                live_database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_wrong_plan_sha_blocked(self):
+        with self.assertRaises(ApplyAbort):
+            validate_committed_apply_journal_for_reverify(
+                _valid_apply_journal(plan_sha256="bad"),
+                batch_id="batch-1",
+                live_database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_wrong_rollback_sha_blocked(self):
+        with self.assertRaises(ApplyAbort):
+            validate_committed_apply_journal_for_reverify(
+                _valid_apply_journal(rollback_manifest_sha256="bad"),
+                batch_id="batch-1",
+                live_database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_wrong_pg_system_identifier_blocked(self):
+        with self.assertRaises(ApplyAbort):
+            validate_committed_apply_journal_for_reverify(
                 _valid_apply_journal(),
                 batch_id="batch-1",
+                live_database_identity={**CANONICAL_IDENTITY, "pg_system_identifier": "wrong"},
+                expected_rows=1,
+            )
+
+    @mock.patch("catalog_target.insize_commercial_reconcile_258.fetch_hash_rows_ssh")
+    @mock.patch("catalog_target.insize_commercial_reconcile_258.fetch_production_identity_ssh_reference")
+    def test_valid_committed_journal_semantic_pass(self, id_mock, live_mock):
+        plan = ApplyTransactionTests()._mini_plan()[0]
+        live = _live_for_plan(plan)
+        post = compute_expected_post_hash(live, plan)
+        live_after = dict(live)
+        live_after["base_price"] = ""
+        journal = _valid_apply_journal(
+            ROWS_WRITTEN=1,
+            rows=[
+                {
+                    "product_id": plan.product_id,
+                    "sku": plan.sku,
+                    "expected_post_hash": post,
+                }
+            ],
+        )
+        id_mock.return_value = CANONICAL_IDENTITY
+        live_mock.return_value = {plan.product_id: live_after}
+        with tempfile.TemporaryDirectory() as tmp:
+            journal_dir = Path(tmp) / "apply-journals"
+            journal_dir.mkdir()
+            _write_journal_file(journal, journal_dir)
+            report = readonly_reverify_post_apply_journal(
+                batch_id="batch-1",
+                journal_dir=journal_dir,
+                expected_rows=1,
+            )
+        self.assertEqual(report["STATUS"], "PASS")
+        self.assertIn("original_journal_sha256", report)
+
+
+class RollbackReverificationBindingTests(unittest.TestCase):
+    def _paths(self, journal: dict, artifact: dict | None = None):
+        tmp = tempfile.mkdtemp()
+        journal_dir = Path(tmp) / "apply-journals"
+        journal_dir.mkdir()
+        evidence = Path(tmp)
+        journal_path = _write_journal_file(journal, journal_dir)
+        if artifact is not None:
+            post_apply_reverification_artifact_path(evidence, "batch-1").write_text(
+                json.dumps(artifact),
+                encoding="utf-8",
+            )
+        return evidence, journal_path, journal
+
+    def test_original_journal_pass_without_reverify(self):
+        journal = _valid_apply_journal()
+        evidence, journal_path, journal = self._paths(journal)
+        source = authorize_rollback_post_apply_verification(
+            journal,
+            batch_id="batch-1",
+            original_journal_path=journal_path,
+            evidence_dir=evidence,
+            source_sha256=OWNER_SOURCE_SHA256,
+            plan_sha256=LOCKED_PLAN_SHA256,
+            rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+            database_identity=CANONICAL_IDENTITY,
+            expected_rows=1,
+        )
+        self.assertEqual(source, "journal_post_commit_pass")
+
+    def test_fail_journal_without_artifact_blocked(self):
+        journal = _valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL")
+        evidence, journal_path, journal = self._paths(journal)
+        with self.assertRaises(ApplyAbort):
+            authorize_rollback_post_apply_verification(
+                journal,
+                batch_id="batch-1",
+                original_journal_path=journal_path,
+                evidence_dir=evidence,
                 source_sha256=OWNER_SOURCE_SHA256,
                 plan_sha256=LOCKED_PLAN_SHA256,
                 rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
-                database_identity=identity,
+                database_identity=CANONICAL_IDENTITY,
                 expected_rows=1,
             )
+
+    def test_fail_journal_with_valid_bound_reverify_accepted(self):
+        journal = _valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL")
+        evidence, journal_path, journal = self._paths(journal)
+        artifact = _bound_reverify_artifact(journal_path)
+        post_apply_reverification_artifact_path(evidence, "batch-1").write_text(
+            json.dumps(artifact),
+            encoding="utf-8",
+        )
+        source = authorize_rollback_post_apply_verification(
+            journal,
+            batch_id="batch-1",
+            original_journal_path=journal_path,
+            evidence_dir=evidence,
+            source_sha256=OWNER_SOURCE_SHA256,
+            plan_sha256=LOCKED_PLAN_SHA256,
+            rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+            database_identity=CANONICAL_IDENTITY,
+            expected_rows=1,
+        )
+        self.assertEqual(source, "bound_post_apply_reverification_pass")
+
+    def test_wrong_reverify_batch_blocked(self):
+        journal = _valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL")
+        evidence, journal_path, journal = self._paths(journal)
+        artifact = _bound_reverify_artifact(journal_path, batch_id="other")
+        with self.assertRaises(ApplyAbort):
+            validate_post_apply_reverification_binding(
+                artifact,
+                batch_id="batch-1",
+                original_journal_sha256=sha256_file(journal_path),
+                source_sha256=OWNER_SOURCE_SHA256,
+                plan_sha256=LOCKED_PLAN_SHA256,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_wrong_original_journal_sha256_blocked(self):
+        journal = _valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL")
+        evidence, journal_path, journal = self._paths(journal)
+        artifact = _bound_reverify_artifact(journal_path)
+        artifact["original_journal_sha256"] = "0" * 64
+        with self.assertRaises(ApplyAbort):
+            validate_post_apply_reverification_binding(
+                artifact,
+                batch_id="batch-1",
+                original_journal_sha256=sha256_file(journal_path),
+                source_sha256=OWNER_SOURCE_SHA256,
+                plan_sha256=LOCKED_PLAN_SHA256,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_wrong_source_sha_in_reverify_blocked(self):
+        journal = _valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL")
+        evidence, journal_path, journal = self._paths(journal)
+        artifact = _bound_reverify_artifact(journal_path)
+        artifact["source_sha256"] = "bad"
+        with self.assertRaises(ApplyAbort):
+            validate_post_apply_reverification_binding(
+                artifact,
+                batch_id="batch-1",
+                original_journal_sha256=sha256_file(journal_path),
+                source_sha256=OWNER_SOURCE_SHA256,
+                plan_sha256=LOCKED_PLAN_SHA256,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_wrong_db_fingerprint_in_reverify_blocked(self):
+        journal = _valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL")
+        evidence, journal_path, journal = self._paths(journal)
+        artifact = _bound_reverify_artifact(journal_path)
+        artifact["database_identity"] = {**CANONICAL_IDENTITY, "pg_system_identifier": "wrong"}
+        with self.assertRaises(ApplyAbort):
+            validate_post_apply_reverification_binding(
+                artifact,
+                batch_id="batch-1",
+                original_journal_sha256=sha256_file(journal_path),
+                source_sha256=OWNER_SOURCE_SHA256,
+                plan_sha256=LOCKED_PLAN_SHA256,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_semantic_mismatch_count_blocked(self):
+        journal = _valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL")
+        evidence, journal_path, journal = self._paths(journal)
+        artifact = _bound_reverify_artifact(journal_path)
+        artifact["semantic_mismatch_count"] = 1
+        with self.assertRaises(ApplyAbort):
+            validate_post_apply_reverification_binding(
+                artifact,
+                batch_id="batch-1",
+                original_journal_sha256=sha256_file(journal_path),
+                source_sha256=OWNER_SOURCE_SHA256,
+                plan_sha256=LOCKED_PLAN_SHA256,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+    def test_semantic_match_count_710_blocked(self):
+        journal = _valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL")
+        evidence, journal_path, journal = self._paths(journal)
+        artifact = _bound_reverify_artifact(journal_path, rows=EXPECTED_ELIGIBLE_ROWS)
+        artifact["semantic_match_count"] = 710
+        with self.assertRaises(ApplyAbort):
+            validate_post_apply_reverification_binding(
+                artifact,
+                batch_id="batch-1",
+                original_journal_sha256=sha256_file(journal_path),
+                source_sha256=OWNER_SOURCE_SHA256,
+                plan_sha256=LOCKED_PLAN_SHA256,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                database_identity=CANONICAL_IDENTITY,
+                expected_rows=EXPECTED_ELIGIBLE_ROWS,
+            )
+
+    def test_status_not_pass_blocked(self):
+        journal = _valid_apply_journal(POST_COMMIT_VERIFICATION="FAIL")
+        evidence, journal_path, journal = self._paths(journal)
+        artifact = _bound_reverify_artifact(journal_path)
+        artifact["STATUS"] = "FAIL"
+        with self.assertRaises(ApplyAbort):
+            validate_post_apply_reverification_binding(
+                artifact,
+                batch_id="batch-1",
+                original_journal_sha256=sha256_file(journal_path),
+                source_sha256=OWNER_SOURCE_SHA256,
+                plan_sha256=LOCKED_PLAN_SHA256,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                database_identity=CANONICAL_IDENTITY,
+                expected_rows=1,
+            )
+
+
+class Batch20261015RollbackBindingTests(unittest.TestCase):
+    BATCH = "20261015T084051Z"
+    JOURNAL = EVIDENCE / "apply-journals" / f"INSIZE_COMMERCIAL_APPLY_JOURNAL_{BATCH}.json"
+    REVERIFY = EVIDENCE / f"POST_APPLY_REVERIFICATION_{BATCH}.json"
+
+    def test_batch_binding_when_artifacts_present(self):
+        if not self.JOURNAL.is_file():
+            self.skipTest("production apply journal not present locally")
+        proof = prove_rollback_binding_eligibility(
+            batch_id=self.BATCH,
+            journal_dir=self.JOURNAL.parent,
+            evidence_dir=EVIDENCE,
+            database_identity=CANONICAL_IDENTITY,
+        )
+        self.assertTrue(proof["rollback_binding_eligible"])
+        self.assertEqual(proof["post_apply_verification_source"], "bound_post_apply_reverification_pass")
 
 
 if __name__ == "__main__":
