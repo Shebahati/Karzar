@@ -1,9 +1,13 @@
 {
   "batch_id": "20261015T084051Z",
   "original_journal_path": "/home/shebahati/Projects/Karzar/audit/insize-commercial-reconcile-258-2026-10-13/apply-journals/INSIZE_COMMERCIAL_APPLY_JOURNAL_20261015T084051Z.json",
+  "original_journal_sha256": "45828fbc9440f25fcd14473fc76eb8edfa47c47cf096e1eb7905e667adcc25be",
   "original_COMMITTED": "YES",
   "original_ROWS_WRITTEN": 711,
   "original_POST_COMMIT_VERIFICATION": "FAIL",
+  "source_sha256": "8324b2c175a703ab0ff7364da4a33f82c440d592cdc10d990c133bed39ac2989",
+  "plan_sha256": "ee9ebeea6219f953c91fae40716cb0cbddfa04d8f5f9de3f2b0f5a08865eb5b0",
+  "rollback_manifest_sha256": "58f8497ba43c9ea74ad3b862b7c1d9de0eebb8054f460d70929a5e51a9397ca7",
   "reverification_mode": "READ_ONLY",
   "rows_checked": 711,
   "semantic_match_count": 711,

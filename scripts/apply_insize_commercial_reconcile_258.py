@@ -265,7 +265,8 @@ def main(argv: list[str] | None = None) -> int:
         )
         batch_id = args.confirm_batch_id
         apply_journal = load_apply_journal(journal_dir, batch_id)
-        validate_apply_journal_for_rollback(
+        original_journal_path = journal_dir / f"INSIZE_COMMERCIAL_APPLY_JOURNAL_{batch_id}.json"
+        verification_source = validate_apply_journal_for_rollback(
             apply_journal,
             batch_id=batch_id,
             source_sha256=OWNER_SOURCE_SHA256,
@@ -273,6 +274,8 @@ def main(argv: list[str] | None = None) -> int:
             rollback_manifest_sha256=rollback_sha,
             database_identity=db_identity,
             expected_rows=len(plan_rows),
+            evidence_dir=evidence,
+            original_journal_path=original_journal_path,
         )
         metadata = {
             "started_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -283,6 +286,7 @@ def main(argv: list[str] | None = None) -> int:
             "database_identity": db_identity,
             "authorization": OWNER_AUTH_ROLLBACK,
             "apply_journal_batch_id": batch_id,
+            "post_apply_verification_source": verification_source,
         }
         conn = connect_runtime_db(args.database_url)
         try:
