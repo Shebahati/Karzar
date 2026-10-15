@@ -92,3 +92,11 @@ Do **not** run `scripts/catalog_taxonomy_migrate.py --apply`. It relies on non-a
 2. **Mixed-semantic parents** (e.g. لوازم جانبی صنعتی) — accessory decomposition.
 3. **Helicoil / thread-repair** structural cohort — domain boundary vs Cutting/Thread Repair.
 4. **Numeric category ID dependencies** in import scripts — remap planning.
+
+## Correction pass (2026-10-15T09:45:55Z)
+
+- Preserved original evidence: `/home/shebahati/Projects/Karzar/audit/taxonomy-phase1b-baseline-2026-10-15/preserved-evidence/dd7ab67ff10d`
+- Removed L1 categories (Phase 0B → current): [186, 187, 188]
+- Megamenu dangling refs: {'missing_refs': 3, 'historical_removed_refs': 3}
+- Helicoil cohort categories: 1 (cat 55 direct=29)
+- Numeric deps: raw=63 deduped=44 generated_skips=6680

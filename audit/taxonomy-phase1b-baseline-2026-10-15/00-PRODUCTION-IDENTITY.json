@@ -9,5 +9,7 @@
   "transaction_read_only": "on",
   "repository_git_sha": "f9ba7b034088129d129e432fe6faab0f50377850",
   "production_mutation": "NO",
-  "reverification_mode": "READ_ONLY"
+  "reverification_mode": "READ_ONLY",
+  "read_only_transaction_enforcement": "v2_code_requires_explicit_read_only_transactions_for_live_reruns",
+  "collection_consistency_note": "Preserved census collected in an observation window (2026-10-15T09:34:39Z); not a single atomic DB snapshot. Corrections recomputed from preserved CSV evidence."
 }

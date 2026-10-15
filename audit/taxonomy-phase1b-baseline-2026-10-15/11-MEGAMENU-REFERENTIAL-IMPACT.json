@@ -1,0 +1,51 @@
+{
+  "missing_category_references": [
+    {
+      "nav_group_slug": "helicoil",
+      "missing_category_id": "186",
+      "phase0b_removed": "YES",
+      "historical_name": ""
+    },
+    {
+      "nav_group_slug": "helicoil",
+      "missing_category_id": "187",
+      "phase0b_removed": "YES",
+      "historical_name": ""
+    },
+    {
+      "nav_group_slug": "helicoil",
+      "missing_category_id": "188",
+      "phase0b_removed": "YES",
+      "historical_name": ""
+    }
+  ],
+  "duplicate_root_memberships": [],
+  "non_l1_root_references": [],
+  "empty_or_unresolved_groups": [
+    {
+      "nav_group_slug": "helicoil",
+      "issue": "all_root_ids_missing"
+    }
+  ],
+  "historical_removed_category_references": [
+    {
+      "nav_group_slug": "helicoil",
+      "removed_category_id": "186",
+      "issue": "references_removed_l1_helicoil_root"
+    },
+    {
+      "nav_group_slug": "helicoil",
+      "removed_category_id": "187",
+      "issue": "references_removed_l1_helicoil_root"
+    },
+    {
+      "nav_group_slug": "helicoil",
+      "removed_category_id": "188",
+      "issue": "references_removed_l1_helicoil_root"
+    }
+  ],
+  "live_l1_count": 12,
+  "megamenu_covered_l1_count": 12,
+  "megamenu_uncovered_l1_ids": [],
+  "proposed_future_action": "Owner/merchandising review: update megamenu_nav_groups.root_category_ids for helicoil group to reference live taxonomy (e.g. category 55 under قلاویز) or retire the group. Do not auto-redirect removed 186/187/188 slugs to unrelated hubs."
+}

@@ -1,0 +1,44 @@
+{
+  "raw_hit_count": 63,
+  "deduped_hit_count": 44,
+  "excluded_generated_path_skips": 6680,
+  "hits_by_source_class": {
+    "SUPPLIER_IMPORT": 1,
+    "ACTIVE_SCRIPT": 4,
+    "TEST_FIXTURE": 19,
+    "HISTORICAL_DOCUMENTATION": 3,
+    "MOCK_DEMO": 14,
+    "FRONTEND_SOURCE": 3
+  },
+  "watchlist_ids": [
+    33,
+    34,
+    186,
+    187,
+    188
+  ],
+  "watchlist_unresolved_hits": [
+    {
+      "file": "tests/test_taxonomy_phase1b_baseline.py",
+      "line": "83",
+      "numeric_id": "186",
+      "context": "\"root_category_ids\": \"186|187|188\",",
+      "source_class": "TEST_FIXTURE",
+      "resolved_live_category": "",
+      "runtime_relevance": "TEST_FIXTURE",
+      "risk": "LOW",
+      "required_future_kz_cat": ""
+    },
+    {
+      "file": "tests/test_zcc_ir_category_b_draft_import.py",
+      "line": "370",
+      "numeric_id": "33",
+      "context": "stale = mini_plan([mini_record(category_id=33)])",
+      "source_class": "TEST_FIXTURE",
+      "resolved_live_category": "",
+      "runtime_relevance": "TEST_FIXTURE",
+      "risk": "LOW",
+      "required_future_kz_cat": ""
+    }
+  ]
+}

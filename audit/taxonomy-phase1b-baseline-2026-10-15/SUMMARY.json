@@ -1,5 +1,8 @@
 {
   "status": "READY_FOR_OWNER_REVIEW",
+  "correction_applied_at_utc": "2026-10-15T09:45:55Z",
+  "preserved_baseline_sha": "dd7ab67ff10d063426600b9a5e33132fe4c78078",
+  "preserved_evidence_dir": "/home/shebahati/Projects/Karzar/audit/taxonomy-phase1b-baseline-2026-10-15/preserved-evidence/dd7ab67ff10d",
   "identity": {
     "collected_at_utc": "2026-10-15T09:34:39Z",
     "expected_live_host": "srv5944957438",
@@ -11,7 +14,9 @@
     "transaction_read_only": "on",
     "repository_git_sha": "f9ba7b034088129d129e432fe6faab0f50377850",
     "production_mutation": "NO",
-    "reverification_mode": "READ_ONLY"
+    "reverification_mode": "READ_ONLY",
+    "read_only_transaction_enforcement": "v2_code_requires_explicit_read_only_transactions_for_live_reruns",
+    "collection_consistency_note": "Preserved census collected in an observation window (2026-10-15T09:34:39Z); not a single atomic DB snapshot. Corrections recomputed from preserved CSV evidence."
   },
   "structure": {
     "total_categories": 135,
@@ -34,70 +39,96 @@
     "live": 6536,
     "active": 1585,
     "priced": 4272,
-    "imaged": 1464,
-    "visible": 1368,
     "pt_missing": 5878,
     "available": 3811,
-    "sellable": 720,
     "pt_assigned": 658
   },
-  "sql_definitions": {
-    "LIVE": "deleted_at IS NULL",
-    "ACTIVE": "LIVE AND is_active",
-    "AVAILABLE": "LIVE AND is_available",
-    "PRICED": "LIVE AND base_price > 0",
-    "IMAGED": "has_valid_image (non-placeholder product_images)",
-    "STOREFRONT_VISIBLE": "ACTIVE AND IMAGED (phase0b-aligned census)",
-    "SELLABLE": "STOREFRONT_VISIBLE AND is_available AND PRICED"
+  "category_id_drift": {
+    "phase0b_category_count": 138,
+    "current_category_count": 135,
+    "removed_category_ids": [
+      186,
+      187,
+      188
+    ],
+    "added_category_ids": [],
+    "removed_categories": [
+      {
+        "category_id": 186,
+        "name": "فنر هلی کویل",
+        "slug": "فنر-هلی-کویل",
+        "depth": "1",
+        "is_leaf": "True",
+        "is_selectable": "False",
+        "direct_live_product_count": "0",
+        "descendant_live_product_count": "0",
+        "breadcrumb": "فنر هلی کویل"
+      },
+      {
+        "category_id": 187,
+        "name": "قلاویز هلی کویل",
+        "slug": "قلاویز-هلی-کویل",
+        "depth": "1",
+        "is_leaf": "True",
+        "is_selectable": "False",
+        "direct_live_product_count": "0",
+        "descendant_live_product_count": "0",
+        "breadcrumb": "قلاویز هلی کویل"
+      },
+      {
+        "category_id": 188,
+        "name": "کیت کامل هلی کویل",
+        "slug": "کیت-کامل-هلی-کویل",
+        "depth": "1",
+        "is_leaf": "True",
+        "is_selectable": "False",
+        "direct_live_product_count": "0",
+        "descendant_live_product_count": "0",
+        "breadcrumb": "کیت کامل هلی کویل"
+      }
+    ],
+    "reconciliation": {
+      "category_total_delta_explained_by_removals": 3,
+      "l1_delta_explained_by_removed_empty_roots": [
+        186,
+        187,
+        188
+      ],
+      "product_deletion_inferred": false,
+      "narrative": "Category-count drift is explained by removal of empty/non-selectable L1 roots (186/187/188 Helicoil megamenu roots in Phase 0B). Live product count unchanged at census level; do not infer product deletion from category-tree shrinkage."
+    }
+  },
+  "megamenu_referential_impact": {
+    "missing_refs": 3,
+    "historical_removed_refs": 3
+  },
+  "helicoil_cohort": {
+    "category_rows": 1,
+    "product_rows": 29,
+    "category_55_direct_live": 29
+  },
+  "numeric_dependency_scan": {
+    "raw_hit_count": 63,
+    "deduped_source_hits": 44,
+    "excluded_generated_path_skips": 6680,
+    "hits_by_source_class": {
+      "SUPPLIER_IMPORT": 1,
+      "ACTIVE_SCRIPT": 4,
+      "TEST_FIXTURE": 19,
+      "HISTORICAL_DOCUMENTATION": 3,
+      "MOCK_DEMO": 14,
+      "FRONTEND_SOURCE": 3
+    },
+    "watchlist_unresolved_count": 2
   },
   "manifest_rows": 135,
-  "manifest_reviewed": 0,
   "manifest_unreviewed": 135,
   "owner_scope_categories": 4,
-  "owner_scope_products": 262,
-  "mixed_semantic_categories": 12,
-  "target_domains": [
-    {
-      "code": "KZ.DOM.METROLOGY",
-      "en": "Metrology & Inspection"
-    },
-    {
-      "code": "KZ.DOM.CUTTING",
-      "en": "Cutting Tools"
-    },
-    {
-      "code": "KZ.DOM.TOOLHOLDING",
-      "en": "Toolholding"
-    },
-    {
-      "code": "KZ.DOM.WORKHOLDING",
-      "en": "Workholding & Fixturing"
-    },
-    {
-      "code": "KZ.DOM.MACHINES",
-      "en": "Industrial Machines & Equipment"
-    },
-    {
-      "code": "KZ.DOM.THREAD_REPAIR",
-      "en": "Thread Repair & Thread Inserts"
-    },
-    {
-      "code": "KZ.DOM.FLUIDS",
-      "en": "Metalworking Fluids & Lubricants"
-    }
-  ],
-  "legacy_script_warning": {
-    "path": "scripts/catalog_taxonomy_migrate.py",
-    "apply_forbidden": true,
-    "reason": "Uses ad-hoc CATEGORY_ALIASES flat remapping and can create categories; not Phase 1B constitution/KZ.CAT.* truth."
-  },
-  "cohort_counts": {
-    "catchall": 1,
-    "empty": 35,
-    "facet_like": 0,
-    "low_pt": 73,
-    "helicoil": 0,
-    "depth_anomalies": 0,
-    "numeric_id_dependencies": 326
-  }
+  "owner_scope_products_unique": 262,
+  "tx_owner_scope_category_ids": [
+    157,
+    158,
+    159,
+    160
+  ]
 }

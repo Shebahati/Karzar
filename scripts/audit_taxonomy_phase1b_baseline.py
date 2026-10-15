@@ -18,13 +18,18 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.taxonomy_phase1b_baseline import (  # noqa: E402
+    REMOVED_L1_HELICOIL_ROOT_IDS,
     TARGET_DOMAINS,
+    TX_OWNER_SCOPE_CATEGORY_IDS,
     aggregate_category_metrics,
+    audit_megamenu_references,
     build_category_metadata,
+    build_helicoil_cohort_reports,
     build_working_manifest,
     catchall_candidate,
     category_census_csv_fields,
     category_row_to_census_dict,
+    compare_category_ids_phase0b,
     detect_orphans_and_cycles,
     duplicate_sibling_names,
     duplicate_slugs,
@@ -32,11 +37,17 @@ from catalog_target.taxonomy_phase1b_baseline import (  # noqa: E402
     global_product_counts,
     helicoil_related,
     historical_drift,
+    is_tx_owner_scope_category,
     mixed_semantic_parent,
-    owner_scope_candidate,
     scan_numeric_category_dependencies,
+    tx_owner_scope_product_ids,
     write_csv,
     write_sha256sums,
+)
+from catalog_target.taxonomy_phase1b_readonly_db import (  # noqa: E402
+    read_only_transaction_proof,
+    run_readonly_scalar,
+    run_readonly_sql,
 )
 
 FORBIDDEN_SQL = re.compile(
@@ -66,30 +77,11 @@ IMAGE_NOT_PLACEHOLDER = " AND ".join(
 
 
 def _run_ssh_psql(sql: str, *, ssh_host: str) -> str:
-    if FORBIDDEN_SQL.search(sql):
-        raise RuntimeError(f"Refusing mutation-capable SQL: {sql[:120]}")
-    inner = sql.replace('"', '\\"')
-    cmd = [
-        "ssh",
-        "-o",
-        "BatchMode=yes",
-        ssh_host,
-        f'docker exec -i {EXPECTED_PG_CONTAINER} psql -U {EXPECTED_USER} -d {EXPECTED_DB} '
-        f'-v ON_ERROR_STOP=1 -At -c "{inner}"',
-    ]
-    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
-    if proc.returncode != 0:
-        raise RuntimeError(proc.stderr.strip() or proc.stdout.strip())
-    return proc.stdout.strip()
+    return run_readonly_sql(ssh_host, sql)
 
 
 def _read_only_proof(ssh_host: str) -> dict[str, str]:
-    out = _run_ssh_psql(
-        "BEGIN; SET TRANSACTION READ ONLY; SHOW transaction_read_only; SELECT 1; ROLLBACK;",
-        ssh_host=ssh_host,
-    )
-    tro = "on" if "on" in out.lower() else "unknown"
-    return {"transaction_read_only": tro}
+    return read_only_transaction_proof(ssh_host)
 
 
 def collect_identity(ssh_host: str, git_sha: str) -> dict:
@@ -101,11 +93,9 @@ def collect_identity(ssh_host: str, git_sha: str) -> dict:
     ).stdout.strip()
     if host_proof != EXPECTED_VPS:
         raise RuntimeError(f"BLOCKED_VPS_IDENTITY expected={EXPECTED_VPS} got={host_proof}")
-    db = _run_ssh_psql("SELECT current_database();", ssh_host=ssh_host).splitlines()[-1].strip()
-    user = _run_ssh_psql("SELECT current_user;", ssh_host=ssh_host).splitlines()[-1].strip()
-    sys_id = _run_ssh_psql(
-        "SELECT system_identifier::text FROM pg_control_system();", ssh_host=ssh_host
-    ).splitlines()[-1].strip()
+    db = run_readonly_scalar(ssh_host, "SELECT current_database();")
+    user = run_readonly_scalar(ssh_host, "SELECT current_user;")
+    sys_id = run_readonly_scalar(ssh_host, "SELECT system_identifier::text FROM pg_control_system();")
     if db != EXPECTED_DB or user != EXPECTED_USER:
         raise RuntimeError("BLOCKED_DATABASE_IDENTITY")
     if sys_id != EXPECTED_PG_SYSTEM_ID:
@@ -125,6 +115,11 @@ def collect_identity(ssh_host: str, git_sha: str) -> dict:
         "repository_git_sha": git_sha,
         "production_mutation": "NO",
         "reverification_mode": "READ_ONLY",
+        "read_only_transaction_enforcement": "v2_explicit_begin_read_only_per_query_batch",
+        "collection_consistency_note": (
+            "Queries run in separate read-only transactions unless combined in one batch; "
+            "not a single atomic snapshot."
+        ),
     }
 
 
@@ -310,7 +305,7 @@ def build_cohorts(
 
     for row in category_rows:
         base = category_row_to_census_dict(row)
-        if owner_scope_candidate(row.name, row.full_path):
+        if is_tx_owner_scope_category(row.category_id):
             owner_scope.append({**base, "cohort": "TX_OWNER_001_SCOPE"})
         if mixed_semantic_parent(row.name, row.full_path):
             mixed.append({**base, "cohort": "MIXED_SEMANTIC_PARENT"})
@@ -329,16 +324,7 @@ def build_cohorts(
         if row.depth > 3 or (row.is_selectable and not row.is_leaf):
             depth_anomalies.append({**base, "cohort": "DEPTH_SELECTABLE_ANOMALY"})
 
-    owner_product_ids: set[int] = set()
-    for row in products:
-        cid = int(row.get("category_id") or 0)
-        cat = by_id.get(cid)
-        if not cat:
-            continue
-        m = meta.get(cid, {})
-        path = m.get("full_path", "")
-        if owner_scope_candidate(str(cat.get("name", "")), path):
-            owner_product_ids.add(int(row["product_id"]))
+    owner_product_ids = tx_owner_scope_product_ids(products)
 
     return {
         "owner_scope_categories": owner_scope,
@@ -411,7 +397,9 @@ def main(argv: list[str] | None = None) -> int:
     structure["duplicate_slugs"] = len(dup_slugs)
 
     global_counts = global_product_counts(products)
-    drift = historical_drift(structure, global_counts)
+    live_ids = {int(c["id"]) for c in categories}
+    id_comparison = compare_category_ids_phase0b(repo_root=ROOT, current_category_ids=live_ids)
+    drift = historical_drift(structure, global_counts, id_comparison=id_comparison)
 
     write_csv(
         out_dir / "01-CATEGORY-CENSUS.csv",
@@ -507,12 +495,12 @@ def main(argv: list[str] | None = None) -> int:
     write_csv(out_dir / "06-OWNER-SCOPE-CANDIDATES.csv", cohort_fields, cohorts["owner_scope_categories"])
     write_csv(out_dir / "07-MIXED-SEMANTIC-CATEGORIES.csv", cohort_fields, cohorts["mixed_semantic"])
 
-    deps = scan_numeric_category_dependencies(ROOT)
-    for dep in deps:
-        cid = dep.get("numeric_id")
-        if cid and cid.isdigit():
-            cat = by_id.get(int(cid))
-            dep["resolved_live_category"] = str(cat.get("name")) if cat else ""
+    name_by_id = {int(c["id"]): str(c.get("name") or "") for c in categories}
+    dep_scan = scan_numeric_category_dependencies(ROOT, live_category_names=name_by_id)
+    (out_dir / "08-NUMERIC-DEPENDENCY-SCAN-SUMMARY.json").write_text(
+        json.dumps({k: v for k, v in dep_scan.items() if k != "dependencies"}, indent=2),
+        encoding="utf-8",
+    )
     write_csv(
         out_dir / "08-NUMERIC-CATEGORY-ID-DEPENDENCIES.csv",
         [
@@ -520,15 +508,42 @@ def main(argv: list[str] | None = None) -> int:
             "line",
             "numeric_id",
             "context",
+            "source_class",
             "resolved_live_category",
             "runtime_relevance",
             "risk",
             "required_future_kz_cat",
         ],
-        deps,
+        dep_scan["dependencies"],
     )
 
     megamenu = export_megamenu_nav(args.ssh_host)
+    megamenu_audit = audit_megamenu_references(
+        megamenu_groups=megamenu,
+        live_category_ids=live_ids,
+        category_depth_by_id={r.category_id: r.depth for r in category_rows},
+        category_name_by_id=name_by_id,
+        phase0b_removed_ids=REMOVED_L1_HELICOIL_ROOT_IDS,
+    )
+    (out_dir / "11-MEGAMENU-REFERENTIAL-IMPACT.json").write_text(
+        json.dumps(megamenu_audit, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    (out_dir / "11-CATEGORY-DRIFT-BY-ID.json").write_text(
+        json.dumps(id_comparison, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    helicoil_cat, helicoil_prod = build_helicoil_cohort_reports(category_rows, products)
+    write_csv(
+        out_dir / "12-HELICOIL-THREAD-REPAIR-COHORT.csv",
+        list(helicoil_cat[0].keys()) if helicoil_cat else ["category_id"],
+        helicoil_cat,
+    )
+    write_csv(
+        out_dir / "12-HELICOIL-PRODUCT-COHORT.csv",
+        list(helicoil_prod[0].keys()) if helicoil_prod else ["product_id"],
+        helicoil_prod,
+    )
     seo_rows: list[dict[str, str]] = []
     redirect_path = ROOT / "frontend/Storefront/src/config/category-slug-redirects.ts"
     redirect_state = redirect_path.read_text(encoding="utf-8") if redirect_path.is_file() else ""
@@ -589,8 +604,9 @@ def main(argv: list[str] | None = None) -> int:
         "manifest_rows": len(manifest),
         "manifest_reviewed": reviewed,
         "manifest_unreviewed": len(manifest) - reviewed,
-        "owner_scope_categories": len(cohorts["owner_scope_categories"]),
-        "owner_scope_products": cohorts["owner_scope_product_count"],
+        "owner_scope_categories": len([r for r in category_rows if is_tx_owner_scope_category(r.category_id)]),
+        "owner_scope_products": len(tx_owner_scope_product_ids(products)),
+        "tx_owner_scope_category_ids": sorted(TX_OWNER_SCOPE_CATEGORY_IDS),
         "mixed_semantic_categories": len(cohorts["mixed_semantic"]),
         "target_domains": TARGET_DOMAINS,
         "legacy_script_warning": {
@@ -603,10 +619,15 @@ def main(argv: list[str] | None = None) -> int:
             "empty": len(cohorts["empty"]),
             "facet_like": len(cohorts["facet_like"]),
             "low_pt": len(cohorts["low_pt"]),
-            "helicoil": len(cohorts["helicoil"]),
+            "helicoil": len(helicoil_cat),
             "depth_anomalies": len(cohorts["depth_anomalies"]),
-            "numeric_id_dependencies": len(deps),
+            "numeric_id_dependencies_deduped": dep_scan["deduped_hit_count"],
+            "numeric_id_dependencies_raw": dep_scan["raw_hit_count"],
+            "numeric_generated_exclusions": dep_scan["excluded_generated_path_skips"],
         },
+        "megamenu_referential_impact": megamenu_audit,
+        "category_id_drift": id_comparison,
+        "helicoil_cohort": {"categories": len(helicoil_cat), "products": len(helicoil_prod)},
     }
     (out_dir / "SUMMARY.json").write_text(
         json.dumps(summary, indent=2, ensure_ascii=False),

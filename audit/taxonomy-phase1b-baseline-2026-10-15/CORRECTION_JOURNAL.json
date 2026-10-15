@@ -1,0 +1,18 @@
+{
+  "preserved_original_sha": "dd7ab67ff10d063426600b9a5e33132fe4c78078",
+  "preserved_copy_path": "/home/shebahati/Projects/Karzar/audit/taxonomy-phase1b-baseline-2026-10-15/preserved-evidence/dd7ab67ff10d",
+  "correction_head": "local",
+  "corrected_at_utc": "2026-10-15T09:45:55Z",
+  "defects_addressed": [
+    "category_drift_by_id_with_removed_186_187_188",
+    "megamenu_dangling_references_report",
+    "helicoil_zwnj_normalization",
+    "numeric_dependency_generated_exclusion_and_classification",
+    "readonly_transaction_enforcement_in_code",
+    "tx_owner_scope_ids_157_158_159_160"
+  ],
+  "production_rerun": false,
+  "limitations": [
+    "Census CSVs unchanged from preserved snapshot; megamenu/dependency/helicoil reports recomputed."
+  ]
+}

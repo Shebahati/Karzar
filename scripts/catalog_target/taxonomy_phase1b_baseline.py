@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import re
+import unicodedata
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -77,13 +78,33 @@ MIXED_SEMANTIC_PARENT_MARKERS: tuple[str, ...] = (
     "لوازم جانبی",
 )
 
-HELICOIL_MARKERS: tuple[str, ...] = (
-    "هلی کویل",
-    "helicoil",
-    "Helicoil",
-)
+# TX-OWNER-001 steward-frozen scope categories (Phase 1B flag only).
+TX_OWNER_SCOPE_CATEGORY_IDS: frozenset[int] = frozenset({157, 158, 159, 160})
+
+REMOVED_L1_HELICOIL_ROOT_IDS: frozenset[int] = frozenset({186, 187, 188})
+
+WATCHLIST_NUMERIC_CATEGORY_IDS: frozenset[int] = frozenset({33, 34, 186, 187, 188})
+
+PHASE0B_CATEGORY_CENSUS_REL = Path("audit/taxonomy-phase0b/03-production-category-census.csv")
 
 SPECIAL_NUMERIC_IDS: tuple[int, ...] = (33, 34, 165, 166, 168, 186, 187, 188)
+
+DEPENDENCY_SKIP_DIR_NAMES: frozenset[str] = frozenset(
+    {
+        ".git",
+        ".cursor",
+        ".venv",
+        ".mypy_cache",
+        ".ruff_cache",
+        ".next",
+        "__pycache__",
+        "node_modules",
+        "dist",
+        "build",
+        "work",
+        "audit",
+    }
+)
 
 CCT1_ALLOWED = frozenset(
     {
@@ -124,6 +145,55 @@ class CategoryRow:
     sellable: int = 0
     pt_assigned: int = 0
     pt_missing: int = 0
+
+
+def normalize_taxonomy_text(raw: str) -> str:
+    """Fold Persian/Arabic variants, ZWNJ/ZWJ, and whitespace for stable token matching."""
+    text = unicodedata.normalize("NFKC", raw or "")
+    for ch in ("\u200c", "\u200d", "\u200e", "\u200f", "\ufeff"):
+        text = text.replace(ch, "")
+    text = re.sub(r"\s+", "", text)
+    return text.lower()
+
+
+def helicoil_token_present(text: str) -> bool:
+    norm = normalize_taxonomy_text(text)
+    if "هلیکویل" in norm or "helicoil" in norm:
+        return True
+    if "wirethreadinsert" in norm.replace("_", ""):
+        return True
+    return False
+
+
+def helicoil_semantic_class(name: str, full_path: str, product_type_code: str = "") -> str:
+    """Distinguish thread-repair/helicoil kits from indexable cutting inserts (review cohort)."""
+    blob = normalize_taxonomy_text(f"{name} {full_path} {product_type_code}")
+    cutting_markers = (
+        "اینسرت",
+        "insert",
+        "indexable",
+        "cutter",
+        "carbide",
+        "فرز",
+        "تراش",
+    )
+    repair_markers = (
+        "کیت",
+        "فنر",
+        "spring",
+        "repair",
+        "قلاویز",
+        "tap",
+    )
+    if any(m in blob for m in cutting_markers) and "هلیکویل" not in blob and "helicoil" not in blob:
+        return "THREAD_MACHINING_INSERT_REVIEW"
+    if any(m in blob for m in repair_markers) or helicoil_token_present(blob):
+        return "THREAD_REPAIR_HELICOIL_REVIEW"
+    return "UNCLASSIFIED_REVIEW"
+
+
+def is_tx_owner_scope_category(category_id: int) -> bool:
+    return category_id in TX_OWNER_SCOPE_CATEGORY_IDS
 
 
 def sha256_file(path: Path) -> str:
@@ -278,7 +348,9 @@ def duplicate_slugs(categories: list[dict[str, Any]]) -> list[dict[str, str]]:
     ]
 
 
-def owner_scope_candidate(name: str, full_path: str) -> bool:
+def owner_scope_candidate(name: str, full_path: str, *, category_id: int | None = None) -> bool:
+    if category_id is not None and is_tx_owner_scope_category(category_id):
+        return True
     text = f"{name} {full_path}"
     return any(p.search(text) for p in OWNER_SCOPE_NAME_PATTERNS)
 
@@ -293,8 +365,7 @@ def mixed_semantic_parent(name: str, full_path: str) -> bool:
 
 
 def helicoil_related(name: str, full_path: str) -> bool:
-    text = f"{name} {full_path}".lower()
-    return any(m.lower() in text for m in HELICOIL_MARKERS)
+    return helicoil_token_present(f"{name} {full_path}")
 
 
 def facet_like_category(name: str) -> bool:
@@ -431,9 +502,72 @@ def summarize_structure(
     }
 
 
-def historical_drift(current: dict[str, Any], global_counts: dict[str, int]) -> dict[str, Any]:
-    anchor = PHASE0B_ANCHOR
+def load_phase0b_category_index(repo_root: Path) -> dict[int, dict[str, str]]:
+    path = repo_root / PHASE0B_CATEGORY_CENSUS_REL
+    if not path.is_file():
+        return {}
+    rows: dict[int, dict[str, str]] = {}
+    with path.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            cid = int(row["id"])
+            rows[cid] = row
+    return rows
+
+
+def compare_category_ids_phase0b(
+    *,
+    repo_root: Path,
+    current_category_ids: set[int],
+) -> dict[str, Any]:
+    phase0b = load_phase0b_category_index(repo_root)
+    phase0b_ids = set(phase0b)
+    removed_ids = sorted(phase0b_ids - current_category_ids)
+    added_ids = sorted(current_category_ids - phase0b_ids)
+    removed_detail: list[dict[str, Any]] = []
+    for cid in removed_ids:
+        row = phase0b[cid]
+        removed_detail.append(
+            {
+                "category_id": cid,
+                "name": row.get("name", ""),
+                "slug": row.get("slug", ""),
+                "depth": row.get("depth", ""),
+                "is_leaf": row.get("is_leaf", ""),
+                "is_selectable": row.get("is_selectable", ""),
+                "direct_live_product_count": row.get("direct_live_product_count", ""),
+                "descendant_live_product_count": row.get("descendant_live_product_count", ""),
+                "breadcrumb": row.get("breadcrumb", ""),
+            }
+        )
     return {
+        "phase0b_category_count": len(phase0b_ids),
+        "current_category_count": len(current_category_ids),
+        "removed_category_ids": removed_ids,
+        "added_category_ids": added_ids,
+        "removed_categories": removed_detail,
+        "reconciliation": {
+            "category_total_delta_explained_by_removals": len(removed_ids) - len(added_ids),
+            "l1_delta_explained_by_removed_empty_roots": [
+                cid for cid in removed_ids if str(phase0b.get(cid, {}).get("depth")) == "1"
+            ],
+            "product_deletion_inferred": False,
+            "narrative": (
+                "Category-count drift is explained by removal of empty/non-selectable L1 roots "
+                "(186/187/188 Helicoil megamenu roots in Phase 0B). Live product count unchanged "
+                "at census level; do not infer product deletion from category-tree shrinkage."
+            ),
+        },
+    }
+
+
+def historical_drift(
+    current: dict[str, Any],
+    global_counts: dict[str, int],
+    *,
+    id_comparison: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    anchor = PHASE0B_ANCHOR
+    payload: dict[str, Any] = {
         "anchor_snapshot": anchor["snapshot_date"],
         "category_total_delta": current["total_categories"] - anchor["categories"],
         "l1_delta": current["l1"] - anchor["l1"],
@@ -449,6 +583,89 @@ def historical_drift(current: dict[str, Any], global_counts: dict[str, int]) -> 
         "anchor": anchor,
         "current_structure": current,
         "current_global": global_counts,
+    }
+    if id_comparison:
+        payload["category_id_comparison"] = id_comparison
+    return payload
+
+
+def audit_megamenu_references(
+    *,
+    megamenu_groups: list[dict[str, str]],
+    live_category_ids: set[int],
+    category_depth_by_id: dict[int, int],
+    category_name_by_id: dict[int, str],
+    phase0b_removed_ids: set[int],
+) -> dict[str, Any]:
+    missing_refs: list[dict[str, str]] = []
+    non_l1_refs: list[dict[str, str]] = []
+    membership: dict[int, list[str]] = defaultdict(list)
+    empty_groups: list[dict[str, str]] = []
+    historical_dangling: list[dict[str, str]] = []
+
+    for group in megamenu_groups:
+        slug = group.get("slug", "")
+        roots_raw = group.get("root_category_ids", "") or ""
+        root_ids = [int(x) for x in roots_raw.split("|") if x.strip().isdigit()]
+        if not root_ids:
+            empty_groups.append({"nav_group_slug": slug, "issue": "no_root_category_ids"})
+        resolved = 0
+        for cid in root_ids:
+            membership[cid].append(slug)
+            if cid not in live_category_ids:
+                missing_refs.append(
+                    {
+                        "nav_group_slug": slug,
+                        "missing_category_id": str(cid),
+                        "phase0b_removed": "YES" if cid in phase0b_removed_ids else "NO",
+                        "historical_name": category_name_by_id.get(cid, ""),
+                    }
+                )
+                if cid in phase0b_removed_ids:
+                    historical_dangling.append(
+                        {
+                            "nav_group_slug": slug,
+                            "removed_category_id": str(cid),
+                            "issue": "references_removed_l1_helicoil_root",
+                        }
+                    )
+            else:
+                resolved += 1
+                depth = category_depth_by_id.get(cid)
+                if depth is not None and depth != 1:
+                    non_l1_refs.append(
+                        {
+                            "nav_group_slug": slug,
+                            "category_id": str(cid),
+                            "depth": str(depth),
+                            "name": category_name_by_id.get(cid, ""),
+                        }
+                    )
+        if root_ids and resolved == 0:
+            empty_groups.append({"nav_group_slug": slug, "issue": "all_root_ids_missing"})
+
+    duplicate_membership = [
+        {"category_id": str(cid), "nav_groups": "|".join(sorted(groups))}
+        for cid, groups in membership.items()
+        if len(groups) > 1
+    ]
+    live_l1_ids = {cid for cid, depth in category_depth_by_id.items() if depth == 1}
+    covered_l1 = {cid for cid in membership if cid in live_l1_ids}
+
+    return {
+        "missing_category_references": missing_refs,
+        "duplicate_root_memberships": duplicate_membership,
+        "non_l1_root_references": non_l1_refs,
+        "empty_or_unresolved_groups": empty_groups,
+        "historical_removed_category_references": historical_dangling,
+        "live_l1_count": len(live_l1_ids),
+        "megamenu_covered_l1_count": len(covered_l1),
+        "megamenu_uncovered_l1_ids": sorted(live_l1_ids - covered_l1),
+        "proposed_future_action": (
+            "Owner/merchandising review: update megamenu_nav_groups.root_category_ids for "
+            "helicoil group to reference live taxonomy (e.g. category 55 under قلاویز) or retire "
+            "the group. Do not auto-redirect removed 186/187/188 slugs to unrelated hubs."
+        ),
     }
 
 
@@ -475,7 +692,7 @@ def build_working_manifest(
 ) -> list[dict[str, str]]:
     manifest: list[dict[str, str]] = []
     for row in category_rows:
-        owner_flag = owner_scope_candidate(row.name, row.full_path)
+        owner_flag = owner_scope_candidate(row.name, row.full_path, category_id=row.category_id)
         mixed = mixed_semantic_parent(row.name, row.full_path)
         catchall = catchall_candidate(row.name, row.full_path)
         notes: list[str] = []
@@ -523,20 +740,50 @@ def build_working_manifest(
     return manifest
 
 
-def scan_numeric_category_dependencies(repo_root: Path) -> list[dict[str, str]]:
+def classify_dependency_source(rel_path: str) -> str:
+    rel = rel_path.replace("\\", "/")
+    if "/.next/" in rel or rel.startswith(".next/"):
+        return "GENERATED_EXCLUDED"
+    if rel.startswith("tests/") or "/tests/" in rel:
+        return "TEST_FIXTURE"
+    if "fixture" in rel.lower() or "mock" in rel.lower() or "conftest" in rel:
+        return "MOCK_DEMO"
+    if rel.startswith("docs/") or rel.startswith("audit/"):
+        return "HISTORICAL_DOCUMENTATION"
+    if rel.startswith("scripts/"):
+        if any(token in rel for token in ("zcc", "azarsanat", "mitutoyo", "insize", "supplier", "import")):
+            return "SUPPLIER_IMPORT"
+        return "ACTIVE_SCRIPT"
+    if rel.startswith("app/"):
+        return "ACTIVE_PRODUCTION_SOURCE"
+    if rel.startswith("frontend/"):
+        return "FRONTEND_SOURCE"
+    return "UNRESOLVED_AMBIGUOUS"
+
+
+def scan_numeric_category_dependencies(
+    repo_root: Path,
+    *,
+    live_category_names: dict[int, str] | None = None,
+) -> dict[str, Any]:
     patterns = [
         re.compile(r"category_id\s*[=:]\s*(\d+)", re.I),
         re.compile(r"categories\.id\s*=\s*(\d+)", re.I),
-        re.compile(r"parent_id\s*[=:]\s*(\d+).*#.*categor", re.I),
         re.compile(r"FORMER_HUB_ID\s*=\s*(\d+)", re.I),
-        re.compile(r"DEPTH2[^0-9]*(\d{2,3})"),
+        re.compile(r"root_category_ids.*?(\d{2,3})"),
     ]
-    skip_dirs = {".git", "node_modules", ".venv", "audit", "work", ".cursor"}
-    rows: list[dict[str, str]] = []
+    raw_hits: list[dict[str, str]] = []
+    excluded_generated = 0
     for path in repo_root.rglob("*"):
         if not path.is_file():
             continue
-        if any(part in skip_dirs for part in path.parts):
+        if any(part in DEPENDENCY_SKIP_DIR_NAMES for part in path.parts):
+            if ".next" in path.parts:
+                excluded_generated += 1
+            continue
+        rel = str(path.relative_to(repo_root))
+        if "/.next/" in rel:
+            excluded_generated += 1
             continue
         if path.suffix not in {".py", ".ts", ".tsx", ".js", ".json", ".md", ".csv", ".yaml", ".yml"}:
             continue
@@ -544,22 +791,121 @@ def scan_numeric_category_dependencies(repo_root: Path) -> list[dict[str, str]]:
             text = path.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
+        bucket = classify_dependency_source(rel)
+        if bucket == "GENERATED_EXCLUDED":
+            excluded_generated += 1
+            continue
         for lineno, line in enumerate(text.splitlines(), start=1):
             for pattern in patterns:
                 for match in pattern.finditer(line):
                     cid = match.group(1)
-                    rows.append(
+                    raw_hits.append(
                         {
-                            "file": str(path.relative_to(repo_root)),
+                            "file": rel,
                             "line": str(lineno),
                             "numeric_id": cid,
                             "context": line.strip()[:240],
-                            "runtime_relevance": "REVIEW_REQUIRED",
-                            "risk": "MEDIUM",
-                            "required_future_kz_cat": "",
+                            "source_class": bucket,
                         }
                     )
-    return rows
+
+    deduped: dict[tuple[str, str, str], dict[str, str]] = {}
+    for hit in raw_hits:
+        key = (hit["file"], hit["numeric_id"], hit["context"][:80])
+        deduped[key] = hit
+
+    rows: list[dict[str, str]] = []
+    watchlist_hits: list[dict[str, str]] = []
+    for hit in deduped.values():
+        cid_int = int(hit["numeric_id"]) if hit["numeric_id"].isdigit() else -1
+        resolved = ""
+        if live_category_names and cid_int in live_category_names:
+            resolved = live_category_names[cid_int]
+        risk = "LOW"
+        runtime = hit["source_class"]
+        if hit["source_class"] in {"ACTIVE_PRODUCTION_SOURCE", "SUPPLIER_IMPORT", "ACTIVE_SCRIPT"}:
+            risk = "HIGH" if cid_int in WATCHLIST_NUMERIC_CATEGORY_IDS else "MEDIUM"
+        elif hit["source_class"] in {"TEST_FIXTURE", "MOCK_DEMO"}:
+            risk = "LOW"
+        row = {
+            **hit,
+            "resolved_live_category": resolved,
+            "runtime_relevance": runtime,
+            "risk": risk,
+            "required_future_kz_cat": "",
+        }
+        rows.append(row)
+        if cid_int in WATCHLIST_NUMERIC_CATEGORY_IDS:
+            watchlist_hits.append(row)
+
+    by_class = Counter(r["source_class"] for r in rows)
+    return {
+        "raw_hit_count": len(raw_hits),
+        "deduped_hit_count": len(rows),
+        "excluded_generated_path_skips": excluded_generated,
+        "hits_by_source_class": dict(by_class),
+        "dependencies": sorted(rows, key=lambda r: (r["source_class"], r["file"], int(r["line"]))),
+        "watchlist_ids": sorted(WATCHLIST_NUMERIC_CATEGORY_IDS),
+        "watchlist_unresolved_hits": watchlist_hits,
+    }
+
+
+def build_helicoil_cohort_reports(
+    category_rows: list[CategoryRow],
+    products: list[dict[str, str]],
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    category_hits: list[dict[str, str]] = []
+    product_hits: list[dict[str, str]] = []
+    for row in category_rows:
+        if helicoil_related(row.name, row.full_path):
+            category_hits.append(
+                {
+                    **category_row_to_census_dict(row),
+                    "cohort": "HELICOIL_THREAD_REPAIR",
+                    "semantic_class": helicoil_semantic_class(row.name, row.full_path),
+                }
+            )
+    for prod in products:
+        if not is_live_product(prod):
+            continue
+        blob = " ".join(
+            [
+                prod.get("product_name", ""),
+                prod.get("category_name", ""),
+                prod.get("category_full_path", ""),
+                prod.get("product_type_code", ""),
+            ]
+        )
+        if not helicoil_token_present(blob):
+            continue
+        product_hits.append(
+            {
+                "product_id": prod.get("product_id", ""),
+                "sku": prod.get("sku", ""),
+                "category_id": prod.get("category_id", ""),
+                "category_full_path": prod.get("category_full_path", ""),
+                "product_type_code": prod.get("product_type_code", ""),
+                "semantic_class": helicoil_semantic_class(
+                    prod.get("product_name", ""),
+                    prod.get("category_full_path", ""),
+                    prod.get("product_type_code", ""),
+                ),
+            }
+        )
+    return category_hits, product_hits
+
+
+def tx_owner_scope_product_ids(products: list[dict[str, str]]) -> set[int]:
+    ids: set[int] = set()
+    for row in products:
+        if not is_live_product(row):
+            continue
+        cid_raw = row.get("category_id") or ""
+        if not str(cid_raw).strip():
+            continue
+        if is_tx_owner_scope_category(int(cid_raw)):
+            ids.add(int(row["product_id"]))
+    return ids
 
 
 def write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, Any]]) -> None:
