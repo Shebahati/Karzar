@@ -1,0 +1,117 @@
+{
+  "overlay_id": "phase3b3a-property-seed-delta-proposed",
+  "authoring_sot": "docs/architecture/specs/seeds/property-dictionary-v0-metrology.json",
+  "import_service": "app.services.property_dictionary_service.import_property_dictionary",
+  "authoritative_seed_mutated": false,
+  "units_additions": [],
+  "definitions_additions": [
+    {
+      "definition_id": "def.body_length",
+      "key": "body_length",
+      "data_type": "number",
+      "unit_dimension": "length",
+      "default_unit": "mm",
+      "label_en": "Body length",
+      "label_fa": "طول بدنه",
+      "description_en": "Physical body/frame length of level or spring caliper.",
+      "description_fa": "طول بدنه/قاب تراز یا پرگار فنری.",
+      "validation": {
+        "type": "number",
+        "exclusive_min": 0
+      },
+      "comparable": true,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": [
+        "body_length",
+        "طول بدنه",
+        "frame_length"
+      ]
+    },
+    {
+      "definition_id": "def.plate_length",
+      "key": "plate_length",
+      "data_type": "number",
+      "unit_dimension": "length",
+      "default_unit": "mm",
+      "label_en": "Plate length",
+      "label_fa": "طول صفحه",
+      "description_en": "Surface plate length (L in L×W×T).",
+      "description_fa": "طول صفحه صافی (L در L×W×T).",
+      "validation": {
+        "type": "number",
+        "exclusive_min": 0
+      },
+      "comparable": true,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": [
+        "plate_length",
+        "طول صفحه"
+      ]
+    },
+    {
+      "definition_id": "def.plate_width",
+      "key": "plate_width",
+      "data_type": "number",
+      "unit_dimension": "length",
+      "default_unit": "mm",
+      "label_en": "Plate width",
+      "label_fa": "عرض صفحه",
+      "description_en": "Surface plate width (W in L×W×T).",
+      "description_fa": "عرض صفحه صافی (W در L×W×T).",
+      "validation": {
+        "type": "number",
+        "exclusive_min": 0
+      },
+      "comparable": true,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": [
+        "plate_width",
+        "عرض صفحه"
+      ]
+    },
+    {
+      "definition_id": "def.plate_thickness",
+      "key": "plate_thickness",
+      "data_type": "number",
+      "unit_dimension": "length",
+      "default_unit": "mm",
+      "label_en": "Plate thickness",
+      "label_fa": "ضخامت صفحه",
+      "description_en": "Surface plate thickness (T in L×W×T).",
+      "description_fa": "ضخامت صفحه صافی (T در L×W×T).",
+      "validation": {
+        "type": "number",
+        "exclusive_min": 0
+      },
+      "comparable": true,
+      "filterable": true,
+      "customer_facing": true,
+      "version": "1.0.0",
+      "status": "active",
+      "steward": "Property Steward",
+      "aliases": [
+        "plate_thickness",
+        "ضخامت صفحه"
+      ]
+    }
+  ],
+  "rejected_concepts": [
+    {
+      "key": "plate_dimensions",
+      "reason": "REJECTED_STRING_FALLBACK_AND_UNSUPPORTED_TUPLE3"
+    }
+  ],
+  "properties_to_add_count": 4
+}

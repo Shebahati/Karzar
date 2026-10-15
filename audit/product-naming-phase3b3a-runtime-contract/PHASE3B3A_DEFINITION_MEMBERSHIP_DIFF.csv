@@ -1,0 +1,34 @@
+product_type_code,property_key,template_source,action,requiredness,rationale
+LONG_JAW_CALIPER,accuracy,GEN_CALIPER,COPY,required,Copied from active GEN_CALIPER Definition
+LONG_JAW_CALIPER,measurement_range,GEN_CALIPER,COPY,required,Copied from active GEN_CALIPER Definition
+LONG_JAW_CALIPER,resolution,GEN_CALIPER,COPY,required,Copied from active GEN_CALIPER Definition
+LONG_JAW_CALIPER,data_output,GEN_CALIPER,COPY,optional,Copied from active GEN_CALIPER Definition
+LONG_JAW_CALIPER,material,GEN_CALIPER,COPY,optional,Copied from active GEN_CALIPER Definition
+LONG_JAW_CALIPER,standard_ref,GEN_CALIPER,COPY,optional,Copied from active GEN_CALIPER Definition
+INSIDE_SPRING_CALIPER,measurement_range,DIVIDER,REMOVE,,"OEM spring-caliper identity is body length, not measuring range"
+INSIDE_SPRING_CALIPER,body_length,DIVIDER,ADD,required,Owner-approved primary variant for spring calipers
+OUTSIDE_SPRING_CALIPER,measurement_range,DIVIDER,REMOVE,,"OEM spring-caliper identity is body length, not measuring range"
+OUTSIDE_SPRING_CALIPER,body_length,DIVIDER,ADD,required,Owner-approved primary variant for spring calipers
+GAP_TAPER_GAUGE,accuracy,TAPER_GAUGE,COPY,required,Copied from active TAPER_GAUGE Definition
+GAP_TAPER_GAUGE,measurement_range,TAPER_GAUGE,COPY,required,Copied from active TAPER_GAUGE Definition
+GAP_TAPER_GAUGE,resolution,TAPER_GAUGE,COPY,required,Copied from active TAPER_GAUGE Definition
+TAPER_BORE_GAUGE,accuracy,TAPER_GAUGE,COPY,required,Copied from active TAPER_GAUGE Definition
+TAPER_BORE_GAUGE,measurement_range,TAPER_GAUGE,COPY,required,Copied from active TAPER_GAUGE Definition
+TAPER_BORE_GAUGE,resolution,TAPER_GAUGE,COPY,required,Copied from active TAPER_GAUGE Definition
+TAPER_GAUGE_SET,accuracy,TAPER_GAUGE,COPY,required,Copied from active TAPER_GAUGE Definition
+TAPER_GAUGE_SET,measurement_range,TAPER_GAUGE,COPY,required,Copied from active TAPER_GAUGE Definition
+TAPER_GAUGE_SET,resolution,TAPER_GAUGE,COPY,required,Copied from active TAPER_GAUGE Definition
+LASER_LEVEL,sensitivity,LEVEL,REMOVE,,Spirit-level sensitivity not applicable to laser projection levels
+LASER_LEVEL,body_length,LEVEL,ADD,optional,Physical instrument length may be published later; not spirit sensitivity
+LEVEL,sensitivity,LEVEL,COPY,required,Preserve existing active memberships on new draft version
+LEVEL,body_length,LEVEL,ADD,required,Approved delta D-LEVEL-01; must edit DRAFT Definition only
+DIGITAL_LEVEL,accuracy_angle,DIGITAL_LEVEL,COPY,required,Preserve existing active memberships on new draft version
+DIGITAL_LEVEL,angle_range,DIGITAL_LEVEL,COPY,required,Preserve existing active memberships on new draft version
+DIGITAL_LEVEL,resolution_angle,DIGITAL_LEVEL,COPY,required,Preserve existing active memberships on new draft version
+DIGITAL_LEVEL,body_length,DIGITAL_LEVEL,ADD,required,Approved delta D-DLEVEL-01; must edit DRAFT Definition only
+SURFACE_PLATE,accuracy,SURFACE_PLATE,COPY,required,Preserve existing active memberships on new draft version
+SURFACE_PLATE,grade,SURFACE_PLATE,COPY,required,Preserve existing active memberships on new draft version
+SURFACE_PLATE,nominal_size,SURFACE_PLATE,COPY,required,Preserve existing active memberships on new draft version
+SURFACE_PLATE,plate_length,SURFACE_PLATE,ADD,required,Approved delta D-PLATE-01; must edit DRAFT Definition only
+SURFACE_PLATE,plate_width,SURFACE_PLATE,ADD,required,Approved delta D-PLATE-01; must edit DRAFT Definition only
+SURFACE_PLATE,plate_thickness,SURFACE_PLATE,ADD,required,Approved delta D-PLATE-01; must edit DRAFT Definition only
