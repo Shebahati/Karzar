@@ -42,7 +42,7 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
 )
 from catalog_target.sales_wave_apply import ApplyAbort  # noqa: E402
 
-from test_insize_commercial_reconcile_258_apply import (  # noqa: E402
+from tests.test_insize_commercial_reconcile_258_apply import (  # noqa: E402
     ApplyTransactionTests,
     FakeConn,
 )
