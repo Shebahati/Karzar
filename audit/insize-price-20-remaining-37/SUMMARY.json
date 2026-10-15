@@ -1,0 +1,33 @@
+{
+  "STATUS": "REVIEW_REQUIRED",
+  "generated_at_utc": "2026-10-06T11:02:16.975021+00:00",
+  "workbook_sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "K6": "2500000",
+  "baseline": {
+    "exact": 688,
+    "trailing_a": 134,
+    "remaining": 37
+  },
+  "wave_health": {
+    "exact_need": 0,
+    "trailing_need": 0
+  },
+  "root_cause_counts": {
+    "R14": 14,
+    "R12": 18,
+    "R4": 1,
+    "R10": 2,
+    "R1": 2
+  },
+  "confidence_counts": {
+    "AMBIGUOUS": 15,
+    "NO_MATCH": 18,
+    "LIKELY": 4
+  },
+  "action_counts": {
+    "NEEDS_OWNER_REVIEW": 19,
+    "NOT_IN_WORKBOOK": 18
+  },
+  "proven_apply_cohort": 0,
+  "new_matcher_rules": []
+}

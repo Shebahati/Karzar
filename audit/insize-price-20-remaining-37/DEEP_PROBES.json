@@ -1,0 +1,2167 @@
+{
+  "family_1205_02": {
+    "1205-1502": false,
+    "1205-1502E": true,
+    "1205-2002": false,
+    "1205-2002E": true,
+    "1205-3002": false,
+    "1205-3002E": true,
+    "1205-150": false,
+    "1205-150A": false,
+    "1205-1502A": false,
+    "1205-1502S": true
+  },
+  "e_suffix_stats": {
+    "e_codes": 1576,
+    "e_base_also": 1207,
+    "e_base_absent": 369
+  },
+  "reverse_hits": {
+    "6372-25": null,
+    "25-6372": null,
+    "1205-1502": null,
+    "1502-1205": null,
+    "0213-500A": null,
+    "500A-0213": null,
+    "6297-1A": null,
+    "1A-6297": null,
+    "7527-1D": null,
+    "1D-7527": null,
+    "7527-2D": null,
+    "2D-7527": null,
+    "4150-130": null,
+    "130-4150": null,
+    "4150-250": null,
+    "250-4150": null
+  },
+  "probes": {
+    "1205_family": [
+      {
+        "code": "1205-1501S",
+        "usd": "31.32",
+        "desc": "VERNIER CALIPER",
+        "row": 14184
+      },
+      {
+        "code": "1205-1502E",
+        "usd": "30.24",
+        "desc": "VERNIER CALIPER",
+        "row": 51512
+      },
+      {
+        "code": "1205-1502S",
+        "usd": "25.92",
+        "desc": "VERNIER CALIPER",
+        "row": 225
+      },
+      {
+        "code": "1205-1503S",
+        "usd": "26.76",
+        "desc": "VERNIER CALIPER",
+        "row": 14185
+      },
+      {
+        "code": "1205-150S",
+        "usd": "25.92",
+        "desc": "VERNIER CALIPER",
+        "row": 14186
+      },
+      {
+        "code": "1205-2001S",
+        "usd": "47.76",
+        "desc": "VERNIER CALIPER",
+        "row": 14187
+      },
+      {
+        "code": "1205-2002E",
+        "usd": "45.48",
+        "desc": "VERNIER CALIPER",
+        "row": 51513
+      },
+      {
+        "code": "1205-2002S",
+        "usd": "39.24",
+        "desc": "VERNIER CALIPER",
+        "row": 36
+      },
+      {
+        "code": "1205-2003S",
+        "usd": "43.92",
+        "desc": "VERNIER CALIPER",
+        "row": 14188
+      },
+      {
+        "code": "1205-200S",
+        "usd": "39.36",
+        "desc": "VERNIER CALIPER",
+        "row": 14189
+      },
+      {
+        "code": "1205-2501S",
+        "usd": "122.4",
+        "desc": "VERNIER CALIPER",
+        "row": 14190
+      },
+      {
+        "code": "1205-2502S",
+        "usd": "84.48",
+        "desc": "VERNIER CALIPER",
+        "row": 14191
+      },
+      {
+        "code": "1205-2503S",
+        "usd": "98.28",
+        "desc": "VERNIER CALIPER",
+        "row": 14192
+      },
+      {
+        "code": "1205-250S",
+        "usd": "82.08",
+        "desc": "VERNIER CALIPER",
+        "row": 14193
+      },
+      {
+        "code": "1205-3001S",
+        "usd": "81.24",
+        "desc": "VERNIER CALIPER",
+        "row": 14194
+      },
+      {
+        "code": "1205-3002E",
+        "usd": "78.48",
+        "desc": "VERNIER CALIPER",
+        "row": 51514
+      },
+      {
+        "code": "1205-3002S",
+        "usd": "65.76",
+        "desc": "VERNIER CALIPER",
+        "row": 37
+      },
+      {
+        "code": "1205-3003S",
+        "usd": "78.12",
+        "desc": "VERNIER CALIPER",
+        "row": 14195
+      },
+      {
+        "code": "1205-300S",
+        "usd": "66",
+        "desc": "VERNIER CALIPER",
+        "row": 14196
+      }
+    ],
+    "4150_family": [],
+    "6372_family": [
+      {
+        "code": "6372-5WS",
+        "usd": "29.16",
+        "desc": "SMALL MICROMETER HEAD",
+        "row": 44580
+      }
+    ],
+    "0213_family": [
+      {
+        "code": "0213-A500",
+        "usd": "55.92",
+        "desc": "INFRARED THERMOMETER",
+        "row": 58
+      }
+    ],
+    "6297_family": [
+      {
+        "code": "6297-1",
+        "usd": "15.48",
+        "desc": "DIAL TEST INDICATOR UNIVERSAL HOLDER",
+        "row": 44103
+      },
+      {
+        "code": "6297-2",
+        "usd": "13.2",
+        "desc": "DIAL TEST INDICATOR UNIVERSAL HOLDER",
+        "row": 44104
+      },
+      {
+        "code": "6297-3",
+        "usd": "12.48",
+        "desc": "DIAL TEST INDICATOR UNIVERSAL HOLDER",
+        "row": 44105
+      }
+    ],
+    "4120_family": [
+      {
+        "code": "4120-10",
+        "usd": "36",
+        "desc": "THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23439
+      },
+      {
+        "code": "4120-10-DLC",
+        "usd": "74.64",
+        "desc": "DLC COATED THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23440
+      },
+      {
+        "code": "4120-10E",
+        "usd": "38.04",
+        "desc": "THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23441
+      },
+      {
+        "code": "4120-10E-DLC",
+        "usd": "76.56",
+        "desc": "DLC COATED THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23442
+      },
+      {
+        "code": "4120-10EN",
+        "usd": "32.64",
+        "desc": "THREAD RING GAGE, 6e, No Go, ISO 1502",
+        "row": 23443
+      },
+      {
+        "code": "4120-10H",
+        "usd": "38.04",
+        "desc": "THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23444
+      },
+      {
+        "code": "4120-10H-DLC",
+        "usd": "76.56",
+        "desc": "DLC COATED THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23445
+      },
+      {
+        "code": "4120-10HN",
+        "usd": "32.64",
+        "desc": "THREAD RING GAGE, 6h, No Go, ISO 1502",
+        "row": 23446
+      },
+      {
+        "code": "4120-10N",
+        "usd": "29.76",
+        "desc": "THREAD RING GAGE, 6g, No Go, ISO 1502",
+        "row": 23447
+      },
+      {
+        "code": "4120-11",
+        "usd": "36.96",
+        "desc": "THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23448
+      },
+      {
+        "code": "4120-11-DLC",
+        "usd": "87",
+        "desc": "DLC COATED THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23449
+      },
+      {
+        "code": "4120-11E",
+        "usd": "38.4",
+        "desc": "THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23450
+      },
+      {
+        "code": "4120-11E-DLC",
+        "usd": "88.8",
+        "desc": "DLC COATED THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23451
+      },
+      {
+        "code": "4120-11EN",
+        "usd": "32.88",
+        "desc": "THREAD RING GAGE, 6e, No Go, ISO 1502",
+        "row": 23452
+      },
+      {
+        "code": "4120-11H",
+        "usd": "38.4",
+        "desc": "THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23453
+      },
+      {
+        "code": "4120-11H-DLC",
+        "usd": "88.8",
+        "desc": "DLC COATED THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23454
+      },
+      {
+        "code": "4120-11HN",
+        "usd": "32.88",
+        "desc": "THREAD RING GAGE, 6h, No Go, ISO 1502",
+        "row": 23455
+      },
+      {
+        "code": "4120-11N",
+        "usd": "30.48",
+        "desc": "THREAD RING GAGE, 6g, No Go, ISO 1502",
+        "row": 23456
+      },
+      {
+        "code": "4120-12",
+        "usd": "34.08",
+        "desc": "THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23457
+      },
+      {
+        "code": "4120-12-DLC",
+        "usd": "91.2",
+        "desc": "DLC COATED THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23458
+      },
+      {
+        "code": "4120-12E",
+        "usd": "38.88",
+        "desc": "THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23459
+      },
+      {
+        "code": "4120-12E-DLC",
+        "usd": "95.16",
+        "desc": "DLC COATED THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23460
+      },
+      {
+        "code": "4120-12EN",
+        "usd": "33.12",
+        "desc": "THREAD RING GAGE, 6e, No Go, ISO 1502",
+        "row": 23461
+      },
+      {
+        "code": "4120-12H",
+        "usd": "38.88",
+        "desc": "THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23462
+      },
+      {
+        "code": "4120-12H-DLC",
+        "usd": "95.16",
+        "desc": "DLC COATED THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23463
+      },
+      {
+        "code": "4120-12HN",
+        "usd": "33.12",
+        "desc": "THREAD RING GAGE, 6h, No Go, ISO 1502",
+        "row": 23464
+      },
+      {
+        "code": "4120-12N",
+        "usd": "30.6",
+        "desc": "THREAD RING GAGE, 6g, No Go, ISO 1502",
+        "row": 23465
+      },
+      {
+        "code": "4120-14",
+        "usd": "36.24",
+        "desc": "THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23466
+      },
+      {
+        "code": "4120-14-DLC",
+        "usd": "93.84",
+        "desc": "DLC COATED THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23467
+      },
+      {
+        "code": "4120-14E",
+        "usd": "40.56",
+        "desc": "THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23468
+      },
+      {
+        "code": "4120-14E-DLC",
+        "usd": "97.68",
+        "desc": "DLC COATED THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23469
+      },
+      {
+        "code": "4120-14EN",
+        "usd": "32.52",
+        "desc": "THREAD RING GAGE, 6e, No Go, ISO 1502",
+        "row": 23470
+      },
+      {
+        "code": "4120-14H",
+        "usd": "40.56",
+        "desc": "THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23471
+      },
+      {
+        "code": "4120-14H-DLC",
+        "usd": "97.68",
+        "desc": "DLC COATED THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23472
+      },
+      {
+        "code": "4120-14HN",
+        "usd": "32.52",
+        "desc": "THREAD RING GAGE, 6h, No Go, ISO 1502",
+        "row": 23473
+      },
+      {
+        "code": "4120-14N",
+        "usd": "29.28",
+        "desc": "THREAD RING GAGE, 6g, No Go, ISO 1502",
+        "row": 23474
+      },
+      {
+        "code": "4120-16",
+        "usd": "34.44",
+        "desc": "THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23898
+      },
+      {
+        "code": "4120-16-DLC",
+        "usd": "111",
+        "desc": "DLC COATED THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23476
+      },
+      {
+        "code": "4120-16E",
+        "usd": "41.76",
+        "desc": "THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23477
+      },
+      {
+        "code": "4120-16E-DLC",
+        "usd": "115.08",
+        "desc": "DLC COATED THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23478
+      },
+      {
+        "code": "4120-16EN",
+        "usd": "33.24",
+        "desc": "THREAD RING GAGE, 6e, No Go, ISO 1502",
+        "row": 23479
+      },
+      {
+        "code": "4120-16H",
+        "usd": "41.64",
+        "desc": "THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23480
+      },
+      {
+        "code": "4120-16H-DLC",
+        "usd": "115.08",
+        "desc": "DLC COATED THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23481
+      },
+      {
+        "code": "4120-16HN",
+        "usd": "33.24",
+        "desc": "THREAD RING GAGE, 6h, No Go, ISO 1502",
+        "row": 23482
+      },
+      {
+        "code": "4120-16N",
+        "usd": "30",
+        "desc": "THREAD RING GAGE, 6g, No Go, ISO 1502",
+        "row": 23483
+      },
+      {
+        "code": "4120-18",
+        "usd": "41.16",
+        "desc": "THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23484
+      },
+      {
+        "code": "4120-18-DLC",
+        "usd": "128.4",
+        "desc": "DLC COATED THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23485
+      },
+      {
+        "code": "4120-18E",
+        "usd": "45.36",
+        "desc": "THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23486
+      },
+      {
+        "code": "4120-18E-DLC",
+        "usd": "129.6",
+        "desc": "DLC COATED THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23487
+      },
+      {
+        "code": "4120-18EN",
+        "usd": "35.52",
+        "desc": "THREAD RING GAGE, 6e, No Go, ISO 1502",
+        "row": 23488
+      },
+      {
+        "code": "4120-18H",
+        "usd": "45.36",
+        "desc": "THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23489
+      },
+      {
+        "code": "4120-18H-DLC",
+        "usd": "129.6",
+        "desc": "DLC COATED THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23490
+      },
+      {
+        "code": "4120-18HN",
+        "usd": "35.52",
+        "desc": "THREAD RING GAGE, 6h, No Go, ISO 1502",
+        "row": 23491
+      },
+      {
+        "code": "4120-18N",
+        "usd": "35.52",
+        "desc": "THREAD RING GAGE, 6g, No Go, ISO 1502",
+        "row": 23492
+      },
+      {
+        "code": "4120-2",
+        "usd": "42",
+        "desc": "THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23493
+      },
+      {
+        "code": "4120-2-DLC",
+        "usd": "55.2",
+        "desc": "DLC COATED THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23566
+      },
+      {
+        "code": "4120-20",
+        "usd": "39.36",
+        "desc": "THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23494
+      },
+      {
+        "code": "4120-20-DLC",
+        "usd": "122.4",
+        "desc": "DLC COATED THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23495
+      },
+      {
+        "code": "4120-20E",
+        "usd": "48.72",
+        "desc": "THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23496
+      },
+      {
+        "code": "4120-20E-DLC",
+        "usd": "129.6",
+        "desc": "DLC COATED THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23497
+      },
+      {
+        "code": "4120-20EN",
+        "usd": "35.4",
+        "desc": "THREAD RING GAGE, 6e, No Go, ISO 1502",
+        "row": 23498
+      },
+      {
+        "code": "4120-20H",
+        "usd": "48.72",
+        "desc": "THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23499
+      },
+      {
+        "code": "4120-20H-DLC",
+        "usd": "129.6",
+        "desc": "DLC COATED THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23500
+      },
+      {
+        "code": "4120-20HN",
+        "usd": "35.4",
+        "desc": "THREAD RING GAGE, 6h, No Go, ISO 1502",
+        "row": 23501
+      },
+      {
+        "code": "4120-20N",
+        "usd": "33.84",
+        "desc": "THREAD RING GAGE, 6g, No Go, ISO 1502",
+        "row": 23502
+      },
+      {
+        "code": "4120-22",
+        "usd": "39.36",
+        "desc": "THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23503
+      },
+      {
+        "code": "4120-22-DLC",
+        "usd": "152.4",
+        "desc": "DLC COATED THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23504
+      },
+      {
+        "code": "4120-22E",
+        "usd": "47.64",
+        "desc": "THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23505
+      },
+      {
+        "code": "4120-22E-DLC",
+        "usd": "162",
+        "desc": "DLC COATED THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23506
+      },
+      {
+        "code": "4120-22EN",
+        "usd": "36",
+        "desc": "THREAD RING GAGE, 6e, No Go, ISO 1502",
+        "row": 23507
+      },
+      {
+        "code": "4120-22H",
+        "usd": "47.64",
+        "desc": "THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23508
+      },
+      {
+        "code": "4120-22H-DLC",
+        "usd": "162",
+        "desc": "DLC COATED THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23509
+      },
+      {
+        "code": "4120-22HN",
+        "usd": "36",
+        "desc": "THREAD RING GAGE, 6h, No Go, ISO 1502",
+        "row": 23510
+      },
+      {
+        "code": "4120-22N",
+        "usd": "32.4",
+        "desc": "THREAD RING GAGE, 6g, No Go, ISO 1502",
+        "row": 23511
+      },
+      {
+        "code": "4120-24",
+        "usd": "57.12",
+        "desc": "THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23512
+      },
+      {
+        "code": "4120-24-DLC",
+        "usd": "171.6",
+        "desc": "DLC COATED THREAD RING GAGE, 6g, Go, ISO 1502",
+        "row": 23513
+      },
+      {
+        "code": "4120-24E",
+        "usd": "66.6",
+        "desc": "THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23514
+      },
+      {
+        "code": "4120-24E-DLC",
+        "usd": "180",
+        "desc": "DLC COATED THREAD RING GAGE, 6e, Go, ISO 1502",
+        "row": 23515
+      },
+      {
+        "code": "4120-24EN",
+        "usd": "39.84",
+        "desc": "THREAD RING GAGE, 6e, No Go, ISO 1502",
+        "row": 23516
+      },
+      {
+        "code": "4120-24H",
+        "usd": "66.6",
+        "desc": "THREAD RING GAGE, 6h, Go, ISO 1502",
+        "row": 23517
+      }
+    ],
+    "7527_family": [
+      {
+        "code": "7527-D1",
+        "usd": "27.36",
+        "desc": "MEASURING MAGNIFIER (WITH ILLUMINATION)",
+        "row": 47229
+      },
+      {
+        "code": "7527-D1B",
+        "usd": "29.16",
+        "desc": "MEASURING MAGNIFIERS (WITH ILLUMINATION)",
+        "row": 46390
+      },
+      {
+        "code": "7527-D2",
+        "usd": "31.2",
+        "desc": "MEASURING MAGNIFIER (WITH ILLUMINATION)",
+        "row": 46391
+      }
+    ],
+    "2824_family": [
+      {
+        "code": "2824-S160",
+        "usd": "135.6",
+        "desc": "BORE GAGE SET (with dial indicator, setting ring is not included)",
+        "row": 15681
+      },
+      {
+        "code": "2824-S2E",
+        "usd": "138",
+        "desc": "BORE GAGE SET (with dial indicator, setting ring is not included))",
+        "row": 51753
+      },
+      {
+        "code": "2824-S3",
+        "usd": "213.6",
+        "desc": "BORE GAGE SET (3pcs, with dial indicator, setting ring is not included)",
+        "row": 90
+      },
+      {
+        "code": "2824-S3E",
+        "usd": "255.6",
+        "desc": "BORE GAGE SET (with dial indicator, setting ring is not included), 3pcs)",
+        "row": 51754
+      }
+    ],
+    "1281_family": [
+      {
+        "code": "1281-M26A",
+        "usd": "240",
+        "desc": "GEAR TOOTH VERNIER CALIPER",
+        "row": 14319
+      }
+    ],
+    "8910_family": [
+      {
+        "code": "8910-100GE2",
+        "usd": "544.8",
+        "desc": "WEIGHT SET",
+        "row": 46759
+      },
+      {
+        "code": "8910-100GF1",
+        "usd": "340.8",
+        "desc": "WEIGHT SET",
+        "row": 46760
+      },
+      {
+        "code": "8910-100GF1S",
+        "usd": "133.2",
+        "desc": "WEIGHT SET",
+        "row": 46761
+      },
+      {
+        "code": "8910-100GF2",
+        "usd": "107.04",
+        "desc": "WEIGHT SET",
+        "row": 46762
+      },
+      {
+        "code": "8910-100GM1",
+        "usd": "108",
+        "desc": "WEIGHT SET",
+        "row": 46763
+      },
+      {
+        "code": "8910-1KGE2",
+        "usd": "1003.2",
+        "desc": "WEIGHT SET",
+        "row": 46764
+      },
+      {
+        "code": "8910-1KGF1",
+        "usd": "780",
+        "desc": "WEIGHT SET",
+        "row": 46765
+      },
+      {
+        "code": "8910-1KGF1S",
+        "usd": "248.4",
+        "desc": "WEIGHT SET",
+        "row": 46766
+      },
+      {
+        "code": "8910-1KGF2",
+        "usd": "183.6",
+        "desc": "WEIGHT SET",
+        "row": 46767
+      },
+      {
+        "code": "8910-1KGM1",
+        "usd": "180",
+        "desc": "WEIGHT SET",
+        "row": 46768
+      },
+      {
+        "code": "8910-200GE2",
+        "usd": "630",
+        "desc": "WEIGHT SET",
+        "row": 46769
+      },
+      {
+        "code": "8910-200GF1",
+        "usd": "430.8",
+        "desc": "WEIGHT SET",
+        "row": 46770
+      },
+      {
+        "code": "8910-200GF1S",
+        "usd": "166.8",
+        "desc": "WEIGHT SET",
+        "row": 46771
+      },
+      {
+        "code": "8910-200GF2",
+        "usd": "123.6",
+        "desc": "WEIGHT SET",
+        "row": 46772
+      },
+      {
+        "code": "8910-200GM1",
+        "usd": "121.2",
+        "desc": "WEIGHT SET",
+        "row": 46773
+      },
+      {
+        "code": "8910-2KGE2",
+        "usd": "1663.2",
+        "desc": "WEIGHT SET",
+        "row": 46774
+      },
+      {
+        "code": "8910-2KGF1",
+        "usd": "984",
+        "desc": "WEIGHT SET",
+        "row": 46775
+      },
+      {
+        "code": "8910-2KGF1S",
+        "usd": "372",
+        "desc": "WEIGHT SET",
+        "row": 46776
+      },
+      {
+        "code": "8910-2KGF2",
+        "usd": "282",
+        "desc": "WEIGHT SET",
+        "row": 46777
+      },
+      {
+        "code": "8910-2KGM1",
+        "usd": "285.6",
+        "desc": "WEIGHT SET",
+        "row": 46778
+      },
+      {
+        "code": "8910-500GE2",
+        "usd": "760.8",
+        "desc": "WEIGHT SET",
+        "row": 46779
+      },
+      {
+        "code": "8910-500GF1",
+        "usd": "494.4",
+        "desc": "WEIGHT SET",
+        "row": 46780
+      },
+      {
+        "code": "8910-500GF1S",
+        "usd": "184.8",
+        "desc": "WEIGHT SET",
+        "row": 46781
+      },
+      {
+        "code": "8910-500GF2",
+        "usd": "140.4",
+        "desc": "WEIGHT SET",
+        "row": 46782
+      },
+      {
+        "code": "8910-500GM1",
+        "usd": "139.2",
+        "desc": "WEIGHT SET",
+        "row": 46783
+      },
+      {
+        "code": "8910-5KGE2",
+        "usd": "2157.6",
+        "desc": "WEIGHT SET",
+        "row": 46784
+      },
+      {
+        "code": "8910-5KGF1",
+        "usd": "1243.2",
+        "desc": "WEIGHT SET",
+        "row": 46785
+      },
+      {
+        "code": "8910-5KGF1S",
+        "usd": "525.6",
+        "desc": "WEIGHT SET",
+        "row": 46786
+      },
+      {
+        "code": "8910-5KGF2",
+        "usd": "444",
+        "desc": "WEIGHT SET",
+        "row": 46787
+      },
+      {
+        "code": "8910-5KGM1",
+        "usd": "440.4",
+        "desc": "WEIGHT SET",
+        "row": 46788
+      }
+    ],
+    "3560_family": [
+      {
+        "code": "3560-100A",
+        "usd": "278.4",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 17138
+      },
+      {
+        "code": "3560-100AWL",
+        "usd": "369.6",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 17139
+      },
+      {
+        "code": "3560-100E",
+        "usd": "357.6",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (type A)",
+        "row": 17140
+      },
+      {
+        "code": "3560-100SA",
+        "usd": "274.8",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 17141
+      },
+      {
+        "code": "3560-100SAWL",
+        "usd": "344.4",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 17142
+      },
+      {
+        "code": "3560-100SE",
+        "usd": "394.8",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (type B)",
+        "row": 17143
+      },
+      {
+        "code": "3560-25A",
+        "usd": "181.2",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 17144
+      },
+      {
+        "code": "3560-25AWL",
+        "usd": "265.2",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 17145
+      },
+      {
+        "code": "3560-25E",
+        "usd": "187.2",
+        "desc": "ELECTRONIC SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 52278
+      },
+      {
+        "code": "3560-25EWL",
+        "usd": "280.8",
+        "desc": "ELECTRONIC SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 52279
+      },
+      {
+        "code": "3560-25SA",
+        "usd": "176.4",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 17146
+      },
+      {
+        "code": "3560-25SAWL",
+        "usd": "270",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 17147
+      },
+      {
+        "code": "3560-25SE",
+        "usd": "190.8",
+        "desc": "ELECTRONIC SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 52280
+      },
+      {
+        "code": "3560-25SEWL",
+        "usd": "284.4",
+        "desc": "ELECTRONIC SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 52281
+      },
+      {
+        "code": "3560-50A",
+        "usd": "211.2",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 17148
+      },
+      {
+        "code": "3560-50AWL",
+        "usd": "286.8",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 17149
+      },
+      {
+        "code": "3560-50E",
+        "usd": "210",
+        "desc": "ELECTRONIC SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 52282
+      },
+      {
+        "code": "3560-50EWL",
+        "usd": "303.6",
+        "desc": "ELECTRONIC SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 52283
+      },
+      {
+        "code": "3560-50SA",
+        "usd": "198",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 17150
+      },
+      {
+        "code": "3560-50SAWL",
+        "usd": "291.6",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 17151
+      },
+      {
+        "code": "3560-50SE",
+        "usd": "213.6",
+        "desc": "ELECTRONIC SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 52284
+      },
+      {
+        "code": "3560-50SEWL",
+        "usd": "307.2",
+        "desc": "ELECTRONIC SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 52285
+      },
+      {
+        "code": "3560-75A",
+        "usd": "236.4",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 17152
+      },
+      {
+        "code": "3560-75AWL",
+        "usd": "309.6",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (flat spindle tip)",
+        "row": 17153
+      },
+      {
+        "code": "3560-75E",
+        "usd": "318",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (type A)",
+        "row": 52286
+      },
+      {
+        "code": "3560-75SA",
+        "usd": "244.8",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 17154
+      },
+      {
+        "code": "3560-75SAWL",
+        "usd": "316.8",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (spherical spindle tip)",
+        "row": 17155
+      },
+      {
+        "code": "3560-75SE",
+        "usd": "352.8",
+        "desc": "DIGITAL SPHERICAL ANVIL TUBE MICROMETER (type B)",
+        "row": 17156
+      }
+    ],
+    "2311_family": [
+      {
+        "code": "2311-3",
+        "usd": "36.12",
+        "desc": "COMPACT DIAL INDICATOR (lug back)",
+        "row": 15008
+      },
+      {
+        "code": "2311-3F",
+        "usd": "34.2",
+        "desc": "COMPACT DIAL INDICATOR (flat back)",
+        "row": 15009
+      },
+      {
+        "code": "2311-5",
+        "usd": "36.24",
+        "desc": "COMPACT DIAL INDICATOR (lug back)",
+        "row": 14536
+      },
+      {
+        "code": "2311-5F",
+        "usd": "35.28",
+        "desc": "COMPACT DIAL INDICATOR (flat back)",
+        "row": 15010
+      }
+    ],
+    "4831_family": [
+      {
+        "code": "4831-20A",
+        "usd": "106.08",
+        "desc": "DIGITAL WELDING GAGE",
+        "row": 43279
+      }
+    ],
+    "2164_family": [
+      {
+        "code": "2164-25A",
+        "usd": "186",
+        "desc": "DIGITAL 3-PURPOSE SNAP GAGE",
+        "row": 14004
+      }
+    ],
+    "5201_family": [
+      {
+        "code": "5201-63B2Y10",
+        "usd": "11.04",
+        "desc": "BOURDON TUBE PRESSURE GAGE (LIQUID FILLED)",
+        "row": 43442
+      },
+      {
+        "code": "5201-63N2Y10",
+        "usd": "11.04",
+        "desc": "BOURDON TUBE PRESSURE GAGE (LIQUID FILLED)",
+        "row": 43443
+      },
+      {
+        "code": "5201-63Z2Y10",
+        "usd": "11.04",
+        "desc": "BOURDON TUBE PRESSURE GAGE (LIQUID FILLED)",
+        "row": 43444
+      },
+      {
+        "code": "6283-5201",
+        "usd": "1347.6",
+        "desc": "NEEDLE POINT",
+        "row": 44063
+      }
+    ],
+    "ISH_family": [
+      {
+        "code": "ISH-BL01",
+        "usd": "840",
+        "desc": "BALANCING BRACKET",
+        "row": 47778
+      },
+      {
+        "code": "ISH-BRV",
+        "usd": null,
+        "desc": null,
+        "row": 55229
+      },
+      {
+        "code": "ISH-BRV-HB-INDENTER1",
+        "usd": "112.92",
+        "desc": "Φ2.5mm BRINELL INDENTER FOR ISH-BRV",
+        "row": 54071
+      },
+      {
+        "code": "ISH-BRV-HB-INDENTER2",
+        "usd": "126",
+        "desc": "Φ5mm BRINELL INDENTER FOR ISH-BRV",
+        "row": 54072
+      },
+      {
+        "code": "ISH-BRV-HV-INDENTER",
+        "usd": "276",
+        "desc": "VICKERS INDENTER FOR ISH-BRV",
+        "row": 54073
+      },
+      {
+        "code": "ISH-COUPLANT",
+        "usd": "12.96",
+        "desc": "COUPLANT",
+        "row": 47782
+      },
+      {
+        "code": "ISH-DS-BLOCK",
+        "usd": "25.08",
+        "desc": "CALIBRATION BLOCK",
+        "row": 47785
+      },
+      {
+        "code": "ISH-DS-PRINTER",
+        "usd": "266.4",
+        "desc": "PRINTER",
+        "row": 47788
+      },
+      {
+        "code": "ISH-DS-STANDA",
+        "usd": "1071.6",
+        "desc": "TEST STAND FOR DIGITAL SHORE DUROMETER",
+        "row": 47789
+      },
+      {
+        "code": "ISH-DS-W4",
+        "usd": "79.92",
+        "desc": "WEIGHT BLOCK FOR D",
+        "row": 47790
+      },
+      {
+        "code": "ISH-DSA",
+        "usd": "490.8",
+        "desc": "DIGITAL SHORE DUROMETER A",
+        "row": 49963
+      },
+      {
+        "code": "ISH-DSA-W1",
+        "usd": "86.64",
+        "desc": "1KG WEIGHT BLOCK (for ISH-DSA)",
+        "row": 47784
+      },
+      {
+        "code": "ISH-DSD",
+        "usd": "589.2",
+        "desc": "DIGITAL SHORE DUROMETER D",
+        "row": 47786
+      },
+      {
+        "code": "ISH-DSOO",
+        "usd": "828",
+        "desc": "DIGITAL SHORE DUROMETER OO",
+        "row": 47787
+      },
+      {
+        "code": "ISH-DV-ADAPTER",
+        "usd": "152.4",
+        "desc": "CAMERA ADAPTER",
+        "row": 47793
+      },
+      {
+        "code": "ISH-DV10-STAGE",
+        "usd": null,
+        "desc": "X-Y STAGE FOR ISH-DV50 AND ISH-DV10",
+        "row": 47791
+      },
+      {
+        "code": "ISH-DV10-VICE",
+        "usd": null,
+        "desc": "VICE FOR ISH-DV50 AND ISH-DV10",
+        "row": 47792
+      },
+      {
+        "code": "ISH-EHK-INDENTER",
+        "usd": "121.2",
+        "desc": "Φ3.175mm CARBIDE BALL INDENTER",
+        "row": 47794
+      },
+      {
+        "code": "ISH-KNOOP",
+        "usd": "292.8",
+        "desc": "KNOOP INDENTER",
+        "row": 47795
+      },
+      {
+        "code": "ISH-LP200-PRINTER",
+        "usd": "199.2",
+        "desc": "PRINTER",
+        "row": 47796
+      },
+      {
+        "code": "ISH-M-C10",
+        "usd": null,
+        "desc": "CARBIDE BALL PROBE",
+        "row": 47797
+      },
+      {
+        "code": "ISH-M-C4",
+        "usd": null,
+        "desc": "CARBIDE BALL PROBE",
+        "row": 47798
+      },
+      {
+        "code": "ISH-M-C4A",
+        "usd": null,
+        "desc": "CARBIDE BALL PROBE",
+        "row": 47799
+      },
+      {
+        "code": "ISH-M-C4B",
+        "usd": null,
+        "desc": "CARBIDE BALL PROBE",
+        "row": 47800
+      },
+      {
+        "code": "ISH-M-D10",
+        "usd": null,
+        "desc": "DISC PROBE",
+        "row": 47801
+      },
+      {
+        "code": "ISH-M-DP",
+        "usd": null,
+        "desc": "STEEL PIN PROBE FOR GROOVE",
+        "row": 47802
+      },
+      {
+        "code": "ISH-M-KIT",
+        "usd": null,
+        "desc": "PROBE SET",
+        "row": 47804
+      },
+      {
+        "code": "ISH-M-R2",
+        "usd": null,
+        "desc": "RUBY BALL PROBE",
+        "row": 47805
+      },
+      {
+        "code": "ISH-M-R3",
+        "usd": null,
+        "desc": "RUBY BALL PROBE",
+        "row": 47806
+      },
+      {
+        "code": "ISH-M-S105",
+        "usd": null,
+        "desc": "CARBIDE DEPTH PROBE",
+        "row": 47807
+      },
+      {
+        "code": "ISH-M-S2",
+        "usd": null,
+        "desc": "CARBIDE DEPTH PROBE",
+        "row": 47808
+      },
+      {
+        "code": "ISH-MH-SQA",
+        "usd": "272.4",
+        "desc": "SQUARENESS PROBE WITH HOLDER",
+        "row": 47803
+      },
+      {
+        "code": "ISH-OS2",
+        "usd": "3817.2",
+        "desc": "TESTSTAND FOR SHORE DUROMETER",
+        "row": 54076
+      },
+      {
+        "code": "ISH-OS2-W4",
+        "usd": "508.8",
+        "desc": "4KG WEIGHT BLOCK (for ISH-S30D)",
+        "row": 47809
+      },
+      {
+        "code": "ISH-PH-SP9",
+        "usd": "234",
+        "desc": "SUPPORT RING SET FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47812
+      },
+      {
+        "code": "ISH-PHA",
+        "usd": "1347.6",
+        "desc": "PORTABLE LEEB HARDNESS TESTER",
+        "row": 47810
+      },
+      {
+        "code": "ISH-PHB-B",
+        "usd": "661.2",
+        "desc": "PORTABLE LEEB HARDNESS TESTER",
+        "row": 47811
+      },
+      {
+        "code": "ISH-R1015",
+        "usd": "44.52",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47813
+      },
+      {
+        "code": "ISH-R1113",
+        "usd": "44.52",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47814
+      },
+      {
+        "code": "ISH-R12517",
+        "usd": "44.4",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47815
+      },
+      {
+        "code": "ISH-R14530",
+        "usd": "44.52",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47816
+      },
+      {
+        "code": "ISH-R150",
+        "usd": null,
+        "desc": null,
+        "row": 55228
+      },
+      {
+        "code": "ISH-R150-HRB-INDENTER",
+        "usd": "91.8",
+        "desc": "Φ1.5875mmCARBIDE BALL INDENTER FOR ROCKWELL HARDNESS TESTER",
+        "row": 47817
+      },
+      {
+        "code": "ISH-R150-HRC-INDENTER",
+        "usd": "144",
+        "desc": "DIAMOND ROCKWELL INDENTER FOR ROCKWELL HARDNESS TESTER",
+        "row": 47818
+      },
+      {
+        "code": "ISH-R16530",
+        "usd": "44.52",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47819
+      },
+      {
+        "code": "ISH-R2550",
+        "usd": "44.52",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47820
+      },
+      {
+        "code": "ISH-RSR700",
+        "usd": null,
+        "desc": "HIGH ACCURACY DIGITAL ROCKWELL AND SUPERFICIAL ROCKWELL HARDNESS TESTER",
+        "row": 54080
+      },
+      {
+        "code": "ISH-RSR700-FS",
+        "usd": "337.2",
+        "desc": "FOOT SWITCH",
+        "row": 54081
+      },
+      {
+        "code": "ISH-RUN",
+        "usd": "44.76",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47823
+      },
+      {
+        "code": "ISH-S30A",
+        "usd": "1587.6",
+        "desc": "SHORE DUROMETER A",
+        "row": 47824
+      },
+      {
+        "code": "ISH-S30D",
+        "usd": "1587.6",
+        "desc": "SHORE DUROMETER D",
+        "row": 47825
+      },
+      {
+        "code": "ISH-SAM",
+        "usd": "101.88",
+        "desc": "SHORE A DUROMETER (with peak value indicator)",
+        "row": 49964
+      },
+      {
+        "code": "ISH-SC",
+        "usd": "139.2",
+        "desc": "SHORE DUROMETER, HW: 10-90",
+        "row": 47826
+      },
+      {
+        "code": "ISH-SDM",
+        "usd": "174",
+        "desc": "SHORE D DUROMETER (with peak value indicator)",
+        "row": 186
+      },
+      {
+        "code": "ISH-SMALL-ANVIL",
+        "usd": "164.4",
+        "desc": "SMALL V-TYPE ANVIL",
+        "row": 47827
+      },
+      {
+        "code": "ISH-SPHA-C",
+        "usd": "146.4",
+        "desc": "IMPACT DEVICE C",
+        "row": 47828
+      },
+      {
+        "code": "ISH-SPHA-D15",
+        "usd": "993.6",
+        "desc": "IMPACT DEVICE D+15",
+        "row": 47829
+      },
+      {
+        "code": "ISH-SPHA-DC",
+        "usd": "144",
+        "desc": "IMPACT DEVICE DC",
+        "row": 47830
+      },
+      {
+        "code": "ISH-SPHA-DL",
+        "usd": "994.8",
+        "desc": "IMPACT DEVICE DL",
+        "row": 47831
+      },
+      {
+        "code": "ISH-SPHA-G",
+        "usd": "998.4",
+        "desc": "IMPACT DEVICE G",
+        "row": 47832
+      },
+      {
+        "code": "ISH-SPHD",
+        "usd": null,
+        "desc": "PORTABLE LEEB HARDNESS TESTER",
+        "row": 47833
+      },
+      {
+        "code": "ISH-SPHD1",
+        "usd": "1462.8",
+        "desc": "PORTABLE LEEB HARDNESS TESTER",
+        "row": 47834
+      },
+      {
+        "code": "ISH-SR1015",
+        "usd": "44.52",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47835
+      },
+      {
+        "code": "ISH-SR1113",
+        "usd": "44.4",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47836
+      },
+      {
+        "code": "ISH-SR12517",
+        "usd": "44.4",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47837
+      },
+      {
+        "code": "ISH-SR14530",
+        "usd": "44.52",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47838
+      },
+      {
+        "code": "ISH-SR16530",
+        "usd": "44.4",
+        "desc": "SUPPORT RINGS FOR PORTABLE LEEB HARDNESS TESTER",
+        "row": 47839
+      },
+      {
+        "code": "ISH-ST02",
+        "usd": "840",
+        "desc": "JACK LIFTING BRACKET",
+        "row": 47840
+      },
+      {
+        "code": "ISH-STAC",
+        "usd": "274.8",
+        "desc": "TEST STAND FOR SHORE DUROMETER",
+        "row": 48805
+      },
+      {
+        "code": "ISH-STD",
+        "usd": "343.2",
+        "desc": "TEST STAND FOR SHORE DUROMETER",
+        "row": 47841
+      },
+      {
+        "code": "ISH-TDV-20X",
+        "usd": "884.4",
+        "desc": "20X OBJECTIVE",
+        "row": 54083
+      },
+      {
+        "code": "ISH-TDV-ADAPTER",
+        "usd": "45.36",
+        "desc": "CAMERA ADAPTER",
+        "row": 54084
+      },
+      {
+        "code": "ISH-TDV1000A",
+        "usd": "14728.8",
+        "desc": "DIGITAL MICRO-VICKERS HARDNESS TESTER",
+        "row": 54082
+      },
+      {
+        "code": "ISHB-B300",
+        "usd": "1566",
+        "desc": "Aluminum Hardness Tester",
+        "row": 49946
+      },
+      {
+        "code": "ISHB-C161",
+        "usd": "8510.4",
+        "desc": "CHAIN TYPE HYDRAULIC BRINELL HARDNESS TESTER",
+        "row": 54068
+      },
+      {
+        "code": "ISHB-H131",
+        "usd": "8564.4",
+        "desc": "HYDRAULIC BRINELL HARDNESS TESTER",
+        "row": 54069
+      },
+      {
+        "code": "ISHB-MSA-BLOCK25",
+        "usd": "105.24",
+        "desc": "2.5MM STANDARD INDENTATION BLOCK",
+        "row": 47779
+      },
+      {
+        "code": "ISHB-P101",
+        "usd": "3318",
+        "desc": "PIN BRINELL HARDNESS TESTER",
+        "row": 54070
+      },
+      {
+        "code": "ISHB-P101-INDENTER",
+        "usd": "226.8",
+        "desc": "Φ4mm INDENTER",
+        "row": 47780
+      },
+      {
+        "code": "ISHB-P101-PIN",
+        "usd": "147.6",
+        "desc": "PIN (250pcs)",
+        "row": 47781
+      }
+    ],
+    "N_ring_family": [],
+    "E_suffix_1205": [
+      {
+        "code": "1205-1502E",
+        "usd": "30.24",
+        "desc": "VERNIER CALIPER",
+        "row": 51512
+      },
+      {
+        "code": "1205-2002E",
+        "usd": "45.48",
+        "desc": "VERNIER CALIPER",
+        "row": 51513
+      },
+      {
+        "code": "1205-3002E",
+        "usd": "78.48",
+        "desc": "VERNIER CALIPER",
+        "row": 51514
+      }
+    ],
+    "codes_ending_E_sample": [
+      {
+        "code": "0416-EB01-E",
+        "usd": "38.76",
+        "desc": "CONDUCTIVITY ELECTRODE",
+        "row": 12893
+      },
+      {
+        "code": "0435-HZ11-E",
+        "usd": "246",
+        "desc": "COMBINATION PH/ORP ELECTRODE",
+        "row": 12906
+      },
+      {
+        "code": "0436-HB-E",
+        "usd": "38.76",
+        "desc": "pH ELECTRODE",
+        "row": 12910
+      },
+      {
+        "code": "1151-300AE",
+        "usd": "523.2",
+        "desc": "DIGITAL HEIGHT GAGE",
+        "row": 13975
+      },
+      {
+        "code": "1151-450AE",
+        "usd": "682.8",
+        "desc": "DIGITAL HEIGHT GAGE",
+        "row": 13978
+      },
+      {
+        "code": "1151-600AE",
+        "usd": "804",
+        "desc": "DIGITAL HEIGHT GAGE",
+        "row": 13980
+      },
+      {
+        "code": "1155-5-POB-CABLE",
+        "usd": "13.92",
+        "desc": "CABLE FOR 1155-5-POB",
+        "row": 13989
+      },
+      {
+        "code": "1156-1000E",
+        "usd": "2530.8",
+        "desc": "DIGITAL HEIGHT GAGE",
+        "row": 13991
+      },
+      {
+        "code": "1156-300E",
+        "usd": "412.8",
+        "desc": "DIGITAL HEIGHT GAGE WITH DRIVING WHEEL",
+        "row": 13992
+      },
+      {
+        "code": "1156-600E",
+        "usd": "631.2",
+        "desc": "DIGITAL HEIGHT GAGE WITH DRIVING WHEEL",
+        "row": 13993
+      },
+      {
+        "code": "1159-50E",
+        "usd": "391.2",
+        "desc": "DIGITAL HEIGHT GAUGE",
+        "row": 14003
+      },
+      {
+        "code": "1192-150AE",
+        "usd": "249.6",
+        "desc": "DIGITAL OFFSET CENTERLINE CALIPER",
+        "row": 14127
+      },
+      {
+        "code": "1192-200AE",
+        "usd": "307.2",
+        "desc": "DIGITAL OFFSET CENTERLINE CALIPER",
+        "row": 14131
+      },
+      {
+        "code": "1540-300E",
+        "usd": "519.6",
+        "desc": "ELECTRONIC DOUBLE HOOK DEPTH GAGE",
+        "row": 14455
+      },
+      {
+        "code": "2103-25PE",
+        "usd": "277.2",
+        "desc": "ELECTRONIC INDICATOR (advanced type, flat back, with lift cap)",
+        "row": 14466
+      },
+      {
+        "code": "2103-50PE",
+        "usd": "429.6",
+        "desc": "ELECTRONIC INDICATOR (advanced type, flat back, with lift cap)",
+        "row": 14471
+      },
+      {
+        "code": "2104-25PE",
+        "usd": "154.8",
+        "desc": "ELECTRONIC INDICATOR (advanced type, flat back, with lift cap)",
+        "row": 14477
+      },
+      {
+        "code": "2104-50PE",
+        "usd": "300",
+        "desc": "ELECTRONIC INDICATOR (advanced type, flat back, with lift cap)",
+        "row": 14482
+      },
+      {
+        "code": "2112-251PE",
+        "usd": "222",
+        "desc": "ELECTRONIC INDICATOR (standard type, flat back, with lift cap)",
+        "row": 14494
+      },
+      {
+        "code": "2112-25PE",
+        "usd": "109.32",
+        "desc": "ELECTRONIC INDICATOR (standard type, flat back, with lift cap)",
+        "row": 14497
+      },
+      {
+        "code": "2112-501PE",
+        "usd": "385.2",
+        "desc": "ELECTRONIC INDICATOR (standard type, flat back, with lift cap)",
+        "row": 14502
+      },
+      {
+        "code": "2112-50PE",
+        "usd": "265.2",
+        "desc": "ELECTRONIC INDICATOR (standard type, flat back, with lift cap)",
+        "row": 14505
+      },
+      {
+        "code": "2117-1001PE",
+        "usd": "1023.6",
+        "desc": "LARGE STROKE ELECTRONIC INDICATOR  (lat back, with lift cap)",
+        "row": 14539
+      },
+      {
+        "code": "2117-100PE",
+        "usd": "570",
+        "desc": "LARGE STROKE ELECTRONIC INDICATOR  (lat back, with lift cap)",
+        "row": 14541
+      },
+      {
+        "code": "2133-101E",
+        "usd": "357.6",
+        "desc": "HIGH PRECISION ELECTRONIC INDICATOR (flat back)",
+        "row": 14650
+      },
+      {
+        "code": "2133-101LE",
+        "usd": "361.2",
+        "desc": "HIGH PRECISION DIGITAL INDICATOR lug back)",
+        "row": 14652
+      },
+      {
+        "code": "2133-10E",
+        "usd": "170.4",
+        "desc": "HIGH PRECISION ELECTRONIC INDICATOR (flat back)",
+        "row": 14655
+      },
+      {
+        "code": "2133-10LE",
+        "usd": "184.8",
+        "desc": "HIGH PRECISION DIGITAL INDICATOR lug back)",
+        "row": 14657
+      },
+      {
+        "code": "2133-251E",
+        "usd": "484.8",
+        "desc": "HIGH PRECISION ELECTRONIC INDICATOR (flat back)",
+        "row": 14662
+      },
+      {
+        "code": "2133-25E",
+        "usd": "297.6",
+        "desc": "HIGH PRECISION ELECTRONIC INDICATOR (flat back)",
+        "row": 14664
+      },
+      {
+        "code": "2133-50E",
+        "usd": "448.8",
+        "desc": "HIGH PRECISION ELECTRONIC INDICATOR (flat back)",
+        "row": 14667
+      },
+      {
+        "code": "2134-101E",
+        "usd": null,
+        "desc": "HIGH PRECISION ELECTRONIC INDICATOR (flat back)",
+        "row": 14671
+      },
+      {
+        "code": "2134-101LE",
+        "usd": null,
+        "desc": "HIGH PRECISION DIGITAL INDICATOR lug back)",
+        "row": 14673
+      },
+      {
+        "code": "2134-10E",
+        "usd": null,
+        "desc": "HIGH PRECISION ELECTRONIC INDICATOR (flat back)",
+        "row": 14674
+      },
+      {
+        "code": "2134-10LE",
+        "usd": null,
+        "desc": "HIGH PRECISION DIGITAL INDICATOR lug back)",
+        "row": 14676
+      },
+      {
+        "code": "2134-251E",
+        "usd": null,
+        "desc": "HIGH PRECISION ELECTRONIC INDICATOR (flat back)",
+        "row": 14679
+      },
+      {
+        "code": "2134-25E",
+        "usd": null,
+        "desc": "HIGH PRECISION ELECTRONIC INDICATOR (flat back)",
+        "row": 14680
+      },
+      {
+        "code": "2134-50E",
+        "usd": null,
+        "desc": "HIGH PRECISION ELECTRONIC INDICATOR (flat back)",
+        "row": 14682
+      },
+      {
+        "code": "2135-10E",
+        "usd": "332.4",
+        "desc": "HIGH PRECISION DIGITAL INDICATOR",
+        "row": 14685
+      },
+      {
+        "code": "2135-25E",
+        "usd": "348",
+        "desc": "HIGH PRECISION DIGITAL INDICATOR",
+        "row": 14687
+      }
+    ]
+  },
+  "keyword_counts": {
+    "RING GAGE": 5480,
+    "RING GAUGE": 2056,
+    "SINE": 44,
+    "HARDNESS": 288,
+    "VERNIER CALIPER": 111,
+    "MAGNIFIER": 22,
+    "THERMOMETER": 12624,
+    "MICROMETER HEAD": 54,
+    "WEIGHT": 372,
+    "GEAR": 203,
+    "WELDING": 25,
+    "THICKNESS": 161,
+    "PRESSURE": 129,
+    "INDICATOR": 1237,
+    "HOLDER": 116
+  },
+  "keyword_samples": {
+    "RING GAGE": [
+      "4120-10",
+      "4120-10-DLC",
+      "4120-10E",
+      "4120-10E-DLC",
+      "4120-10EN",
+      "4120-10H",
+      "4120-10H-DLC",
+      "4120-10HN",
+      "4120-10N",
+      "4120-11",
+      "4120-11-DLC",
+      "4120-11E",
+      "4120-11E-DLC",
+      "4120-11EN",
+      "4120-11H"
+    ],
+    "RING GAUGE": [
+      "2257-10",
+      "2257-10E",
+      "2258-101",
+      "2258-101E",
+      "2932-451",
+      "2932-45",
+      "2933-330",
+      "2933-331",
+      "2934-40",
+      "2934-401",
+      "2935-320",
+      "2935-321",
+      "4120-S7",
+      "4120-S7N",
+      "4220-100OM"
+    ],
+    "SINE": [
+      "4155-100",
+      "4155-200",
+      "4155-300",
+      "4158-100",
+      "6513-100",
+      "6513-1001",
+      "6513-1251",
+      "6513-160",
+      "6513-175",
+      "6513-65",
+      "6514-100",
+      "6514-1001",
+      "6514-125",
+      "6514-1251",
+      "6514-160"
+    ],
+    "HARDNESS": [
+      "9631-130",
+      "9643-4",
+      "9646-300",
+      "HDT-B430",
+      "HDT-B-HB10A2",
+      "HDT-B-HB10A3",
+      "HDT-B-HB10A4",
+      "HDT-B-HB10A5",
+      "HDT-B-HB10A6",
+      "HDT-B-HB10B1",
+      "HDT-B-HB10B2",
+      "HDT-B-HB10B3",
+      "HDT-B-HB10B4",
+      "HDT-B-HB10B5",
+      "HDT-B-HB10B6"
+    ],
+    "VERNIER CALIPER": [
+      "1205-2002S",
+      "1205-3002S",
+      "1214-1500",
+      "1214-2000",
+      "1214-500",
+      "1214-600",
+      "1215-1032",
+      "1215-1052",
+      "1215-392",
+      "1215-522",
+      "1215-622",
+      "1215-822",
+      "1223-150",
+      "1229-3",
+      "1205-1502S"
+    ],
+    "MAGNIFIER": [
+      "7502-8",
+      "7511-8",
+      "7512-1",
+      "7513-2",
+      "7513-4",
+      "7514-1",
+      "7515-10",
+      "7516-5D",
+      "7517-3D",
+      "7520-320D",
+      "7521-3D",
+      "7522-610",
+      "7524-10",
+      "7526-D5",
+      "7527-D1B"
+    ],
+    "THERMOMETER": [
+      "0213-A500",
+      "0215-A900",
+      "0222-C520",
+      "0321-IT42",
+      "0323-CT47",
+      "0210-G260",
+      "0216-B210",
+      "0217-B410",
+      "0218-B610",
+      "0320-K230",
+      "0322-DT33M",
+      "0322-DT33S",
+      "0324-DT11",
+      "0325-KJ01",
+      "0325-KJ02"
+    ],
+    "MICROMETER HEAD": [
+      "6353-25",
+      "6353-25S",
+      "6353-25SWL",
+      "6353-25W",
+      "6353-25WL",
+      "6353-25WS",
+      "6353-25WSWL",
+      "6353-25WWL",
+      "6353-50W",
+      "6353-50WWL",
+      "6354-25W",
+      "6354-25WWL",
+      "6372-5WS",
+      "6373-13",
+      "6373-13W"
+    ],
+    "WEIGHT": [
+      "2878-W10A",
+      "2878-W10B",
+      "2878-W10C",
+      "2878-W14D",
+      "2878-W25E",
+      "2878-W4B",
+      "2878-W5A",
+      "2878-W5B",
+      "2878-W5C",
+      "2878-W5D",
+      "2878-W6A",
+      "2878-W6B",
+      "2878-W8A",
+      "2878-W8B",
+      "8004-15"
+    ],
+    "GEAR": [
+      "1181-M25A",
+      "1181-M25AWL",
+      "1181-M50A",
+      "1181-M50AWL",
+      "1281-M26A",
+      "2428-12",
+      "2428-22",
+      "2428-250",
+      "2428-510",
+      "2428-55",
+      "2428-DEMO",
+      "2855-90",
+      "3291-100",
+      "3291-125",
+      "3291-150"
+    ],
+    "WELDING": [
+      "5064",
+      "5072",
+      "5071",
+      "4830",
+      "4832-1",
+      "4834-1",
+      "4834-1E",
+      "4836-2",
+      "4838-2",
+      "4831-20A",
+      "4840-1",
+      "4841-1",
+      "4835-1",
+      "4846-1",
+      "4847-1"
+    ],
+    "THICKNESS": [
+      "2367-10A",
+      "9501-1200",
+      "ISU-100D",
+      "ISU-200D",
+      "1161-150A",
+      "1161-150AWL",
+      "2364-10",
+      "1536-300",
+      "1536-300WL",
+      "2363-10",
+      "2870-10",
+      "2871-101",
+      "2876-10",
+      "2877-10",
+      "2259-10"
+    ],
+    "PRESSURE": [
+      "0140-DP05",
+      "0331-AP31",
+      "5201-63B2Y10",
+      "5201-63N2Y10",
+      "5201-63Z2Y10",
+      "5202-G14Y16",
+      "5202-G14Y250",
+      "5202-G14Y60",
+      "5202-M14Y16",
+      "5202-M14Y250",
+      "5202-M14Y60",
+      "5202-N14Y16",
+      "5202-N14Y250",
+      "5202-N14Y60",
+      "5203-G12Y16"
+    ],
+    "INDICATOR": [
+      "2112-101",
+      "2112-25",
+      "2302-25",
+      "2310-30A",
+      "2322-160A",
+      "2322-250A",
+      "2322-450A",
+      "2824-S3",
+      "2852-10",
+      "ISH-SDM",
+      "2122-100A",
+      "2103-10F",
+      "2103-25SP",
+      "2112-10",
+      "2114-5F"
+    ],
+    "HOLDER": [
+      "2141-10",
+      "2426-HOLDER1",
+      "2426-HOLDER2",
+      "2436-12",
+      "2436-14",
+      "2436-18",
+      "2436-200",
+      "2436-200L",
+      "2436-22",
+      "2436-55",
+      "2436-8",
+      "2436-HOLDER1",
+      "2436-HOLDER1E",
+      "2436-HOLDER2",
+      "2436-HOLDER2E"
+    ]
+  }
+}
