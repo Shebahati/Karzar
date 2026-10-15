@@ -1,0 +1,74 @@
+{
+  "batch_id": "20261015T084051Z",
+  "original_journal_path": "/home/shebahati/Projects/Karzar/audit/insize-commercial-reconcile-258-2026-10-13/apply-journals/INSIZE_COMMERCIAL_APPLY_JOURNAL_20261015T084051Z.json",
+  "original_COMMITTED": "YES",
+  "original_ROWS_WRITTEN": 711,
+  "original_POST_COMMIT_VERIFICATION": "FAIL",
+  "reverification_mode": "READ_ONLY",
+  "rows_checked": 711,
+  "semantic_match_count": 711,
+  "semantic_mismatch_count": 0,
+  "decimal_scale_only_rows": [
+    {
+      "product_id": "2079",
+      "sku": "7110-300",
+      "literal_hash": "1423864aaa4f4765e2dd80865d91318e6527ae4dac96610764f8542faee13da8",
+      "semantic_hash": "16c2ac657f756c70b317cf4c210d04d52cfa16a5f42f45e041bb45a00b551d3a",
+      "expected_post_hash": "16c2ac657f756c70b317cf4c210d04d52cfa16a5f42f45e041bb45a00b551d3a",
+      "live_base_price": "3210000.00",
+      "canonical_base_price": "3210000"
+    },
+    {
+      "product_id": "3691",
+      "sku": "7110-1000",
+      "literal_hash": "47d8d4cb6d4e16e1747ccb40aa14ead755e9b1a22a024f34216ce8f9e6129956",
+      "semantic_hash": "7fb0a8aec72be3e97cb5fc30e8b005ad9e35576c3e43d898d7b396696a4cc6e7",
+      "expected_post_hash": "7fb0a8aec72be3e97cb5fc30e8b005ad9e35576c3e43d898d7b396696a4cc6e7",
+      "live_base_price": "17040000.00",
+      "canonical_base_price": "17040000"
+    }
+  ],
+  "database_identity": {
+    "current_database": "karzar_staging",
+    "current_user": "karzar_staging",
+    "pg_system_identifier": "7664189378775347234",
+    "postgres_container": "lathe_postgres",
+    "expected_live_host": "srv5944957438",
+    "live_host_proof": "srv5944957438",
+    "transaction_read_only": "on"
+  },
+  "git_sha": "51ad6bb17527929074658f24b646d63e754ee38a",
+  "product_spotlight": {
+    "2079": {
+      "sku": "7110-300",
+      "is_available": "true",
+      "base_price_live": "3210000.00",
+      "after_base_price_journal": "3210000",
+      "commercial_state_match": true,
+      "difference_class": "DECIMAL_SCALE_ONLY",
+      "expected_post_hash": "16c2ac657f756c70b317cf4c210d04d52cfa16a5f42f45e041bb45a00b551d3a",
+      "semantic_hash_live": "16c2ac657f756c70b317cf4c210d04d52cfa16a5f42f45e041bb45a00b551d3a",
+      "literal_hash_live": "1423864aaa4f4765e2dd80865d91318e6527ae4dac96610764f8542faee13da8"
+    },
+    "3691": {
+      "sku": "7110-1000",
+      "is_available": "true",
+      "base_price_live": "17040000.00",
+      "after_base_price_journal": "17040000",
+      "commercial_state_match": true,
+      "difference_class": "DECIMAL_SCALE_ONLY",
+      "expected_post_hash": "7fb0a8aec72be3e97cb5fc30e8b005ad9e35576c3e43d898d7b396696a4cc6e7",
+      "semantic_hash_live": "7fb0a8aec72be3e97cb5fc30e8b005ad9e35576c3e43d898d7b396696a4cc6e7",
+      "literal_hash_live": "47d8d4cb6d4e16e1747ccb40aa14ead755e9b1a22a024f34216ce8f9e6129956"
+    }
+  },
+  "STATUS": "PASS",
+  "ok": true,
+  "POST_COMMIT_VERIFICATION": "PASS",
+  "POST_COMMIT_MATCH_COUNT": 711,
+  "POST_COMMIT_MISMATCH_COUNT": 0,
+  "POST_APPLY_SEMANTIC_MATCH_COUNT": 711,
+  "POST_APPLY_SEMANTIC_MISMATCH_COUNT": 0,
+  "mismatches": [],
+  "mode": "post_apply_reverify"
+}

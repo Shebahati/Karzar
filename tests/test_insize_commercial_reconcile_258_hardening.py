@@ -28,13 +28,17 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     assert_expected_production_database_identity,
     assert_locked_commercial_artifacts,
     build_mutation_sql,
+    canonical_price_text,
     compute_expected_post_hash,
+    post_apply_hash_matches,
+    post_state_hash,
+    prices_semantically_equal,
+    rollback_post_apply_drift_guard,
+    state_hash,
     load_apply_journal,
     load_plan_rows,
     production_preflight,
     rollback_plan_rows,
-    rollback_post_apply_drift_guard,
-    state_hash,
     validate_apply_journal_for_rollback,
     validate_production_source_xlsx,
     verify_post_apply_hashes,
@@ -269,19 +273,125 @@ class PostCommitVerificationTests(unittest.TestCase):
         self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
 
 
+class PostApplyDecimalCanonicalizationTests(unittest.TestCase):
+    def test_canonical_price_scale_equivalence(self):
+        self.assertEqual(canonical_price_text("3210000"), canonical_price_text("3210000.00"))
+        self.assertEqual(canonical_price_text("17040000"), canonical_price_text("17040000.00"))
+        self.assertNotEqual(canonical_price_text("3210000"), canonical_price_text("3210001.00"))
+        self.assertTrue(prices_semantically_equal("3210000", "3210000.0"))
+        self.assertNotEqual(canonical_price_text(""), canonical_price_text("0"))
+
+    def test_product_2079_and_3691_regression_hashes(self):
+        base = {
+            "product_id": "2079",
+            "sku": "7110-300",
+            "brand_id": "3",
+            "is_active": "true",
+            "is_available": "true",
+            "deleted_at": "",
+            "image_present": "true",
+        }
+        row_int = {**base, "base_price": "3210000"}
+        row_scale = {**base, "base_price": "3210000.00"}
+        expected = "16c2ac657f756c70b317cf4c210d04d52cfa16a5f42f45e041bb45a00b551d3a"
+        self.assertEqual(post_state_hash(row_int), expected)
+        self.assertEqual(post_state_hash(row_scale), expected)
+        self.assertNotEqual(state_hash(row_scale), expected)
+
+        base2 = {**base, "product_id": "3691", "sku": "7110-1000"}
+        row2_int = {**base2, "base_price": "17040000"}
+        row2_scale = {**base2, "base_price": "17040000.00"}
+        expected2 = "7fb0a8aec72be3e97cb5fc30e8b005ad9e35576c3e43d898d7b396696a4cc6e7"
+        self.assertEqual(post_state_hash(row2_int), expected2)
+        self.assertEqual(post_state_hash(row2_scale), expected2)
+
+    def _hash_row(self, **overrides: str) -> dict[str, str]:
+        base = {
+            "product_id": "1",
+            "sku": "A",
+            "brand_id": "3",
+            "is_active": "true",
+            "is_available": "true",
+            "base_price": "100",
+            "deleted_at": "",
+            "image_present": "true",
+        }
+        base.update(overrides)
+        return base
+
+    def test_decimal_scale_passes_post_verify(self):
+        expected = post_state_hash(self._hash_row(base_price="3210000"))
+        live = self._hash_row(base_price="3210000.00")
+        self.assertTrue(post_apply_hash_matches(live, expected))
+        report = verify_post_apply_hashes(
+            {1: live},
+            [{"product_id": 1, "expected_post_hash": expected}],
+        )
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "PASS")
+        self.assertEqual(report["POST_APPLY_SEMANTIC_MATCH_COUNT"], 1)
+
+    def test_legacy_literal_db_scale_in_journal_expected(self):
+        expected = state_hash(self._hash_row(base_price="8760000.00"))
+        live = self._hash_row(base_price="8760000.00")
+        self.assertTrue(post_apply_hash_matches(live, expected))
+
+    def test_availability_drift_still_fails(self):
+        expected = post_state_hash(self._hash_row())
+        drifted = self._hash_row(is_available="false")
+        report = verify_post_apply_hashes(
+            {1: drifted},
+            [{"product_id": 1, "expected_post_hash": expected}],
+        )
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
+
+    def test_brand_drift_still_fails(self):
+        expected = post_state_hash(self._hash_row())
+        drifted = self._hash_row(brand_id="999")
+        report = verify_post_apply_hashes({1: drifted}, [{"product_id": 1, "expected_post_hash": expected}])
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
+
+    def test_image_present_drift_still_fails(self):
+        expected = post_state_hash(self._hash_row())
+        drifted = self._hash_row(image_present="false")
+        report = verify_post_apply_hashes({1: drifted}, [{"product_id": 1, "expected_post_hash": expected}])
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
+
+    def test_sku_drift_still_fails(self):
+        expected = post_state_hash(self._hash_row())
+        drifted = self._hash_row(sku="OTHER")
+        report = verify_post_apply_hashes({1: drifted}, [{"product_id": 1, "expected_post_hash": expected}])
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
+
+    def test_is_active_drift_still_fails(self):
+        expected = post_state_hash(self._hash_row())
+        drifted = self._hash_row(is_active="false")
+        report = verify_post_apply_hashes({1: drifted}, [{"product_id": 1, "expected_post_hash": expected}])
+        self.assertEqual(report["POST_COMMIT_VERIFICATION"], "FAIL")
+
+    def test_rollback_drift_allows_decimal_scale_only(self):
+        live = self._hash_row(base_price="3210000")
+        expected_post = post_state_hash(live)
+        db_live = self._hash_row(base_price="3210000.00")
+        guard = rollback_post_apply_drift_guard(
+            [{"product_id": 1, "expected_post_hash": expected_post}],
+            {1: db_live},
+        )
+        self.assertTrue(guard.ok)
+
+
 class RollbackDriftTests(unittest.TestCase):
     def _row(self, live: dict[str, str], expected_post: str) -> dict:
         return {"product_id": int(live["product_id"]), "expected_post_hash": expected_post}
 
     def test_exact_post_hash_allowed(self):
         live = _live_for_plan(ApplyTransactionTests()._mini_plan()[0])
-        h = state_hash(live)
+        h = post_state_hash(live)
         guard = rollback_post_apply_drift_guard([self._row(live, h)], {int(live["product_id"]): live})
         self.assertTrue(guard.ok)
 
     def test_brand_drift_blocked(self):
         live = _live_for_plan(ApplyTransactionTests()._mini_plan()[0])
-        h = state_hash(live)
+        h = post_state_hash(live)
         drifted = dict(live)
         drifted["brand_id"] = "999"
         guard = rollback_post_apply_drift_guard([self._row(live, h)], {int(live["product_id"]): drifted})

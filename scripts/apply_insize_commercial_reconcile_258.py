@@ -42,6 +42,7 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     load_plan_rows,
     load_source_manifest,
     production_preflight,
+    readonly_reverify_post_apply_journal,
     resolve_production_database_identity,
     rollback_plan_rows,
     sha256_file,
@@ -81,6 +82,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--ssh-host", default="karzar-vps")
     p.add_argument("--database-url", default=os.environ.get("DATABASE_URL", ""))
     p.add_argument("--production-preflight", action="store_true")
+    p.add_argument(
+        "--post-apply-reverify",
+        action="store_true",
+        help="Read-only semantic POST-APPLY re-verification for a committed APPLY journal",
+    )
+    p.add_argument("--reverify-batch-id", default="")
     p.add_argument("--apply", action="store_true")
     p.add_argument("--rollback", action="store_true")
     p.add_argument("--confirm-production-write", action="store_true")
@@ -131,6 +138,24 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     journal_dir = args.journal_dir or (evidence / "apply-journals")
+
+    if args.post_apply_reverify:
+        batch_id = args.reverify_batch_id or args.confirm_batch_id
+        if not batch_id:
+            raise ApplyAbort("post_apply_reverify_requires_batch_id")
+        report = readonly_reverify_post_apply_journal(
+            batch_id=batch_id,
+            journal_dir=journal_dir,
+            ssh_host=args.ssh_host,
+            database_url=args.database_url,
+        )
+        report["mode"] = "post_apply_reverify"
+        print(json.dumps(report, indent=2))
+        out = evidence / f"POST_APPLY_REVERIFICATION_{batch_id}.json"
+        out.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        if args.report_json:
+            args.report_json.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        return 0 if report.get("STATUS") == "PASS" else 2
 
     if args.production_preflight:
         report = production_preflight(
