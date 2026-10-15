@@ -1,0 +1,5 @@
+category_id,name,slug,parent_id,parent_name,full_path,depth,is_leaf,is_selectable,child_count,direct_product_count,descendant_product_count,active_count,available_count,priced_count,imaged_count,visible_count,sellable_count,product_type_assigned_count,product_type_missing_count,hesabfa_category_code,spec_template_key,megamenu_hidden,megamenu_as_leaf,cohort
+157,ابزار دستی,ابزار-دستی,154,لوازم جانبی صنعتی,لوازم جانبی صنعتی › ابزار دستی,2,False,False,1,0,196,0,0,0,0,0,0,0,0,,,False,False,TX_OWNER_001_SCOPE
+158,ابزار دستی عمومی,ابزار-دستی-عمومی,157,ابزار دستی,لوازم جانبی صنعتی › ابزار دستی › ابزار دستی عمومی,3,True,True,0,196,196,0,167,167,0,0,0,0,196,,,False,False,TX_OWNER_001_SCOPE
+159,ابزار چوبی,ابزار-چوبی,154,لوازم جانبی صنعتی,لوازم جانبی صنعتی › ابزار چوبی,2,False,False,1,0,66,0,0,0,0,0,0,0,0,,,False,False,TX_OWNER_001_SCOPE
+160,ابزار آلات چوبی,ابزار-آلات-چوبی,159,ابزار چوبی,لوازم جانبی صنعتی › ابزار چوبی › ابزار آلات چوبی,3,True,True,0,66,66,0,0,0,0,0,0,0,66,,,False,False,TX_OWNER_001_SCOPE

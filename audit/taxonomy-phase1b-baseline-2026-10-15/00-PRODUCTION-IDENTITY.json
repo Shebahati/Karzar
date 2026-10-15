@@ -1,0 +1,13 @@
+{
+  "collected_at_utc": "2026-10-15T09:34:39Z",
+  "expected_live_host": "srv5944957438",
+  "live_host_proof": "srv5944957438",
+  "current_database": "karzar_staging",
+  "current_user": "karzar_staging",
+  "postgres_container": "lathe_postgres",
+  "pg_system_identifier": "7664189378775347234",
+  "transaction_read_only": "on",
+  "repository_git_sha": "f9ba7b034088129d129e432fe6faab0f50377850",
+  "production_mutation": "NO",
+  "reverification_mode": "READ_ONLY"
+}
