@@ -22,7 +22,8 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-from catalog_target.core import canonicalize_brand, normalize_sku  # noqa: E402
+from catalog_target.core import normalize_sku  # noqa: E402,I001
+from catalog_target.insize_commercial_reconcile_258 import state_hash  # noqa: E402
 from catalog_target.insize_trailing_a_identity import (  # noqa: E402
     MATCH_DETAIL as INSIZE_TRAILING_A_DETAIL,
     match_source_code_to_catalog_skus,
@@ -300,22 +301,6 @@ def parse_site_price(raw: str) -> Decimal | None:
         return Decimal(s).quantize(Decimal("1"))
     except InvalidOperation:
         return None
-
-
-def state_hash(row: dict[str, str]) -> str:
-    payload = "|".join(
-        [
-            row.get("product_id", ""),
-            row.get("sku", ""),
-            row.get("brand_id", ""),
-            row.get("is_active", ""),
-            row.get("is_available", ""),
-            row.get("base_price", ""),
-            row.get("deleted_at", "") or "NULL",
-            row.get("image_present", ""),
-        ]
-    )
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def propose_commercial(sr: SourceRow) -> tuple[bool | None, Decimal | None, str]:
@@ -731,7 +716,6 @@ def main(argv: list[str] | None = None) -> int:
                 "identity_method": identity_method,
                 "source_code": source_code,
                 "owner_case": owner_case,
-                "map_class": map_class,
             }
         )
 
@@ -900,7 +884,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     (out_dir / "INSIZE_COMMERCIAL_APPLY_PLAN.md").write_text(
-        f"""# INSIZE commercial APPLY plan (NOT AUTHORIZED)
+        """# INSIZE commercial APPLY plan (NOT AUTHORIZED)
 
 - Source SHA256: `{INSIZE_FINAL_SHA}`
 - Plan CSV: `INSIZE_COMMERCIAL_RECONCILE_PLAN.csv`
@@ -922,7 +906,7 @@ Post-APPLY journal must capture exact before/after per row. Rollback not execute
         encoding="utf-8",
     )
     (out_dir / "README.md").write_text(
-        f"""# INSIZE commercial source reconciliation (#258, #391)
+        """# INSIZE commercial source reconciliation (#258, #391)
 
 **Status:** evidence only — **NO APPLY**
 
