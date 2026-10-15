@@ -106,9 +106,14 @@ class TaxonomyPhase1bBaselineTests(unittest.TestCase):
             self.assertGreater(result["excluded_generated_path_skips"], 0)
 
     def test_dependency_source_classification(self):
-        result = scan_numeric_category_dependencies(ROOT)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "scripts" / "zcc_import.py").write_text("category_id = 22\n", encoding="utf-8")
+            (root / "tests" / "t.py").write_text("category_id = 1\n", encoding="utf-8")
+            result = scan_numeric_category_dependencies(root)
         classes = set(result["hits_by_source_class"])
-        self.assertTrue(classes)
+        self.assertIn("SUPPLIER_IMPORT", classes)
+        self.assertIn("TEST_FIXTURE", classes)
         self.assertNotIn("GENERATED_EXCLUDED", classes)
 
     def test_readonly_sql_wraps_transaction(self):
