@@ -108,6 +108,8 @@ class TaxonomyPhase1bBaselineTests(unittest.TestCase):
     def test_dependency_source_classification(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            (root / "scripts").mkdir()
+            (root / "tests").mkdir()
             (root / "scripts" / "zcc_import.py").write_text("category_id = 22\n", encoding="utf-8")
             (root / "tests" / "t.py").write_text("category_id = 1\n", encoding="utf-8")
             result = scan_numeric_category_dependencies(root)
