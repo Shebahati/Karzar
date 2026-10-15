@@ -19,7 +19,10 @@ if str(SCRIPTS) not in sys.path:
 
 from apply_insize_commercial_reconcile_258 import main as apply_main  # noqa: E402, I001
 from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402, I001
+    LOCKED_PLAN_SHA256,
+    LOCKED_ROLLBACK_MANIFEST_SHA256,
     OWNER_AUTH_APPLY,
+    OWNER_AUTH_ROLLBACK,
     OWNER_SOURCE_SHA256,
     PlanRow,
     apply_plan_rows,
@@ -177,10 +180,10 @@ class GateTests(unittest.TestCase):
                 rollback=False,
                 confirm_production_write=True,
                 confirm_source_sha256=OWNER_SOURCE_SHA256,
-                confirm_plan_sha256="x",
+                confirm_plan_sha256=LOCKED_PLAN_SHA256,
                 confirm_mutation_count=711,
                 owner_authorization="WRONG",
-                plan_sha256="x",
+                plan_sha256=LOCKED_PLAN_SHA256,
                 eligible_count=711,
             )
 
@@ -188,6 +191,273 @@ class GateTests(unittest.TestCase):
         with self.assertRaises(ApplyAbort):
             apply_main(["--apply"])
 
+
+
+
+def _locked_sha_side_effect(path: Path) -> str:
+    name = path.name.upper()
+    if "PLAN" in name:
+        return LOCKED_PLAN_SHA256
+    if "ROLLBACK" in name:
+        return LOCKED_ROLLBACK_MANIFEST_SHA256
+    return "00"
+
+
+def _apply_write_argv(**overrides: str) -> list[str]:
+    argv = [
+        "--apply",
+        "--confirm-production-write",
+        f"--confirm-source-sha256={OWNER_SOURCE_SHA256}",
+        f"--confirm-plan-sha256={LOCKED_PLAN_SHA256}",
+        "--confirm-mutation-count=711",
+        f"--owner-authorization={OWNER_AUTH_APPLY}",
+        "--database-url=postgresql://karzar_staging:secret@127.0.0.1:5432/karzar_staging",
+    ]
+    for key, value in overrides.items():
+        flag = f"--{key.replace('_', '-')}"
+        argv = [a for a in argv if not a.startswith(flag + "=") and a != flag]
+        argv.extend([flag, value])
+    return argv
+
+
+def _rollback_write_argv(**overrides: str) -> list[str]:
+    argv = [
+        "--rollback",
+        "--confirm-production-write",
+        f"--confirm-rollback-manifest-sha256={LOCKED_ROLLBACK_MANIFEST_SHA256}",
+        "--confirm-batch-id=batch-1",
+        f"--owner-authorization={OWNER_AUTH_ROLLBACK}",
+        "--database-url=postgresql://karzar_staging:secret@127.0.0.1:5432/karzar_staging",
+    ]
+    for key, value in overrides.items():
+        flag = f"--{key.replace('_', '-')}"
+        argv = [a for a in argv if not a.startswith(flag + "=") and a != flag]
+        argv.extend([flag, value])
+    return argv
+
+
+_PRODUCTION_WRITE_ENV = {
+    "KARZAR_ALLOW_PRODUCTION_WRITE": "1",
+    "KARZAR_INGESTION_CATEGORY": "B",
+}
+
+
+class LockedArtifactWritePathTests(unittest.TestCase):
+    @mock.patch("apply_insize_commercial_reconcile_258.connect_runtime_db")
+    @mock.patch("apply_insize_commercial_reconcile_258.resolve_production_database_identity")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_production_source_xlsx")
+    @mock.patch("apply_insize_commercial_reconcile_258.sha256_file")
+    def test_apply_wrong_plan_sha_blocks_before_db(
+        self, sha_mock, _src_mock, resolve_mock, conn_mock
+    ):
+        def side_effect(path: Path) -> str:
+            if "PLAN" in path.name.upper():
+                return "deadbeef"
+            return LOCKED_ROLLBACK_MANIFEST_SHA256
+
+        sha_mock.side_effect = side_effect
+        with mock.patch.dict(os.environ, _PRODUCTION_WRITE_ENV, clear=False):
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_main(_apply_write_argv())
+        self.assertIn("BLOCKED_LOCKED_PLAN_SHA_MISMATCH", str(ctx.exception))
+        resolve_mock.assert_not_called()
+        conn_mock.assert_not_called()
+
+    @mock.patch("apply_insize_commercial_reconcile_258.connect_runtime_db")
+    @mock.patch("apply_insize_commercial_reconcile_258.resolve_production_database_identity")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_production_source_xlsx")
+    @mock.patch("apply_insize_commercial_reconcile_258.sha256_file")
+    def test_apply_wrong_rollback_sha_blocks_before_db(
+        self, sha_mock, _src_mock, resolve_mock, conn_mock
+    ):
+        def side_effect(path: Path) -> str:
+            if "ROLLBACK" in path.name.upper():
+                return "deadbeef"
+            return LOCKED_PLAN_SHA256
+
+        sha_mock.side_effect = side_effect
+        with mock.patch.dict(os.environ, _PRODUCTION_WRITE_ENV, clear=False):
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_main(_apply_write_argv())
+        self.assertIn("BLOCKED_LOCKED_ROLLBACK_SHA_MISMATCH", str(ctx.exception))
+        resolve_mock.assert_not_called()
+        conn_mock.assert_not_called()
+
+    @mock.patch("apply_insize_commercial_reconcile_258.connect_runtime_db")
+    @mock.patch("apply_insize_commercial_reconcile_258.resolve_production_database_identity")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_production_source_xlsx")
+    @mock.patch("apply_insize_commercial_reconcile_258.load_plan_rows")
+    @mock.patch("apply_insize_commercial_reconcile_258.sha256_file")
+    @mock.patch("apply_insize_commercial_reconcile_258.assert_plan_matches_evidence")
+    def test_apply_wrong_eligible_count_blocks_before_db(
+        self, evidence_mock, sha_mock, load_mock, _src_mock, resolve_mock, conn_mock
+    ):
+        evidence_mock.return_value = {}
+        sha_mock.side_effect = _locked_sha_side_effect
+        load_mock.return_value = load_plan_rows(PLAN)[:710]
+        with mock.patch.dict(os.environ, _PRODUCTION_WRITE_ENV, clear=False):
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_main(_apply_write_argv())
+        self.assertIn("BLOCKED_LOCKED_ELIGIBLE_COUNT_MISMATCH", str(ctx.exception))
+        resolve_mock.assert_not_called()
+        conn_mock.assert_not_called()
+
+    @mock.patch("apply_insize_commercial_reconcile_258.connect_runtime_db")
+    @mock.patch("apply_insize_commercial_reconcile_258.resolve_production_database_identity")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_production_source_xlsx")
+    @mock.patch("apply_insize_commercial_reconcile_258.sha256_file")
+    def test_apply_confirm_matching_altered_plan_still_blocked(
+        self, sha_mock, _src_mock, resolve_mock, conn_mock
+    ):
+        altered = "a" * 64
+
+        def side_effect(path: Path) -> str:
+            if "PLAN" in path.name.upper():
+                return altered
+            return LOCKED_ROLLBACK_MANIFEST_SHA256
+
+        sha_mock.side_effect = side_effect
+        with mock.patch.dict(os.environ, _PRODUCTION_WRITE_ENV, clear=False):
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_main(_apply_write_argv(confirm_plan_sha256=altered))
+        self.assertIn("BLOCKED_LOCKED_PLAN_SHA_MISMATCH", str(ctx.exception))
+        resolve_mock.assert_not_called()
+        conn_mock.assert_not_called()
+
+    @mock.patch("apply_insize_commercial_reconcile_258.apply_plan_rows")
+    @mock.patch("apply_insize_commercial_reconcile_258.connect_runtime_db")
+    @mock.patch("apply_insize_commercial_reconcile_258.resolve_production_database_identity")
+    @mock.patch("apply_insize_commercial_reconcile_258.assert_production_apply_authorized")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_production_source_xlsx")
+    @mock.patch("apply_insize_commercial_reconcile_258.sha256_file")
+    def test_apply_locked_artifacts_reach_db_layer(
+        self,
+        sha_mock,
+        _src_mock,
+        _prod_auth_mock,
+        resolve_mock,
+        conn_mock,
+        apply_rows_mock,
+    ):
+        sha_mock.side_effect = _locked_sha_side_effect
+        resolve_mock.return_value = {"current_database": "karzar_staging", "pg_system_identifier": "1"}
+        conn_mock.return_value = mock.Mock()
+        apply_rows_mock.return_value = mock.Mock(committed=True, journal={}, aborted_reason=None)
+        with mock.patch.dict(os.environ, _PRODUCTION_WRITE_ENV, clear=False):
+            rc = apply_main(_apply_write_argv())
+        self.assertEqual(rc, 0)
+        resolve_mock.assert_called_once()
+        conn_mock.assert_called_once()
+
+    @mock.patch("apply_insize_commercial_reconcile_258.connect_runtime_db")
+    @mock.patch("apply_insize_commercial_reconcile_258.load_apply_journal")
+    @mock.patch("apply_insize_commercial_reconcile_258.resolve_production_database_identity")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_production_source_xlsx")
+    @mock.patch("apply_insize_commercial_reconcile_258.sha256_file")
+    def test_rollback_altered_plan_blocks_before_db(
+        self, sha_mock, _src_mock, resolve_mock, _load_mock, conn_mock
+    ):
+        def side_effect(path: Path) -> str:
+            if "PLAN" in path.name.upper():
+                return "deadbeef"
+            return LOCKED_ROLLBACK_MANIFEST_SHA256
+
+        sha_mock.side_effect = side_effect
+        with mock.patch.dict(os.environ, _PRODUCTION_WRITE_ENV, clear=False):
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_main(_rollback_write_argv())
+        self.assertIn("BLOCKED_LOCKED_PLAN_SHA_MISMATCH", str(ctx.exception))
+        resolve_mock.assert_not_called()
+        conn_mock.assert_not_called()
+
+    @mock.patch("apply_insize_commercial_reconcile_258.connect_runtime_db")
+    @mock.patch("apply_insize_commercial_reconcile_258.resolve_production_database_identity")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_production_source_xlsx")
+    @mock.patch("apply_insize_commercial_reconcile_258.sha256_file")
+    def test_rollback_altered_manifest_blocks_before_db(
+        self, sha_mock, _src_mock, resolve_mock, conn_mock
+    ):
+        def side_effect(path: Path) -> str:
+            if "ROLLBACK" in path.name.upper():
+                return "deadbeef"
+            return LOCKED_PLAN_SHA256
+
+        sha_mock.side_effect = side_effect
+        with mock.patch.dict(os.environ, _PRODUCTION_WRITE_ENV, clear=False):
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_main(_rollback_write_argv())
+        self.assertIn("BLOCKED_LOCKED_ROLLBACK_SHA_MISMATCH", str(ctx.exception))
+        resolve_mock.assert_not_called()
+        conn_mock.assert_not_called()
+
+    @mock.patch("apply_insize_commercial_reconcile_258.connect_runtime_db")
+    @mock.patch("apply_insize_commercial_reconcile_258.resolve_production_database_identity")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_production_source_xlsx")
+    @mock.patch("apply_insize_commercial_reconcile_258.load_plan_rows")
+    @mock.patch("apply_insize_commercial_reconcile_258.sha256_file")
+    @mock.patch("apply_insize_commercial_reconcile_258.assert_plan_matches_evidence")
+    def test_rollback_wrong_eligible_count_blocks_before_db(
+        self, evidence_mock, sha_mock, load_mock, _src_mock, resolve_mock, conn_mock
+    ):
+        evidence_mock.return_value = {}
+        sha_mock.side_effect = _locked_sha_side_effect
+        load_mock.return_value = load_plan_rows(PLAN)[:710]
+        with mock.patch.dict(os.environ, _PRODUCTION_WRITE_ENV, clear=False):
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_main(_rollback_write_argv())
+        self.assertIn("BLOCKED_LOCKED_ELIGIBLE_COUNT_MISMATCH", str(ctx.exception))
+        resolve_mock.assert_not_called()
+        conn_mock.assert_not_called()
+
+    @mock.patch("apply_insize_commercial_reconcile_258.connect_runtime_db")
+    @mock.patch("apply_insize_commercial_reconcile_258.resolve_production_database_identity")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_production_source_xlsx")
+    @mock.patch("apply_insize_commercial_reconcile_258.sha256_file")
+    def test_rollback_confirm_matching_altered_manifest_still_blocked(
+        self, sha_mock, _src_mock, resolve_mock, conn_mock
+    ):
+        altered = "b" * 64
+
+        def side_effect(path: Path) -> str:
+            if "ROLLBACK" in path.name.upper():
+                return altered
+            return LOCKED_PLAN_SHA256
+
+        sha_mock.side_effect = side_effect
+        with mock.patch.dict(os.environ, _PRODUCTION_WRITE_ENV, clear=False):
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_main(_rollback_write_argv(confirm_rollback_manifest_sha256=altered))
+        self.assertIn("BLOCKED_LOCKED_ROLLBACK_SHA_MISMATCH", str(ctx.exception))
+        resolve_mock.assert_not_called()
+        conn_mock.assert_not_called()
+
+    @mock.patch("apply_insize_commercial_reconcile_258.connect_runtime_db")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_apply_journal_for_rollback")
+    @mock.patch("apply_insize_commercial_reconcile_258.load_apply_journal")
+    @mock.patch("apply_insize_commercial_reconcile_258.resolve_production_database_identity")
+    @mock.patch("apply_insize_commercial_reconcile_258.assert_production_apply_authorized")
+    @mock.patch("apply_insize_commercial_reconcile_258.validate_production_source_xlsx")
+    @mock.patch("apply_insize_commercial_reconcile_258.sha256_file")
+    def test_rollback_locked_artifacts_reach_journal_binding(
+        self,
+        sha_mock,
+        _src_mock,
+        _prod_auth_mock,
+        resolve_mock,
+        load_journal_mock,
+        validate_journal_mock,
+        conn_mock,
+    ):
+        sha_mock.side_effect = _locked_sha_side_effect
+        resolve_mock.return_value = {"current_database": "karzar_staging", "pg_system_identifier": "1"}
+        load_journal_mock.return_value = {"mode": "APPLY"}
+        validate_journal_mock.side_effect = ApplyAbort("stop_after_journal_binding")
+        with mock.patch.dict(os.environ, _PRODUCTION_WRITE_ENV, clear=False):
+            with self.assertRaises(ApplyAbort) as ctx:
+                apply_main(_rollback_write_argv())
+        self.assertEqual(str(ctx.exception), "stop_after_journal_binding")
+        validate_journal_mock.assert_called_once()
+        conn_mock.assert_not_called()
 
 class PlanTests(unittest.TestCase):
     def test_plan_load_matches_evidence_counts(self):

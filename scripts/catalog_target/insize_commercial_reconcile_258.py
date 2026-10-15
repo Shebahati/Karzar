@@ -268,6 +268,21 @@ def validate_production_source_xlsx(path: Path) -> dict[str, str]:
     return {"SOURCE_FILE_PRESENT": "YES", "SOURCE_SHA_MATCH": "YES"}
 
 
+def assert_locked_commercial_artifacts(
+    *,
+    plan_sha256: str,
+    rollback_manifest_sha256: str,
+    eligible_count: int,
+) -> None:
+    """Fail-closed lock on Owner-approved commercial artifacts (apply/rollback write paths)."""
+    if plan_sha256 != LOCKED_PLAN_SHA256:
+        raise ApplyAbort("BLOCKED_LOCKED_PLAN_SHA_MISMATCH")
+    if rollback_manifest_sha256 != LOCKED_ROLLBACK_MANIFEST_SHA256:
+        raise ApplyAbort("BLOCKED_LOCKED_ROLLBACK_SHA_MISMATCH")
+    if eligible_count != EXPECTED_ELIGIBLE_ROWS:
+        raise ApplyAbort("BLOCKED_LOCKED_ELIGIBLE_COUNT_MISMATCH")
+
+
 def _identity_fingerprint(observed: dict[str, Any]) -> str:
     return str(observed.get("pg_system_identifier") or "").strip()
 
@@ -778,17 +793,23 @@ def assert_apply_authorization_gates(
             raise ApplyAbort("owner_authorization_mismatch_apply")
         if confirm_source_sha256 != OWNER_SOURCE_SHA256:
             raise ApplyAbort("confirm_source_sha256_mismatch")
-        if confirm_plan_sha256 != plan_sha256:
+        if confirm_plan_sha256 != LOCKED_PLAN_SHA256:
             raise ApplyAbort("confirm_plan_sha256_mismatch")
-        if confirm_mutation_count != eligible_count:
+        if plan_sha256 != LOCKED_PLAN_SHA256:
+            raise ApplyAbort("BLOCKED_LOCKED_PLAN_SHA_MISMATCH")
+        if confirm_mutation_count != EXPECTED_ELIGIBLE_ROWS:
             raise ApplyAbort(
-                f"confirm_mutation_count_mismatch:expected={eligible_count}:got={confirm_mutation_count}"
+                f"confirm_mutation_count_mismatch:expected={EXPECTED_ELIGIBLE_ROWS}:got={confirm_mutation_count}"
             )
+        if eligible_count != EXPECTED_ELIGIBLE_ROWS:
+            raise ApplyAbort("BLOCKED_LOCKED_ELIGIBLE_COUNT_MISMATCH")
     if rollback:
         if owner_authorization != OWNER_AUTH_ROLLBACK:
             raise ApplyAbort("owner_authorization_mismatch_rollback")
-        if confirm_rollback_manifest_sha256 != rollback_manifest_sha256:
+        if confirm_rollback_manifest_sha256 != LOCKED_ROLLBACK_MANIFEST_SHA256:
             raise ApplyAbort("confirm_rollback_manifest_sha256_mismatch")
+        if rollback_manifest_sha256 != LOCKED_ROLLBACK_MANIFEST_SHA256:
+            raise ApplyAbort("BLOCKED_LOCKED_ROLLBACK_SHA_MISMATCH")
         if not confirm_batch_id:
             raise ApplyAbort("missing_confirm_batch_id")
     if not confirm_production_write:

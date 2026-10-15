@@ -26,6 +26,7 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     StaleGuardResult,
     apply_plan_rows,
     assert_expected_production_database_identity,
+    assert_locked_commercial_artifacts,
     build_mutation_sql,
     compute_expected_post_hash,
     load_apply_journal,
@@ -413,6 +414,64 @@ class ApplyJournalBindingExtraTests(unittest.TestCase):
                 database_identity=CANONICAL_IDENTITY,
                 expected_rows=1,
             )
+
+
+
+class LockedArtifactHelperTests(unittest.TestCase):
+    def test_locked_helper_accepts_canonical(self):
+        assert_locked_commercial_artifacts(
+            plan_sha256=LOCKED_PLAN_SHA256,
+            rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+            eligible_count=EXPECTED_ELIGIBLE_ROWS,
+        )
+
+    def test_locked_helper_rejects_plan(self):
+        with self.assertRaises(ApplyAbort) as ctx:
+            assert_locked_commercial_artifacts(
+                plan_sha256="0" * 64,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                eligible_count=EXPECTED_ELIGIBLE_ROWS,
+            )
+        self.assertIn("BLOCKED_LOCKED_PLAN_SHA_MISMATCH", str(ctx.exception))
+
+
+class ApplyJournalBindingNegativeTests(unittest.TestCase):
+    def _call(self, journal):
+        validate_apply_journal_for_rollback(
+            journal,
+            batch_id="batch-1",
+            source_sha256=OWNER_SOURCE_SHA256,
+            plan_sha256=LOCKED_PLAN_SHA256,
+            rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+            database_identity=CANONICAL_IDENTITY,
+            expected_rows=1,
+        )
+
+    def test_wrong_source_sha_in_journal_blocked(self):
+        with self.assertRaises(ApplyAbort):
+            self._call(_valid_apply_journal(source_sha256="bad"))
+
+    def test_wrong_plan_sha_in_journal_blocked(self):
+        with self.assertRaises(ApplyAbort):
+            self._call(_valid_apply_journal(plan_sha256="bad"))
+
+    def test_wrong_rollback_manifest_sha_blocked(self):
+        with self.assertRaises(ApplyAbort):
+            self._call(_valid_apply_journal(rollback_manifest_sha256="bad"))
+
+    def test_wrong_pg_system_identifier_blocked(self):
+        identity = {**CANONICAL_IDENTITY, "pg_system_identifier": "wrong"}
+        with self.assertRaises(ApplyAbort):
+            validate_apply_journal_for_rollback(
+                _valid_apply_journal(),
+                batch_id="batch-1",
+                source_sha256=OWNER_SOURCE_SHA256,
+                plan_sha256=LOCKED_PLAN_SHA256,
+                rollback_manifest_sha256=LOCKED_ROLLBACK_MANIFEST_SHA256,
+                database_identity=identity,
+                expected_rows=1,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

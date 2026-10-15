@@ -35,18 +35,19 @@ from catalog_target.insize_commercial_reconcile_258 import (  # noqa: E402
     ApplyAbort,
     apply_plan_rows,
     assert_apply_authorization_gates,
+    assert_locked_commercial_artifacts,
     assert_plan_matches_evidence,
     classify_owner_freshness,
-    resolve_production_database_identity,
     load_apply_journal,
     load_plan_rows,
     load_source_manifest,
     production_preflight,
+    resolve_production_database_identity,
     rollback_plan_rows,
     sha256_file,
+    validate_apply_journal_for_rollback,
     validate_production_source_xlsx,
     validate_source_sha256,
-    validate_apply_journal_for_rollback,
     writer_contract_summary,
 )
 from catalog_target.sales_wave_apply import (  # noqa: E402
@@ -147,6 +148,11 @@ def main(argv: list[str] | None = None) -> int:
 
     dry_run = not args.apply and not args.rollback
     if args.apply:
+        assert_locked_commercial_artifacts(
+            plan_sha256=plan_sha,
+            rollback_manifest_sha256=rollback_sha,
+            eligible_count=len(plan_rows),
+        )
         assert_apply_authorization_gates(
             apply=True,
             rollback=False,
@@ -199,6 +205,11 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if result.committed else 2
 
     if args.rollback:
+        assert_locked_commercial_artifacts(
+            plan_sha256=plan_sha,
+            rollback_manifest_sha256=rollback_sha,
+            eligible_count=len(plan_rows),
+        )
         assert_apply_authorization_gates(
             apply=False,
             rollback=True,
