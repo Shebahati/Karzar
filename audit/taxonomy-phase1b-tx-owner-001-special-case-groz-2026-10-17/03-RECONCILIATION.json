@@ -1,0 +1,13 @@
+{
+  "product_count": 2,
+  "product_ids": [
+    2915,
+    3238
+  ],
+  "karzar_catalog_skus": {
+    "2915": "2064",
+    "3238": "4457"
+  },
+  "sku_not_manufacturer_model_note": "Karzar catalog SKUs 2064 and 4457 are internal identifiers; not inferred to equal Groz Ord Nr. or article numbers.",
+  "historical_pr499_unchanged": true
+}
