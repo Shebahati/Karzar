@@ -1,0 +1,37 @@
+{
+  "package_generated_at_utc": "2026-10-17T11:31:28Z",
+  "frozen_pr499_semantic_review_csv_sha256": "a3590236eb7e0e2e58bc4bc17e2bce7c588a62f7e07c8b2c4bf0adb8b4ec8e12",
+  "frozen_baseline_product_census_csv_sha256": "ebd19943e4e86c238a3419a2dcbb0dac7ee3c6dca8041308247bfd5e35c121f3",
+  "package_generation_git_head_sha": "d4bee345ab94c250ff9288285e9fd35a58bf11f4",
+  "pr_500_branch_head_at_package_generation": "d4bee345ab94c250ff9288285e9fd35a58bf11f4",
+  "note": "Frozen input SHAs fingerprint PR #499 review + baseline census; package_generation_git_head_sha is the git commit that produced this package (PR #500 branch HEAD at generation time).",
+  "pr_499_reviewed_head": "5581b2d54fe5b06418032f8ce23bdc1a2c9904c8",
+  "pr_499_merge_on_main": "919782bfcf85a1524f9cca30abcf8d967d00d0b6",
+  "historical_census_collected_at_utc": "2026-10-15T09:34:39Z",
+  "disposition_counts_historical_pr499_anchor": {
+    "CATALOG_EXIT_CANDIDATE": 242,
+    "NEEDS_MORE_EVIDENCE": 18,
+    "INDUSTRIAL_EXCEPTION_CANDIDATE": 1,
+    "OWNER_DECISION_REQUIRED": 1,
+    "SEMANTIC_CONFLICT": 0
+  },
+  "disposition_counts_post_research_effective": {
+    "CATALOG_EXIT_CANDIDATE": 249,
+    "NEEDS_MORE_EVIDENCE": 11,
+    "INDUSTRIAL_EXCEPTION_CANDIDATE": 1,
+    "OWNER_DECISION_REQUIRED": 1,
+    "SEMANTIC_CONFLICT": 0
+  },
+  "proposal_status": "ALL_PROPOSALS_UNAPPROVED",
+  "owner_journal_policy": "07-OWNER-APPROVAL-JOURNAL-TEMPLATE.csv is regenerated; Owner-completed decisions must be stored in a separate immutable file (e.g. OWNER-AUTHORIZATION-JOURNAL-COMPLETED.csv) never overwritten by this script.",
+  "safety": {
+    "PRODUCTION_MUTATION": "NO",
+    "CATALOG_EXIT_APPLY": "NO",
+    "REHOME_APPLY": "NO",
+    "MASTER_MANIFEST_REWRITE": "NO"
+  },
+  "protected_scope": {
+    "category_154_bulk_exit": "FORBIDDEN",
+    "category_156_industrial_oils_27": "FORBIDDEN_BULK_ACTION"
+  }
+}
