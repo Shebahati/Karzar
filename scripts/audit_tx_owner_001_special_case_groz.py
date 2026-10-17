@@ -79,10 +79,17 @@ def build_evidence_matrix() -> list[dict[str, str]]:
                 "preserved_category_id": spec["preserved_category_id"],
                 "historical_pr499_proposal": spec["historical_pr499_proposal"],
                 "historical_pr499_domain": spec["historical_pr499_domain"],
-                "exact_product_identity_statement": spec["application_primary"],
+                "exact_manufacturer_identity_status": spec["exact_manufacturer_identity_status"],
+                "exact_manufacturer_article": spec["exact_manufacturer_article"],
+                "oem_family_evidence_verification": spec["oem_family_evidence_verification"],
+                "karzar_product_oem_identity_verification": spec[
+                    "karzar_product_oem_identity_verification"
+                ],
+                "proposed_application_class": spec["proposed_application_class"],
                 "competing_interpretations": spec["competing_interpretations"],
                 "confidence_level": spec["confidence_level"],
                 "confidence_basis": spec["confidence_basis"],
+                "confidence_scope_note": spec["confidence_scope_note"],
                 "proposed_industrial_domain": spec["proposed_industrial_domain"],
                 "agent_proposal_not_owner_approved": spec["agent_proposal"],
                 "unresolved_questions": spec["unresolved_questions"],
@@ -191,8 +198,10 @@ All `owner_decision` fields remain **blank**; `authorization_status` **PENDING**
 
 | Product ID | Karzar SKU | PR #499 proposal | Research agent proposal | Proposed domain | Confidence |
 |------------|------------|------------------|-------------------------|-----------------|------------|
-| 2915 | 2064 | INDUSTRIAL_EXCEPTION_CANDIDATE | INDUSTRIAL_EXCEPTION_CANDIDATE | KZ.DOM.CUTTING | MEDIUM |
-| 3238 | 4457 | OWNER_DECISION_REQUIRED | INDUSTRIAL_EXCEPTION_CANDIDATE | KZ.DOM.WORKHOLDING | MEDIUM |
+| 2915 | 2064 | INDUSTRIAL_EXCEPTION_CANDIDATE | INDUSTRIAL_EXCEPTION_CANDIDATE | KZ.DOM.CUTTING | MEDIUM (application hypothesis) |
+| 3238 | 4457 | OWNER_DECISION_REQUIRED | INDUSTRIAL_EXCEPTION_CANDIDATE | KZ.DOM.WORKHOLDING | MEDIUM (application hypothesis) |
+
+Exact Groz manufacturer article for either Karzar SKU: **UNRESOLVED_NO_EXACT_OEM_ARTICLE_MATCH** (OEM family pages verified separately).
 
 SKU **4457** on product **3238** must not be confused with unrelated catalog product **4457** (San OU morse taper) or Groz hydraulic jack order numbers.
 

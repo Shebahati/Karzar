@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
+EXACT_MANUFACTURER_IDENTITY_STATUS = "UNRESOLVED_NO_EXACT_OEM_ARTICLE_MATCH"
+OEM_FAMILY_EVIDENCE_VERIFIED = "VERIFIED_OEM_FAMILY_OR_SEMANTIC_PAGES"
+KARZAR_PRODUCT_OEM_IDENTITY_UNVERIFIED = "UNRESOLVED_NO_EXACT_OEM_ARTICLE_MATCH"
+
 # evidence_match_type: EXACT_SKU_OEM_PAGE | OEM_PRODUCT_FAMILY | TITLE_SEMANTIC_ONLY | UNRESOLVED
 GROZ_OEM_SOURCES: list[dict[str, str]] = [
     {
@@ -98,10 +102,18 @@ SPECIAL_CASE_PRODUCTS: dict[int, dict[str, Any]] = {
         "preserved_category_id": "160",
         "historical_pr499_proposal": "INDUSTRIAL_EXCEPTION_CANDIDATE",
         "historical_pr499_domain": "KZ.DOM.CUTTING",
-        "application_primary": "LATHE_CUTOFF_OR_TURNING_TOOL_BLADE_METALWORKING",
+        "proposed_application_class": "LATHE_CUTOFF_OR_TURNING_TOOL_BLADE_METALWORKING",
         "application_competing": "WOODWORKING_BENCH_PLANE_REPLACEMENT_BLADE",
+        "exact_manufacturer_identity_status": EXACT_MANUFACTURER_IDENTITY_STATUS,
+        "exact_manufacturer_article": "",
+        "oem_family_evidence_verification": OEM_FAMILY_EVIDENCE_VERIFIED,
+        "karzar_product_oem_identity_verification": KARZAR_PRODUCT_OEM_IDENTITY_UNVERIFIED,
         "confidence_level": "MEDIUM",
-        "confidence_basis": "OEM_PRODUCT_FAMILY_PLUS_TITLE",
+        "confidence_basis": "APPLICATION_HYPOTHESIS_OEM_FAMILY_PLUS_TITLE",
+        "confidence_scope_note": (
+            "MEDIUM confidence applies to the application-class hypothesis only; "
+            "it does not confirm Karzar SKU 2064 maps to a Groz article."
+        ),
         "proposed_industrial_domain": "KZ.DOM.CUTTING",
         "agent_proposal": "INDUSTRIAL_EXCEPTION_CANDIDATE",
         "competing_interpretations": (
@@ -128,10 +140,18 @@ SPECIAL_CASE_PRODUCTS: dict[int, dict[str, Any]] = {
         "preserved_category_id": "158",
         "historical_pr499_proposal": "OWNER_DECISION_REQUIRED",
         "historical_pr499_domain": "",
-        "application_primary": "MACHINIST_SETUP_JACK_METALWORKING",
+        "proposed_application_class": "MACHINIST_SETUP_JACK_METALWORKING",
         "application_competing": "HYDRAULIC_LIFTING_JACK_GENERAL_WORKSHOP",
+        "exact_manufacturer_identity_status": EXACT_MANUFACTURER_IDENTITY_STATUS,
+        "exact_manufacturer_article": "",
+        "oem_family_evidence_verification": OEM_FAMILY_EVIDENCE_VERIFIED,
+        "karzar_product_oem_identity_verification": KARZAR_PRODUCT_OEM_IDENTITY_UNVERIFIED,
         "confidence_level": "MEDIUM",
-        "confidence_basis": "OEM_TITLE_SEMANTIC_MATCH",
+        "confidence_basis": "APPLICATION_HYPOTHESIS_OEM_TITLE_SEMANTIC_MATCH",
+        "confidence_scope_note": (
+            "MEDIUM confidence applies to the application-class hypothesis only; "
+            "it does not confirm Karzar SKU 4457 maps to Groz MJ/01 or any Ord Nr."
+        ),
         "proposed_industrial_domain": "KZ.DOM.WORKHOLDING",
         "agent_proposal": "INDUSTRIAL_EXCEPTION_CANDIDATE",
         "competing_interpretations": (

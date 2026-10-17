@@ -15,6 +15,8 @@ sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.tx_owner_001_external_sources import APPROVED_DOMAIN_CODES  # noqa: E402
 from catalog_target.tx_owner_001_groz_special_case_research import (  # noqa: E402
+    EXACT_MANUFACTURER_IDENTITY_STATUS,
+    OEM_FAMILY_EVIDENCE_VERIFIED,
     SPECIAL_CASE_PRODUCTS,
 )
 
@@ -55,6 +57,27 @@ class TxOwner001SpecialCaseGrozTests(unittest.TestCase):
             for row in csv.DictReader(handle):
                 self.assertEqual(row["owner_decision"], "")
                 self.assertEqual(row["authorization_status"], "PENDING")
+
+    def test_exact_oem_identity_unresolved_both_products(self):
+        with (PKG / "01-SPECIAL-CASE-EVIDENCE-MATRIX.csv").open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertNotIn("exact_product_identity_statement", rows[0])
+        for row in rows:
+            self.assertEqual(
+                row["exact_manufacturer_identity_status"],
+                EXACT_MANUFACTURER_IDENTITY_STATUS,
+            )
+            self.assertEqual(row["karzar_product_oem_identity_verification"], EXACT_MANUFACTURER_IDENTITY_STATUS)
+            self.assertEqual(row["exact_manufacturer_article"], "")
+            self.assertEqual(row["oem_family_evidence_verification"], OEM_FAMILY_EVIDENCE_VERIFIED)
+            self.assertTrue(row["proposed_application_class"])
+            self.assertIn("APPLICATION_HYPOTHESIS", row["confidence_basis"])
+            self.assertIn("application-class hypothesis", row["confidence_scope_note"])
+
+    def test_agent_proposals_not_owner_approved(self):
+        with (PKG / "01-SPECIAL-CASE-EVIDENCE-MATRIX.csv").open(encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle):
+                self.assertEqual(row["agent_proposal_not_owner_approved"], "INDUSTRIAL_EXCEPTION_CANDIDATE")
 
     def test_pr499_historical_preserved(self):
         with (PKG / "01-SPECIAL-CASE-EVIDENCE-MATRIX.csv").open(encoding="utf-8", newline="") as handle:
