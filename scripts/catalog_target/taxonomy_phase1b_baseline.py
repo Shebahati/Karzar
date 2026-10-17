@@ -247,11 +247,42 @@ def is_priced_product(row: dict[str, str]) -> bool:
     return is_live_product(row) and _priced(row.get("base_price", ""))
 
 
+def product_census_required_columns() -> tuple[str, ...]:
+    return (
+        "product_id",
+        "is_active",
+        "is_available",
+        "base_price",
+        "image_present",
+        "storefront_visible",
+        "sellable",
+        "product_type_id",
+    )
+
+
+def validate_product_census_export(rows: list[dict[str, str]]) -> None:
+    if not rows:
+        raise RuntimeError("product_census_empty")
+    missing = [c for c in product_census_required_columns() if c not in rows[0]]
+    if missing:
+        raise RuntimeError(f"product_census_missing_columns={','.join(missing)}")
+
+
+def product_image_flag(row: dict[str, str]) -> str:
+    if (row.get("image_present") or "").strip():
+        return row["image_present"]
+    return row.get("has_valid_image", "")
+
+
 def is_storefront_visible_product(row: dict[str, str]) -> bool:
-    return is_active_product(row) and is_imaged_flag(row.get("has_valid_image", ""))
+    if "storefront_visible" in row and (row.get("storefront_visible") or "").strip():
+        return is_imaged_flag(row["storefront_visible"])
+    return is_active_product(row) and is_imaged_flag(product_image_flag(row))
 
 
 def is_sellable_product(row: dict[str, str]) -> bool:
+    if "sellable" in row and (row.get("sellable") or "").strip():
+        return is_imaged_flag(row["sellable"])
     return (
         is_storefront_visible_product(row)
         and is_available_product(row)
@@ -975,6 +1006,7 @@ def category_row_to_census_dict(row: CategoryRow) -> dict[str, str]:
 
 
 def global_product_counts(products: list[dict[str, str]]) -> dict[str, int]:
+    validate_product_census_export(products)
     counts = Counter()
     for row in products:
         if not is_live_product(row):
@@ -987,7 +1019,7 @@ def global_product_counts(products: list[dict[str, str]]) -> dict[str, int]:
             counts["available"] += 1
         if is_priced_product(row):
             counts["priced"] += 1
-        if is_imaged_flag(row.get("has_valid_image", "")):
+        if is_imaged_flag(product_image_flag(row)):
             counts["imaged"] += 1
         if is_storefront_visible_product(row):
             counts["visible"] += 1
@@ -1000,6 +1032,19 @@ def global_product_counts(products: list[dict[str, str]]) -> dict[str, int]:
         if not (row.get("category_id") or "").strip():
             counts["categoryless"] += 1
     return dict(counts)
+
+
+CANONICAL_PRESERVED_PRODUCT_METRICS: dict[str, int] = {
+    "live": 6536,
+    "active": 1585,
+    "available": 3811,
+    "priced": 4272,
+    "imaged": 1464,
+    "visible": 1368,
+    "sellable": 720,
+    "pt_assigned": 658,
+    "pt_missing": 5878,
+}
 
 
 def load_json_lines_export(raw: str) -> list[dict[str, str]]:

@@ -9,8 +9,8 @@
   "empty_delta": -3,
   "categoryless_delta": 0,
   "live_products_delta": 0,
-  "sellable_delta": -716,
-  "visible_delta": -1368,
+  "sellable_delta": 4,
+  "visible_delta": 0,
   "anchor": {
     "snapshot_date": "2026-09-27",
     "categories": 138,
@@ -47,8 +47,11 @@
     "live": 6536,
     "active": 1585,
     "priced": 4272,
+    "imaged": 1464,
+    "visible": 1368,
     "pt_missing": 5878,
     "available": 3811,
+    "sellable": 720,
     "pt_assigned": 658
   },
   "category_id_comparison": {

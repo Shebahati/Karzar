@@ -1,6 +1,6 @@
 {
   "status": "READY_FOR_OWNER_REVIEW",
-  "correction_applied_at_utc": "2026-10-15T09:45:55Z",
+  "correction_applied_at_utc": "2026-10-17T09:26:40Z",
   "preserved_baseline_sha": "dd7ab67ff10d063426600b9a5e33132fe4c78078",
   "preserved_evidence_dir": "/home/shebahati/Projects/Karzar/audit/taxonomy-phase1b-baseline-2026-10-15/preserved-evidence/dd7ab67ff10d",
   "identity": {
@@ -39,8 +39,11 @@
     "live": 6536,
     "active": 1585,
     "priced": 4272,
+    "imaged": 1464,
+    "visible": 1368,
     "pt_missing": 5878,
     "available": 3811,
+    "sellable": 720,
     "pt_assigned": 658
   },
   "category_id_drift": {
@@ -108,13 +111,13 @@
     "category_55_direct_live": 29
   },
   "numeric_dependency_scan": {
-    "raw_hit_count": 63,
-    "deduped_source_hits": 44,
+    "raw_hit_count": 65,
+    "deduped_source_hits": 46,
     "excluded_generated_path_skips": 6680,
     "hits_by_source_class": {
       "SUPPLIER_IMPORT": 1,
       "ACTIVE_SCRIPT": 4,
-      "TEST_FIXTURE": 19,
+      "TEST_FIXTURE": 21,
       "HISTORICAL_DOCUMENTATION": 3,
       "MOCK_DEMO": 14,
       "FRONTEND_SOURCE": 3

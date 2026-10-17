@@ -1,15 +1,17 @@
 {
   "preserved_original_sha": "dd7ab67ff10d063426600b9a5e33132fe4c78078",
   "preserved_copy_path": "/home/shebahati/Projects/Karzar/audit/taxonomy-phase1b-baseline-2026-10-15/preserved-evidence/dd7ab67ff10d",
-  "correction_head": "cca860be8594173b0d79ce3326be378ce0bd0bb3",
-  "corrected_at_utc": "2026-10-15T09:45:55Z",
+  "correction_head": "pending",
+  "corrected_at_utc": "2026-10-17T09:26:40Z",
   "defects_addressed": [
     "category_drift_by_id_with_removed_186_187_188",
     "megamenu_dangling_references_report",
     "helicoil_zwnj_normalization",
     "numeric_dependency_generated_exclusion_and_classification",
     "readonly_transaction_enforcement_in_code",
-    "tx_owner_scope_ids_157_158_159_160"
+    "tx_owner_scope_ids_157_158_159_160",
+    "readonly_psql_output_parsing_and_bypass_prevention",
+    "product_census_schema_aware_global_metrics"
   ],
   "production_rerun": false,
   "limitations": [

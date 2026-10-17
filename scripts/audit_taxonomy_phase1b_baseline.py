@@ -45,9 +45,11 @@ from catalog_target.taxonomy_phase1b_baseline import (  # noqa: E402
     write_sha256sums,
 )
 from catalog_target.taxonomy_phase1b_readonly_db import (  # noqa: E402
+    EXPECTED_VPS_HOSTNAME,
     read_only_transaction_proof,
     run_readonly_scalar,
     run_readonly_sql,
+    verify_production_database_identity,
 )
 
 FORBIDDEN_SQL = re.compile(
@@ -93,16 +95,13 @@ def collect_identity(ssh_host: str, git_sha: str) -> dict:
     ).stdout.strip()
     if host_proof != EXPECTED_VPS:
         raise RuntimeError(f"BLOCKED_VPS_IDENTITY expected={EXPECTED_VPS} got={host_proof}")
-    db = run_readonly_scalar(ssh_host, "SELECT current_database();")
-    user = run_readonly_scalar(ssh_host, "SELECT current_user;")
-    sys_id = run_readonly_scalar(ssh_host, "SELECT system_identifier::text FROM pg_control_system();")
-    if db != EXPECTED_DB or user != EXPECTED_USER:
-        raise RuntimeError("BLOCKED_DATABASE_IDENTITY")
-    if sys_id != EXPECTED_PG_SYSTEM_ID:
-        raise RuntimeError(f"BLOCKED_PG_SYSTEM_ID expected={EXPECTED_PG_SYSTEM_ID} got={sys_id}")
-    ro = _read_only_proof(ssh_host)
-    if ro.get("transaction_read_only") != "on":
-        raise RuntimeError("BLOCKED_READ_ONLY_PROOF")
+    if host_proof != EXPECTED_VPS_HOSTNAME:
+        raise RuntimeError("BLOCKED_VPS_HOSTNAME_CONSTANT")
+    db_identity = verify_production_database_identity(ssh_host)
+    db = db_identity["current_database"]
+    user = db_identity["current_user"]
+    sys_id = db_identity["pg_system_identifier"]
+    ro = {"transaction_read_only": db_identity["transaction_read_only"]}
     return {
         "collected_at_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "expected_live_host": EXPECTED_VPS,
@@ -280,7 +279,7 @@ def enrich_product_export(
                 **row,
                 "category_full_path": full_path,
                 "category_depth": depth,
-                "image_present": row.get("has_valid_image", ""),
+                "image_present": row.get("image_present") or row.get("has_valid_image", ""),
                 "storefront_visible": str(is_storefront_visible_product(row)),
                 "sellable": str(is_sellable_product(row)),
             }

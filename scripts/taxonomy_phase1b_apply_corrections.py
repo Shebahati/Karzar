@@ -17,6 +17,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.taxonomy_phase1b_baseline import (  # noqa: E402  # noqa: E402
+    CANONICAL_PRESERVED_PRODUCT_METRICS,
     REMOVED_L1_HELICOIL_ROOT_IDS,
     TX_OWNER_SCOPE_CATEGORY_IDS,
     CategoryRow,
@@ -31,6 +32,7 @@ from catalog_target.taxonomy_phase1b_baseline import (  # noqa: E402  # noqa: E4
     is_tx_owner_scope_category,
     scan_numeric_category_dependencies,
     tx_owner_scope_product_ids,
+    validate_product_census_export,
     write_csv,
     write_sha256sums,
 )
@@ -142,6 +144,7 @@ def main(argv: list[str] | None = None) -> int:
     category_rows = _load_category_rows(out_dir / "01-CATEGORY-CENSUS.csv")
     with (out_dir / "02-PRODUCT-CATEGORY-CENSUS.csv").open(encoding="utf-8", newline="") as handle:
         products = list(csv.DictReader(handle))
+    validate_product_census_export(products)
 
     live_ids = {r.category_id for r in category_rows}
     id_comparison = compare_category_ids_phase0b(repo_root=ROOT, current_category_ids=live_ids)
@@ -161,7 +164,19 @@ def main(argv: list[str] | None = None) -> int:
         }
 
     global_counts = global_product_counts(products)
+    for key, expected in CANONICAL_PRESERVED_PRODUCT_METRICS.items():
+        actual = global_counts.get(key)
+        if actual != expected:
+            raise RuntimeError(
+                f"canonical_product_metric_mismatch key={key} expected={expected} got={actual}"
+            )
     drift = historical_drift(structure, global_counts, id_comparison=id_comparison)
+    if drift.get("live_products_delta") != 0:
+        raise RuntimeError("historical_drift_live_products_delta_must_be_zero")
+    if drift.get("sellable_delta") != 4:
+        raise RuntimeError("historical_drift_sellable_delta_must_be_plus_four")
+    if drift.get("visible_delta") != 0:
+        raise RuntimeError("historical_drift_visible_delta_must_be_zero")
     (out_dir / "10-HISTORICAL-DRIFT.json").write_text(
         json.dumps(drift, indent=2, ensure_ascii=False),
         encoding="utf-8",
@@ -228,6 +243,20 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     manifest = build_working_manifest(category_rows, products)
+    if len(manifest) != 135:
+        raise RuntimeError(f"manifest_row_count_expected_135 got={len(manifest)}")
+    if not all(m.get("review_status") == "UNREVIEWED" for m in manifest):
+        raise RuntimeError("manifest_review_status_must_remain_UNREVIEWED")
+    census_by_id = {r.category_id: r for r in category_rows}
+    for row in manifest:
+        cid = int(row["current_category_id"])
+        cat = census_by_id.get(cid)
+        if cat is None:
+            raise RuntimeError(f"manifest_category_missing_in_census id={cid}")
+        if row["direct_product_count"] != str(cat.direct_live):
+            raise RuntimeError(f"manifest_metric_mismatch direct_live id={cid}")
+        if row["sellable_product_count"] != str(cat.sellable):
+            raise RuntimeError(f"manifest_metric_mismatch sellable id={cid}")
     write_csv(
         out_dir / "05-PHASE1B-CURRENT-TARGET-WORKING-MANIFEST.csv",
         list(manifest[0].keys()),
@@ -309,6 +338,8 @@ def main(argv: list[str] | None = None) -> int:
             "numeric_dependency_generated_exclusion_and_classification",
             "readonly_transaction_enforcement_in_code",
             "tx_owner_scope_ids_157_158_159_160",
+            "readonly_psql_output_parsing_and_bypass_prevention",
+            "product_census_schema_aware_global_metrics",
         ],
         "production_rerun": False,
         "limitations": [

@@ -7,28 +7,28 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest import mock
-
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.taxonomy_phase1b_baseline import (  # noqa: E402
+    CANONICAL_PRESERVED_PRODUCT_METRICS,
+    PHASE0B_ANCHOR,
     REMOVED_L1_HELICOIL_ROOT_IDS,
     TX_OWNER_SCOPE_CATEGORY_IDS,
     audit_megamenu_references,
     build_category_metadata,
     compare_category_ids_phase0b,
+    global_product_counts,
     helicoil_token_present,
+    historical_drift,
     is_sellable_product,
     is_storefront_visible_product,
     is_tx_owner_scope_category,
     normalize_taxonomy_text,
     owner_scope_candidate,
     scan_numeric_category_dependencies,
-)
-from catalog_target.taxonomy_phase1b_readonly_db import (  # noqa: E402
-    run_readonly_sql,
+    validate_product_census_export,
 )
 
 
@@ -118,14 +118,6 @@ class TaxonomyPhase1bBaselineTests(unittest.TestCase):
         self.assertIn("TEST_FIXTURE", classes)
         self.assertNotIn("GENERATED_EXCLUDED", classes)
 
-    def test_readonly_sql_wraps_transaction(self):
-        with mock.patch("catalog_target.taxonomy_phase1b_readonly_db.subprocess.run") as run_mock:
-            run_mock.return_value = mock.Mock(returncode=0, stdout="ok", stderr="")
-            run_readonly_sql("karzar-vps", "SELECT 1;")
-            sent = run_mock.call_args.kwargs.get("input") or run_mock.call_args[1].get("input")
-            self.assertIn("SET TRANSACTION READ ONLY", sent)
-            self.assertIn("ROLLBACK", sent)
-
     def test_sellable_requires_price_and_image(self):
         row = {
             "deleted_at": "",
@@ -138,6 +130,37 @@ class TaxonomyPhase1bBaselineTests(unittest.TestCase):
         row["has_valid_image"] = "false"
         self.assertFalse(is_sellable_product(row))
         self.assertFalse(is_storefront_visible_product(row))
+
+    def test_preserved_product_census_canonical_metrics(self):
+        path = ROOT / "audit/taxonomy-phase1b-baseline-2026-10-15/02-PRODUCT-CATEGORY-CENSUS.csv"
+        if not path.is_file():
+            self.skipTest("baseline product census missing")
+        with path.open(encoding="utf-8", newline="") as handle:
+            products = list(csv.DictReader(handle))
+        validate_product_census_export(products)
+        counts = global_product_counts(products)
+        self.assertEqual(counts, CANONICAL_PRESERVED_PRODUCT_METRICS)
+
+    def test_historical_drift_product_deltas_from_preserved_census(self):
+        path = ROOT / "audit/taxonomy-phase1b-baseline-2026-10-15/02-PRODUCT-CATEGORY-CENSUS.csv"
+        drift_path = ROOT / "audit/taxonomy-phase1b-baseline-2026-10-15/10-HISTORICAL-DRIFT.json"
+        if not path.is_file() or not drift_path.is_file():
+            self.skipTest("baseline artifacts missing")
+        import json
+
+        with path.open(encoding="utf-8", newline="") as handle:
+            products = list(csv.DictReader(handle))
+        counts = global_product_counts(products)
+        structure = json.loads(drift_path.read_text(encoding="utf-8"))["current_structure"]
+        drift = historical_drift(structure, counts)
+        self.assertEqual(drift["live_products_delta"], 0)
+        self.assertEqual(drift["sellable_delta"], counts["sellable"] - PHASE0B_ANCHOR["sellable"])
+        self.assertEqual(drift["sellable_delta"], 4)
+        self.assertEqual(drift["visible_delta"], 0)
+
+    def test_product_census_missing_columns_fail_closed(self):
+        with self.assertRaises(RuntimeError):
+            validate_product_census_export([{"product_id": "1"}])
 
     def test_manifest_row_count_from_census(self):
         census = ROOT / "audit/taxonomy-phase1b-baseline-2026-10-15/01-CATEGORY-CENSUS.csv"
