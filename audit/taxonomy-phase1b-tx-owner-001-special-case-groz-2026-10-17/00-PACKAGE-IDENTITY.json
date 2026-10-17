@@ -1,0 +1,22 @@
+{
+  "package_generated_at_utc": "2026-10-17T12:47:37Z",
+  "package_generation_git_head_sha": "64b4cc040a2aecea28c96e85e20fc4817acb59be",
+  "scope": "TX-OWNER-001 special-case technical resolution (Groz 2915, 3238)",
+  "frozen_baseline_census_csv_sha256": "ebd19943e4e86c238a3419a2dcbb0dac7ee3c6dca8041308247bfd5e35c121f3",
+  "frozen_pr499_review_csv_sha256": "a3590236eb7e0e2e58bc4bc17e2bce7c588a62f7e07c8b2c4bf0adb8b4ec8e12",
+  "owner_batch_001_sha256": "4aef6f91d857514ed1fd7ea7e6289df2cee90f69fa705334c1e8f13cd0f400dc",
+  "owner_batch_002_sha256": "6bfe375afd83dfbc5e624971c4c4008be2b0614fa9068e8fa71dd68be82c8e47",
+  "owner_batches_mutated": false,
+  "product_ids": [
+    2915,
+    3238
+  ],
+  "safety": {
+    "PRODUCTION_MUTATION": "NO",
+    "CATALOG_EXIT_APPLY": "NO",
+    "CATEGORY_MUTATION": "NO",
+    "PRODUCT_MUTATION": "NO",
+    "MASTER_MANIFEST_REWRITE": "NO",
+    "OWNER_BATCH_JOURNALS_TOUCHED": "NO"
+  }
+}

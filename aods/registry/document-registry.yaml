@@ -1018,6 +1018,16 @@ documents:
       and QA211A. Documentary decision only, with no APPLY, deletion,
       deactivation, rehome, Production, deployment, or Hesabfa permission.
 
+  - id: TAXONOMY-TX-OWNER-001-SPECIAL-CASE-GROZ-20261017
+    path: audit/taxonomy-phase1b-tx-owner-001-special-case-groz-2026-10-17/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      TX-OWNER-001 Groz OEM technical resolution for products 2915 and 3238;
+      evidence only; Owner batches 001/002 unchanged.
+
   - id: PRODUCT-NAMING-V1-CONSTITUTION
     path: audit/product-naming-v1/NAMING_CONSTITUTION.md
     class: EVIDENCE
