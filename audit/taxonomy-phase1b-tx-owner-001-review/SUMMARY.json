@@ -1,0 +1,39 @@
+{
+  "status": "READY_FOR_OWNER_REVIEW",
+  "population_unique_products": 262,
+  "disposition_counts": {
+    "SEMANTIC_CONFLICT": 35,
+    "INDUSTRIAL_EXCEPTION_CANDIDATE": 15,
+    "NEEDS_MORE_EVIDENCE": 0,
+    "OWNER_DECISION_REQUIRED": 8,
+    "CATALOG_EXIT_CANDIDATE": 204
+  },
+  "industrial_domain_proposals": {
+    "KZ.DOM.CUTTING": 50,
+    "KZ.DOM.WORKHOLDING": 1,
+    "KZ.DOM.TOOLHOLDING": 7
+  },
+  "owner_queue_rows": 43,
+  "category_scope": {
+    "157": {
+      "direct": 0,
+      "role": "parent_hand_tools"
+    },
+    "158": {
+      "direct": 196
+    },
+    "159": {
+      "direct": 0,
+      "role": "parent_woodworking"
+    },
+    "160": {
+      "direct": 66
+    }
+  },
+  "safety": {
+    "PRODUCTION_MUTATION": "NO",
+    "PRODUCT_MUTATION": "NO",
+    "CATALOG_EXIT_APPLY": "NO",
+    "REHOME_APPLY": "NO"
+  }
+}
