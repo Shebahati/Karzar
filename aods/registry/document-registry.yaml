@@ -1047,6 +1047,17 @@ documents:
     notes: >
       SKU-specific Owner decision options for Groz special cases; not approvals.
 
+  - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-004-20261017
+    path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-004-2026-10-17.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner requested more evidence for exactly eleven unresolved TX-OWNER-001
+      products. No exit, industrial exception, rehome, APPLY, Production or
+      Hesabfa mutation authorization.
+
   - id: TAXONOMY-TX-OWNER-001-UNRESOLVED-11-20261017
     path: audit/taxonomy-phase1b-tx-owner-001-unresolved-11-2026-10-17/FINAL_REPORT.md
     class: EVIDENCE
