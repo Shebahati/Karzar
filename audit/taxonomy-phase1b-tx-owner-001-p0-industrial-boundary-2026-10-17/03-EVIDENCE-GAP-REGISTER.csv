@@ -1,10 +1,11 @@
 product_id,gap_id,gap_category,gap_description,blocks_disposition
-3008,GAP-3008-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,"Jaw opening, bar length, brand, photos; confirm not Bessey/Irwin woodworking SKU misfiled.",YES
+3008,GAP-3008-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,"Jaw opening, bar length, brand, photos; confirm wood vs metal machine workholding.",YES
+3008,GAP-3008-DOMAIN,APPROVED_DOMAIN_FIT,Domain hypothesis KZ.DOM.WORKHOLDING requires Groz article proof and Owner policy for industrial exception.,YES
 3009,GAP-3009-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,"Shank type (straight vs R8), saw bore range, Groz article on label/packing slip, photo.",YES
 3009,GAP-3009-DOMAIN,APPROVED_DOMAIN_FIT,Domain hypothesis KZ.DOM.TOOLHOLDING requires Groz article proof and Owner policy for industrial exception.,YES
 3010,GAP-3010-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Confirm WD size on unit; photo for Groz article stamp.,YES
 3184,GAP-3184-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Flat vs half-round vs triangular; blade length; Groz article on product.,YES
-5227,GAP-5227-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Photo of engraved model; confirm not a different M7 QE accessory.,NO
+5227,GAP-5227-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Photo of engraved model; confirm not a different M7 QE accessory.,YES
 5259,GAP-5259-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,None for OEM class; optional photo to confirm SB-201 marking on received stock.,NO
 5260,GAP-5260-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Optional nameplate photo for SB-423.,NO
 5261,GAP-5261-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Optional stock photo.,NO
@@ -17,5 +18,6 @@ product_id,gap_id,gap_category,gap_description,blocks_disposition
 5296,GAP-5296-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,None.,NO
 5297,GAP-5297-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,None.,NO
 5298,GAP-5298-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,None.,NO
-5301,GAP-5301-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Photo/nameplate; confirm not SY-2002M; fix title if adaptor-only.,NO
+5301,GAP-5301-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Photo/nameplate on physical stock; confirm unit is SY-2001M adaptor not SY-2002M regulator+adaptor combo; catalog title mismatch documented only — no title APPLY in this PR.,NO
+5301,GAP-5301-TITLE-OEM-MISMATCH,CATALOG_TITLE_VS_OEM_PRODUCT_CLASS,Karzar title implies regulator; OEM documents SY-2001M as 360° rotatable adaptor. SY-2002M is a distinct regulator+adaptor SKU — do not conflate.,YES
 5302,GAP-5302-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,None for OEM class.,NO

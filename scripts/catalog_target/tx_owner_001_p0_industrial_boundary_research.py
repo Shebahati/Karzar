@@ -33,7 +33,8 @@ OWNER_OPTIONS = (
     "APPROVE_INDUSTRIAL_EXCEPTION | REQUEST_MORE_EVIDENCE | DEFER_DECISION"
 )
 
-# evidence_match_type: EXACT_OEM_ARTICLE_MATCH | OEM_FAMILY_REFERENCE | NEAR_MODEL_REFERENCE | UNRESOLVED
+# evidence_match_type: EXACT_OEM_ARTICLE_MATCH | OEM_FAMILY_REFERENCE | DISTRIBUTOR_MARKET_FAMILY_REFERENCE
+# | APPLICATION_CLASS_REFERENCE | NEAR_MODEL_REFERENCE | UNRESOLVED
 OEM_SOURCES: list[dict[str, str]] = [
     {
         "source_id": "MARKET-PARALLEL-CLAMP-WOOD",
@@ -41,7 +42,7 @@ OEM_SOURCES: list[dict[str, str]] = [
         "manufacturer": "Trade reference (woodworking)",
         "model_identity": "Parallel clamp — woodworking joinery",
         "evidence_class": "MARKET_REFERENCE",
-        "evidence_match_type": "OEM_FAMILY_REFERENCE",
+        "evidence_match_type": "APPLICATION_CLASS_REFERENCE",
         "supported_claim": (
             "Parallel clamps are primarily documented for wood joinery/panel glue-ups; "
             "not machine-tool workholding fixtures."
@@ -50,15 +51,29 @@ OEM_SOURCES: list[dict[str, str]] = [
         "verification_status": "HUMAN_VERIFIED_URL_2026-10-17",
     },
     {
-        "source_id": "GROZ-OEM-SLITTING-SAW-ARBOR-FAMILY",
+        "source_id": "GROZ-DIST-INDIAMART-SA-ARBOR-FAMILY",
         "source_url": "https://www.indiamart.com/groz-tools/machine-tool-accessories.html",
-        "manufacturer": "Groz Engineering Tools (India)",
-        "model_identity": "SA/1, SA/2, SA/R8 Slitting Saw Arbors",
-        "evidence_class": "OEM_DISTRIBUTOR_PAGE",
-        "evidence_match_type": "OEM_FAMILY_REFERENCE",
+        "manufacturer": "Groz (India) — IndiaMART distributor listing",
+        "model_identity": "SA/1, SA/2, SA/R8 Slitting Saw Arbors (family text)",
+        "evidence_class": "DISTRIBUTOR_MARKET_PAGE",
+        "evidence_match_type": "DISTRIBUTOR_MARKET_FAMILY_REFERENCE",
         "supported_claim": (
-            "Groz slitting/slotting saw arbors mount saw blades on milling/collet interfaces — "
-            "machine-tool toolholding accessory."
+            "Third-party IndiaMART listing attributes slitting saw arbor family to Groz; "
+            "not direct groz-tools.com product-page proof and does not map Karzar SKU 3106."
+        ),
+        "related_karzar_product_ids": "3009",
+        "verification_status": "HUMAN_VERIFIED_URL_2026-10-17",
+    },
+    {
+        "source_id": "GROZ-DIST-FASTENERSWEB-SA-ARBOR-FAMILY",
+        "source_url": "https://www.fastenersweb.com/proddetail/45531/slitting-saw-arbors",
+        "manufacturer": "Groz — FastenersWEB trade listing",
+        "model_identity": "Slitting saw arbors (manufacturer attributed)",
+        "evidence_class": "DISTRIBUTOR_MARKET_PAGE",
+        "evidence_match_type": "DISTRIBUTOR_MARKET_FAMILY_REFERENCE",
+        "supported_claim": (
+            "Independent distributor directory repeats Groz slitting-saw arbor family description; "
+            "market/distributor evidence only — not Karzar row identity."
         ),
         "related_karzar_product_ids": "3009",
         "verification_status": "HUMAN_VERIFIED_URL_2026-10-17",
@@ -291,14 +306,17 @@ P0_PRODUCTS: dict[int, dict[str, Any]] = {
             "B) Metal shop bar clamp for welding/fabrication — still general workshop, not precision "
             "machine workholding domain. C) UNRESOLVED — no brand, size, or jaw capacity in census."
         ),
-        "industrial_domain_hypothesis": "",
-        "approved_domain_fit_assessment": "DOES_NOT_FIT",
+        "industrial_domain_hypothesis": "KZ.DOM.WORKHOLDING",
+        "approved_domain_fit_assessment": "UNPROVEN",
         "confidence_level": "LOW",
-        "confidence_basis": "TITLE_SEMANTIC_PLUS_MARKET_REFERENCE_ONLY",
-        "confidence_scope_note": "Does not verify physical unit or map to any workholding OEM article.",
-        "post_research_agent_proposal": "CATALOG_EXIT_CANDIDATE",
+        "confidence_basis": "TITLE_SEMANTIC_PLUS_APPLICATION_CLASS_REFERENCE_ONLY",
+        "confidence_scope_note": (
+            "Editorial parallel-clamp reference is not OEM verification; workholding domain fit "
+            "and physical unit identity remain unproven."
+        ),
+        "post_research_agent_proposal": "NEEDS_MORE_EVIDENCE",
         "recommended_owner_review_option": "REQUEST_MORE_EVIDENCE",
-        "unresolved_questions": "Jaw opening, bar length, brand, photos; confirm not Bessey/Irwin woodworking SKU misfiled.",
+        "unresolved_questions": "Jaw opening, bar length, brand, photos; confirm wood vs metal machine workholding.",
     },
     3009: {
         "karzar_catalog_sku": "3106",
@@ -309,13 +327,14 @@ P0_PRODUCTS: dict[int, dict[str, Any]] = {
         "historical_pr499_proposal": "CATALOG_EXIT_CANDIDATE",
         "historical_pr499_evidence_basis": "HEURISTIC",
         "new_technical_research_finding": (
-            "Persian title indicates Groz slitting/saw arbor («دنباله فرز اره‌ای»). Groz OEM documents "
-            "SA/* slitting saw arbors for milling/collet mounting — KZ.DOM.TOOLHOLDING class accessory. "
-            "Karzar internal SKU 3106 is not a Groz catalog number; exact SA/* variant unproven."
+            "Persian title + Groz brand suggest slitting/saw arbor class. Distributor/market pages "
+            "(IndiaMART, FastenersWEB) describe Groz SA/* arbor families — not verified groz-tools.com "
+            "article pages for this row. KZ.DOM.TOOLHOLDING is an agent hypothesis only, not an approved "
+            "exception. Karzar SKU 3106 → Groz article remains UNRESOLVED."
         ),
         "exact_manufacturer_identity_status": "UNRESOLVED",
         "exact_manufacturer_article": "",
-        "oem_match_classification": "OEM_FAMILY_REFERENCE",
+        "oem_match_classification": "DISTRIBUTOR_MARKET_FAMILY_REFERENCE",
         "karzar_product_oem_identity_verification": "UNRESOLVED_NO_EXACT_OEM_ARTICLE_MATCH",
         "proposed_application_class": "SLITTING_SAW_ARBOR_METALWORKING_TOOLHOLDING",
         "competing_interpretations": (
@@ -326,8 +345,11 @@ P0_PRODUCTS: dict[int, dict[str, Any]] = {
         "industrial_domain_hypothesis": "KZ.DOM.TOOLHOLDING",
         "approved_domain_fit_assessment": "UNPROVEN",
         "confidence_level": "MEDIUM",
-        "confidence_basis": "APPLICATION_HYPOTHESIS_OEM_FAMILY_PLUS_GROZ_BRAND_TITLE",
-        "confidence_scope_note": "MEDIUM applies to application class only; exact Groz article for Karzar row unverified.",
+        "confidence_basis": "APPLICATION_HYPOTHESIS_DISTRIBUTOR_FAMILY_PLUS_TITLE",
+        "confidence_scope_note": (
+            "MEDIUM applies to application-class hypothesis only; distributor listings are not OEM proof "
+            "for SKU 3106; no industrial exception approved."
+        ),
         "post_research_agent_proposal": "INDUSTRIAL_EXCEPTION_CANDIDATE",
         "recommended_owner_review_option": "REQUEST_MORE_EVIDENCE",
         "unresolved_questions": "Shank type (straight vs R8), saw bore range, Groz article on label/packing slip, photo.",
@@ -405,25 +427,28 @@ P0_PRODUCTS: dict[int, dict[str, Any]] = {
         "historical_pr499_proposal": "CATALOG_EXIT_CANDIDATE",
         "historical_pr499_evidence_basis": "HEURISTIC",
         "new_technical_research_finding": (
-            "Distributor/OEM-adjacent evidence for M7A-QE98L / QE-98L: double-axis bubble spirit level "
-            "mounting on M7 air drills. Workshop alignment accessory — not a calibrated metrology instrument "
-            "(KZ.DOM.METROLOGY)."
+            "Reference model M7A-QE98L / QE-98L (distributor listings): drill-mounted bubble spirit level — "
+            "workshop accessory, not KZ.DOM.METROLOGY (اندازه‌سنجی). Karzar catalog SKU QE98L is a "
+            "NEAR_MODEL_REFERENCE to QE-98L; physical stock/nameplate for product_id 5227 is UNVERIFIED."
         ),
-        "exact_manufacturer_identity_status": "VERIFIED",
-        "exact_manufacturer_article": "QE-98L / M7A-QE98L",
+        "exact_manufacturer_identity_status": "UNRESOLVED",
+        "exact_manufacturer_article": "",
+        "reference_model_article_documented": "QE-98L / M7A-QE98L",
         "oem_match_classification": "NEAR_MODEL_REFERENCE",
-        "karzar_product_oem_identity_verification": "EXACT_SKU_NORMALIZED_HYPHEN_VARIANT",
+        "karzar_product_oem_identity_verification": "REFERENCE_MODEL_NEAR_QE-98L_PHYSICAL_STOCK_UNVERIFIED",
         "proposed_application_class": "PNEUMATIC_DRILL_SPIRIT_LEVEL_ACCESSORY",
         "competing_interpretations": (
-            "A) Drill-mounted bubble level (confirmed by ITM/National Welding listings). "
-            "B) Metrology level — rejected; no calibration/traceability claims. "
-            "C) UNRESOLVED if Karzar unit is a different suffix than QE-98L."
+            "A) Reference listings describe drill-mounted bubble level for M7 air drills. "
+            "B) Metrology instrument — rejected; no calibration/traceability. "
+            "C) UNRESOLVED physical unit — engraved model may differ from QE98L catalog token."
         ),
         "industrial_domain_hypothesis": "",
         "approved_domain_fit_assessment": "DOES_NOT_FIT",
-        "confidence_level": "HIGH",
-        "confidence_basis": "EXACT_MODEL_DISTRIBUTOR_PLUS_OEM_FAMILY",
-        "confidence_scope_note": "High confidence product class is not metrology; hyphen normalization QE98L≈QE-98L unconfirmed on nameplate.",
+        "confidence_level": "MEDIUM",
+        "confidence_basis": "DISTRIBUTOR_NEAR_MODEL_REFERENCE_ONLY",
+        "confidence_scope_note": (
+            "MEDIUM for reference product class only; does not verify Karzar warehouse unit matches QE-98L."
+        ),
         "post_research_agent_proposal": "CATALOG_EXIT_CANDIDATE",
         "recommended_owner_review_option": "APPROVE_CATALOG_EXIT",
         "unresolved_questions": "Photo of engraved model; confirm not a different M7 QE accessory.",
@@ -780,7 +805,10 @@ P0_PRODUCTS: dict[int, dict[str, Any]] = {
         "confidence_scope_note": "High confidence on OEM article class; physical stock vs title still needs confirmation.",
         "post_research_agent_proposal": "NEEDS_MORE_EVIDENCE",
         "recommended_owner_review_option": "REQUEST_MORE_EVIDENCE",
-        "unresolved_questions": "Photo/nameplate; confirm not SY-2002M; fix title if adaptor-only.",
+        "unresolved_questions": (
+            "Photo/nameplate on physical stock; confirm unit is SY-2001M adaptor not SY-2002M "
+            "regulator+adaptor combo; catalog title mismatch documented only — no title APPLY in this PR."
+        ),
     },
     5302: {
         "karzar_catalog_sku": "SZ212A",
@@ -827,15 +855,33 @@ def evidence_gaps() -> list[dict[str, str]]:
     for pid in P0_PRODUCT_IDS:
         spec = P0_PRODUCTS[pid]
         base_gap = spec.get("unresolved_questions", "")
+        identity_unresolved = (
+            "UNRESOLVED" in spec["karzar_product_oem_identity_verification"]
+            or spec["exact_manufacturer_identity_status"] == "UNRESOLVED"
+            or "PHYSICAL_STOCK_UNVERIFIED" in spec["karzar_product_oem_identity_verification"]
+        )
         rows.append(
             {
                 "product_id": str(pid),
                 "gap_id": f"GAP-{pid}-IDENTITY",
                 "gap_category": "OEM_IDENTITY_OR_STOCK_PROOF",
                 "gap_description": base_gap,
-                "blocks_disposition": "YES" if "UNRESOLVED" in spec["karzar_product_oem_identity_verification"] else "NO",
+                "blocks_disposition": "YES" if identity_unresolved else "NO",
             }
         )
+        if "TITLE_MISMATCH" in spec["karzar_product_oem_identity_verification"]:
+            rows.append(
+                {
+                    "product_id": str(pid),
+                    "gap_id": f"GAP-{pid}-TITLE-OEM-MISMATCH",
+                    "gap_category": "CATALOG_TITLE_VS_OEM_PRODUCT_CLASS",
+                    "gap_description": (
+                        "Karzar title implies regulator; OEM documents SY-2001M as 360° rotatable adaptor. "
+                        "SY-2002M is a distinct regulator+adaptor SKU — do not conflate."
+                    ),
+                    "blocks_disposition": "YES",
+                }
+            )
         if spec["approved_domain_fit_assessment"] == "UNPROVEN":
             rows.append(
                 {

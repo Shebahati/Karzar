@@ -10,6 +10,7 @@ import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 SCRIPTS = Path(__file__).resolve().parent
 ROOT = SCRIPTS.parent
@@ -26,6 +27,8 @@ from catalog_target.tx_owner_001_p0_industrial_boundary_research import (  # noq
     industrial_boundary_rows,
     sources_for_product,
 )
+
+import csv  # noqa: E402
 
 OUT_DIR = ROOT / "audit" / "taxonomy-phase1b-tx-owner-001-p0-industrial-boundary-2026-10-17"
 OWNER_PKG = ROOT / "audit" / "taxonomy-phase1b-tx-owner-001-owner-decision-package"
@@ -59,6 +62,121 @@ def write_sha256sums(out_dir: Path, names: list[str]) -> None:
         if (out_dir / name).is_file()
     ]
     (out_dir / "SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def fail_closed_reconciliation() -> dict[str, Any]:
+    """Verify cohort against frozen baseline, PR499, 176-risk register, Owner batches 001–004."""
+    errors: list[str] = []
+
+    with RISK_REGISTER.open(encoding="utf-8", newline="") as handle:
+        risk_rows = list(csv.DictReader(handle))
+    risk_by_id = {int(r["product_id"]): r for r in risk_rows}
+    risk_p0_ids = {pid for pid, r in risk_by_id.items() if r.get("priority") == "P0_BOUNDARY_CHECK"}
+    if risk_p0_ids != set(P0_PRODUCT_IDS):
+        errors.append(f"p0_id_set_mismatch risk={sorted(risk_p0_ids)} package={P0_PRODUCT_IDS}")
+    if len(risk_by_id) != 176:
+        errors.append(f"risk_register_row_count expected=176 got={len(risk_by_id)}")
+
+    with PR499_REVIEW.open(encoding="utf-8", newline="") as handle:
+        pr499_rows = list(csv.DictReader(handle))
+    if len(pr499_rows) != 262:
+        errors.append(f"pr499_row_count expected=262 got={len(pr499_rows)}")
+    pr499_by_id = {int(r["product_id"]): r for r in pr499_rows}
+
+    census_by_id: dict[int, dict[str, str]] = {}
+    with BASELINE_CENSUS.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            census_by_id[int(row["product_id"])] = row
+    if len(census_by_id) < 262:
+        errors.append(f"baseline_census_unique_ids_lt_262 got={len(census_by_id)}")
+
+    batch_overlap: list[str] = []
+    for batch_path in BATCH_PATHS:
+        with batch_path.open(encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle):
+                pid = row.get("product_id", "")
+                if pid and int(pid) in P0_PRODUCT_IDS:
+                    batch_overlap.append(f"{batch_path.name}:{pid}")
+
+    identity_checks: list[dict[str, str]] = []
+    for pid in P0_PRODUCT_IDS:
+        spec = P0_PRODUCTS[pid]
+        census = census_by_id.get(pid)
+        pr499 = pr499_by_id.get(pid)
+        risk = risk_by_id.get(pid)
+        check = {"product_id": str(pid), "status": "PASS"}
+        if census is None:
+            check["status"] = "FAIL"
+            errors.append(f"census_missing product_id={pid}")
+        else:
+            if census.get("sku", "").strip() != spec["karzar_catalog_sku"]:
+                check["status"] = "FAIL"
+                errors.append(
+                    f"sku_mismatch pid={pid} census={census.get('sku')} spec={spec['karzar_catalog_sku']}"
+                )
+            name = census.get("product_name", "").strip()
+            if name != spec["preserved_title_fa"]:
+                check["status"] = "FAIL"
+                errors.append(f"title_mismatch pid={pid}")
+            cat = str(census.get("category_id", "")).strip()
+            if cat != spec["preserved_category_id"]:
+                check["status"] = "FAIL"
+                errors.append(f"category_mismatch pid={pid}")
+        if pr499 is None:
+            check["status"] = "FAIL"
+            errors.append(f"pr499_missing pid={pid}")
+        elif pr499.get("proposed_disposition") != spec["historical_pr499_proposal"]:
+            check["status"] = "FAIL"
+            errors.append(f"pr499_proposal_mismatch pid={pid}")
+        if risk is None or risk.get("priority") != "P0_BOUNDARY_CHECK":
+            check["status"] = "FAIL"
+            errors.append(f"risk_p0_missing pid={pid}")
+        identity_checks.append(check)
+
+    if batch_overlap:
+        errors.append(f"owner_batch_overlap={batch_overlap}")
+
+    if errors:
+        raise RuntimeError("RECONCILIATION_FAILED: " + "; ".join(errors))
+
+    proposal_counts = {
+        "CATALOG_EXIT_CANDIDATE": sum(
+            1 for p in P0_PRODUCT_IDS if P0_PRODUCTS[p]["post_research_agent_proposal"] == "CATALOG_EXIT_CANDIDATE"
+        ),
+        "INDUSTRIAL_EXCEPTION_CANDIDATE": sum(
+            1
+            for p in P0_PRODUCT_IDS
+            if P0_PRODUCTS[p]["post_research_agent_proposal"] == "INDUSTRIAL_EXCEPTION_CANDIDATE"
+        ),
+        "NEEDS_MORE_EVIDENCE": sum(
+            1 for p in P0_PRODUCT_IDS if P0_PRODUCTS[p]["post_research_agent_proposal"] == "NEEDS_MORE_EVIDENCE"
+        ),
+    }
+    expected_counts = {
+        "CATALOG_EXIT_CANDIDATE": 16,
+        "INDUSTRIAL_EXCEPTION_CANDIDATE": 1,
+        "NEEDS_MORE_EVIDENCE": 2,
+    }
+    if proposal_counts != expected_counts:
+        raise RuntimeError(f"proposal_count_mismatch got={proposal_counts} expected={expected_counts}")
+
+    return {
+        "status": "PASS",
+        "p0_product_count": 19,
+        "p0_product_ids": list(P0_PRODUCT_IDS),
+        "unique_p0_ids_verified": len(set(P0_PRODUCT_IDS)) == 19,
+        "frozen_baseline_census_rows_at_least": 262,
+        "pr499_frozen_row_count": 262,
+        "risk_register_row_count": 176,
+        "risk_p0_ids": sorted(risk_p0_ids),
+        "subset_of_176_risk_register": set(P0_PRODUCT_IDS) <= risk_p0_ids,
+        "subset_of_262_frozen_baseline": all(pid in census_by_id for pid in P0_PRODUCT_IDS),
+        "overlap_owner_batches_001_004": 0,
+        "identity_checks_pass": sum(1 for c in identity_checks if c["status"] == "PASS"),
+        "identity_checks_total": len(identity_checks),
+        "post_research_proposal_counts": proposal_counts,
+        "all_owner_decisions_pending": True,
+    }
 
 
 def build_matrix() -> list[dict[str, str]]:
@@ -174,28 +292,8 @@ def main(argv: list[str] | None = None) -> int:
         encoding="utf-8",
     )
 
-    recon = {
-        "p0_product_count": 19,
-        "p0_product_ids": list(P0_PRODUCT_IDS),
-        "subset_of_176_risk_register": True,
-        "subset_of_262_frozen_baseline": True,
-        "overlap_owner_batches_001_004": 0,
-        "post_research_proposal_counts": {
-            "CATALOG_EXIT_CANDIDATE": sum(
-                1 for p in P0_PRODUCT_IDS if P0_PRODUCTS[p]["post_research_agent_proposal"] == "CATALOG_EXIT_CANDIDATE"
-            ),
-            "INDUSTRIAL_EXCEPTION_CANDIDATE": sum(
-                1
-                for p in P0_PRODUCT_IDS
-                if P0_PRODUCTS[p]["post_research_agent_proposal"] == "INDUSTRIAL_EXCEPTION_CANDIDATE"
-            ),
-            "NEEDS_MORE_EVIDENCE": sum(
-                1 for p in P0_PRODUCT_IDS if P0_PRODUCTS[p]["post_research_agent_proposal"] == "NEEDS_MORE_EVIDENCE"
-            ),
-        },
-        "evidence_gap_rows": len(gaps),
-        "all_owner_decisions_pending": True,
-    }
+    recon = fail_closed_reconciliation()
+    recon["evidence_gap_rows"] = len(gaps)
     (out_dir / "05-RECONCILIATION.json").write_text(
         json.dumps(recon, indent=2, ensure_ascii=False),
         encoding="utf-8",
@@ -205,24 +303,30 @@ def main(argv: list[str] | None = None) -> int:
 
 **وضعیت:** `READY_FOR_OWNER_REVIEW` — فقط شواهد؛ بدون APPLY؛ Batch 001–004 بدون تغییر.
 
+## تفکیک سطح شواهد (نه همه «اطمینان بالا»)
+- **تطبیق دقیق OEM (صفحه mighty-seven.com):** بیشتر مدل‌های SB/SG/SP/SV/SW/SZ و SY-2001M به‌عنوان **مرجع کاتالوگی** — هویت فیزیکی انبار جداگانه تأیید نشده مگر خلافش ذکر شود.
+- **خانواده توزیع‌کننده/بازار (Groz SA/*):** فقط IndiaMART/FastenersWEB — **نه** اثبات مستقیم OEM groz-tools.com برای SKU 3106.
+- **مرجع نزدیک مدل (QE98L≈QE-98L):** لیست‌های توزیع‌کننده — **موجودی فیزیکی 5227 تأیید نشده**.
+- **مرجع کلاس کاربرد (کلمپ موازی):** منبع تحریریه‌ای — **نه** تأیید سازنده.
+
 ## گروز (۴ محصول)
-| شناسه | SKU | جمع‌بندی شواهد | پیشنهاد عامل (تأیید نشده) |
-|-------|-----|----------------|---------------------------|
-| 3008 | 3104 | کلمپ موازی بدون برند — بیشتر کارگاهی/نجاری؛ نه Workholding صنعتی اثبات‌شده | خروج کاتالوگ + `REQUEST_MORE_EVIDENCE` |
-| 3009 | 3106 | دنباله اره‌فرز گروز — خانواده SA/* Toolholding؛ SKU داخلی ≠ مقاله Groz | استثناء صنعتی محتمل + شواهد مقاله |
-| 3010 | 3109 | صاف‌کن سنگ گروز WD/* — ابزار نگهداری سنگ، خارج از ۷ دامنه | خروج کاتالوگ |
-| 3184 | 4318 | شابر دستی گروز — فیتینگ دقیق؛ خارج از ۷ دامنه تأیید‌شده | خروج کاتالوگ (بازبینی استثناء در صورت سیاست مالک) |
+| شناسه | SKU | جمع‌بندی | پیشنهاد عامل (تأیید نشده) |
+|-------|-----|----------|---------------------------|
+| 3008 | 3104 | کلمپ موازی بدون برند؛ fit دامنه Workholding **UNPROVEN** | `NEEDS_MORE_EVIDENCE` |
+| 3009 | 3106 | فرضیه Toolholding از عنوان+Groz؛ مقاله Groz **حل‌نشده** | `INDUSTRIAL_EXCEPTION_CANDIDATE` (فرضیه فقط) |
+| 3010 | 3109 | خانواده WD/* روی groz-tools.com؛ خارج از ۷ دامنه | `CATALOG_EXIT_CANDIDATE` |
+| 3184 | 4318 | خانواده شابر ES/*؛ خارج از ۷ دامنه | `CATALOG_EXIT_CANDIDATE` |
 
 ## مایتی سون (۱۵ محصول)
-- **5227 QE98L:** تراز حبابی روی دریل — **نه** متالورژی؛ خروج کاتالوگ.
-- **5259–5261 SB201/SB423/SB710:** بادزن/گیج لاستیک OEM — خدمات تایر، نه متالورژی.
-- **5267 SG101:** کیت روغن/گریس ابزار بادی — تجهیزات، نه سیال صنعتی.
-- **5268 SG400:** پمپ گریس بادی ۴۰۰ سی‌سی — تجهیزات پخش.
-- **5285–5289 SP102/104/105:** بالانسر فنری ابزار بادی — لوازم کارگاه.
-- **5295–5297 SV1360/2220/2380:** واحد مراقبت/FRL خط باد — لوازم شیر فشرده.
-- **5298 SW12:** مینی لوبریکیتور خط باد.
-- **5301 SY-2001M:** OEM = آداپتور چرخان ۳۶۰° — **عنوان کاتالوگ «رگولاتور» ناسازگار** → `REQUEST_MORE_EVIDENCE`.
-- **5302 SZ212A:** رگولاتور خط ابزار بادی — خروج کاتالوگ.
+- **5227 QE98L:** تراز حبابی — **نه** اندازه‌سنجی (Metrology)؛ مرجع مدل نزدیک؛ موجودی تأیید نشده → خروج پیشنهادی با شواهد توزیع‌کننده.
+- **5259–5261:** بادزن تایر OEM — نه اندازه‌سنجی صنعتی.
+- **5267–5268:** کیت/پمپ روغن‌کاری — تجهیزات، نه سیال صنعتی (Metalworking Fluids).
+- **5285–5289:** بالانسر فنری — لوازم کارگاه (OEM دقیق روی صفحه M7).
+- **5295–5298:** FRL/لوبریکیتور خط باد — لوازم شیرفشار (OEM دقیق).
+- **5301 SY-2001M:** OEM = آداپتور SY-2001M؛ **SY-2002M جدا**؛ ناسازگی عنوان «رگولاتور» → `NEEDS_MORE_EVIDENCE` (بدون اصلاح عنوان در این PR).
+- **5302 SZ212A:** رگولاتور خط ابزار — OEM دقیق؛ خروج پیشنهادی.
+
+**پیشنهادهای پس از تحقیق (۱۹):** خروج ۱۶ | استثناء فرضی ۱ (3009) | شواهد بیشتر ۲ (3008، 5301).
 
 هیچ تصمیم مالک به‌صورت خودکار ثبت نشده است.
 """
@@ -234,7 +338,7 @@ def main(argv: list[str] | None = None) -> int:
 
 SKU-specific OEM research for PR #507 **P0_BOUNDARY_CHECK** cohort. Owner Batches **001–004** are read-only inputs.
 
-Post-research agent proposals are **not** Owner approvals. One row (`5301`) retains `NEEDS_MORE_EVIDENCE` due to catalog title vs OEM product-class mismatch.
+Post-research agent proposals are **not** Owner approvals. `NEEDS_MORE_EVIDENCE` rows: **3008** (brandless parallel clamp), **5301** (title vs OEM adaptor class). Reconciliation is fail-closed against frozen baseline, PR499, 176-risk register, and Owner Batches 001–004.
 """
     (out_dir / "FINAL_REPORT.md").write_text(report, encoding="utf-8")
 
