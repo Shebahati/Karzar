@@ -109,7 +109,7 @@ OEM_TECHNICAL_SOURCES: list[dict[str, str]] = [
         "model_identity": "PA-203N Air Hydraulic Riveter",
         "evidence_class": "OEM_PRODUCT_PAGE",
         "evidence_match_type": "EXACT_SKU_OEM_PAGE",
-        "supported_claim": "Pneumatic hydraulic blind riveter (documented; not in six-ID PR#500 correction set).",
+        "supported_claim": "Pneumatic hydraulic blind riveter (assembly air tool).",
         "product_ids": "5175",
         "sku_match": "PA203N",
         "verification_status": "HUMAN_VERIFIED_URL",
@@ -192,7 +192,7 @@ for pid in (3090, 3091, 3093, 3095, 3096, 3097, 3098, 3099, 3101):
         ),
     }
 
-# Exact SKU → post-research upgrade (six PR #500 correction IDs + documented PA203N optional)
+# Exact SKU → post-research upgrade (M7 workshop air tools with verified OEM product pages)
 M7_SKU_OEM_RESOLUTION: dict[str, dict[str, str]] = {
     "NC4233Q": {
         "oem_source_id": "OEM-M7-NC4233Q",
@@ -227,6 +227,12 @@ M7_SKU_OEM_RESOLUTION: dict[str, dict[str, str]] = {
     "PA301V": {
         "oem_source_id": "OEM-M7-PA301V",
         "identity": "PA-301V Air Hydraulic Riveter",
+        "evidence_match_type": "EXACT_SKU_OEM_PAGE",
+        "post_research_disposition": "CATALOG_EXIT_CANDIDATE",
+    },
+    "PA203N": {
+        "oem_source_id": "OEM-M7-PA203N",
+        "identity": "PA-203N Air Hydraulic Riveter",
         "evidence_match_type": "EXACT_SKU_OEM_PAGE",
         "post_research_disposition": "CATALOG_EXIT_CANDIDATE",
     },

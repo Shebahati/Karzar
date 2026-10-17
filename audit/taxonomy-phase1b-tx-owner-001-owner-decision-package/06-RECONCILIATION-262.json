@@ -274,15 +274,15 @@
     "SEMANTIC_CONFLICT": 0
   },
   "disposition_counts_post_research_effective": {
-    "CATALOG_EXIT_CANDIDATE": 248,
-    "NEEDS_MORE_EVIDENCE": 12,
+    "CATALOG_EXIT_CANDIDATE": 249,
+    "NEEDS_MORE_EVIDENCE": 11,
     "INDUSTRIAL_EXCEPTION_CANDIDATE": 1,
     "OWNER_DECISION_REQUIRED": 1,
     "SEMANTIC_CONFLICT": 0
   },
   "post_research_expected": {
-    "CATALOG_EXIT_CANDIDATE": 248,
-    "NEEDS_MORE_EVIDENCE": 12,
+    "CATALOG_EXIT_CANDIDATE": 249,
+    "NEEDS_MORE_EVIDENCE": 11,
     "INDUSTRIAL_EXCEPTION_CANDIDATE": 1,
     "OWNER_DECISION_REQUIRED": 1,
     "SEMANTIC_CONFLICT": 0
@@ -291,6 +291,7 @@
     5139,
     5140,
     5174,
+    5175,
     5176,
     5177,
     5178
@@ -299,12 +300,13 @@
     5139,
     5140,
     5174,
+    5175,
     5176,
     5177,
     5178
   ],
   "historical_pr499_exit_cohort_product_ids_checksum_sha256": "ba5020637165a50f82d53bf1a8178f0d9d25b34bd419898d3e7dbf4969e1b480",
-  "post_research_exit_cohort_product_ids_checksum_sha256": "ba7f505da47ba3ea80eadcabd38c2013d4d04930cb674aedf8faefd3f8744a59",
+  "post_research_exit_cohort_product_ids_checksum_sha256": "cfbc52fbb58398947373ffc322867df14f55d83a48a7582896e45a659189812b",
   "critical_case_count": 20,
   "low_confidence_exit_count": 176,
   "family_membership_rows": 262,

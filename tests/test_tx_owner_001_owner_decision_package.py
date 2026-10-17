@@ -31,6 +31,7 @@ M7_SKUS = {
     5139: "NC4233Q",
     5140: "NC4233QH",
     5174: "PA201",
+    5175: "PA203N",
     5176: "PA211",
     5177: "PA301",
     5178: "PA301V",
@@ -74,7 +75,18 @@ class TxOwner001OwnerDecisionPackageTests(unittest.TestCase):
             set(recon["m7_post_research_exit_product_ids"]),
             set(M7_POST_RESEARCH_EXIT_IDS),
         )
-        self.assertEqual(set(recon["post_research_exit_delta_product_ids"]), set(M7_POST_RESEARCH_EXIT_IDS))
+        self.assertEqual(
+            set(recon["post_research_exit_delta_product_ids"]),
+            set(M7_POST_RESEARCH_EXIT_IDS),
+        )
+        self.assertEqual(
+            recon["disposition_counts_post_research_effective"]["CATALOG_EXIT_CANDIDATE"],
+            249,
+        )
+        self.assertEqual(
+            recon["disposition_counts_post_research_effective"]["NEEDS_MORE_EVIDENCE"],
+            11,
+        )
 
     def test_frozen_pr499_population(self):
         review_ids = sorted(int(r["product_id"]) for r in _load_csv(REVIEW / "01-262-PRODUCT-SEMANTIC-REVIEW.csv"))
@@ -110,7 +122,25 @@ class TxOwner001OwnerDecisionPackageTests(unittest.TestCase):
                     matrix[pid]["historical_pr499_proposal"],
                 )
 
-    def test_six_m7_corrections(self):
+    def test_m7_oem_exact_sku_matches_downstream_evidence(self):
+        oem = _load_csv(PKG / "04-OEM-TECHNICAL-SOURCE-REGISTER.csv")
+        sheet = {r["product_id"]: r for r in _load_csv(PKG / "05-PROPOSED-DECISION-SHEET-262.csv")}
+        for src in oem:
+            if src.get("evidence_match_type") != "EXACT_SKU_OEM_PAGE":
+                continue
+            for pid in src.get("product_ids", "").split(","):
+                pid = pid.strip()
+                if not pid:
+                    continue
+                row = sheet[pid]
+                self.assertEqual(
+                    row["post_research_evidence_basis"],
+                    "EXACT_SKU_OEM_PAGE",
+                    msg=f"product_id={pid} sku={src.get('sku_match')}",
+                )
+                self.assertIn(src["source_id"], row["oem_source_ids"])
+
+    def test_m7_needs_more_upgraded_to_exit(self):
         sheet = {r["product_id"]: r for r in _load_csv(PKG / "05-PROPOSED-DECISION-SHEET-262.csv")}
         oem = _load_csv(PKG / "04-OEM-TECHNICAL-SOURCE-REGISTER.csv")
         oem_by_sku = {s["sku_match"]: s for s in oem}
@@ -151,9 +181,9 @@ class TxOwner001OwnerDecisionPackageTests(unittest.TestCase):
         hist_exit = [r for r in rows if r["exit_cohort_tag"] == "PRIORITY_B_HISTORICAL_EXIT"]
         self.assertEqual(len(hist_exit), 242)
         delta = [r for r in rows if r["exit_cohort_tag"] == "POST_RESEARCH_EXIT_DELTA"]
-        self.assertEqual(len(delta), 6)
+        self.assertEqual(len(delta), 7)
         post_exit = [r for r in rows if r["post_research_proposal"] == "CATALOG_EXIT_CANDIDATE"]
-        self.assertEqual(len(post_exit), 248)
+        self.assertEqual(len(post_exit), 249)
 
     def test_package_identity_distinguishes_heads(self):
         identity = json.loads((PKG / "00-PACKAGE-IDENTITY.json").read_text(encoding="utf-8"))
