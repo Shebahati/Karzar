@@ -987,6 +987,15 @@ documents:
     notes: >
       TX-OWNER-001 product-level semantic review (262 SKUs); proposals only.
 
+  - id: TAXONOMY-TX-OWNER-001-OWNER-DECISION-MEMO
+    path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/00-OWNER-DECISION-MEMO-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner decision package (Persian memo); proposals not approvals.
+
   - id: PRODUCT-NAMING-V1-CONSTITUTION
     path: audit/product-naming-v1/NAMING_CONSTITUTION.md
     class: EVIDENCE

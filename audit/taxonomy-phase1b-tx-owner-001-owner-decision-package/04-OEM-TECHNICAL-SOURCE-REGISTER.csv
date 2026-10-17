@@ -1,0 +1,7 @@
+source_id,source_url,manufacturer,model_identity,evidence_class,supported_claim,product_ids,verification_status
+OEM-M7-158,https://www.mighty-seven.com/product/158,Mighty Seven (M7),QA-210 A/B Air Die Grinder,OEM_PRODUCT_PAGE,Handheld pneumatic die grinder (air tool).,5194,HUMAN_VERIFIED_URL
+OEM-M7-159,https://www.mighty-seven.com/product/159,Mighty Seven (M7),QA-211 A/B Air Die Grinder,OEM_PRODUCT_PAGE,Handheld pneumatic die grinder with collet sizes.,5195,HUMAN_VERIFIED_URL
+OEM-M7-NC4233Q,https://www.mighty-seven.com/product/19,Mighty Seven (M7),NC-4233Q Air Impact Wrench 1/2in,OEM_PRODUCT_PAGE,Pneumatic impact wrench (assembly/maintenance air tool).,"5139,5140",HUMAN_VERIFIED_URL
+OEM-M7-PA301,https://www.mighty-seven.com/product/449,Mighty Seven (M7),PA-301 Air Hydraulic Riveter,OEM_PRODUCT_PAGE,Blind riveter for fastening; portable workshop assembly tool.,"5177,5178",HUMAN_VERIFIED_URL
+OEM-M7-PA201-PDF,https://extranet.mykingtony.com/Shared/Notices/PA301.pdf,Mighty Seven / King Tony lineage,PA-201 / PA-211 riveter family specs,OEM_SPEC_SHEET,PA-201 and PA-211 are pneumatic riveter models in riveter capacity table.,"5174,5176",HUMAN_VERIFIED_URL
+OEM-M7-JC304,https://www.mighty-seven.com/product_category/Air%20Blow%20Gun,Mighty Seven (M7),JC-series air blow guns,OEM_CATEGORY_PAGE,JC304/JC405 etc. are air blow guns (workshop pneumatic).,"5124,5125,5126,5127",HUMAN_VERIFIED_URL

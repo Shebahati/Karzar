@@ -1,0 +1,10 @@
+{
+  "status": "READY_FOR_OWNER_REVIEW",
+  "population": 262,
+  "critical_matrix_rows": 20,
+  "exit_family_groups": 13,
+  "low_confidence_exit_register_rows": 176,
+  "oem_source_rows": 6,
+  "decision_sheet_rows": 262,
+  "owner_journal_template_rows": 262
+}
