@@ -1,10 +1,25 @@
 {
   "status": "READY_FOR_OWNER_REVIEW",
   "population": 262,
+  "disposition_counts_historical_pr499": {
+    "CATALOG_EXIT_CANDIDATE": 242,
+    "NEEDS_MORE_EVIDENCE": 18,
+    "INDUSTRIAL_EXCEPTION_CANDIDATE": 1,
+    "OWNER_DECISION_REQUIRED": 1,
+    "SEMANTIC_CONFLICT": 0
+  },
+  "disposition_counts_post_research": {
+    "CATALOG_EXIT_CANDIDATE": 248,
+    "NEEDS_MORE_EVIDENCE": 12,
+    "INDUSTRIAL_EXCEPTION_CANDIDATE": 1,
+    "OWNER_DECISION_REQUIRED": 1,
+    "SEMANTIC_CONFLICT": 0
+  },
   "critical_matrix_rows": 20,
   "exit_family_groups": 13,
+  "family_membership_rows": 262,
   "low_confidence_exit_register_rows": 176,
-  "oem_source_rows": 6,
+  "oem_source_rows": 10,
   "decision_sheet_rows": 262,
   "owner_journal_template_rows": 262
 }

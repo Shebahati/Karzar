@@ -20,12 +20,23 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.taxonomy_phase1b_baseline import write_csv  # noqa: E402
+from catalog_target.tx_owner_001_owner_post_research import (  # noqa: E402
+    M7_POST_RESEARCH_EXIT_IDS,
+    PR499_ANCHOR_DISPOSITIONS,
+    POST_RESEARCH_EXPECTED,
+    disposition_counts,
+    enrich_row,
+    historical_pr499_proposal,
+    post_research_proposal,
+    validate_post_research_counts,
+)
 from catalog_target.tx_owner_001_owner_research import (  # noqa: E402
     CRITICAL_CASE_ASSESSMENTS,
     OEM_TECHNICAL_SOURCES,
-    resolve_m7_sku,
+    resolve_m7_sku_exact,
     sources_for_product_id,
 )
+
 
 REVIEW_DIR = ROOT / "audit" / "taxonomy-phase1b-tx-owner-001-review"
 BASELINE_DIR = ROOT / "audit" / "taxonomy-phase1b-baseline-2026-10-15"
@@ -116,31 +127,35 @@ def build_critical_matrix(reviews: list[dict[str, str]]) -> list[dict[str, str]]
     critical_ids = sorted(needs_more + [2915, 3238])
     for pid in critical_ids:
         row = by_id[pid]
+        enriched = enrich_row(row)
         assess = CRITICAL_CASE_ASSESSMENTS.get(pid, {})
-        m7 = resolve_m7_sku(row.get("sku", ""))
+        m7 = resolve_m7_sku_exact(row.get("sku", ""))
         oem_sources = sources_for_product_id(pid)
         oem_urls = "|".join(s["source_url"] for s in oem_sources)
-        post_research = assess.get("pr499_proposal", row["proposed_disposition"])
+        oem_status = assess.get("oem_status", "")
         if m7:
-            post_research = m7.get("updates_disposition_proposal", post_research)
+            oem_status = "OEM_EXACT_SKU_PAGE"
         matrix.append(
             {
                 "product_id": str(pid),
                 "sku": row["sku"],
                 "current_name": row["current_name"],
-                "pr499_proposed_disposition": row["proposed_disposition"],
-                "post_research_disposition_proposal": post_research,
+                "historical_pr499_proposal": enriched["historical_pr499_proposal"],
+                "post_research_proposal": enriched["post_research_proposal"],
+                "post_research_evidence_basis": enriched["post_research_evidence_basis"],
                 "application_class": assess.get("application_class", ""),
-                "oem_status": assess.get("oem_status", m7 and "OEM_MATCHED" or ""),
+                "oem_status": oem_status,
                 "oem_source_urls": oem_urls,
                 "evidence_assessment": assess.get(
-                    "evidence_assessment", m7.get("evidence_assessment", "") if m7 else ""
+                    "evidence_assessment",
+                    m7.get("identity", "") if m7 else "",
                 ),
                 "investigation_summary": assess.get("investigation_summary", ""),
                 "allowed_owner_responses": assess.get(
                     "recommended_owner_options", "|".join(OWNER_RESPONSES)
                 ),
                 "owner_decision": "",
+                "authorization_status": "PENDING",
                 "owner_authorized_by": "",
                 "owner_decision_at_utc": "",
             }
@@ -213,13 +228,13 @@ def build_low_confidence_register(reviews: list[dict[str, str]]) -> list[dict[st
 def build_decision_sheet(reviews: list[dict[str, str]]) -> list[dict[str, str]]:
     sheet: list[dict[str, str]] = []
     for row in reviews:
+        enriched = enrich_row(row)
         pid = int(row["product_id"])
         assess = CRITICAL_CASE_ASSESSMENTS.get(pid)
-        m7 = resolve_m7_sku(row.get("sku", ""))
-        proposal = row["proposed_disposition"]
+        m7 = resolve_m7_sku_exact(row.get("sku", ""))
         evidence_note = "PR499 proposal unchanged"
         if m7:
-            evidence_note = m7.get("evidence_assessment", evidence_note)
+            evidence_note = f"OEM exact SKU page: {m7.get('identity', '')}"
         if assess:
             evidence_note = assess.get("evidence_assessment", evidence_note)
         sheet.append(
@@ -227,13 +242,16 @@ def build_decision_sheet(reviews: list[dict[str, str]]) -> list[dict[str, str]]:
                 "product_id": row["product_id"],
                 "sku": row["sku"],
                 "current_name": row["current_name"],
-                "pr499_proposed_disposition": proposal,
+                "historical_pr499_proposal": enriched["historical_pr499_proposal"],
+                "post_research_proposal": enriched["post_research_proposal"],
+                "post_research_evidence_basis": enriched["post_research_evidence_basis"],
                 "pr499_proposed_domain": row.get("proposed_industrial_domain_code", ""),
+                "oem_source_ids": enriched["oem_source_ids"],
                 "evidence_assessment_for_owner": evidence_note,
-                "proposal_status": "PROPOSED_NOT_APPROVED",
+                "proposal_status": enriched["proposal_status"],
                 "allowed_owner_responses": "|".join(OWNER_RESPONSES),
                 "owner_decision": "",
-                "owner_authorization_recorded": "NO",
+                "authorization_status": "PENDING",
             }
         )
     return sheet
@@ -242,13 +260,18 @@ def build_decision_sheet(reviews: list[dict[str, str]]) -> list[dict[str, str]]:
 def build_owner_journal_template(reviews: list[dict[str, str]]) -> list[dict[str, str]]:
     journal: list[dict[str, str]] = []
     for row in reviews:
+        enriched = enrich_row(row)
         journal.append(
             {
                 "product_id": row["product_id"],
-                "agent_proposal": row["proposed_disposition"],
+                "sku": row["sku"],
+                "historical_pr499_proposal": enriched["historical_pr499_proposal"],
+                "post_research_proposal": enriched["post_research_proposal"],
+                "post_research_evidence_basis": enriched["post_research_evidence_basis"],
                 "agent_proposal_domain": row.get("proposed_industrial_domain_code", ""),
                 "evidence_assessment": row["evidence_strength"],
                 "confidence_basis": row["confidence_basis"],
+                "oem_source_ids": enriched["oem_source_ids"],
                 "owner_decision": "",
                 "owner_authorized_by": "",
                 "owner_decision_at_utc": "",
@@ -257,6 +280,36 @@ def build_owner_journal_template(reviews: list[dict[str, str]]) -> list[dict[str
             }
         )
     return journal
+
+
+def build_family_membership(reviews: list[dict[str, str]]) -> list[dict[str, str]]:
+    """One row per product: family + evidence level + effective post-research proposal."""
+    rows: list[dict[str, str]] = []
+    for row in reviews:
+        enriched = enrich_row(row)
+        fam = family_group(row["current_name"], row["brand"], row["sku"])
+        hist_exit = historical_pr499_proposal(row) == "CATALOG_EXIT_CANDIDATE"
+        post_exit = enriched["post_research_proposal"] == "CATALOG_EXIT_CANDIDATE"
+        cohort = "PRIORITY_B_HISTORICAL_EXIT" if hist_exit else "NON_HISTORICAL_EXIT_COHORT"
+        if post_exit and not hist_exit:
+            cohort = "POST_RESEARCH_EXIT_DELTA"
+        rows.append(
+            {
+                "product_id": row["product_id"],
+                "sku": row["sku"],
+                "family_code": fam,
+                "evidence_level": enriched["post_research_evidence_basis"],
+                "historical_pr499_proposal": enriched["historical_pr499_proposal"],
+                "post_research_proposal": enriched["post_research_proposal"],
+                "exit_cohort_tag": cohort,
+            }
+        )
+    return rows
+
+
+def exit_cohort_checksum(product_ids: list[int]) -> str:
+    payload = ",".join(str(pid) for pid in sorted(product_ids))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -276,18 +329,42 @@ def main(argv: list[str] | None = None) -> int:
         raise RuntimeError("BLOCKED: PR #499 head not in branch history")
 
     reviews = load_reviews()
+    enriched_all = [enrich_row(r) for r in reviews]
+    validate_post_research_counts(enriched_all)
+    pr499_counts = disposition_counts(enriched_all, field="historical_pr499_proposal")
+    for key, expected in PR499_ANCHOR_DISPOSITIONS.items():
+        if pr499_counts.get(key, 0) != expected:
+            raise RuntimeError(
+                f"pr499_anchor_mismatch {key} expected={expected} got={pr499_counts.get(key)}"
+            )
+    post_counts = disposition_counts(enriched_all, field="post_research_proposal")
+
     review_sha = _sha256_file(REVIEW_DIR / "01-262-PRODUCT-SEMANTIC-REVIEW.csv")
     census_sha = _sha256_file(BASELINE_DIR / "02-PRODUCT-CATEGORY-CENSUS.csv")
+    generation_head = _git_sha()
 
     identity = {
         "package_generated_at_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "git_head_sha": _git_sha(),
+        "frozen_pr499_semantic_review_csv_sha256": review_sha,
+        "frozen_baseline_product_census_csv_sha256": census_sha,
+        "package_generation_git_head_sha": generation_head,
+        "pr_500_branch_head_at_package_generation": generation_head,
+        "note": (
+            "Frozen input SHAs fingerprint PR #499 review + baseline census; "
+            "package_generation_git_head_sha is the git commit that produced this package "
+            "(PR #500 branch HEAD at generation time)."
+        ),
         "pr_499_reviewed_head": PR499_HEAD,
         "pr_499_merge_on_main": "919782bfcf85a1524f9cca30abcf8d967d00d0b6",
         "historical_census_collected_at_utc": CENSUS_AT,
-        "input_review_csv_sha256": review_sha,
-        "input_census_csv_sha256": census_sha,
+        "disposition_counts_historical_pr499_anchor": pr499_counts,
+        "disposition_counts_post_research_effective": post_counts,
         "proposal_status": "ALL_PROPOSALS_UNAPPROVED",
+        "owner_journal_policy": (
+            "07-OWNER-APPROVAL-JOURNAL-TEMPLATE.csv is regenerated; "
+            "Owner-completed decisions must be stored in a separate immutable file "
+            "(e.g. OWNER-AUTHORIZATION-JOURNAL-COMPLETED.csv) never overwritten by this script."
+        ),
         "safety": {
             "PRODUCTION_MUTATION": "NO",
             "CATALOG_EXIT_APPLY": "NO",
@@ -338,16 +415,44 @@ def main(argv: list[str] | None = None) -> int:
         decision_sheet,
     )
 
+    hist_exit_ids = sorted(
+        int(r["product_id"])
+        for r in reviews
+        if historical_pr499_proposal(r) == "CATALOG_EXIT_CANDIDATE"
+    )
+    post_exit_ids = sorted(
+        int(r["product_id"])
+        for r in enriched_all
+        if r["post_research_proposal"] == "CATALOG_EXIT_CANDIDATE"
+    )
+    delta_exit = sorted(set(post_exit_ids) - set(hist_exit_ids))
+
+    membership = build_family_membership(reviews)
+    write_csv(
+        out_dir / "08-FAMILY-MEMBERSHIP-COMPLETE-262.csv",
+        list(membership[0].keys()),
+        membership,
+    )
+
     reconciliation = {
         "unique_product_ids": 262,
         "product_ids_accounted": sorted(int(r["product_id"]) for r in reviews),
         "pr499_review_csv_sha256": review_sha,
         "immutable_census_sha256": census_sha,
-        "disposition_counts_pr499": json.loads(
-            (REVIEW_DIR / "SUMMARY.json").read_text(encoding="utf-8")
-        )["disposition_counts"],
+        "disposition_counts_historical_pr499_anchor": pr499_counts,
+        "disposition_counts_post_research_effective": post_counts,
+        "post_research_expected": POST_RESEARCH_EXPECTED,
+        "m7_post_research_exit_product_ids": sorted(M7_POST_RESEARCH_EXIT_IDS),
+        "post_research_exit_delta_product_ids": delta_exit,
+        "historical_pr499_exit_cohort_product_ids_checksum_sha256": exit_cohort_checksum(
+            hist_exit_ids
+        ),
+        "post_research_exit_cohort_product_ids_checksum_sha256": exit_cohort_checksum(
+            post_exit_ids
+        ),
         "critical_case_count": 20,
         "low_confidence_exit_count": len(low_reg),
+        "family_membership_rows": len(membership),
         "owner_journal_rows": 262,
         "category_154_included": False,
         "category_156_oils_included": False,
@@ -396,8 +501,11 @@ def main(argv: list[str] | None = None) -> int:
     summary = {
         "status": "READY_FOR_OWNER_REVIEW",
         "population": 262,
+        "disposition_counts_historical_pr499": pr499_counts,
+        "disposition_counts_post_research": post_counts,
         "critical_matrix_rows": len(critical),
         "exit_family_groups": len(families),
+        "family_membership_rows": len(membership),
         "low_confidence_exit_register_rows": len(low_reg),
         "oem_source_rows": len(OEM_TECHNICAL_SOURCES),
         "decision_sheet_rows": len(decision_sheet),
@@ -418,6 +526,7 @@ def main(argv: list[str] | None = None) -> int:
         "05-PROPOSED-DECISION-SHEET-262.csv",
         "06-RECONCILIATION-262.json",
         "07-OWNER-APPROVAL-JOURNAL-TEMPLATE.csv",
+        "08-FAMILY-MEMBERSHIP-COMPLETE-262.csv",
         "SUMMARY.json",
     ]
     write_sha256sums(out_dir, names)
