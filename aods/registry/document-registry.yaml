@@ -1018,6 +1018,16 @@ documents:
       and QA211A. Documentary decision only, with no APPLY, deletion,
       deactivation, rehome, Production, deployment, or Hesabfa permission.
 
+  - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-003-20261017
+    path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-003-2026-10-17.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner-requested additional evidence for exactly Groz Product IDs 2915
+      and 3238. No catalog exit, industrial exception, APPLY, or rehome authorized.
+
   - id: TAXONOMY-TX-OWNER-001-SPECIAL-CASE-GROZ-20261017
     path: audit/taxonomy-phase1b-tx-owner-001-special-case-groz-2026-10-17/FINAL_REPORT.md
     class: EVIDENCE
