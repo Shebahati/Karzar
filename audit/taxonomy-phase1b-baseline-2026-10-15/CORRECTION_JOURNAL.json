@@ -1,7 +1,7 @@
 {
   "preserved_original_sha": "dd7ab67ff10d063426600b9a5e33132fe4c78078",
   "preserved_copy_path": "/home/shebahati/Projects/Karzar/audit/taxonomy-phase1b-baseline-2026-10-15/preserved-evidence/dd7ab67ff10d",
-  "correction_head": "local",
+  "correction_head": "053efe8f7757e8f9a4dd4950b7aa31f94313658c",
   "corrected_at_utc": "2026-10-15T09:45:55Z",
   "defects_addressed": [
     "category_drift_by_id_with_removed_186_187_188",
