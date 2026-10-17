@@ -1,0 +1,2 @@
+category_id,name,slug,parent_id,parent_name,full_path,depth,is_leaf,is_selectable,child_count,direct_product_count,descendant_product_count,active_count,available_count,priced_count,imaged_count,visible_count,sellable_count,product_type_assigned_count,product_type_missing_count,hesabfa_category_code,spec_template_key,megamenu_hidden,megamenu_as_leaf,cohort,semantic_class
+55,هلی‌کویل,هلی‌کویل-(helicoil),6,قلاویز,قلاویز › هلی‌کویل,2,True,True,0,29,29,0,22,26,0,0,0,0,29,,,False,False,HELICOIL_THREAD_REPAIR,THREAD_REPAIR_HELICOIL_REVIEW

@@ -1,0 +1,103 @@
+{
+  "status": "READY_FOR_OWNER_REVIEW",
+  "identity": {
+    "collected_at_utc": "2026-10-15T09:34:39Z",
+    "expected_live_host": "srv5944957438",
+    "live_host_proof": "srv5944957438",
+    "current_database": "karzar_staging",
+    "current_user": "karzar_staging",
+    "postgres_container": "lathe_postgres",
+    "pg_system_identifier": "7664189378775347234",
+    "transaction_read_only": "on",
+    "repository_git_sha": "f9ba7b034088129d129e432fe6faab0f50377850",
+    "production_mutation": "NO",
+    "reverification_mode": "READ_ONLY"
+  },
+  "structure": {
+    "total_categories": 135,
+    "l1": 12,
+    "l2": 81,
+    "l3": 42,
+    "depth_gt_3": 0,
+    "leaves": 111,
+    "selectable": 111,
+    "empty_categories": 35,
+    "categoryless_live_products": 0,
+    "non_leaf_product_assignments": 0,
+    "invalid_category_assignments": 0,
+    "orphans": [],
+    "cycles": [],
+    "duplicate_sibling_names": 0,
+    "duplicate_slugs": 0
+  },
+  "global_product_counts": {
+    "live": 6536,
+    "active": 1585,
+    "priced": 4272,
+    "imaged": 1464,
+    "visible": 1368,
+    "pt_missing": 5878,
+    "available": 3811,
+    "sellable": 720,
+    "pt_assigned": 658
+  },
+  "sql_definitions": {
+    "LIVE": "deleted_at IS NULL",
+    "ACTIVE": "LIVE AND is_active",
+    "AVAILABLE": "LIVE AND is_available",
+    "PRICED": "LIVE AND base_price > 0",
+    "IMAGED": "has_valid_image (non-placeholder product_images)",
+    "STOREFRONT_VISIBLE": "ACTIVE AND IMAGED (phase0b-aligned census)",
+    "SELLABLE": "STOREFRONT_VISIBLE AND is_available AND PRICED"
+  },
+  "manifest_rows": 135,
+  "manifest_reviewed": 0,
+  "manifest_unreviewed": 135,
+  "owner_scope_categories": 4,
+  "owner_scope_products": 262,
+  "mixed_semantic_categories": 12,
+  "target_domains": [
+    {
+      "code": "KZ.DOM.METROLOGY",
+      "en": "Metrology & Inspection"
+    },
+    {
+      "code": "KZ.DOM.CUTTING",
+      "en": "Cutting Tools"
+    },
+    {
+      "code": "KZ.DOM.TOOLHOLDING",
+      "en": "Toolholding"
+    },
+    {
+      "code": "KZ.DOM.WORKHOLDING",
+      "en": "Workholding & Fixturing"
+    },
+    {
+      "code": "KZ.DOM.MACHINES",
+      "en": "Industrial Machines & Equipment"
+    },
+    {
+      "code": "KZ.DOM.THREAD_REPAIR",
+      "en": "Thread Repair & Thread Inserts"
+    },
+    {
+      "code": "KZ.DOM.FLUIDS",
+      "en": "Metalworking Fluids & Lubricants"
+    }
+  ],
+  "legacy_script_warning": {
+    "path": "scripts/catalog_taxonomy_migrate.py",
+    "apply_forbidden": true,
+    "reason": "Uses ad-hoc CATEGORY_ALIASES flat remapping and can create categories; not Phase 1B constitution/KZ.CAT.* truth."
+  },
+  "cohort_counts": {
+    "catchall": 1,
+    "empty": 35,
+    "facet_like": 0,
+    "low_pt": 73,
+    "helicoil": 0,
+    "depth_anomalies": 0,
+    "numeric_id_dependencies": 326
+  }
+}

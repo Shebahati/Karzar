@@ -17,6 +17,7 @@ unclassified_allow:
   - "scripts/brand_logo_assets/README.md"
   - "deploy/staging/frontend/README.md"
   - "audit/ci-acceleration-2026-10-14/**"
+  - "audit/taxonomy-phase1b-baseline-2026-10-15/preserved-evidence/**"
 
 documents:
 
@@ -958,6 +959,24 @@ documents:
     notes: >
       Phase 0B historical result report + artifact SHA-256 registry
       (2026-09-27 snapshot). Filename retained for hash continuity.
+
+  - id: TAXONOMY-PHASE1B-BASELINE-20261015
+    path: audit/taxonomy-phase1b-baseline-2026-10-15/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase 1B read-only production baseline (2026-10-15); no taxonomy APPLY.
+
+  - id: TAXONOMY-PHASE1B-BASELINE-REPORT-20261015
+    path: audit/taxonomy-phase1b-baseline-2026-10-15/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Phase 1B baseline summary; preserved-evidence/ holds dd7ab67 snapshot.
 
   - id: PRODUCT-NAMING-V1-CONSTITUTION
     path: audit/product-naming-v1/NAMING_CONSTITUTION.md

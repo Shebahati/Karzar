@@ -1,0 +1,55 @@
+{
+  "phase0b_category_count": 138,
+  "current_category_count": 135,
+  "removed_category_ids": [
+    186,
+    187,
+    188
+  ],
+  "added_category_ids": [],
+  "removed_categories": [
+    {
+      "category_id": 186,
+      "name": "فنر هلی کویل",
+      "slug": "فنر-هلی-کویل",
+      "depth": "1",
+      "is_leaf": "True",
+      "is_selectable": "False",
+      "direct_live_product_count": "0",
+      "descendant_live_product_count": "0",
+      "breadcrumb": "فنر هلی کویل"
+    },
+    {
+      "category_id": 187,
+      "name": "قلاویز هلی کویل",
+      "slug": "قلاویز-هلی-کویل",
+      "depth": "1",
+      "is_leaf": "True",
+      "is_selectable": "False",
+      "direct_live_product_count": "0",
+      "descendant_live_product_count": "0",
+      "breadcrumb": "قلاویز هلی کویل"
+    },
+    {
+      "category_id": 188,
+      "name": "کیت کامل هلی کویل",
+      "slug": "کیت-کامل-هلی-کویل",
+      "depth": "1",
+      "is_leaf": "True",
+      "is_selectable": "False",
+      "direct_live_product_count": "0",
+      "descendant_live_product_count": "0",
+      "breadcrumb": "کیت کامل هلی کویل"
+    }
+  ],
+  "reconciliation": {
+    "category_total_delta_explained_by_removals": 3,
+    "l1_delta_explained_by_removed_empty_roots": [
+      186,
+      187,
+      188
+    ],
+    "product_deletion_inferred": false,
+    "narrative": "Category-count drift is explained by removal of empty/non-selectable L1 roots (186/187/188 Helicoil megamenu roots in Phase 0B). Live product count unchanged at census level; do not infer product deletion from category-tree shrinkage."
+  }
+}
