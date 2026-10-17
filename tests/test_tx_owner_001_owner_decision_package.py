@@ -178,7 +178,7 @@ class TxOwner001OwnerDecisionPackageTests(unittest.TestCase):
             self.assertIn(name, names)
             path = PKG / name
             expected = hashlib.sha256(path.read_bytes()).hexdigest()
-            line = next(l for l in sums if l.endswith(f"  {name}"))
+            line = next(entry for entry in sums if entry.endswith(f"  {name}"))
             self.assertTrue(line.startswith(expected))
 
     def test_cohort_excludes_154_and_156_oils(self):
