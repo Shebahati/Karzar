@@ -127,6 +127,8 @@ NAMING_ALLOW = {
     "audit/sellability-global-root-cause-2026-10-07/FINAL_REPORT.md",
     # Sellability Wave A stock-authority evidence contract.
     "audit/sellability-wave-a-stock-authority-2026-10-07/FINAL_REPORT.md",
+    # Issue #391 INSIZE Wave A read-only evidence (2026-10-13).
+    "audit/sellability-391-wave-a-insize-2026-10-13/FINAL_REPORT.md",
 
 }
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")

@@ -1,0 +1,29 @@
+{
+  "wave_a_2026_10_07_reference": {
+    "INSIZE_COHORT": 476,
+    "EXACT_MATCHED": 475,
+    "AVAILABLE": 10,
+    "UNAVAILABLE": 465,
+    "NOT_FOUND": 1,
+    "STRICT": 0
+  },
+  "fresh_2026_10_13_prior_sha_65a92337": {
+    "canonical_sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+    "STRICT": 0,
+    "note": "Superseded — SOURCE_YEAR_UNPROVEN / forced UNKNOWN freshness"
+  },
+  "fresh_2026_10_13_final_sha_beb54910": {
+    "canonical_sha256": "beb549109165a1fd0d156af8d9b8a9622eb3a04e7fc92b07c548993ee98669cf",
+    "source_date": "2026-09-02",
+    "freshness_class": "AGING_BUT_USABLE",
+    "freshness_age_days": 41,
+    "INSIZE_COHORT": 476,
+    "EXACT_MATCHED": 475,
+    "AVAILABLE": 10,
+    "UNAVAILABLE": 465,
+    "UNKNOWN": 1,
+    "NOT_FOUND": 1,
+    "STRICT": 10
+  },
+  "reproducibility_notes": "Counts comparable when live ONLY_AVAILABILITY membership stable; strict gate requires proven source_date and freshness CURRENT_ENOUGH or AGING_BUT_USABLE (not STALE/UNKNOWN) per SUPPLIER_STOCK_AUTHORITY.md. Owner-final workbook SHA beb54910… supersedes prior 65a92337… for price/availability authority."
+}

@@ -1,0 +1,111 @@
+{
+  "primary_source_id": "insize.distributor.11shahrivar.beb54910",
+  "SOURCE_AUTHORITY_VALID": "YES",
+  "freshness_class": "AGING_BUT_USABLE",
+  "freshness_age_days": 41,
+  "source_date": "2026-09-02",
+  "source_date_evidence": "Jalali 1405-06-11 (11 Shahrivar 1405) → Gregorian 2026-09-02 via independent calendar conversion; filename '11 شهریور' supplies month/day; year from Jalali 1405 campaign context. Workbook OOXML core modified 2026-09-03T13:20:55Z corroborates early-September snapshot (metadata reference only — not used as source_date or received_at).",
+  "source_date_proven": true,
+  "owner_confirmed_price_current": true,
+  "PRICE_AUTHORITY_OWNER_CONFIRMED": "YES",
+  "PRICE_SOURCE_CURRENT": "YES",
+  "prior_superseded_sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+  "sources": [
+    {
+      "path": "/home/shebahati/KaZar/DOCS/Price/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی - فرمت ریال اصلاح شده.xlsx",
+      "sha256": "beb549109165a1fd0d156af8d9b8a9622eb3a04e7fc92b07c548993ee98669cf",
+      "size_bytes": 2527586,
+      "mtime_utc": "2026-10-06T09:47:33.532111+00:00",
+      "canonical": true
+    },
+    {
+      "path": "/home/shebahati/KaZar/DOCS/Price/Sheet1_موجودی_توزیع_کننده_11_شهریور_افزایش_12_درصد.xlsx",
+      "sha256": "0f6b6c8fc490ff56c0ac618083769790f1ccc2df8a540a1f39897a1c18eb3508",
+      "size_bytes": 2214639,
+      "mtime_utc": "2026-09-30T13:22:46.446067+00:00",
+      "canonical": false
+    },
+    {
+      "path": "/home/shebahati/KaZar/DOCS/Price/موجودی توزیع کننده 11 شهریور (2).xlsx",
+      "sha256": "1d7f7c4f7513f248b85bf99ea89f9f7e4e0de9d607719a7c76cb29ca469c6270",
+      "size_bytes": 2764847,
+      "mtime_utc": "2026-09-30T08:27:22.245550+00:00",
+      "canonical": false
+    },
+    {
+      "path": "/home/shebahati/KaZar/DOCS/Price/موجودی توزیع کننده 11 شهریور - Sheet1 باز.xlsx",
+      "sha256": "e17d3226798171ea6559d5cdbc002a1728326c33700567a327a69a40ac3f7681",
+      "size_bytes": 2482886,
+      "mtime_utc": "2026-09-03T09:55:02.417521+00:00",
+      "canonical": false
+    },
+    {
+      "path": "/home/shebahati/KaZar/DOCS/Price/موجودی توزیع کننده 11 شهریور.xlsx",
+      "sha256": "a1f460037ac6263bf3b3e61c82e3c49f383229f71625ec709580ac91b79b2db7",
+      "size_bytes": 2517082,
+      "mtime_utc": "2026-09-03T09:50:59.347754+00:00",
+      "canonical": false
+    },
+    {
+      "path": "/home/shebahati/KaZar/DOCS/Price/موجودی_توزیع_کننده_11_شهریور_افزایش_12_درصد.xlsx",
+      "sha256": "b7e60664c9b7bc7396b09071a242c67141d94a4ede6a43cbdb4e9918f571c8cc",
+      "size_bytes": 2547906,
+      "mtime_utc": "2026-09-30T09:58:20.667967+00:00",
+      "canonical": false
+    },
+    {
+      "path": "/home/shebahati/KaZar/DOCS/موجودی توزیع کننده 11 شهریور - دلار 300 هزار تومان - نهایی.xlsx",
+      "sha256": "8324b2c175a703ab0ff7364da4a33f82c440d592cdc10d990c133bed39ac2989",
+      "size_bytes": 2516286,
+      "mtime_utc": "2026-10-07T06:55:04.883922+00:00",
+      "canonical": false
+    },
+    {
+      "path": "/home/shebahati/KaZar/Karzar-local-rescue-20260811/legacy/Website-legacy-backend/backend-pmo/data/imports/insize_images_not_imported.xlsx",
+      "sha256": "a76332f138c5255cbb087daa0bcdf9e7d13b5c7c7145c854c1199ad97df1b0c4",
+      "size_bytes": 11323,
+      "mtime_utc": "2026-07-26T12:38:39.422540+00:00",
+      "canonical": false
+    },
+    {
+      "path": "/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/موجودی توزیع کننده 11 شهریور (2).xlsx",
+      "sha256": "8cecb478a4e48166436b9c526ebace54430800925819e3e062e631ad56eee3a4",
+      "size_bytes": 2765642,
+      "mtime_utc": "2026-09-02T22:38:30+00:00",
+      "canonical": false
+    },
+    {
+      "path": "/home/shebahati/KaZar/Product and Data Complete/اندازه گیری/اینسایز/موجودی توزیع کننده 11 شهریور - Sheet1 باز.xlsx",
+      "sha256": "b4045ecf35ce01831fa57f5a4efab7d51784af883e4265b7c72cb4a252048684",
+      "size_bytes": 2715399,
+      "mtime_utc": "2026-09-03T00:11:12+00:00",
+      "canonical": false
+    },
+    {
+      "path": "/home/shebahati/KaZar/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی.xlsx",
+      "sha256": "65a9233762d5ff23148c06843c11c54db45a30ba9ee21f51d9a33f554679938a",
+      "size_bytes": 2527583,
+      "mtime_utc": "2026-10-06T09:11:27.401489+00:00",
+      "canonical": false
+    }
+  ],
+  "inspected_at": "2026-10-13T20:02:07Z",
+  "canonical": {
+    "path": "/home/shebahati/KaZar/DOCS/Price/موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی - فرمت ریال اصلاح شده.xlsx",
+    "sha256": "beb549109165a1fd0d156af8d9b8a9622eb3a04e7fc92b07c548993ee98669cf",
+    "size_bytes": 2527586,
+    "mtime_utc": "2026-10-06T09:47:33.532111+00:00",
+    "canonical": true,
+    "original_filename": "موجودی توزیع کننده 11 شهریور - افزایش 20 درصدی - فرمت ریال اصلاح شده.xlsx",
+    "authority_type": "AVAILABILITY",
+    "parser_version": "supplier_stock/1.0.0",
+    "normalization_policy_version": "supplier_stock_norm/1.1.0",
+    "received_at": null,
+    "received_at_note": "UNKNOWN — supplier receipt time not independently proven; do not use audit time or filesystem mtime",
+    "inspected_at": "2026-10-13T20:02:07Z",
+    "supplier": "INSIZE distributor",
+    "brand": "INSIZE",
+    "source_date": "2026-09-02",
+    "source_date_evidence": "Jalali 1405-06-11 (11 Shahrivar 1405) → Gregorian 2026-09-02 via independent calendar conversion; filename '11 شهریور' supplies month/day; year from Jalali 1405 campaign context. Workbook OOXML core modified 2026-09-03T13:20:55Z corroborates early-September snapshot (metadata reference only — not used as source_date or received_at)."
+  }
+}

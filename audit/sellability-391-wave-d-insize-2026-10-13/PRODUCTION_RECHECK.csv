@@ -1,0 +1,11 @@
+product_id,sku,manufacturer_code,brand,deleted_at,is_active,is_available,base_price,image_present,current_sellability_blockers
+1788,1111-100,1111-100,INSIZE | اینسایز,,true,false,8760000.00,true,only_availability
+1795,1120-150,1120-150,INSIZE | اینسایز,,true,false,22410000.00,true,only_availability
+2100,8601-100,8601-100,INSIZE | اینسایز,,true,false,1064000.00,true,only_availability
+3483,2308-10,2308-10,INSIZE | اینسایز,,true,false,6360000.00,true,only_availability
+3550,3109-25,3109-25,INSIZE | اینسایز,,true,false,14130000.00,true,only_availability
+3556,3203-25,3203-25,INSIZE | اینسایز,,true,false,5940000.00,true,only_availability
+3618,2310-30,2310-30,INSIZE | اینسایز,,true,false,15900000.00,true,only_availability
+3620,2313-1,,INSIZE | اینسایز,,true,false,15810000.00,true,only_availability
+3763,2383-08,2383-08,INSIZE | اینسایز,,true,false,23850000.00,true,only_availability
+4140,5042,,INSIZE | اینسایز,,true,false,25080000.00,true,only_availability
