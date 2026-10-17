@@ -1,0 +1,119 @@
+# Isolated application-staging stack (250B declarative primitive — NOT live VPS).
+#
+# Separate from:
+#   docker compose -f docker-compose.yml -f docker-compose.staging.yml  (CR-011 live)
+#   docker compose -f docker-compose.catalog-staging.yml               (catalog rehearsal)
+#
+# 250B does NOT provision this on any host. Wave 250C may deploy an isolated stack.
+#
+# Usage (local only, Owner-authorized):
+#   cp .env.app-staging.example .env.app-staging
+#   docker compose -f docker-compose.app-staging.yml --env-file .env.app-staging config
+#   docker compose -f docker-compose.app-staging.yml --env-file .env.app-staging up -d --build
+
+name: karzar_app_staging
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "127.0.0.1:${APP_STAGING_API_PORT:-8020}:8000"
+    env_file:
+      - path: .env.app-staging
+        required: false
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      PYTHONPATH: /app
+      PYTHONUNBUFFERED: "1"
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: "5432"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      APP_ENV: staging
+      KARZAR_DATA_PLANE: staging
+      KARZAR_MEDIA_PLANE: staging
+      KARZAR_APP_STAGING_DB_NAME: ${KARZAR_APP_STAGING_DB_NAME:-karzar_app_staging}
+      DEBUG: "false"
+      ENABLE_API_DOCS: "false"
+      OTP_DEV_ECHO: "false"
+      APP_SERVER: gunicorn
+      ENABLE_METRICS: "false"
+      ENFORCE_HTTPS: "${APP_STAGING_ENFORCE_HTTPS:-false}"
+      GUNICORN_WORKERS: "${GUNICORN_WORKERS:-1}"
+      PURCHASE_CHECKOUT_ENABLED: "false"
+      PAYMENT_PROVIDER: mock
+      SMS_PROVIDER: console
+      HESABFA_ENABLED: "false"
+      POSTEX_ENABLED: "false"
+      POSTEX_BOOKING_ENABLED: "false"
+      DISABLE_BACKGROUND_WORKERS: "1"
+    volumes:
+      - karzar_app_staging_uploads:/app/data/uploads
+      - karzar_app_staging_logs:/app/logs
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "probe_host=\"$${API_PROBE_HOST:-$${TRUSTED_HOSTS%%,*}}\"; curl -fsS -H \"Host: $${probe_host:-localhost}\" http://127.0.0.1:8000/ready",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - karzar_app_staging_net
+
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "127.0.0.1:${APP_STAGING_DB_PORT:-5437}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-karzar_app_staging}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.app-staging}
+      POSTGRES_DB: ${POSTGRES_DB:-karzar_app_staging}
+    volumes:
+      - karzar_app_staging_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-karzar_app_staging} -d ${POSTGRES_DB:-karzar_app_staging}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - karzar_app_staging_net
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:${APP_STAGING_REDIS_PORT:-6381}:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - karzar_app_staging_net
+
+networks:
+  karzar_app_staging_net:
+    name: karzar_app_staging_net
+
+volumes:
+  karzar_app_staging_postgres_data:
+    name: karzar_app_staging_postgres_data
+  karzar_app_staging_uploads:
+    name: karzar_app_staging_uploads
+  karzar_app_staging_logs:
+    name: karzar_app_staging_logs
