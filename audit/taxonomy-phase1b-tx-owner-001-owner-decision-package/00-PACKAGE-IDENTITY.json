@@ -1,9 +1,9 @@
 {
-  "package_generated_at_utc": "2026-10-17T11:31:19Z",
+  "package_generated_at_utc": "2026-10-17T11:31:28Z",
   "frozen_pr499_semantic_review_csv_sha256": "a3590236eb7e0e2e58bc4bc17e2bce7c588a62f7e07c8b2c4bf0adb8b4ec8e12",
   "frozen_baseline_product_census_csv_sha256": "ebd19943e4e86c238a3419a2dcbb0dac7ee3c6dca8041308247bfd5e35c121f3",
-  "package_generation_git_head_sha": "ce157b336f8de3a48b7c954e7c6437ca16aeb993",
-  "pr_500_branch_head_at_package_generation": "ce157b336f8de3a48b7c954e7c6437ca16aeb993",
+  "package_generation_git_head_sha": "d4bee345ab94c250ff9288285e9fd35a58bf11f4",
+  "pr_500_branch_head_at_package_generation": "d4bee345ab94c250ff9288285e9fd35a58bf11f4",
   "note": "Frozen input SHAs fingerprint PR #499 review + baseline census; package_generation_git_head_sha is the git commit that produced this package (PR #500 branch HEAD at generation time).",
   "pr_499_reviewed_head": "5581b2d54fe5b06418032f8ce23bdc1a2c9904c8",
   "pr_499_merge_on_main": "919782bfcf85a1524f9cca30abcf8d967d00d0b6",
