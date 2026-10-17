@@ -148,8 +148,6 @@ class TaxonomyPhase1bBaselineTests(unittest.TestCase):
         drift_path = ROOT / "audit/taxonomy-phase1b-baseline-2026-10-15/10-HISTORICAL-DRIFT.json"
         if not path.is_file() or not drift_path.is_file():
             self.skipTest("baseline artifacts missing")
-        import json
-
         with path.open(encoding="utf-8", newline="") as handle:
             products = list(csv.DictReader(handle))
         counts = global_product_counts(products)
