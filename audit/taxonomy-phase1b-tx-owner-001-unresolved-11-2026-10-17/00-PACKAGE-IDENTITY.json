@@ -1,0 +1,33 @@
+{
+  "package_generated_at_utc": "2026-10-17T13:47:45Z",
+  "package_generation_git_head_sha": "baddfabacf0aea30cb980ae77734d696d5f83209",
+  "scope": "TX-OWNER-001 remaining 11 NEEDS_MORE technical evidence review",
+  "frozen_baseline_product_census_csv_sha256": "ebd19943e4e86c238a3419a2dcbb0dac7ee3c6dca8041308247bfd5e35c121f3",
+  "frozen_pr499_semantic_review_csv_sha256": "a3590236eb7e0e2e58bc4bc17e2bce7c588a62f7e07c8b2c4bf0adb8b4ec8e12",
+  "owner_batch_001_sha256": "4aef6f91d857514ed1fd7ea7e6289df2cee90f69fa705334c1e8f13cd0f400dc",
+  "owner_batch_002_sha256": "6bfe375afd83dfbc5e624971c4c4008be2b0614fa9068e8fa71dd68be82c8e47",
+  "owner_batch_003_sha256": "705650464f32e94cbef3992e1aa7efefc4c98c01570900fab84611a14192bbc6",
+  "owner_batches_mutated": false,
+  "product_ids": [
+    3090,
+    3091,
+    3093,
+    3095,
+    3096,
+    3097,
+    3098,
+    3099,
+    3101,
+    5146,
+    5147
+  ],
+  "post_research_effective_disposition_all_eleven": "NEEDS_MORE_EVIDENCE",
+  "safety": {
+    "PRODUCTION_MUTATION": "NO",
+    "CATALOG_EXIT_APPLY": "NO",
+    "CATEGORY_MUTATION": "NO",
+    "PRODUCT_MUTATION": "NO",
+    "MASTER_MANIFEST_REWRITE": "NO",
+    "OWNER_BATCH_JOURNALS_TOUCHED": "NO"
+  }
+}

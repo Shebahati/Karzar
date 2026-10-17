@@ -1047,6 +1047,24 @@ documents:
     notes: >
       SKU-specific Owner decision options for Groz special cases; not approvals.
 
+  - id: TAXONOMY-TX-OWNER-001-UNRESOLVED-11-20261017
+    path: audit/taxonomy-phase1b-tx-owner-001-unresolved-11-2026-10-17/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      TX-OWNER-001 technical evidence for 11 remaining NEEDS_MORE products; evidence only.
+
+  - id: TAXONOMY-TX-OWNER-001-UNRESOLVED-11-SUMMARY-FA-20261017
+    path: audit/taxonomy-phase1b-tx-owner-001-unresolved-11-2026-10-17/00-OWNER-SUMMARY-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Persian Owner summary for 11-product evidence gap review; not approvals.
+
   - id: PRODUCT-NAMING-V1-CONSTITUTION
     path: audit/product-naming-v1/NAMING_CONSTITUTION.md
     class: EVIDENCE
