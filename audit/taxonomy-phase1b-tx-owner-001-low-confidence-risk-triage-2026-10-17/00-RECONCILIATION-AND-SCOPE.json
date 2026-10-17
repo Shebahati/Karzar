@@ -1,0 +1,90 @@
+{
+  "status": "READY_FOR_OWNER_REVIEW_EVIDENCE_ONLY",
+  "snapshot_main_after_pr506": "47118146a8561ff3eb93bc1f24b2ccc2976d869a",
+  "source_paths": {
+    "risk": "audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/03-LOW-CONFIDENCE-EXIT-RISK-REGISTER.csv",
+    "decision_sheet": "audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/05-PROPOSED-DECISION-SHEET-262.csv",
+    "owner_batch_glob": "audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-00[1-4]-2026-10-17.csv"
+  },
+  "source_git_blob_shas": {
+    "risk": "2934f506b413a0fc0ce7c50bf6097fde81461e88",
+    "decision_sheet": "ab600aa5142b9d53e140335779ed958cbc1375e6",
+    "owner_batch_001": "b1644fce734a570dd29db6301f315e8a2228b3a7",
+    "owner_batch_002": "9c8083f43b33e8e6b57150a2f7f0ab04f17867aa",
+    "owner_batch_003": "437c3fbd96f9ac4533942457a1b8ca8447a5dd2a",
+    "owner_batch_004": "2c1a9764f822f2ce883e03d4ab01cf38d5bf987b"
+  },
+  "counts": {
+    "frozen_cohort": 262,
+    "owner_approved_exit_outside_risk": 9,
+    "owner_request_more_evidence_outside_risk": 13,
+    "owner_decisions_total": 22,
+    "pending_catalog_exit_total": 240,
+    "low_confidence_risk_register_rows": 176,
+    "low_confidence_unique_product_ids": 176,
+    "low_confidence_in_pending_exit": 176,
+    "low_confidence_overlap_owner_decisions": 0,
+    "low_confidence_outside_frozen_cohort": 0,
+    "pending_exit_outside_low_confidence_register": 64,
+    "priority_p0_boundary_check": 19,
+    "priority_p1_heterogeneous_review": 68,
+    "priority_p2_standard_sku_review": 89
+  },
+  "priority_policy": {
+    "meaning": "Research/review sequencing only; none of the tiers establishes approved target-domain fit or grants an Owner decision.",
+    "p0_exact_product_ids": [
+      3008,
+      3009,
+      3010,
+      3184,
+      5227,
+      5259,
+      5260,
+      5261,
+      5267,
+      5268,
+      5285,
+      5287,
+      5289,
+      5295,
+      5296,
+      5297,
+      5298,
+      5301,
+      5302
+    ],
+    "p1_if_not_p0_family_codes": [
+      "OTHER_WORKSHOP_HEURISTIC",
+      "PUNCH_MARKING_SETS",
+      "SAW_ACCESSORIES"
+    ],
+    "p1_if_not_p0_exact_product_ids": [
+      3007,
+      5211
+    ],
+    "p2": "All other rows; retain SKU-specific scrutiny, no bulk approval."
+  },
+  "assertions": [
+    "risk_unique=176",
+    "risk ⊆ 262 frozen proposal sheet",
+    "risk ∩ Owner Batches 001–004 = ∅",
+    "risk ⊆ 240 pending catalog exit proposals",
+    "all risk original PR499 and post-research proposals are CATALOG_EXIT_CANDIDATE",
+    "all original risk evidence basis is HEURISTIC",
+    "priority 19+68+89=176",
+    "no Owner approvals issued by this package"
+  ],
+  "safety": {
+    "owner_decisions_modified": false,
+    "production_mutation": "NO",
+    "catalog_exit_apply": "NO",
+    "industrial_exception_apply": "NO",
+    "rehome_apply": "NO",
+    "product_or_category_mutation": "NO",
+    "hesabfa_mutation": "NO",
+    "pricing_or_stock_change": "NO",
+    "deployment": "NO",
+    "manual_owner_merge_required": true,
+    "protected_cat_154_and_156_oils": "OUT_OF_SCOPE"
+  }
+}

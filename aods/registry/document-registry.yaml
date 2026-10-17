@@ -1076,6 +1076,16 @@ documents:
     notes: >
       Persian Owner summary for 11-product evidence gap review; not approvals.
 
+  - id: TAXONOMY-TX-OWNER-001-LOW-CONFIDENCE-RISK-TRIAGE-20261017
+    path: audit/taxonomy-phase1b-tx-owner-001-low-confidence-risk-triage-2026-10-17/00-OWNER-TRIAGE-SUMMARY-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Read-only reconciliation and research prioritization for 176 heuristic
+      pending catalog exit proposals; no Owner decision, APPLY or mutation.
+
   - id: PRODUCT-NAMING-V1-CONSTITUTION
     path: audit/product-naming-v1/NAMING_CONSTITUTION.md
     class: EVIDENCE
