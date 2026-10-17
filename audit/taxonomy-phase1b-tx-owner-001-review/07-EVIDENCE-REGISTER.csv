@@ -1,0 +1,4 @@
+evidence_id,source,class,collected_at_utc,used_for,limitations
+EV-001,audit/taxonomy-phase1b-baseline-2026-10-15/02-PRODUCT-CATEGORY-CENSUS.csv,PRESERVED_PRODUCTION_CENSUS,2026-10-15T09:34:39Z,"SKU identity, title, category assignment, commerce flags",No long description or specifications JSON in export
+EV-002,docs/architecture/taxonomy-v1/13-STEWARD-DECISION-TX-OWNER-001.md,KARZAR-GOVERNANCE-DECISION,2026-09-27,Scope rejection Workshop/Hand/Woodworking; exit vs rehome rules,APPROVED target law; not production APPLY
+EV-003,scripts/catalog_target/tx_owner_001_semantic_review.py,ENGINEERING-INFERENCE,2026-10-17T10:30:31Z,Deterministic title-based classification patterns,Inference from Persian/English titles; not OEM datasheet unless cited

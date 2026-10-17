@@ -1,0 +1,5 @@
+category_id,category_name,full_path,direct_live_products,descendant_live_products,proposed_category_disposition,catalog_exit_candidates,industrial_exception_or_conflict,owner_decision_required,needs_more_evidence,notes
+157,ابزار دستی,لوازم جانبی صنعتی › ابزار دستی,0,196,DEPRECATE_REMOVE_PER_TX_OWNER_001,0,0,0,0,Category-level DEPRECATE_REMOVE is TX-OWNER-001 target law; product-level proposals are in 01-262 CSV.
+158,ابزار دستی عمومی,لوازم جانبی صنعتی › ابزار دستی › ابزار دستی عمومی,196,196,DEPRECATE_REMOVE_PER_TX_OWNER_001,186,0,1,9,Category-level DEPRECATE_REMOVE is TX-OWNER-001 target law; product-level proposals are in 01-262 CSV.
+159,ابزار چوبی,لوازم جانبی صنعتی › ابزار چوبی,0,66,DEPRECATE_REMOVE_PER_TX_OWNER_001,0,0,0,0,Category-level DEPRECATE_REMOVE is TX-OWNER-001 target law; product-level proposals are in 01-262 CSV.
+160,ابزار آلات چوبی,لوازم جانبی صنعتی › ابزار چوبی › ابزار آلات چوبی,66,66,DEPRECATE_REMOVE_PER_TX_OWNER_001,56,1,0,9,Category-level DEPRECATE_REMOVE is TX-OWNER-001 target law; product-level proposals are in 01-262 CSV.

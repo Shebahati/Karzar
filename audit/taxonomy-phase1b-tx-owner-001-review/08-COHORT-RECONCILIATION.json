@@ -1,0 +1,23 @@
+{
+  "unique_product_count": 262,
+  "expected_unique_product_count": 262,
+  "category_158_products": 196,
+  "category_160_products": 66,
+  "disposition_counts": {
+    "NEEDS_MORE_EVIDENCE": 18,
+    "CATALOG_EXIT_CANDIDATE": 242,
+    "INDUSTRIAL_EXCEPTION_CANDIDATE": 1,
+    "OWNER_DECISION_REQUIRED": 1,
+    "SEMANTIC_CONFLICT": 0
+  },
+  "industrial_exception_primary_count": 1,
+  "semantic_conflict_count": 0,
+  "proposed_domain_tag_counts": {
+    "KZ.DOM.CUTTING": 1
+  },
+  "owner_queue_row_count": 262,
+  "mutually_exclusive_primary_disposition": true,
+  "excluded_category_154_bulk": true,
+  "excluded_category_156_industrial_oils": true,
+  "checksum_product_census": "ebd19943e4e86c238a3419a2dcbb0dac7ee3c6dca8041308247bfd5e35c121f3"
+}
