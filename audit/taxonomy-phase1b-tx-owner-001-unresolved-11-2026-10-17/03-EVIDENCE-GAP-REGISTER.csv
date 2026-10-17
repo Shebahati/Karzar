@@ -1,0 +1,23 @@
+product_id,karzar_catalog_sku,gap_code,gap_description,blocks_disposition_upgrade
+3090,3865,NO_OEM_ARTICLE_MATCH,Brand; shank diameter; cutter diameter/length; photo; packing slip; confirm wood vs metal application before any industrial exception.,YES
+3090,3865,NO_BRAND_OR_GEOMETRY,"Census lacks brand, shank, diameter, material grade.",YES
+3091,3866,NO_OEM_ARTICLE_MATCH,Brand; shank diameter; cutter diameter/length; photo; packing slip; confirm wood vs metal application before any industrial exception.,YES
+3091,3866,NO_BRAND_OR_GEOMETRY,"Census lacks brand, shank, diameter, material grade.",YES
+3093,3868,NO_OEM_ARTICLE_MATCH,Brand; shank diameter; cutter diameter/length; photo; packing slip; confirm wood vs metal application before any industrial exception.,YES
+3093,3868,NO_BRAND_OR_GEOMETRY,"Census lacks brand, shank, diameter, material grade.",YES
+3095,3870,NO_OEM_ARTICLE_MATCH,Brand; shank diameter; cutter diameter/length; photo; packing slip; confirm wood vs metal application before any industrial exception.,YES
+3095,3870,NO_BRAND_OR_GEOMETRY,"Census lacks brand, shank, diameter, material grade.",YES
+3096,3871,NO_OEM_ARTICLE_MATCH,Brand; shank diameter; cutter diameter/length; photo; packing slip; confirm wood vs metal application before any industrial exception.,YES
+3096,3871,NO_BRAND_OR_GEOMETRY,"Census lacks brand, shank, diameter, material grade.",YES
+3097,3872,NO_OEM_ARTICLE_MATCH,Brand; shank diameter; cutter diameter/length; photo; packing slip; confirm wood vs metal application before any industrial exception.,YES
+3097,3872,NO_BRAND_OR_GEOMETRY,"Census lacks brand, shank, diameter, material grade.",YES
+3098,3873,NO_OEM_ARTICLE_MATCH,Brand; shank diameter; cutter diameter/length; photo; packing slip; confirm wood vs metal application before any industrial exception.,YES
+3098,3873,NO_BRAND_OR_GEOMETRY,"Census lacks brand, shank, diameter, material grade.",YES
+3099,3874,NO_OEM_ARTICLE_MATCH,Brand; shank diameter; cutter diameter/length; photo; packing slip; confirm wood vs metal application before any industrial exception.,YES
+3099,3874,NO_BRAND_OR_GEOMETRY,"Census lacks brand, shank, diameter, material grade.",YES
+3101,3876,NO_OEM_ARTICLE_MATCH,Brand; shank diameter; cutter diameter/length; photo; packing slip; confirm wood vs metal application before any industrial exception.,YES
+3101,3876,NO_BRAND_OR_GEOMETRY,"Census lacks brand, shank, diameter, material grade.",YES
+5146,NC4277,NO_OEM_ARTICLE_MATCH,Confirm engraved model (NC4277 vs NC4277Q / NC4299 vs NC4299Q); photo of nameplate; importer invoice with M7 article number.,YES
+5146,NC4277,MODEL_SUFFIX_AMBIGUITY,OEM lists Q-suffix models; catalog SKU omits Q.,YES
+5147,NC4299,NO_OEM_ARTICLE_MATCH,Confirm engraved model (NC4277 vs NC4277Q / NC4299 vs NC4299Q); photo of nameplate; importer invoice with M7 article number.,YES
+5147,NC4299,MODEL_SUFFIX_AMBIGUITY,OEM lists Q-suffix models; catalog SKU omits Q.,YES

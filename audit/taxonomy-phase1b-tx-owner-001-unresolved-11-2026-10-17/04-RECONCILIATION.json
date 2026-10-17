@@ -1,0 +1,19 @@
+{
+  "unique_product_ids": 11,
+  "product_ids": [
+    3090,
+    3091,
+    3093,
+    3095,
+    3096,
+    3097,
+    3098,
+    3099,
+    3101,
+    5146,
+    5147
+  ],
+  "all_agent_proposals": "NEEDS_MORE_EVIDENCE",
+  "all_exact_manufacturer_identity": "UNRESOLVED_NO_EXACT_OEM_ARTICLE_MATCH",
+  "evidence_gap_rows": 22
+}

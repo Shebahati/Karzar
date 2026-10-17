@@ -100,6 +100,7 @@ NAMING_ALLOW = {
     "audit/taxonomy-phase1b-baseline-2026-10-15/preserved-evidence/dd7ab67ff10d/FINAL_REPORT.md",
     "audit/taxonomy-phase1b-tx-owner-001-review/FINAL_REPORT.md",
     "audit/taxonomy-phase1b-tx-owner-001-special-case-groz-2026-10-17/FINAL_REPORT.md",
+    "audit/taxonomy-phase1b-tx-owner-001-unresolved-11-2026-10-17/FINAL_REPORT.md",
     # Phase 2D owner title precision closure artifact; "FINAL" is the mandated evidence name.
     "audit/product-naming-phase2d/PHASE2D_OWNER_FINAL_TITLE_REVIEW.csv",
     # Immutable Sellability Wave 0 evidence; "FINAL_REPORT" is the frozen
