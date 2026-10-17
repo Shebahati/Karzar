@@ -2,18 +2,28 @@
   "status": "READY_FOR_OWNER_REVIEW",
   "population_unique_products": 262,
   "disposition_counts": {
-    "SEMANTIC_CONFLICT": 35,
-    "INDUSTRIAL_EXCEPTION_CANDIDATE": 15,
-    "NEEDS_MORE_EVIDENCE": 0,
-    "OWNER_DECISION_REQUIRED": 8,
-    "CATALOG_EXIT_CANDIDATE": 204
+    "NEEDS_MORE_EVIDENCE": 18,
+    "CATALOG_EXIT_CANDIDATE": 242,
+    "INDUSTRIAL_EXCEPTION_CANDIDATE": 1,
+    "OWNER_DECISION_REQUIRED": 1,
+    "SEMANTIC_CONFLICT": 0
   },
-  "industrial_domain_proposals": {
-    "KZ.DOM.CUTTING": 50,
-    "KZ.DOM.WORKHOLDING": 1,
-    "KZ.DOM.TOOLHOLDING": 7
+  "industrial_exception_primary_count": 1,
+  "semantic_conflict_primary_count": 0,
+  "proposed_domain_tag_counts": {
+    "KZ.DOM.CUTTING": 1
   },
-  "owner_queue_rows": 43,
+  "owner_queue_rows": 262,
+  "correction_delta_note": {
+    "prior_review_head": "d0ad0a4107af619483f73b220e63a0b0a8f893d7",
+    "prior_disposition_counts": {
+      "CATALOG_EXIT_CANDIDATE": 204,
+      "SEMANTIC_CONFLICT": 35,
+      "INDUSTRIAL_EXCEPTION_CANDIDATE": 15,
+      "OWNER_DECISION_REQUIRED": 8,
+      "NEEDS_MORE_EVIDENCE": 0
+    }
+  },
   "category_scope": {
     "157": {
       "direct": 0,

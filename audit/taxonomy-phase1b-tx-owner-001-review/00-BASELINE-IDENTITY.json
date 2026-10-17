@@ -1,7 +1,7 @@
 {
-  "review_generated_at_utc": "2026-10-17T10:07:00Z",
+  "review_generated_at_utc": "2026-10-17T10:30:31Z",
   "repository_branch": "audit/taxonomy-phase1b-tx-owner-001-product-review",
-  "git_head_sha": "64849323da4726dabdfad24eeded7a2874353e97",
+  "git_head_sha": "d0ad0a4107af619483f73b220e63a0b0a8f893d7",
   "baseline_pr_498_reviewed_head": "156e46e4c4d23e470c93108b1d2009571883f969",
   "historical_evidence": {
     "baseline_audit_dir": "/home/shebahati/Projects/Karzar/audit/taxonomy-phase1b-baseline-2026-10-15",

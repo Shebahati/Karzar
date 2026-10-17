@@ -17,6 +17,11 @@ from catalog_target.taxonomy_phase1b_baseline import (
     tx_owner_scope_product_ids,
     write_csv,
 )
+from catalog_target.tx_owner_001_external_sources import (
+    APPROVED_DOMAIN_CODES,
+    EXTERNAL_SOURCES,
+    sources_for_product,
+)
 
 PRIMARY_DISPOSITIONS = frozenset(
     {
@@ -28,58 +33,61 @@ PRIMARY_DISPOSITIONS = frozenset(
     }
 )
 
-EVIDENCE_STRENGTHS = frozenset({"HIGH", "MEDIUM", "LOW"})
-CONFIDENCE_LEVELS = frozenset({"HIGH", "MEDIUM", "LOW"})
-
 DOMAIN_BY_CODE = {d["code"]: d["en"] for d in TARGET_DOMAINS}
 
-# Engineering-inference markers (product title + path); not OEM-backed unless noted.
-CUTTING_MARKERS = re.compile(
-    r"cnc|بلیدکات|bladekat|شیارزن|کفتراش|کف\s*بردار|تیغ\s|تیغچه|اینسرت|insert|"
-    r"فرز\s|فرزکاری|end\s*mill|groov|turning|milling|carbide|کاربید|HSS|"
-    r"اور\s*فرز|face\s*mill|trigon|wiper|boring|drill\s*bit|مته",
-    re.I,
-)
+# Narrow workshop / woodworking signals (title only — not category path labels).
 WOODWORKING_MARKERS = re.compile(
-    r"چوب|نجار|wood|planer|رنده\s*چوب|رنده\s*نجار|تیغه\s*رنده|تیشه|مغار|"
-    r"براده\s*شکن.*رنده|کبوتری|لیسه\s*چوب|JN3\d{2}",
+    r"چوب|نجار|wood|رنده\s*چوب|رنده\s*نجار|تیغه\s*رنده|تیشه|مغار|"
+    r"براده\s*شکن.*رنده|کبوتری|لیسه\s*چوب|JN3\d{2}|فاق\s*و\s*زبونه|"
+    r"ربع\s*دایره|پرفیل\s*لبه|تونیک|بلیدکات|bladekat",
     re.I,
 )
 HAND_WORKSHOP_MARKERS = re.compile(
-    r"انبر|آچار|چکش|پیچ.?گوشتی|شابر|پلیسه|کلمپ|گیره|سوهان|قداره|"
-    r"سنبه|پانچ|درآر|نشان|مغار|تیشه|بادپاش|تفنگ\s*باد|بکس\s*بادی|"
-    r"سوکت|آلن\s*بکس|دریل\s*شارژ|اره\s*موئی|کمان\s*اره|دسته\s*پلیسه|"
-    r"قرقره\s*سنگ|صاف\s*کن|hand\s*tool|pliers|wrench|hammer|chisel",
+    r"انبر|آچار|چکش|پیچ.?گوشتی|شابر|کلمپ\s*مواز|گیره\s*دستی|سوهان|قداره|"
+    r"سنبه|پانچ|درآر|نشان|بادپاش|تفنگ\s*باد|بکس\s*بادی|"
+    r"سوکت|آلن\s*بکس|اره\s*موئی|کمان\s*اره|قرقره\s*سنگ|"
+    r"رگولاتور|لوبریکاتور|فیلتر\s*هوا|فیلتر\s*رطوبت|"
+    r"hand\s*tool|pliers|wrench|hammer|chisel",
     re.I,
 )
-TOOLHOLDING_MARKERS = re.compile(
-    r"کولت|collet|chuck|ابزارگیر|هولدر|holder|آداپتور\s*ابزار|mandrel",
+PNEUMATIC_POWER_TOOL = re.compile(
+    r"فرز\s*انگشتی\s*بادی|میکرو\s*فرز\s*قلمی\s*بادی|سنگ\s*فرز\s*بادی|"
+    r"سنباده\s*زن\s*بادی|فرز\s*قلمی\s*حکاکی\s*بادی|QA\d{3}|QB\d{3}|QC\d{3}",
     re.I,
 )
-WORKHOLDING_MARKERS = re.compile(
-    r"گیره\s*سنگ|vise|jaw|fixture|بست\s*صنعتی|جک\s*ماشین|machine\s*jack",
+DEBURR_HAND = re.compile(r"پلیسه|deburr|CP-GRAT", re.I)
+METAL_TURNING_INSERT = re.compile(
+    r"تیغچه\s*رنده\s*تراش|تراشکار|turning\s*insert|lathe\s*insert",
     re.I,
 )
-METROLOGY_MARKERS = re.compile(
-    r"کولیس|caliper|میکرومتر|micrometer|گage|gauge|ساعت\s*اندازه",
+GROOVING_AMBIGUOUS = re.compile(r"شیارزن", re.I)
+WOOD_CNC_ROUTER_BIT = re.compile(
+    r"بلیدکات|bladekat|اور\s*فرز\s*بلید|تیغ\s+V\s*شکل|تیغ\s*انگشتی|"
+    r"تیغ\s*پرفیل|تیغ\s*تونیک|تیغ\s*دو\s*راهه|تیغ\s*بانکی",
     re.I,
 )
-MACHINE_EQUIP_MARKERS = re.compile(
-    r"موتور\s*صنعتی|spindle\s*motor|پمپ\s*صنعتی|compressor",
+FINISHING_BLADE_AMBIGUOUS = re.compile(r"تیغ\s*پرداخت", re.I)
+GENERIC_TITLE = re.compile(
+    r"^\s*مایتی\s*سون\s*\(Mighty Seven\)\s*مدل\s+[A-Z0-9]+$",
     re.I,
 )
-THREAD_REPAIR_MARKERS = re.compile(
-    r"هلیکویل|helicoil|thread\s*repair|قلاویز\s*رمی|فنر\s*هلیکویل",
-    re.I,
-)
-FLUID_MARKERS = re.compile(
-    r"روغن\s*صنعتی|cutting\s*fluid|coolant|گریس\s*صنعتی",
-    re.I,
-)
-GENERIC_MARKERS = re.compile(
-    r"^(ست|ابزار|محصول|مدل)\s|^\s*مایتی\s*سون|^[A-Z]{2,}\d{3,}$",
-    re.I,
-)
+MACHINE_JACK = re.compile(r"جک\s*ماشین", re.I)
+
+
+@dataclass
+class Classification:
+    disposition: str
+    meaning: str
+    function: str
+    application: str
+    domain_code: str
+    domain_name: str
+    rationale: str
+    evidence_strength: str
+    confidence: str
+    confidence_basis: str
+    evidence_source: str
+    owner_required: str = "YES"
 
 
 @dataclass(frozen=True)
@@ -110,6 +118,7 @@ class ReviewRow:
     proposed_industrial_domain_name: str
     decision_rationale: str
     confidence: str
+    confidence_basis: str
     owner_review_required: str
     review_status: str
 
@@ -162,178 +171,290 @@ def _priced_flag(row: dict[str, str]) -> str:
         return "false"
 
 
+def _base_evidence(row: dict[str, str]) -> str:
+    parts = [
+        "PRESERVED_PRODUCTION_CENSUS_2026-10-15",
+        "fields=product_name,category_full_path,commerce_flags,product_type",
+    ]
+    for src in sources_for_product(int(row["product_id"])):
+        parts.append(src["source_id"])
+    return ";".join(parts)
+
+
+def _exit_tx_owner(
+    *,
+    meaning: str,
+    function: str,
+    rationale: str,
+    evidence_strength: str,
+    confidence: str,
+    confidence_basis: str,
+    evidence_source: str,
+    application: str = "",
+) -> Classification:
+    return Classification(
+        disposition="CATALOG_EXIT_CANDIDATE",
+        meaning=meaning,
+        function=function,
+        application=application,
+        domain_code="",
+        domain_name="",
+        rationale=rationale,
+        evidence_strength=evidence_strength,
+        confidence=confidence,
+        confidence_basis=confidence_basis,
+        evidence_source=evidence_source,
+    )
+
+
+def _needs_more(
+    *,
+    meaning: str,
+    function: str,
+    rationale: str,
+    evidence_source: str,
+) -> Classification:
+    return Classification(
+        disposition="NEEDS_MORE_EVIDENCE",
+        meaning=meaning,
+        function=function,
+        application="",
+        domain_code="",
+        domain_name="",
+        rationale=rationale,
+        evidence_strength="LOW",
+        confidence="LOW",
+        confidence_basis="CENSUS_ONLY",
+        evidence_source=evidence_source,
+    )
+
+
+def _industrial_exception(
+    *,
+    domain_code: str,
+    meaning: str,
+    function: str,
+    rationale: str,
+    evidence_strength: str,
+    confidence: str,
+    confidence_basis: str,
+    evidence_source: str,
+    application: str = "",
+) -> Classification:
+    if domain_code not in APPROVED_DOMAIN_CODES:
+        raise RuntimeError(f"invalid_domain_code {domain_code}")
+    return Classification(
+        disposition="INDUSTRIAL_EXCEPTION_CANDIDATE",
+        meaning=meaning,
+        function=function,
+        application=application,
+        domain_code=domain_code,
+        domain_name=DOMAIN_BY_CODE[domain_code],
+        rationale=rationale + " Not an approved rehome; explicit Owner SKU override required.",
+        evidence_strength=evidence_strength,
+        confidence=confidence,
+        confidence_basis=confidence_basis,
+        evidence_source=evidence_source,
+    )
+
+
 def _classify(row: dict[str, str]) -> ReviewRow:
     pid = int(row["product_id"])
     cid = int(row["category_id"])
     name = row.get("product_name", "")
     path = row.get("category_full_path", "")
-    pt_code = row.get("product_type_code", "") or ""
-    # Product meaning must not be inferred solely from TX-OWNER category labels (path).
-    title_blob = f"{name} {pt_code}"
-    norm = normalize_taxonomy_text(title_blob)
+    sku = (row.get("sku") or "").strip()
+    title = name
+    evidence_source = _base_evidence(row)
 
-    evidence_source = (
-        "PRESERVED_PRODUCTION_CENSUS_2026-10-15;"
-        "fields=product_name,category_full_path,commerce_flags,product_type"
-    )
-    wood = bool(WOODWORKING_MARKERS.search(title_blob))
-    hand = bool(HAND_WORKSHOP_MARKERS.search(title_blob))
-    cutting = bool(CUTTING_MARKERS.search(title_blob))
-    toolhold = bool(TOOLHOLDING_MARKERS.search(title_blob))
-    workhold = bool(WORKHOLDING_MARKERS.search(title_blob))
-    metro = bool(METROLOGY_MARKERS.search(title_blob))
-    machine = bool(MACHINE_EQUIP_MARKERS.search(title_blob))
-    thread = bool(THREAD_REPAIR_MARKERS.search(title_blob))
-    fluid = bool(FLUID_MARKERS.search(title_blob))
-    generic = bool(GENERIC_MARKERS.search(name.strip()))
-    category_is_wood_labeled = "ابزار چوب" in path or "چوبی" in path
-
-    domain_code = ""
-    domain_name = ""
-    disposition = "NEEDS_MORE_EVIDENCE"
-    meaning = "نام و مسیر دسته‌بندی کافی برای تعیین قطعی کاربرد صنعتی نیست."
-    function = "نامشخص"
-    application = ""
-    strength = "LOW"
-    confidence = "LOW"
-    rationale = ""
-    owner_required = "YES"
-    scope = "TX_OWNER_001_IN_SCOPE"
-
-    if thread:
-        disposition = "INDUSTRIAL_EXCEPTION_CANDIDATE"
-        domain_code = "KZ.DOM.THREAD_REPAIR"
-        domain_name = DOMAIN_BY_CODE[domain_code]
-        meaning = "ابزار/قطعه مرتبط با تعمیر رزوه (استنباط از عنوان)."
-        function = "Thread repair / insert installation"
-        strength = "MEDIUM"
-        confidence = "MEDIUM"
-        rationale = (
-            "عنوان نشان‌دهنده کارکرد تعمیر رزوه است؛ خارج از دامنه Workshop/Hand "
-            "ولی نیازمند تأیید صریح Owner برای هرگونه rehome."
+    # --- OEM-backed pneumatic die grinders (5194–5200 and family) ---
+    if pid in {5194, 5195} or (
+        PNEUMATIC_POWER_TOOL.search(title) and "کولت" in title
+    ):
+        oem_note = ""
+        if pid == 5194:
+            oem_note = " OEM QA-210 Air Die Grinder (EXT-M7-158)."
+        elif pid == 5195:
+            oem_note = " OEM QA-211 Air Die Grinder (EXT-M7-159)."
+        clf = _exit_tx_owner(
+            meaning="Handheld pneumatic die grinder (air tool).",
+            function="Rotary pneumatic grinding with collet spindle interface",
+            application="Workshop deburring/grinding (OEM air tool class)",
+            rationale=(
+                "Collet names spindle interface of a die grinder, not Toolholding Product Type."
+                + oem_note
+                + " TX-OWNER-001 workshop/hand scope → CATALOG_EXIT proposal."
+            ),
+            evidence_strength="MEDIUM" if oem_note else "LOW",
+            confidence="MEDIUM" if oem_note else "LOW",
+            confidence_basis="OEM_DOCUMENTED" if oem_note else "HEURISTIC",
+            evidence_source=evidence_source,
         )
-    elif metro:
-        disposition = "INDUSTRIAL_EXCEPTION_CANDIDATE"
-        domain_code = "KZ.DOM.METROLOGY"
-        domain_name = DOMAIN_BY_CODE[domain_code]
-        meaning = "ابزار اندازه‌گیری/کنترل (استنباط از عنوان)."
-        function = "Dimensional inspection"
-        strength = "MEDIUM"
-        confidence = "MEDIUM"
-        rationale = "کارکرد اندازه‌گیری صنعتی؛ پیشنهاد استثناء صنعتی بدون مجوز rehome."
-    elif toolhold:
-        disposition = "OWNER_DECISION_REQUIRED"
-        domain_code = "KZ.DOM.TOOLHOLDING"
-        domain_name = DOMAIN_BY_CODE[domain_code]
-        meaning = "احتمال ابزارگیر/نگهدارنده ابزار برشی."
-        function = "Toolholding interface"
-        strength = "MEDIUM"
-        confidence = "LOW"
-        rationale = (
-            "نشانه‌های ابزارگیر در عنوان دیده می‌شود؛ "
-            "با توجه به قرارگیری در دسته Workshop باید Owner تفکیک کند."
+    elif PNEUMATIC_POWER_TOOL.search(title):
+        clf = _exit_tx_owner(
+            meaning="Handheld pneumatic power tool (grinder/sander class).",
+            function="Pneumatic rotary/abrasive power tool",
+            application="Workshop air tool",
+            rationale=(
+                "Complete handheld pneumatic grinder/sander — not a Cutting Tool insert or "
+                "industrial machine. Aligns with M7 Air Tools family (see EXT-M7-AIR-TOOLS-CLASS). "
+                "Proposed CATALOG_EXIT under TX-OWNER-001."
+            ),
+            evidence_strength="LOW",
+            confidence="LOW",
+            confidence_basis="HEURISTIC",
+            evidence_source=evidence_source,
         )
-    elif workhold and not hand:
-        disposition = "OWNER_DECISION_REQUIRED"
-        domain_code = "KZ.DOM.WORKHOLDING"
-        domain_name = DOMAIN_BY_CODE[domain_code]
-        meaning = "احتمال بست/گیره صنعتی یا جک ماشین‌کاری."
-        function = "Workholding / machine support"
-        strength = "MEDIUM"
-        confidence = "LOW"
-        rationale = "مرز Workholding و ابزار دستی کارگاهی مبهم است؛ تصمیم Owner لازم."
-    elif machine:
-        disposition = "INDUSTRIAL_EXCEPTION_CANDIDATE"
-        domain_code = "KZ.DOM.MACHINES"
-        domain_name = DOMAIN_BY_CODE[domain_code]
-        meaning = "تجهیز/ماشین صنعتی (استنباط از عنوان)."
-        function = "Industrial equipment"
-        strength = "LOW"
-        confidence = "LOW"
-        rationale = "نیاز به تأیید Owner؛ استثناء صنعتی پیشنهادی بدون rehome خودکار."
-    elif fluid:
-        disposition = "INDUSTRIAL_EXCEPTION_CANDIDATE"
-        domain_code = "KZ.DOM.FLUIDS"
-        domain_name = DOMAIN_BY_CODE[domain_code]
-        meaning = "سیال فلزکاری/روانکار صنعتی."
-        function = "Metalworking fluid"
-        strength = "MEDIUM"
-        confidence = "MEDIUM"
-        rationale = "خارج از دامنه Workshop Tools؛ استثناء پیشنهادی."
-    elif re.search(r"پلیسه|deburr", title_blob, re.I):
-        disposition = "CATALOG_EXIT_CANDIDATE"
-        meaning = "ابزار/تیغ پلیسه‌گیری دستی (کارگاهی)."
-        function = "Manual deburring"
-        strength = "HIGH"
-        confidence = "HIGH"
-        rationale = "پلیسه‌گیری دستی در دامنه Workshop/Hand Tools است؛ پیشنهاد CATALOG_EXIT."
-    elif cutting and not wood:
-        disposition = "INDUSTRIAL_EXCEPTION_CANDIDATE"
-        domain_code = "KZ.DOM.CUTTING"
-        domain_name = DOMAIN_BY_CODE[domain_code]
-        meaning = "قطعه برشی/اینسرت یا ابزار برشی قابل‌نصب ماشین (CNC/فلزکاری)."
-        function = "Indexable cutting / metal removal"
-        application = "CNC turning/milling/grooving (inferred)"
-        strength = "MEDIUM" if "cnc" in norm or "بلیدکات" in norm else "LOW"
-        confidence = "MEDIUM" if strength == "MEDIUM" else "LOW"
-        if cid == 160 and category_is_wood_labeled:
-            disposition = "SEMANTIC_CONFLICT"
-            domain_code = "KZ.DOM.CUTTING"
-            domain_name = DOMAIN_BY_CODE[domain_code]
-            rationale = (
-                "عنوان کارکرد برشی فلزکاری/CNC را نشان می‌دهد اما مسیر دسته "
-                "«ابزار آلات چوبی» است؛ پیشنهاد: استثناء صنعتی Cutting Tools "
-                "پس از تأیید Owner — بدون rehome خودکار."
-            )
-            owner_required = "YES"
-        else:
-            rationale = (
-                "کارکرد برشی صنعتی در عنوان دیده می‌شود؛ "
-                "پیشنهاد INDUSTRIAL_EXCEPTION (Cutting Tools) — نه مجوز rehome."
-            )
-    elif wood:
-        disposition = "CATALOG_EXIT_CANDIDATE"
-        meaning = "ابزار نجاری/چوب‌کاری یا مصرفی مرتبط با کارگاه نجاری."
-        function = "Woodworking hand or bench tool"
-        application = "Wood shop / carpentry (inferred)"
-        strength = "HIGH" if wood else "MEDIUM"
-        confidence = "HIGH" if wood else "MEDIUM"
-        rationale = (
-            "مطابق TX-OWNER-001 محصول در دامنه Workshop/Woodworking است؛ "
-            "پیشنهاد خروج از کاتالوگ (بدون اجرای APPLY)."
+    elif METAL_TURNING_INSERT.search(title):
+        clf = _industrial_exception(
+            domain_code="KZ.DOM.CUTTING",
+            meaning="Indexable turning insert for metal lathe (title states تراشکاری).",
+            function="Metal turning / insert cutting",
+            application="CNC/manual lathe metal removal",
+            rationale=(
+                "Title explicitly references turning machining (تراشکاری), not woodworking. "
+                "Misplaced under woodworking category; industrial Cutting exception candidate."
+            ),
+            evidence_strength="MEDIUM",
+            confidence="MEDIUM",
+            confidence_basis="HEURISTIC",
+            evidence_source=evidence_source,
         )
-        owner_required = "YES"
-    elif hand or cid == 158:
-        disposition = "CATALOG_EXIT_CANDIDATE"
-        meaning = "ابزار دستی عمومی یا کارگاهی (انبر، آچار، سنبه، بادی و مشابه)."
-        function = "Manual workshop operation"
-        strength = "HIGH" if hand else "MEDIUM"
-        confidence = "HIGH" if hand else "MEDIUM"
-        rationale = (
-            "دسته 158 «ابزار دستی عمومی» و عنوان محصول با دامنه رد‌شده "
-            "Workshop & Hand Tools هم‌خوان است؛ پیشنهاد CATALOG_EXIT."
+    elif GROOVING_AMBIGUOUS.search(title):
+        clf = _needs_more(
+            meaning="Grooving tool — material/application not established from census title alone.",
+            function="Grooving (wood router vs metal lathe insert undetermined)",
+            rationale=(
+                "«شیارزن»/grooving with CNC in title does not prove metalworking vs woodworking "
+                "application without geometry/OEM docs. Preserve unresolved status."
+            ),
+            evidence_source=evidence_source,
         )
-        owner_required = "YES"
-    elif generic:
-        disposition = "NEEDS_MORE_EVIDENCE"
-        meaning = "عنوان بازاری/کد مدل بدون شرح فنی در شواهد حفظ‌شده."
-        function = "Undocumented from census fields"
-        strength = "LOW"
-        confidence = "LOW"
-        rationale = (
-            "صرفاً از سرشمار SKU/برند نمی‌توان کارکرد مهندسی را اثبات کرد؛ "
-            "نیاز به توضیحات فنی یا مستند OEM."
+    elif FINISHING_BLADE_AMBIGUOUS.search(title) and not WOOD_CNC_ROUTER_BIT.search(title):
+        clf = _needs_more(
+            meaning="Finishing blade — substrate and machine context unknown.",
+            function="Edge finishing blade (application unclear)",
+            rationale=(
+                "«تیغ پرداخت» without verified BladeKat/wood or metal lathe context. "
+                "Do not infer metalworking from bearing count alone."
+            ),
+            evidence_source=evidence_source,
+        )
+    elif WOOD_CNC_ROUTER_BIT.search(title):
+        clf = _exit_tx_owner(
+            meaning="CNC woodworking router profile bit / cutter (BladeKat-style naming).",
+            function="Wood panel/profile routing",
+            application="Woodworking CNC router",
+            rationale=(
+                "BladeKat/profile-router naming (V-groove, finger-joint, profile) indicates "
+                "woodworking CNC tooling — TX-OWNER-001 woodworking scope. "
+                "CNC here does not imply metalworking Cutting Tools domain."
+            ),
+            evidence_strength="MEDIUM",
+            confidence="MEDIUM",
+            confidence_basis="HEURISTIC",
+            evidence_source=evidence_source,
+        )
+    elif WOODWORKING_MARKERS.search(title) and not METAL_TURNING_INSERT.search(title):
+        clf = _exit_tx_owner(
+            meaning="Woodworking hand or bench tool / consumable.",
+            function="Woodworking operation",
+            application="Carpentry / wood shop",
+            rationale="Woodworking markers in product title; TX-OWNER-001 CATALOG_EXIT proposal.",
+            evidence_strength="MEDIUM",
+            confidence="MEDIUM",
+            confidence_basis="HEURISTIC",
+            evidence_source=evidence_source,
+        )
+    elif DEBURR_HAND.search(title):
+        clf = _exit_tx_owner(
+            meaning="Manual deburring tool or blade.",
+            function="Hand deburring",
+            rationale=(
+                "CP-GRAT / deburring hand tools are workshop tools, not approved industrial domains."
+            ),
+            evidence_strength="MEDIUM",
+            confidence="MEDIUM",
+            confidence_basis="HEURISTIC",
+            evidence_source=evidence_source,
+        )
+    elif MACHINE_JACK.search(title):
+        clf = Classification(
+            disposition="OWNER_DECISION_REQUIRED",
+            meaning="Machine shop jack / support — workholding vs general accessory.",
+            function="Machine support / lifting",
+            application="Unclear from title",
+            domain_code="",
+            domain_name="",
+            rationale=(
+                "Could be workshop accessory or workholding support. "
+                "No OEM sheet in preserved census; Owner must decide exit vs industrial exception."
+            ),
+            evidence_strength="LOW",
+            confidence="LOW",
+            confidence_basis="CENSUS_ONLY",
+            evidence_source=evidence_source,
+        )
+    elif HAND_WORKSHOP_MARKERS.search(title):
+        clf = _exit_tx_owner(
+            meaning="General hand or workshop tool / pneumatic accessory.",
+            function="Manual or workshop pneumatic operation",
+            rationale=(
+                "Title matches workshop/hand patterns (clamp, air prep, punch, etc.). "
+                "Proposed CATALOG_EXIT — heuristic only, not HIGH strength from regex alone."
+            ),
+            evidence_strength="LOW",
+            confidence="LOW",
+            confidence_basis="HEURISTIC",
+            evidence_source=evidence_source,
+        )
+    elif GENERIC_TITLE.search(title):
+        clf = _needs_more(
+            meaning="Marketing title is model code only.",
+            function="Unknown",
+            rationale="Insufficient technical identity in preserved census; need OEM listing or specs.",
+            evidence_source=evidence_source,
+        )
+    elif cid == 158:
+        clf = _exit_tx_owner(
+            meaning="Listed under general hand-tool category scope (TX-OWNER-001).",
+            function="General hand tool (category placement)",
+            rationale=(
+                "Category 158 is TX-OWNER-001 scope. Without contrary industrial evidence, "
+                "default exit proposal with LOW heuristic confidence."
+            ),
+            evidence_strength="LOW",
+            confidence="LOW",
+            confidence_basis="HEURISTIC",
+            evidence_source=evidence_source,
+        )
+    elif cid == 160:
+        clf = _exit_tx_owner(
+            meaning="Listed under woodworking-tool category scope (TX-OWNER-001).",
+            function="Woodworking category placement",
+            rationale="Category 160 woodworking scope; exit proposal unless industrial evidence added.",
+            evidence_strength="LOW",
+            confidence="LOW",
+            confidence_basis="HEURISTIC",
+            evidence_source=evidence_source,
         )
     else:
-        disposition = "OWNER_DECISION_REQUIRED"
-        meaning = "کارکرد از عنوان قابل حدس است اما مرز governance روشن نیست."
-        function = "Ambiguous workshop vs industrial accessory"
-        strength = "LOW"
-        confidence = "LOW"
-        rationale = "نیاز به بررسی Owner با شواهد تکمیلی."
+        clf = Classification(
+            disposition="OWNER_DECISION_REQUIRED",
+            meaning="Ambiguous scope",
+            function="Unknown",
+            application="",
+            domain_code="",
+            domain_name="",
+            rationale="Unable to classify from census; Owner review required.",
+            evidence_strength="LOW",
+            confidence="LOW",
+            confidence_basis="CENSUS_ONLY",
+            evidence_source=evidence_source,
+        )
 
-    if disposition not in PRIMARY_DISPOSITIONS:
-        raise RuntimeError(f"invalid_disposition {disposition}")
+    if clf.disposition not in PRIMARY_DISPOSITIONS:
+        raise RuntimeError(f"invalid_disposition {clf.disposition}")
 
     return ReviewRow(
         product_id=pid,
@@ -351,18 +472,19 @@ def _classify(row: dict[str, str]) -> ReviewRow:
         sellable=row.get("sellable", ""),
         product_type_code=row.get("product_type_code", ""),
         product_type_name=row.get("product_type_name", ""),
-        actual_product_meaning=meaning,
-        engineering_function=function,
-        industrial_application=application,
-        evidence_source=evidence_source,
-        evidence_strength=strength,
-        scope_assessment=scope,
-        proposed_disposition=disposition,
-        proposed_industrial_domain_code=domain_code,
-        proposed_industrial_domain_name=domain_name,
-        decision_rationale=rationale,
-        confidence=confidence,
-        owner_review_required=owner_required,
+        actual_product_meaning=clf.meaning,
+        engineering_function=clf.function,
+        industrial_application=clf.application,
+        evidence_source=clf.evidence_source,
+        evidence_strength=clf.evidence_strength,
+        scope_assessment="TX_OWNER_001_IN_SCOPE",
+        proposed_disposition=clf.disposition,
+        proposed_industrial_domain_code=clf.domain_code,
+        proposed_industrial_domain_name=clf.domain_name,
+        decision_rationale=clf.rationale,
+        confidence=clf.confidence,
+        confidence_basis=clf.confidence_basis,
+        owner_review_required=clf.owner_required,
         review_status="PROPOSED",
     )
 
@@ -395,41 +517,115 @@ def review_row_to_dict(row: ReviewRow) -> dict[str, str]:
         "proposed_industrial_domain_name": row.proposed_industrial_domain_name,
         "decision_rationale": row.decision_rationale,
         "confidence": row.confidence,
+        "confidence_basis": row.confidence_basis,
         "owner_review_required": row.owner_review_required,
         "review_status": row.review_status,
     }
 
 
-REVIEW_FIELDS = list(review_row_to_dict(ReviewRow(
-    product_id=0,
-    sku="",
-    manufacturer_code="",
-    current_name="",
-    brand="",
-    category_id=0,
-    category_path="",
-    is_active="",
-    is_available="",
-    is_priced="",
-    image_present="",
-    storefront_visible="",
-    sellable="",
-    product_type_code="",
-    product_type_name="",
-    actual_product_meaning="",
-    engineering_function="",
-    industrial_application="",
-    evidence_source="",
-    evidence_strength="",
-    scope_assessment="",
-    proposed_disposition="NEEDS_MORE_EVIDENCE",
-    proposed_industrial_domain_code="",
-    proposed_industrial_domain_name="",
-    decision_rationale="",
-    confidence="LOW",
-    owner_review_required="YES",
-    review_status="PROPOSED",
-)).keys())
+REVIEW_FIELDS = list(
+    review_row_to_dict(
+        ReviewRow(
+            product_id=0,
+            sku="",
+            manufacturer_code="",
+            current_name="",
+            brand="",
+            category_id=0,
+            category_path="",
+            is_active="",
+            is_available="",
+            is_priced="",
+            image_present="",
+            storefront_visible="",
+            sellable="",
+            product_type_code="",
+            product_type_name="",
+            actual_product_meaning="",
+            engineering_function="",
+            industrial_application="",
+            evidence_source="",
+            evidence_strength="",
+            scope_assessment="",
+            proposed_disposition="NEEDS_MORE_EVIDENCE",
+            proposed_industrial_domain_code="",
+            proposed_industrial_domain_name="",
+            decision_rationale="",
+            confidence="LOW",
+            confidence_basis="CENSUS_ONLY",
+            owner_review_required="YES",
+            review_status="PROPOSED",
+        )
+    ).keys()
+)
+
+OWNER_QUEUE_FIELDS = [
+    "product_id",
+    "sku",
+    "current_name",
+    "proposed_disposition",
+    "proposed_industrial_domain_code",
+    "queue_category",
+    "proposed_owner_action",
+    "rationale_summary",
+    "evidence_strength",
+    "confidence_basis",
+]
+
+
+def queue_category_for(row: dict[str, str]) -> str:
+    disp = row["proposed_disposition"]
+    basis = row.get("confidence_basis", "")
+    if disp == "NEEDS_MORE_EVIDENCE":
+        return "OEM_EVIDENCE_MISSING"
+    if disp == "SEMANTIC_CONFLICT":
+        return "GENUINE_SEMANTIC_CONFLICT"
+    if disp == "INDUSTRIAL_EXCEPTION_CANDIDATE":
+        return "INDUSTRIAL_EXCEPTION_PENDING_OWNER_OVERRIDE"
+    if disp == "OWNER_DECISION_REQUIRED":
+        return "ENGINEERING_REVIEW_PENDING"
+    if disp == "CATALOG_EXIT_CANDIDATE":
+        if basis == "OEM_DOCUMENTED":
+            return "EXIT_CANDIDATE_OEM_BACKED_CONFIRMATION"
+        return "EXIT_CANDIDATE_HEURISTIC_CONFIRMATION"
+    return "OWNER_REVIEW_REQUIRED"
+
+
+def proposed_owner_action(row: dict[str, str]) -> str:
+    disp = row["proposed_disposition"]
+    if disp == "CATALOG_EXIT_CANDIDATE":
+        return "CONFIRM_OR_REJECT_CATALOG_EXIT"
+    if disp == "INDUSTRIAL_EXCEPTION_CANDIDATE":
+        return "APPROVE_OR_REJECT_INDUSTRIAL_EXCEPTION (no automatic rehome)"
+    if disp == "NEEDS_MORE_EVIDENCE":
+        return "PROVIDE_OEM_OR_SPEC_EVIDENCE"
+    if disp == "SEMANTIC_CONFLICT":
+        return "RESOLVE_CONFLICTING_EVIDENCE"
+    return "OWNER_ENGINEERING_DECISION"
+
+
+def build_owner_queue(reviews: list[dict[str, str]]) -> list[dict[str, str]]:
+    queue: list[dict[str, str]] = []
+    for row in reviews:
+        if row.get("owner_review_required") != "YES":
+            continue
+        queue.append(
+            {
+                "product_id": row["product_id"],
+                "sku": row["sku"],
+                "current_name": row["current_name"],
+                "proposed_disposition": row["proposed_disposition"],
+                "proposed_industrial_domain_code": row["proposed_industrial_domain_code"],
+                "queue_category": queue_category_for(row),
+                "proposed_owner_action": proposed_owner_action(row),
+                "rationale_summary": row["decision_rationale"][:500],
+                "evidence_strength": row["evidence_strength"],
+                "confidence_basis": row["confidence_basis"],
+            }
+        )
+    if len(queue) != 262:
+        raise RuntimeError(f"owner_queue_must_cover_all_262 got={len(queue)}")
+    return queue
 
 
 def build_product_reviews(cohort: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -446,6 +642,30 @@ def disposition_counts(reviews: list[dict[str, str]]) -> dict[str, int]:
     return counts
 
 
+def industrial_exception_primary_count(reviews: list[dict[str, str]]) -> int:
+    return sum(
+        1
+        for r in reviews
+        if r["proposed_disposition"] == "INDUSTRIAL_EXCEPTION_CANDIDATE"
+    )
+
+
+def semantic_conflict_count(reviews: list[dict[str, str]]) -> int:
+    return sum(1 for r in reviews if r["proposed_disposition"] == "SEMANTIC_CONFLICT")
+
+
+def proposed_domain_counts(reviews: list[dict[str, str]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in reviews:
+        code = row.get("proposed_industrial_domain_code") or ""
+        if not code:
+            continue
+        if code not in APPROVED_DOMAIN_CODES:
+            raise RuntimeError(f"invalid_proposed_domain {code}")
+        counts[code] = counts.get(code, 0) + 1
+    return counts
+
+
 def validate_primary_partition(reviews: list[dict[str, str]]) -> None:
     if len(reviews) != 262:
         raise RuntimeError(f"review_row_count {len(reviews)}")
@@ -455,3 +675,14 @@ def validate_primary_partition(reviews: list[dict[str, str]]) -> None:
     counts = disposition_counts(reviews)
     if sum(counts.values()) != 262:
         raise RuntimeError("disposition_sum_mismatch")
+    if semantic_conflict_count(reviews) > 0:
+        for row in reviews:
+            if row["proposed_disposition"] == "SEMANTIC_CONFLICT":
+                if row["proposed_industrial_domain_code"]:
+                    raise RuntimeError(
+                        "semantic_conflict_must_not_carry_approved_domain_tag"
+                    )
+
+
+def external_source_register_rows() -> list[dict[str, str]]:
+    return list(EXTERNAL_SOURCES)

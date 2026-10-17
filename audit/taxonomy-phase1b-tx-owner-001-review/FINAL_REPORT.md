@@ -3,41 +3,45 @@
 
 ## خلاصه اجرایی (فارسی)
 
-این موج **بررسی معنایی محصول‌محور TX-OWNER-001** است و بر اساس سرشمار **۱۵ مهر ۱۴۰۴ (۲۰۲۶-۱۰-۱۵)** انجام شده؛ وضعیت زندهٔ امروز کاتالوگ را اثبات نمی‌کند.
+این موج **بررسی معنایی محصول‌محور TX-OWNER-001** است و بر اساس سرشمار تاریخ‌دار **2026-10-15T09:34:39Z** انجام شده؛ وضعیت زندهٔ امروز کاتالوگ را اثبات نمی‌کند.
 
-- **جمعیت بررسی:** 262 محصول یکتا در دسته‌های ۱۵۸ و ۱۶۰ (زیرمجموعهٔ دامنهٔ رد‌شدهٔ ابزار دستی/نجاری).
-- **پیشنهاد خروج از کاتالوگ:** 204 مورد (ابزار دستی/نجاری/کارگاهی).
-- **تعارض معنایی (عنوان صنعتی در دستهٔ چوبی):** 35 مورد — عمدتاً تیغ/شیارزن CNC.
-- **استثناء صنعتی پیشنهادی:** 15 مورد — **بدون مجوز rehome**.
-- **نیاز به تصمیم مالک:** 8 مورد (مرز ابزارگیر/بادی/جک ماشین‌کاری).
-- **شواهد ناکافی:** 0 مورد.
+- **جمعیت بررسی:** 262 محصول یکتا در دسته‌های ۱۵۸ و ۱۶۰.
+- **پیشنهاد خروج از کاتالوگ:** 242 مورد.
+- **تعارض معنایی (primary):** 0 مورد.
+- **استثناء صنعتی (primary):** 1 مورد — **بدون مجوز rehome**.
+- **نیاز به تصمیم مالک (primary):** 1 مورد.
+- **شواهد ناکافی:** 18 مورد.
+- **صف تأیید مالک:** 262 ردیف (شامل همهٔ پیشنهادها).
 
 هیچ APPLY، حذف، یا انتقال خودکار انجام نشده است. گام بعدی: تأیید مالک روی پیشنهادهای سطح محصول.
 
 
 ## Identity
 
-- Git HEAD: `64849323da4726dabdfad24eeded7a2874353e97`
+- Git HEAD: `d0ad0a4107af619483f73b220e63a0b0a8f893d7`
 - Baseline PR #498 reviewed HEAD: `156e46e4c4d23e470c93108b1d2009571883f969`
 - Historical census: `/home/shebahati/Projects/Karzar/audit/taxonomy-phase1b-baseline-2026-10-15/02-PRODUCT-CATEGORY-CENSUS.csv` (collected 2026-10-15T09:34:39Z)
 
 ## Disposition distribution
 
 {
-  "SEMANTIC_CONFLICT": 35,
-  "INDUSTRIAL_EXCEPTION_CANDIDATE": 15,
-  "NEEDS_MORE_EVIDENCE": 0,
-  "OWNER_DECISION_REQUIRED": 8,
-  "CATALOG_EXIT_CANDIDATE": 204
+  "NEEDS_MORE_EVIDENCE": 18,
+  "CATALOG_EXIT_CANDIDATE": 242,
+  "INDUSTRIAL_EXCEPTION_CANDIDATE": 1,
+  "OWNER_DECISION_REQUIRED": 1,
+  "SEMANTIC_CONFLICT": 0
 }
 
-## Owner decision queue (high level)
+## Owner decision queue
 
-| Theme | Count | Owner question |
-|-------|------:|----------------|
-| Pneumatic die grinders with collet | 7 | Workshop pneumatic tool vs industrial metalworking accessory? |
-| Machine jack | 1 | Workholding exception or catalog exit? |
-| Semantic conflict (CNC inserts in woodworking category) | 35 | Approve industrial exception per SKU without auto-rehome? |
+Full queue: `05-OWNER-DECISION-QUEUE.csv` (262 rows). Industrial exceptions are **not** auto-approved.
+
+## Correction notes (vs d0ad0a41)
+
+- Removed broad metalworking inference from CNC/تیغ/شیارزن tokens alone.
+- Mighty Seven QA-210/211 documented as Air Die Grinders (OEM) → workshop exit, not Toolholding.
+- BladeKat-style router bits treated as woodworking CNC tooling (exit), not Cutting Tools inserts.
+- Grooving/finishing blades without OEM context → NEEDS_MORE_EVIDENCE.
 
 ## Safety
 

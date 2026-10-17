@@ -1,0 +1,4 @@
+source_id,source_url,manufacturer,model_identity,evidence_class,supported_claim,affected_product_ids,verification_status
+EXT-M7-158,https://www.mighty-seven.com/product/158,Mighty Seven (M7),QA-210 A/B Air Die Grinder,OEM_PRODUCT_PAGE,"QA-210 family is classified by OEM as Air Die Grinder (Air Tools), not a toolholding Product Type.",5194,HUMAN_VERIFIED_2026-10-17
+EXT-M7-159,https://www.mighty-seven.com/product/159,Mighty Seven (M7),QA-211 A/B Air Die Grinder,OEM_PRODUCT_PAGE,QA-211 family is classified by OEM as Air Die Grinder with collet sizes; collet is interface of a handheld pneumatic grinder.,5195,HUMAN_VERIFIED_2026-10-17
+EXT-M7-AIR-TOOLS-CLASS,https://www.mighty-seven.com/,Mighty Seven (M7),Air Tools product family,OEM_CATEGORY_TAXONOMY,"Die grinders and angle grinders are marketed under Air Tools, consistent with workshop pneumatic power tools rather than Cutting Tool inserts.","5190-5207,5209,5215-5216",INFERRED_FROM_OEM_SITE_STRUCTURE

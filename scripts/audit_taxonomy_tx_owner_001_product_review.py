@@ -8,7 +8,6 @@ import hashlib
 import json
 import subprocess
 import sys
-from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -19,11 +18,17 @@ if str(SCRIPTS) not in sys.path:
 
 from catalog_target.taxonomy_phase1b_baseline import write_csv  # noqa: E402
 from catalog_target.tx_owner_001_semantic_review import (  # noqa: E402
+    OWNER_QUEUE_FIELDS,
     PRIMARY_DISPOSITIONS,
     REVIEW_FIELDS,
+    build_owner_queue,
     build_product_reviews,
     disposition_counts,
+    external_source_register_rows,
+    industrial_exception_primary_count,
     load_cohort_products,
+    proposed_domain_counts,
+    semantic_conflict_count,
     validate_primary_partition,
 )
 
@@ -115,15 +120,11 @@ def main(argv: list[str] | None = None) -> int:
     write_csv(
         out_dir / "03-INDUSTRIAL-EXCEPTION-CANDIDATES.csv",
         REVIEW_FIELDS,
-        by_disp["INDUSTRIAL_EXCEPTION_CANDIDATE"] + by_disp["SEMANTIC_CONFLICT"],
+        by_disp["INDUSTRIAL_EXCEPTION_CANDIDATE"],
     )
     write_csv(out_dir / "04-INSUFFICIENT-EVIDENCE.csv", REVIEW_FIELDS, by_disp["NEEDS_MORE_EVIDENCE"])
-    queue = (
-        by_disp["OWNER_DECISION_REQUIRED"]
-        + by_disp["SEMANTIC_CONFLICT"]
-        + by_disp["NEEDS_MORE_EVIDENCE"]
-    )
-    write_csv(out_dir / "05-OWNER-DECISION-QUEUE.csv", REVIEW_FIELDS, queue)
+    queue = build_owner_queue(reviews)
+    write_csv(out_dir / "05-OWNER-DECISION-QUEUE.csv", OWNER_QUEUE_FIELDS, queue)
 
     cat_props: list[dict[str, str]] = []
     with category_path.open(encoding="utf-8", newline="") as handle:
@@ -193,6 +194,12 @@ def main(argv: list[str] | None = None) -> int:
         list(evidence_register[0].keys()),
         evidence_register,
     )
+    ext_rows = external_source_register_rows()
+    write_csv(
+        out_dir / "09-EXTERNAL-SOURCE-REGISTER.csv",
+        list(ext_rows[0].keys()),
+        ext_rows,
+    )
 
     counts = disposition_counts(reviews)
     reconciliation = {
@@ -201,6 +208,10 @@ def main(argv: list[str] | None = None) -> int:
         "category_158_products": sum(1 for r in reviews if r["current_category_id"] == "158"),
         "category_160_products": sum(1 for r in reviews if r["current_category_id"] == "160"),
         "disposition_counts": counts,
+        "industrial_exception_primary_count": industrial_exception_primary_count(reviews),
+        "semantic_conflict_count": semantic_conflict_count(reviews),
+        "proposed_domain_tag_counts": proposed_domain_counts(reviews),
+        "owner_queue_row_count": len(queue),
         "mutually_exclusive_primary_disposition": True,
         "excluded_category_154_bulk": True,
         "excluded_category_156_industrial_oils": True,
@@ -211,18 +222,27 @@ def main(argv: list[str] | None = None) -> int:
         encoding="utf-8",
     )
 
-    domain_counts = Counter(
-        r["proposed_industrial_domain_code"]
-        for r in reviews
-        if r["proposed_industrial_domain_code"]
-    )
+    domain_counts = proposed_domain_counts(reviews)
+    prev_correction_note = {
+        "prior_review_head": "d0ad0a4107af619483f73b220e63a0b0a8f893d7",
+        "prior_disposition_counts": {
+            "CATALOG_EXIT_CANDIDATE": 204,
+            "SEMANTIC_CONFLICT": 35,
+            "INDUSTRIAL_EXCEPTION_CANDIDATE": 15,
+            "OWNER_DECISION_REQUIRED": 8,
+            "NEEDS_MORE_EVIDENCE": 0,
+        },
+    }
 
     summary = {
         "status": "READY_FOR_OWNER_REVIEW",
         "population_unique_products": 262,
         "disposition_counts": counts,
-        "industrial_domain_proposals": dict(domain_counts),
+        "industrial_exception_primary_count": industrial_exception_primary_count(reviews),
+        "semantic_conflict_primary_count": semantic_conflict_count(reviews),
+        "proposed_domain_tag_counts": domain_counts,
         "owner_queue_rows": len(queue),
+        "correction_delta_note": prev_correction_note,
         "category_scope": {
             "157": {"direct": 0, "role": "parent_hand_tools"},
             "158": {"direct": 196},
@@ -244,14 +264,15 @@ def main(argv: list[str] | None = None) -> int:
     fa_summary = f"""
 ## خلاصه اجرایی (فارسی)
 
-این موج **بررسی معنایی محصول‌محور TX-OWNER-001** است و بر اساس سرشمار **۱۵ مهر ۱۴۰۴ (۲۰۲۶-۱۰-۱۵)** انجام شده؛ وضعیت زندهٔ امروز کاتالوگ را اثبات نمی‌کند.
+این موج **بررسی معنایی محصول‌محور TX-OWNER-001** است و بر اساس سرشمار تاریخ‌دار **2026-10-15T09:34:39Z** انجام شده؛ وضعیت زندهٔ امروز کاتالوگ را اثبات نمی‌کند.
 
-- **جمعیت بررسی:** {len(reviews)} محصول یکتا در دسته‌های ۱۵۸ و ۱۶۰ (زیرمجموعهٔ دامنهٔ رد‌شدهٔ ابزار دستی/نجاری).
-- **پیشنهاد خروج از کاتالوگ:** {counts['CATALOG_EXIT_CANDIDATE']} مورد (ابزار دستی/نجاری/کارگاهی).
-- **تعارض معنایی (عنوان صنعتی در دستهٔ چوبی):** {counts['SEMANTIC_CONFLICT']} مورد — عمدتاً تیغ/شیارزن CNC.
-- **استثناء صنعتی پیشنهادی:** {counts['INDUSTRIAL_EXCEPTION_CANDIDATE']} مورد — **بدون مجوز rehome**.
-- **نیاز به تصمیم مالک:** {counts['OWNER_DECISION_REQUIRED']} مورد (مرز ابزارگیر/بادی/جک ماشین‌کاری).
+- **جمعیت بررسی:** {len(reviews)} محصول یکتا در دسته‌های ۱۵۸ و ۱۶۰.
+- **پیشنهاد خروج از کاتالوگ:** {counts['CATALOG_EXIT_CANDIDATE']} مورد.
+- **تعارض معنایی (primary):** {counts['SEMANTIC_CONFLICT']} مورد.
+- **استثناء صنعتی (primary):** {counts['INDUSTRIAL_EXCEPTION_CANDIDATE']} مورد — **بدون مجوز rehome**.
+- **نیاز به تصمیم مالک (primary):** {counts['OWNER_DECISION_REQUIRED']} مورد.
 - **شواهد ناکافی:** {counts['NEEDS_MORE_EVIDENCE']} مورد.
+- **صف تأیید مالک:** {len(queue)} ردیف (شامل همهٔ پیشنهادها).
 
 هیچ APPLY، حذف، یا انتقال خودکار انجام نشده است. گام بعدی: تأیید مالک روی پیشنهادهای سطح محصول.
 """
@@ -270,13 +291,16 @@ def main(argv: list[str] | None = None) -> int:
 
 {json.dumps(counts, indent=2)}
 
-## Owner decision queue (high level)
+## Owner decision queue
 
-| Theme | Count | Owner question |
-|-------|------:|----------------|
-| Pneumatic die grinders with collet | 7 | Workshop pneumatic tool vs industrial metalworking accessory? |
-| Machine jack | 1 | Workholding exception or catalog exit? |
-| Semantic conflict (CNC inserts in woodworking category) | {counts['SEMANTIC_CONFLICT']} | Approve industrial exception per SKU without auto-rehome? |
+Full queue: `05-OWNER-DECISION-QUEUE.csv` ({len(queue)} rows). Industrial exceptions are **not** auto-approved.
+
+## Correction notes (vs d0ad0a41)
+
+- Removed broad metalworking inference from CNC/تیغ/شیارزن tokens alone.
+- Mighty Seven QA-210/211 documented as Air Die Grinders (OEM) → workshop exit, not Toolholding.
+- BladeKat-style router bits treated as woodworking CNC tooling (exit), not Cutting Tools inserts.
+- Grooving/finishing blades without OEM context → NEEDS_MORE_EVIDENCE.
 
 ## Safety
 
@@ -297,6 +321,7 @@ Owner approval of proposed product-level dispositions before any Phase 1B APPLY 
         "05-OWNER-DECISION-QUEUE.csv",
         "06-CATEGORY-DISPOSITION-PROPOSALS.csv",
         "07-EVIDENCE-REGISTER.csv",
+        "09-EXTERNAL-SOURCE-REGISTER.csv",
         "08-COHORT-RECONCILIATION.json",
         "SUMMARY.json",
         "FINAL_REPORT.md",
