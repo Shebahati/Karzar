@@ -1007,6 +1007,17 @@ documents:
       This is documentary authorization only: no APPLY, deletion, rehome,
       production, deployment, or Hesabfa mutation permission.
 
+  - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-002-20261017
+    path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-002-2026-10-17.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner-approved target catalog exit decision for exactly M7 QA210A
+      and QA211A. Documentary decision only, with no APPLY, deletion,
+      deactivation, rehome, Production, deployment, or Hesabfa permission.
+
   - id: PRODUCT-NAMING-V1-CONSTITUTION
     path: audit/product-naming-v1/NAMING_CONSTITUTION.md
     class: EVIDENCE
