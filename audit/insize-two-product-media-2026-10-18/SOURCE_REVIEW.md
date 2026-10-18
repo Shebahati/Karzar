@@ -54,3 +54,32 @@ Owner confirmed both products are physically available on 2026-10-18. This is a 
   - Backup exact-code product gallery explicitly describing the green case: https://organametrisis.gr/en/products/2824-s3-kylindrometra-set-3-temaxiwn-18-160-mm
   - Manufacturer catalogue matches packaging with code 2824-S3; do not substitute 2824-S160 or digital 2724-S3.
 - Selection: these are exact-SKU source-page leads and direct-image URLs where indexed. The remote media hosts refused direct binary retrieval in this environment. Therefore no byte-size, hash, image-dimension, storefront permission, or production upload is claimed. Obtain/use original assets via an authorized supplier/manufacturer channel. Do not hotlink external merchant CDNs into the live product gallery.
+
+## Actual user-provided binary review — 2026-10-18
+
+Owner uploaded `karzar_insize_media_20261018.tar.gz` (manifest + two Cutwel-source
+1600x1600 WebP images). The SHA-256 of both images **matches** the
+download manifest; both files decode successfully. Owner explicitly attested
+commercial-use rights.
+
+- ID 1944 / 3203-1506 / OEM 3203-1506A: source
+  `1944_cutwel.webp`, SHA-256
+  `21012d0be4dc8cbdbd7bb9cd94bf2c08e1bb35a3672cdb6fd741c576dc60f80f`.
+  **REJECTED** by actual pixel review: opened case visibly contains FOUR
+  micrometers, not the owner's SIX-piece 0–150 mm kit. Exact product page
+  title is not sufficient proof of the photo. DO NOT PUBLISH this binary
+  for ID 1944. Replacement exact-SKU lead:
+  https://partineh.com/p/87525 ; indexed original photo URL:
+  https://partineh.com/upload/images/2023/%D8%B3%D8%AA-%D9%85%DB%8C%DA%A9%D8%B1%D9%88%D9%85%D8%AA%D8%B1-%D8%A7%DB%8C%D9%86%D8%B3%D8%A7%DB%8C%D8%B2-%D9%85%D8%AF%D9%84-1506-3203.jpg .
+  Its actual bytes not yet retrieved/reviewed.
+- ID 3639 / S3-2824 / OEM 2824-S3:
+  `3639_cutwel_main.webp`, SHA-256
+  `db18cd1a9b181bcd70297ca574f96afc37af7598a698c13100c71aff425479fc`.
+  **VISUALLY ACCEPTED**: photo contains fitted case, three analog dial bore
+  gauge assemblies and accessories, matching the 18–160 mm three-piece set.
+  Original source bytes preserved for a 1600x1600 WebP hero; a 640x640 WebP
+  thumbnail derived without retouching. Output package for user:
+  `karzar_insize_verified_media_20261018.zip` (local chat artifact, not
+  uploaded to repository/server).
+
+This review does not authorize database APPLY, deployment, or account sync.
