@@ -1057,6 +1057,16 @@ documents:
       Evidence-only Owner decision options for 13 exact-OEM-reference M7 products
       and two unresolved Groz families. No Batch 006 or Owner approval, no APPLY.
 
+  - id: TAXONOMY-TX-OWNER-001-P2-89-OPTIONS-20261018
+    path: audit/taxonomy-phase1b-tx-owner-001-p2-89-bulk-2026-10-18/00-OWNER-P2-89-REVIEW-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      P2 exact 89 bounded product-level research options, 70 documentary
+      exit candidates and 19 evidence gates; no Owner decision or APPLY.
+
   - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-009-20261018
     path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-009-2026-10-18.md
     class: DECISION
