@@ -164,10 +164,10 @@
         "linkedOrbKey": "discounts",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/H01-special-offers-native-lossless.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/H01-special-offers-1280.webp",
+          "imageUrl": "/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/calibrated-20261018/H01-special-offers-mobile-4x3.webp",
           "color": "#121212",
-          "focal": "left 38%"
+          "focal": "left 58%"
         },
         "overlay": {
           "mode": "gradient",
@@ -237,10 +237,10 @@
         "linkedOrbKey": "metrology",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/H02-measuring-tools-native-lossless.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/H02-measuring-tools-1280.webp",
+          "imageUrl": "/images/hero/reborn-5/calibrated-20261018/H02-measuring-tools-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/calibrated-20261018/H02-measuring-tools-mobile-4x3.webp",
           "color": "#121212",
-          "focal": "left 40%"
+          "focal": "left 62%"
         },
         "overlay": {
           "mode": "gradient",
@@ -310,10 +310,10 @@
         "linkedOrbKey": "inserts",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/H03-inserts-turning-tools-native-lossless.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/H03-inserts-turning-tools-1280.webp",
+          "imageUrl": "/images/hero/reborn-5/calibrated-20261018/H03-inserts-turning-tools-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/calibrated-20261018/H03-inserts-turning-tools-mobile-4x3.webp",
           "color": "#121212",
-          "focal": "left 42%"
+          "focal": "left 64%"
         },
         "overlay": {
           "mode": "gradient",
@@ -401,10 +401,10 @@
         "linkedOrbKey": "endmills",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/H04-end-mills-native-lossless.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/H04-end-mills-1280.webp",
+          "imageUrl": "/images/hero/reborn-5/calibrated-20261018/H04-end-mills-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/calibrated-20261018/H04-end-mills-mobile-4x3.webp",
           "color": "#121212",
-          "focal": "left 44%"
+          "focal": "left center"
         },
         "overlay": {
           "mode": "gradient",
@@ -474,10 +474,10 @@
         "linkedOrbKey": "industrial-machines",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/H05-industrial-machines-native-lossless.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/H05-industrial-machines-1280.webp",
+          "imageUrl": "/images/hero/reborn-5/calibrated-20261018/H05-industrial-machines-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/calibrated-20261018/H05-industrial-machines-mobile-4x3.webp",
           "color": "#121212",
-          "focal": "left 36%"
+          "focal": "left 56%"
         },
         "overlay": {
           "mode": "gradient",

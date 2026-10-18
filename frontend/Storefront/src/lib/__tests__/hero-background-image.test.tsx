@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { act, type ReactNode } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  CALIBRATED_HERO_DESKTOP_INTRINSIC,
   HeroBackgroundImage,
   buildHeroBackgroundPictureSources,
 } from "@/lib/hero-background-image";
@@ -52,6 +53,25 @@ describe("buildHeroBackgroundPictureSources", () => {
     });
     expect(built!.desktop.width).toBe(1672);
     expect(built!.desktop.height).toBe(941);
+  });
+
+  it("uses calibrated master dimensions without changing legacy v2 intrinsics", () => {
+    const built = buildHeroBackgroundPictureSources({
+      desktopSrc:
+        "/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+      mobileSrc:
+        "/images/hero/reborn-5/calibrated-20261018/H01-special-offers-mobile-4x3.webp",
+      priority: true,
+      sizes: "100vw",
+    });
+    expect(built!.desktop.width).toBe(CALIBRATED_HERO_DESKTOP_INTRINSIC.width);
+    expect(built!.desktop.height).toBe(CALIBRATED_HERO_DESKTOP_INTRINSIC.height);
+    expect(built!.desktop.srcSet).toContain("H01-special-offers-desktop-16x9.webp");
+    expect(built!.mobileSrcSet).toContain("H01-special-offers-mobile-4x3.webp");
+    expect(built!.mobileSrcSet).not.toContain("desktop-16x9");
+    expect(built!.desktop.srcSet).toContain("/_next/image?");
+    expect(built!.mobileSrcSet).toContain("/_next/image?");
+    expect(built!.loading).toBe("eager");
   });
 
   it("marks priority builds eager with high fetch priority and non-priority lazy", () => {

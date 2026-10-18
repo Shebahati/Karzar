@@ -7,10 +7,27 @@ import { HERO_IMAGE_QUALITY } from "@/lib/cwv";
 import { DEFAULT_MOBILE_SOURCE_MAX_PX } from "@/lib/hero-campaign-layout";
 import { cn } from "@/lib/utils";
 
-/** Intrinsic sizes for v2 hero art (Next image optimizer input dimensions). */
-const HERO_DESKTOP_INTRINSIC = { width: 1672, height: 941 } as const;
-/** Reborn-5 mobile derivatives are landscape 1280×720 WebP (not portrait art). */
-const HERO_MOBILE_INTRINSIC = { width: 1280, height: 720 } as const;
+/** Legacy v2 / pre-calibrated hero art passed to the Next image optimizer. */
+const LEGACY_HERO_DESKTOP_INTRINSIC = { width: 1672, height: 941 } as const;
+const LEGACY_HERO_MOBILE_INTRINSIC = { width: 1280, height: 720 } as const;
+
+/** Calibrated campaign masters. Optimizer srcsets still follow `deviceSizes`. */
+export const CALIBRATED_HERO_DESKTOP_INTRINSIC = { width: 3840, height: 2160 } as const;
+export const CALIBRATED_HERO_MOBILE_INTRINSIC = { width: 2880, height: 2160 } as const;
+
+const CALIBRATED_HERO_DIR = "/images/hero/reborn-5/calibrated-20261018/";
+
+export function heroIntrinsicSize(
+  src: string,
+  kind: "desktop" | "mobile",
+): { width: number; height: number } {
+  if (src.includes(CALIBRATED_HERO_DIR)) {
+    return kind === "desktop"
+      ? CALIBRATED_HERO_DESKTOP_INTRINSIC
+      : CALIBRATED_HERO_MOBILE_INTRINSIC;
+  }
+  return kind === "desktop" ? LEGACY_HERO_DESKTOP_INTRINSIC : LEGACY_HERO_MOBILE_INTRINSIC;
+}
 
 export type HeroBackgroundPictureSources = {
   desktop: Pick<
@@ -25,7 +42,7 @@ type BuildHeroBackgroundPictureSourcesArgs = {
   desktopSrc: string;
   mobileSrc?: string | null;
   priority?: boolean;
-  mobileSourceMaxWidthPx?: number;
+  sizes?: string;
 };
 
 /** Build optimized `/_next/image` srcsets for art-directed hero backgrounds. */
@@ -33,7 +50,7 @@ export function buildHeroBackgroundPictureSources({
   desktopSrc,
   mobileSrc,
   priority = false,
-  mobileSourceMaxWidthPx = DEFAULT_MOBILE_SOURCE_MAX_PX,
+  sizes = "(max-width: 1024px) 100vw, 100vw",
 }: BuildHeroBackgroundPictureSourcesArgs): HeroBackgroundPictureSources | null {
   if (!mobileSrc) return null;
 
@@ -44,8 +61,8 @@ export function buildHeroBackgroundPictureSources({
   const desktop = getImageProps({
     src: desktopSrc,
     alt: "",
-    ...HERO_DESKTOP_INTRINSIC,
-    sizes: "(max-width: 1024px) 100vw, 100vw",
+    ...heroIntrinsicSize(desktopSrc, "desktop"),
+    sizes,
     quality: HERO_IMAGE_QUALITY,
     ...perf,
   });
@@ -53,17 +70,25 @@ export function buildHeroBackgroundPictureSources({
   const mobile = getImageProps({
     src: mobileSrc,
     alt: "",
-    ...HERO_MOBILE_INTRINSIC,
+    ...heroIntrinsicSize(mobileSrc, "mobile"),
     sizes: "100vw",
     quality: HERO_IMAGE_QUALITY,
     ...perf,
   });
 
-  const { src, srcSet, sizes, width, height, decoding, fetchPriority } = desktop.props;
+  const {
+    src,
+    srcSet,
+    sizes: desktopSizes,
+    width,
+    height,
+    decoding,
+    fetchPriority,
+  } = desktop.props;
   if (!srcSet || !mobile.props.srcSet) return null;
 
   return {
-    desktop: { src, srcSet, sizes, width, height, decoding, fetchPriority },
+    desktop: { src, srcSet, sizes: desktopSizes, width, height, decoding, fetchPriority },
     mobileSrcSet: mobile.props.srcSet,
     loading: priority ? "eager" : "lazy",
   };
@@ -148,7 +173,7 @@ export function HeroBackgroundImage({
     desktopSrc,
     mobileSrc,
     priority,
-    mobileSourceMaxWidthPx,
+    sizes,
   });
 
   const objectStyle: CSSProperties = {

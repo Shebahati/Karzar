@@ -5,9 +5,12 @@ import {
   CAMPAIGN_DESKTOP_COPY_MAX_WIDTH,
   CAMPAIGN_DESKTOP_MAX_VERTICAL_NUDGE_PX,
   CAMPAIGN_DESKTOP_MIN_EDGE_MARGIN_PX,
+  CAMPAIGN_COMPACT_ART_HEIGHT_PX,
+  CAMPAIGN_COMPACT_ART_WIDTH_PX,
+  CAMPAIGN_DESKTOP_ART_HEIGHT_PX,
+  CAMPAIGN_DESKTOP_ART_WIDTH_PX,
   CAMPAIGN_MOBILE_SOURCE_MAX_PX,
-  COMPACT_BAND_ART_WIDTH_PX,
-  COMPACT_BAND_PORTRAIT_HEIGHT_PX,
+  DEFAULT_COMPACT_ASPECT,
   campaignCompactCtaCount,
   campaignMediaForSlide,
   campaignTallestCompactCopySlide,
@@ -27,10 +30,13 @@ describe("hero campaign layout", () => {
     expect(isRebornFiveCampaign(trimmed)).toBe(false);
   });
 
-  it("supplies compact media aspect per slide", () => {
+  it("uses 4:3 compact media for every calibrated slide", () => {
     const pack = buildFiveHeroPublishedPack();
-    const h05 = pack.slides.find((s) => s.config.linkedOrbKey === "industrial-machines")!;
-    expect(campaignMediaForSlide(h05.id).compactAspect).toBeGreaterThan(1.5);
+    for (const slide of pack.slides) {
+      expect(campaignMediaForSlide(slide.id).compactAspect).toBe(DEFAULT_COMPACT_ASPECT);
+    }
+    expect(campaignMediaForSlide("slide_h03_inserts").compactAspect).toBeCloseTo(4 / 3);
+    expect(campaignMediaForSlide("slide_h05_machines").compactAspect).toBeCloseTo(4 / 3);
   });
 
   it("keeps mobile focal independent from desktop focal", () => {
@@ -45,9 +51,13 @@ describe("hero campaign layout", () => {
     expect(CAMPAIGN_MOBILE_SOURCE_MAX_PX).toBe(CAMPAIGN_COMPACT_MAX_PX);
   });
 
-  it("documents portrait mobile art dimensions", () => {
-    expect(COMPACT_BAND_ART_WIDTH_PX).toBe(1280);
-    expect(COMPACT_BAND_PORTRAIT_HEIGHT_PX).toBe(1707);
+  it("documents calibrated desktop and compact master dimensions", () => {
+    expect(CAMPAIGN_DESKTOP_ART_WIDTH_PX).toBe(3840);
+    expect(CAMPAIGN_DESKTOP_ART_HEIGHT_PX).toBe(2160);
+    expect(CAMPAIGN_COMPACT_ART_WIDTH_PX).toBe(2880);
+    expect(CAMPAIGN_COMPACT_ART_HEIGHT_PX).toBe(2160);
+    expect(CAMPAIGN_DESKTOP_ART_WIDTH_PX / CAMPAIGN_DESKTOP_ART_HEIGHT_PX).toBeCloseTo(16 / 9);
+    expect(CAMPAIGN_COMPACT_ART_WIDTH_PX / CAMPAIGN_COMPACT_ART_HEIGHT_PX).toBeCloseTo(4 / 3);
   });
 
   it("treats H03 inserts as tallest compact copy reserve (two CTAs)", () => {
@@ -58,12 +68,13 @@ describe("hero campaign layout", () => {
     expect(pack.slides.every((s) => campaignCompactCtaCount(s) <= 2)).toBe(true);
   });
 
-  it("assigns per-slide compact media aspect for geometry reserve", () => {
+  it("reserves one shared compact aspect so slide changes do not jump", () => {
     const pack = buildFiveHeroPublishedPack();
     const aspects = new Set(
       pack.slides.map((s) => campaignMediaForSlide(s.id).compactAspect),
     );
-    expect(aspects.size).toBeGreaterThan(1);
+    expect(aspects.size).toBe(1);
+    expect(aspects).toEqual(new Set([DEFAULT_COMPACT_ASPECT]));
     expect(pack.slides).toHaveLength(5);
   });
 

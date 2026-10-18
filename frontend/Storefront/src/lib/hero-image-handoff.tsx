@@ -127,7 +127,7 @@ export function HeroImageHandoff(props: HandoffProps) {
         mobileSourceMaxWidthPx={displayed.mobileSourceMaxWidthPx}
         priority={priority && !preloading}
         className={imageClassName ?? "object-cover"}
-        sizes={displayed.compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
+        sizes="100vw"
         onLoad={handleVisibleLoad}
       />
       {preloading ? (
@@ -142,7 +142,7 @@ export function HeroImageHandoff(props: HandoffProps) {
             focal={incoming.focal}
             mobileSourceMaxWidthPx={incoming.mobileSourceMaxWidthPx}
             className={imageClassName ?? "object-cover"}
-            sizes={incoming.compactMedia ? "100vw" : "(max-width: 1024px) 100vw, 55vw"}
+            sizes="100vw"
             onLoad={() => handlePreloadLoad(incomingId)}
           />
         </div>
