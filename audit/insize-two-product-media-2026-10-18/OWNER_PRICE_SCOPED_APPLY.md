@@ -64,3 +64,28 @@ do not grant republication rights for image assets. Original full-resolution
 storefront-authorized photographs must come from the owner or supplier. Manufacturer
 contact is `sales@insize.com` per its official contact page; written rights and
 the exact kit photo should be requested before image ingestion.
+
+## Live production read-only preflight — 2026-10-18T10:40:12Z
+
+Operator ran `scripts/catalog_target/insize_two_product_readonly_preflight_20261018.sql`
+against independently verified `srv5944957438` / Docker container
+`lathe_postgres` / mounted volume `karzar_postgres_data` / Compose project
+`karzar` / DB `karzar_staging` (the live data plane). Session
+`transaction_read_only=on`, `ROLLBACK`, process exit=0.
+
+| ID | SKU | brand_id | active | available | base_price | original_price | image_rows | deleted_at |
+|---|---|---:|---|---|---:|---:|---:|---|
+| 1944 | 3203-1506 | NULL | true | true | 47,100,000.00 | 47,100,000.00 | 0 | NULL |
+| 3639 | S3-2824 | NULL | true | true | NULL | 10.00 | 0 | NULL |
+
+`found_target_rows=2`, `matching_identity_rows=0`, `nondeleted_rows=2`.
+Both fail the original brand_id=3 identity gate. Manufacturer code for 1944
+is `3203-1506`; 3639 manufacturer code is NULL. Prior 2026-09-30/2026-10-13
+snapshots identified these IDs with `brand_id=3`; current loss is unexplained.
+Older product 1789 audit documented an admin path capable of clearing brand_id
+on product save; this is only a hypothesis here, **not an attribution**.
+Existing active+available state MUST NOT be interpreted as public visibility:
+both image arrays are empty and 3639 has no sale price. No price/image/brand
+mutation authorized by this snapshot. Need read-only brand existence, category
+and product_change_logs inspection, and separate owner approval before any
+identity-critical brand repair. **Do not silently relax identity preflight**.
