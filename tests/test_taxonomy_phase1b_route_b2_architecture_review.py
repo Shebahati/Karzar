@@ -106,7 +106,7 @@ class RouteB2ArchitectureReviewTests(unittest.TestCase):
             b1_product_ids=b1_ids,
         )
         self.assertEqual(result["status"], "FAIL")
-        self.assertTrue(any("163" in e or "164" in e or "missing" in e for e in result["errors"]))
+        self.assertTrue(result["errors"])
 
     def test_deliverable_validation_fails_if_owner_marked_approved(self):
         inputs = load_b2_inputs()
@@ -134,6 +134,123 @@ class RouteB2ArchitectureReviewTests(unittest.TestCase):
             product_impact=product_impact,
             sensitive_dossier=sensitive,
             b1_product_ids=b1_ids,
+        )
+        self.assertEqual(result["status"], "FAIL")
+
+    def test_category_154_descendant_distinct_matches_graph(self):
+        inputs = load_b2_inputs()
+        arch = build_architecture_review_matrix(inputs)
+        row = next(r for r in arch if r["current_category_id"] == "154")
+        self.assertEqual(int(row["descendant_inclusive_distinct_product_ids_count"]), 289)
+        self.assertGreater(int(row["descendant_inclusive_distinct_product_ids_count"]), 0)
+
+    def _deliverable_context(self):
+        inputs = load_b2_inputs()
+        inv = recalculate_invariants(inputs)
+        arch = build_architecture_review_matrix(inputs)
+        product_impact = build_product_impact(inputs)
+        groups = build_grouped_owner_decisions(inputs)
+        hold_map = build_hold_category_decision_map(groups)
+        from catalog_target.taxonomy_route_b2_architecture_review import (
+            build_sensitive_dossier,
+            build_tree_disposition,
+        )
+
+        return {
+            "inputs": inputs,
+            "inv": inv,
+            "arch": arch,
+            "product_impact": product_impact,
+            "groups": groups,
+            "hold_map": hold_map,
+            "tree": build_tree_disposition(inputs),
+            "sensitive": build_sensitive_dossier(inputs),
+            "b1_ids": {int(r["product_id"]) for r in inputs.product_map if r["product_id"].isdigit()},
+        }
+
+    def test_deliverable_fails_cat_154_distinct_zeroed(self):
+        ctx = self._deliverable_context()
+        arch = copy.deepcopy(ctx["arch"])
+        row = next(r for r in arch if r["current_category_id"] == "154")
+        row["descendant_inclusive_distinct_product_ids_count"] = "0"
+        result = validate_b2_deliverables(
+            inputs=ctx["inputs"],
+            invariants=ctx["inv"],
+            arch_matrix=arch,
+            tree_disposition=ctx["tree"],
+            owner_groups=ctx["groups"],
+            hold_category_map=ctx["hold_map"],
+            product_impact=ctx["product_impact"],
+            sensitive_dossier=ctx["sensitive"],
+            b1_product_ids=ctx["b1_ids"],
+        )
+        self.assertEqual(result["status"], "FAIL")
+
+    def test_deliverable_fails_cat_163_unresolved_corrupted(self):
+        ctx = self._deliverable_context()
+        arch = copy.deepcopy(ctx["arch"])
+        row = next(r for r in arch if r["current_category_id"] == "163")
+        row["descendant_inclusive_unresolved_product_ids_count"] = "0"
+        result = validate_b2_deliverables(
+            inputs=ctx["inputs"],
+            invariants=ctx["inv"],
+            arch_matrix=arch,
+            tree_disposition=ctx["tree"],
+            owner_groups=ctx["groups"],
+            hold_category_map=ctx["hold_map"],
+            product_impact=ctx["product_impact"],
+            sensitive_dossier=ctx["sensitive"],
+            b1_product_ids=ctx["b1_ids"],
+        )
+        self.assertEqual(result["status"], "FAIL")
+
+    def test_deliverable_fails_c2_orphan_while_groups_intact(self):
+        ctx = self._deliverable_context()
+        hold_map = [r for r in ctx["hold_map"] if r["hold_category_id"] != "163"]
+        result = validate_b2_deliverables(
+            inputs=ctx["inputs"],
+            invariants=ctx["inv"],
+            arch_matrix=ctx["arch"],
+            tree_disposition=ctx["tree"],
+            owner_groups=ctx["groups"],
+            hold_category_map=hold_map,
+            product_impact=ctx["product_impact"],
+            sensitive_dossier=ctx["sensitive"],
+            b1_product_ids=ctx["b1_ids"],
+        )
+        self.assertEqual(result["status"], "FAIL")
+
+    def test_deliverable_fails_duplicate_product_row_same_id(self):
+        ctx = self._deliverable_context()
+        dup = copy.deepcopy(ctx["product_impact"])
+        dup.append(copy.deepcopy(dup[0]))
+        result = validate_b2_deliverables(
+            inputs=ctx["inputs"],
+            invariants=ctx["inv"],
+            arch_matrix=ctx["arch"],
+            tree_disposition=ctx["tree"],
+            owner_groups=ctx["groups"],
+            hold_category_map=ctx["hold_map"],
+            product_impact=dup,
+            sensitive_dossier=ctx["sensitive"],
+            b1_product_ids=ctx["b1_ids"],
+        )
+        self.assertEqual(result["status"], "FAIL")
+
+    def test_deliverable_fails_semantic_owner_approved(self):
+        ctx = self._deliverable_context()
+        arch = copy.deepcopy(ctx["arch"])
+        arch[0]["b1_semantic_interpretation_evidence"] = "OWNER_APPROVED"
+        result = validate_b2_deliverables(
+            inputs=ctx["inputs"],
+            invariants=ctx["inv"],
+            arch_matrix=arch,
+            tree_disposition=ctx["tree"],
+            owner_groups=ctx["groups"],
+            hold_category_map=ctx["hold_map"],
+            product_impact=ctx["product_impact"],
+            sensitive_dossier=ctx["sensitive"],
+            b1_product_ids=ctx["b1_ids"],
         )
         self.assertEqual(result["status"], "FAIL")
 

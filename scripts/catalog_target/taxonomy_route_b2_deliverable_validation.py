@@ -12,6 +12,7 @@ from catalog_target.taxonomy_route_b2_architecture_review import (
     HOLD_CATEGORY_IDS,
     INDUSTRIAL_OIL_CATEGORY_ID,
     B2Inputs,
+    build_category_product_impact_reference,
 )
 
 FORBIDDEN_OWNER_ARCH_STATUSES = frozenset(
@@ -22,7 +23,11 @@ FORBIDDEN_OWNER_ARCH_STATUSES = frozenset(
 def _parse_id_pipe(value: str) -> list[int]:
     if not (value or "").strip():
         return []
-    return [int(x) for x in value.split("|") if x.strip().isdigit()]
+    return [int(x) for x in value.replace(",", "|").split("|") if x.strip().isdigit()]
+
+
+def _group_covers_category(group: dict[str, str], cid: int) -> bool:
+    return cid in _parse_id_pipe(group.get("covers_hold_category_ids", ""))
 
 
 def validate_b2_deliverables(
@@ -50,33 +55,73 @@ def validate_b2_deliverables(
     if invariants["approved_executable_target_codes"] != 0:
         errors.append("executable_targets")
 
-    arch_ids = [int(r["current_category_id"]) for r in arch_matrix]
-    if len(arch_ids) != 135 or len(set(arch_ids)) != 135:
-        errors.append("arch_matrix_135_unique")
+    manifest_category_ids = {int(r["current_category_id"]) for r in inputs.manifest}
+    arch_ids_list = [int(r["current_category_id"]) for r in arch_matrix]
+    arch_ids_set = set(arch_ids_list)
+    if arch_ids_set != manifest_category_ids or len(arch_ids_list) != len(arch_ids_set):
+        errors.append("arch_matrix_category_id_set_invalid")
 
-    b2_ids = {int(r["product_id"]) for r in product_impact if r["product_id"].isdigit()}
-    if b2_ids != b1_product_ids:
+    product_rows = [r for r in product_impact if r["product_id"].isdigit()]
+    product_id_list = [int(r["product_id"]) for r in product_rows]
+    product_id_set = set(product_id_list)
+    if len(product_id_list) != len(product_id_set):
+        errors.append("product_impact_duplicate_product_ids")
+    if product_id_set != b1_product_ids:
         errors.append("b2_product_id_set_differs_from_b1")
 
-    covered_hold: set[int] = set()
-    for row in owner_groups:
-        covered_hold.update(_parse_id_pipe(row.get("covers_hold_category_ids", "")))
-    for row in hold_category_map:
-        cid = int(row["hold_category_id"])
-        gid = row["decision_group_id"]
-        if cid not in HOLD_CATEGORY_IDS:
-            errors.append(f"hold_map_invalid_category_{cid}")
-        if not any(g["decision_group_id"] == gid for g in owner_groups):
-            errors.append(f"hold_map_unknown_group_{gid}")
-        covered_hold.add(cid)
+    impact_ref = build_category_product_impact_reference(inputs)
+    for row in arch_matrix:
+        cid = int(row["current_category_id"])
+        ref = impact_ref[cid]
+        direct_n = int(row.get("direct_distinct_product_ids_count") or -1)
+        desc_n = int(row.get("descendant_inclusive_distinct_product_ids_count") or -1)
+        unres_n = int(row.get("descendant_inclusive_unresolved_product_ids_count") or -1)
+        if direct_n != len(ref.direct_product_ids):
+            errors.append(f"category_{cid}_direct_distinct_mismatch")
+        if desc_n != len(ref.descendant_inclusive_product_ids):
+            errors.append(f"category_{cid}_descendant_distinct_mismatch")
+        if unres_n != len(ref.descendant_inclusive_unresolved_product_ids):
+            errors.append(f"category_{cid}_descendant_unresolved_mismatch")
+        census_desc = int(row.get("descendant_live_product_count") or 0)
+        if census_desc != len(ref.descendant_inclusive_product_ids):
+            errors.append(f"category_{cid}_census_descendant_vs_graph_mismatch")
 
-    if covered_hold != HOLD_CATEGORY_IDS:
-        missing = sorted(HOLD_CATEGORY_IDS - covered_hold)
-        extra = sorted(covered_hold - HOLD_CATEGORY_IDS)
-        if missing:
-            errors.append(f"hold_categories_missing_from_register:{missing}")
-        if extra:
-            errors.append(f"hold_map_extra_categories:{extra}")
+    if impact_ref[154].descendant_inclusive_product_ids and int(
+        next(r for r in arch_matrix if int(r["current_category_id"]) == 154).get(
+            "descendant_inclusive_distinct_product_ids_count"
+        )
+        or 0
+    ) == 0:
+        errors.append("category_154_distinct_affected_zero")
+
+    if len(hold_category_map) != len(HOLD_CATEGORY_IDS):
+        errors.append("c2_hold_map_row_count_not_11")
+
+    hold_map_ids = {int(r["hold_category_id"]) for r in hold_category_map}
+    if hold_map_ids != HOLD_CATEGORY_IDS:
+        errors.append("c2_hold_map_id_set_invalid")
+
+    for map_row in hold_category_map:
+        cid = int(map_row["hold_category_id"])
+        gid = map_row["decision_group_id"]
+        if map_row.get("owner_architecture_decision_status") != "PENDING":
+            errors.append(f"c2_hold_{cid}_status_not_pending")
+        group = next((g for g in owner_groups if g["decision_group_id"] == gid), None)
+        if not group:
+            errors.append(f"c2_hold_{cid}_orphan_group_{gid}")
+        elif not _group_covers_category(group, cid):
+            errors.append(f"c2_hold_{cid}_group_missing_covers_hold_ids")
+
+    for g in owner_groups:
+        if g.get("owner_architecture_decision_status") != "PENDING":
+            errors.append(f"owner_group_{g['decision_group_id']}_not_pending")
+
+    covered_from_groups: set[int] = set()
+    for row in owner_groups:
+        covered_from_groups.update(_parse_id_pipe(row.get("covers_hold_category_ids", "")))
+
+    if covered_from_groups != HOLD_CATEGORY_IDS:
+        errors.append("owner_groups_hold_coverage_mismatch")
 
     for cid in HOLD_CATEGORY_IDS:
         row = next(r for r in arch_matrix if int(r["current_category_id"]) == cid)
@@ -90,6 +135,11 @@ def validate_b2_deliverables(
             errors.append("owner_architecture_marked_approved")
         if row.get("apply_authorization_status") != "NO":
             errors.append("apply_authorization_not_no")
+        if row.get("census_product_facts") != "CONFIRMED_CENSUS":
+            errors.append("census_facts_not_confirmed")
+        sem = row.get("b1_semantic_interpretation_evidence", "")
+        if sem in {"OWNER_APPROVED", "OWNER_APPROVED_ARCHITECTURE"}:
+            errors.append("semantic_marked_owner_approved_architecture")
 
     for row in tree_disposition:
         if row.get("owner_architecture_decision_status") in FORBIDDEN_OWNER_ARCH_STATUSES:
@@ -107,7 +157,7 @@ def validate_b2_deliverables(
         None,
     )
     if helicoil_row:
-        got = _parse_id_pipe(helicoil_row.get("product_ids", "").replace(",", "|"))
+        got = _parse_id_pipe(helicoil_row.get("product_ids", ""))
         if sorted(got) != sorted(HELICOIL_PRODUCT_IDS):
             errors.append("helicoil_product_ids_incomplete")
     else:
@@ -153,15 +203,13 @@ def validate_b2_deliverables(
         if (r.get("approved_target_category_code") or "").strip():
             errors.append("oil_has_executable_target")
 
-    for cid in (154, 155, 163):
+    for cid in (154, 155, 163, 157, 159):
         row = next(r for r in arch_matrix if int(r["current_category_id"]) == cid)
-        desc = int(row.get("descendant_live_product_count") or 0)
-        if desc <= 0:
-            errors.append(f"category_{cid}_descendant_impact_zero_hidden")
+        desc_distinct = int(row.get("descendant_inclusive_distinct_product_ids_count") or 0)
+        if desc_distinct <= 0:
+            errors.append(f"category_{cid}_descendant_distinct_zero")
 
-    decomp_total = sum(
-        1 for r in product_impact if r.get("mapping_mode") == "PRODUCT_LEVEL_REQUIRED"
-    )
+    decomp_total = sum(1 for r in product_impact if r.get("mapping_mode") == "PRODUCT_LEVEL_REQUIRED")
     if decomp_total != 718:
         errors.append(f"decomposition_total_{decomp_total}_not_718")
 
@@ -173,6 +221,6 @@ def validate_b2_deliverables(
     return {
         "status": "PASS" if not errors else "FAIL",
         "errors": errors,
-        "hold_coverage": sorted(covered_hold),
+        "hold_coverage": sorted(hold_map_ids),
         "decision_group_count": len(owner_groups),
     }

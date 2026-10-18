@@ -142,6 +142,110 @@ def load_b2_inputs() -> B2Inputs:
     )
 
 
+@dataclass(frozen=True)
+class CategoryProductImpactRef:
+    direct_product_ids: frozenset[int]
+    descendant_inclusive_product_ids: frozenset[int]
+    descendant_inclusive_unresolved_product_ids: frozenset[int]
+
+
+def build_category_children_index(baseline_census: dict[int, dict[str, str]]) -> dict[int, list[int]]:
+    children: dict[int, list[int]] = defaultdict(list)
+    for cid, row in baseline_census.items():
+        parent_raw = (row.get("parent_id") or "").strip()
+        if parent_raw.isdigit():
+            children[int(parent_raw)].append(cid)
+    return children
+
+
+def category_subtree_category_ids(root: int, children: dict[int, list[int]]) -> frozenset[int]:
+    seen: set[int] = set()
+    stack = [root]
+    while stack:
+        current = stack.pop()
+        if current in seen:
+            continue
+        seen.add(current)
+        stack.extend(children.get(current, ()))
+    return frozenset(seen)
+
+
+def product_row_is_unresolved(row: dict[str, str], pid: int, evidence_111_ids: set[int]) -> bool:
+    if row.get("mapping_authorization", "").startswith("BLOCKED"):
+        return True
+    if pid in evidence_111_ids:
+        return True
+    if row.get("mapping_mode") == "PRODUCT_LEVEL_REQUIRED":
+        return True
+    return False
+
+
+def build_category_product_impact_reference(inputs: B2Inputs) -> dict[int, CategoryProductImpactRef]:
+    children = build_category_children_index(inputs.baseline_census)
+    direct_by_cat: dict[int, set[int]] = defaultdict(set)
+    row_by_pid: dict[int, dict[str, str]] = {}
+    for row in inputs.product_map:
+        if not row["product_id"].isdigit():
+            continue
+        pid = int(row["product_id"])
+        cid = int(row["current_category_id"])
+        direct_by_cat[cid].add(pid)
+        row_by_pid[pid] = row
+
+    manifest_ids = {int(r["current_category_id"]) for r in inputs.manifest}
+    ref: dict[int, CategoryProductImpactRef] = {}
+    for cid in manifest_ids:
+        subtree = category_subtree_category_ids(cid, children)
+        descendant_pids: set[int] = set()
+        unresolved_pids: set[int] = set()
+        for sub_cid in subtree:
+            for pid in direct_by_cat.get(sub_cid, ()):
+                descendant_pids.add(pid)
+                if product_row_is_unresolved(row_by_pid[pid], pid, inputs.evidence_111_ids):
+                    unresolved_pids.add(pid)
+        ref[cid] = CategoryProductImpactRef(
+            direct_product_ids=frozenset(direct_by_cat.get(cid, ())),
+            descendant_inclusive_product_ids=frozenset(descendant_pids),
+            descendant_inclusive_unresolved_product_ids=frozenset(unresolved_pids),
+        )
+    return ref
+
+
+def census_semantic_evidence_label(row: dict[str, str]) -> str:
+    dc = row.get("decision_class", "")
+    if dc == "OWNER_APPROVED":
+        return "TX_OWNER_DOCUMENTARY_ONLY"
+    if dc == "EVIDENCE_GATED":
+        return "EVIDENCE_GATED_B1"
+    if dc == "PROPOSED":
+        return "PROPOSED_B1"
+    return "UNCLASSIFIED_B1"
+
+
+def b2_interpretation_layer(row: dict[str, str], cid: int) -> str:
+    if cid in HOLD_CATEGORY_IDS or row.get("product_decomposition_required") == "YES":
+        return "B2_REVIEW_OVER_B1"
+    if row.get("identity_status") == "LEGACY_HUB_RETIRED":
+        return "B2_RETIRE_HUB_ALIGNMENT"
+    return "B2_ALIGNS_B1_PROPOSAL"
+
+
+def architecture_confidence(row: dict[str, str], cid: int) -> tuple[str, str]:
+    if cid in HOLD_CATEGORY_IDS:
+        return "LOW", "Hub/mixed/decomposition — owner decision required"
+    if row.get("product_decomposition_required") == "YES":
+        return "LOW", "PRODUCT_LEVEL_REQUIRED cohort"
+    if row.get("identity_status") == "PUBLISHED_PROPOSED":
+        if row.get("decision_class") == "PROPOSED" and row.get("cct1_result") == "KEEP_AS_CATEGORY":
+            return "MEDIUM", "B1 commerce mapping; owner architecture still PENDING"
+        return "LOW", "Published-proposed without completed owner architecture review"
+    if row.get("identity_status") == "LEGACY_HUB_RETIRED":
+        return "MEDIUM", "Census confirms hub retirement pattern"
+    if row.get("decision_class") == "EVIDENCE_GATED":
+        return "LOW", "B1 evidence-gated"
+    return "MEDIUM", "Standard B1 manifest row"
+
+
 def classify_node_kind(row: dict[str, str]) -> str:
     status = row.get("identity_status", "")
     if status == "PUBLISHED_PROPOSED":
@@ -256,14 +360,6 @@ def classification_rationale(row: dict[str, str], cid: int) -> str:
     return f"B1 manifest classification: {status}; migration={action}."
 
 
-def evidence_vs_inference(row: dict[str, str], cid: int) -> str:
-    if cid in HOLD_CATEGORY_IDS or cid in SENSITIVE_CATEGORY_IDS:
-        return "CONFIRMED_B1"
-    if row.get("evidence_sources", "").startswith("PRESERVED_CENSUS"):
-        return "CONFIRMED_B1"
-    return "B2_INFERENCE"
-
-
 def recalculate_invariants(inputs: B2Inputs) -> dict[str, Any]:
     manifest_ids = {int(r["current_category_id"]) for r in inputs.manifest}
     tree = inputs.commerce_tree
@@ -305,23 +401,14 @@ def recalculate_invariants(inputs: B2Inputs) -> dict[str, Any]:
     }
 
 
-def build_architecture_review_matrix(inputs: B2Inputs) -> list[dict[str, str]]:
+def build_architecture_review_matrix(
+    inputs: B2Inputs,
+    impact_ref: dict[int, CategoryProductImpactRef] | None = None,
+) -> list[dict[str, str]]:
+    impact_ref = impact_ref or build_category_product_impact_reference(inputs)
     tree_by_source = {
         r["source_current_category_id"]: r for r in inputs.commerce_tree if r.get("source_current_category_id")
     }
-    products_by_cat: dict[int, set[int]] = defaultdict(set)
-    unresolved_products_by_cat: dict[int, set[int]] = defaultdict(set)
-    for row in inputs.product_map:
-        if not row["product_id"].isdigit():
-            continue
-        cid = int(row["current_category_id"])
-        pid = int(row["product_id"])
-        products_by_cat[cid].add(pid)
-        blocked = row.get("mapping_authorization", "").startswith("BLOCKED")
-        evidence = pid in inputs.evidence_111_ids
-        decomp = row.get("mapping_mode") == "PRODUCT_LEVEL_REQUIRED"
-        if blocked or evidence or decomp:
-            unresolved_products_by_cat[cid].add(pid)
 
     rows: list[dict[str, str]] = []
     for m in sorted(inputs.manifest, key=lambda r: int(r["current_category_id"])):
@@ -330,8 +417,10 @@ def build_architecture_review_matrix(inputs: B2Inputs) -> list[dict[str, str]]:
         tnode = tree_by_source.get(str(cid), {})
         direct = int(m.get("direct_product_count") or census.get("direct_product_count") or 0)
         descendant = int(m.get("descendant_product_count") or census.get("descendant_product_count") or 0)
-        distinct_ids = len(products_by_cat.get(cid, set()))
-        unresolved = len(unresolved_products_by_cat.get(cid, set()))
+        impact = impact_ref[cid]
+        direct_unique = len(impact.direct_product_ids)
+        descendant_unique = len(impact.descendant_inclusive_product_ids)
+        descendant_unresolved = len(impact.descendant_inclusive_unresolved_product_ids)
         b2_disp = b2_recommended_disposition_category(m, cid)
         alt = ""
         if m.get("cct1_result") == "BETTER_AS_FACET":
@@ -345,11 +434,7 @@ def build_architecture_review_matrix(inputs: B2Inputs) -> list[dict[str, str]]:
         homogeneity = "LOW" if cid in SENSITIVE_CATEGORY_IDS or descendant > direct else "MEDIUM"
         if cid in HOLD_CATEGORY_IDS and descendant > 100:
             homogeneity = "LOW"
-        conf = m.get("confidence", "MEDIUM")
-        if cid in HOLD_CATEGORY_IDS:
-            conf = "LOW"
-        elif m.get("identity_status") == "PUBLISHED_PROPOSED":
-            conf = "HIGH"
+        conf, conf_rationale = architecture_confidence(m, cid)
         rows.append(
             {
                 "current_category_id": str(cid),
@@ -370,12 +455,16 @@ def build_architecture_review_matrix(inputs: B2Inputs) -> list[dict[str, str]]:
                 "alternative_disposition": alt,
                 "classification_rationale": classification_rationale(m, cid),
                 "confidence": conf,
+                "confidence_rationale": conf_rationale,
                 "evidence_sources": m.get("evidence_sources", "B1_MANIFEST"),
-                "evidence_vs_inference": evidence_vs_inference(m, cid),
+                "census_product_facts": "CONFIRMED_CENSUS",
+                "b1_semantic_interpretation_evidence": census_semantic_evidence_label(m),
+                "b2_architecture_interpretation_layer": b2_interpretation_layer(m, cid),
                 "direct_live_product_count": str(direct),
                 "descendant_live_product_count": str(descendant),
-                "distinct_live_product_ids_count": str(distinct_ids),
-                "unresolved_or_evidence_gated_product_ids_count": str(unresolved),
+                "direct_distinct_product_ids_count": str(direct_unique),
+                "descendant_inclusive_distinct_product_ids_count": str(descendant_unique),
+                "descendant_inclusive_unresolved_product_ids_count": str(descendant_unresolved),
                 "seo_redirect_proposal": m.get("seo_redirect_proposal", ""),
                 "owner_explicit_decision_required": m.get("owner_steward_review_required", "NO"),
                 "blocks_architecture_freeze": blocks_arch,
@@ -430,8 +519,19 @@ def build_tree_disposition(inputs: B2Inputs) -> list[dict[str, str]]:
     return rows
 
 
-def build_grouped_owner_decisions(inputs: B2Inputs) -> list[dict[str, str]]:
+def build_grouped_owner_decisions(
+    inputs: B2Inputs,
+    impact_ref: dict[int, CategoryProductImpactRef] | None = None,
+) -> list[dict[str, str]]:
     """Owner decision register — recommendations only; owner_architecture_decision_status always PENDING."""
+    impact_ref = impact_ref or build_category_product_impact_reference(inputs)
+
+    def _desc(cid: int) -> int:
+        return len(impact_ref[cid].descendant_inclusive_product_ids)
+
+    def _unres_desc(cid: int) -> int:
+        return len(impact_ref[cid].descendant_inclusive_unresolved_product_ids)
+
     groups = [
         {
             "decision_group_id": "ARCH-7-L1-ROOTS",
@@ -472,7 +572,7 @@ def build_grouped_owner_decisions(inputs: B2Inputs) -> list[dict[str, str]]:
             "alternative_answer": "تمدید HOLD با مسیر انتشار مرحله‌ای (بدون 410 روی ۱۵۴)",
             "owner_architecture_decision_status": "PENDING",
             "affected_category_ids": "154",
-            "affected_product_counts": "direct=0 descendant=289",
+            "affected_product_counts": f"direct=0 descendant_inclusive_distinct={_desc(154)} unresolved_desc={_unres_desc(154)}",
             "navigation_consequence": "حذف ناوبری اشتباه از L1 legacy",
             "blocks_architecture_freeze": "YES",
             "blocks_execution_release_gate": "YES",
@@ -487,7 +587,9 @@ def build_grouped_owner_decisions(inputs: B2Inputs) -> list[dict[str, str]]:
             "alternative_answer": "نگه‌داری ۱۵۵ به‌عنوان facet غیرقابل‌انتخاب (نه برگ فروش) تا پایان ایمپورت",
             "owner_architecture_decision_status": "PENDING",
             "affected_category_ids": "155|156",
-            "affected_product_counts": "155: descendant=27 (همه در 156) | 156: direct=27",
+            "affected_product_counts": (
+                f"155: descendant_inclusive_distinct={_desc(155)} | 156: direct={len(impact_ref[156].direct_product_ids)}"
+            ),
             "navigation_consequence": "مرز facet در برابر دسته قابل‌انتخاب",
             "blocks_architecture_freeze": "YES",
             "blocks_execution_release_gate": "YES",
@@ -517,7 +619,11 @@ def build_grouped_owner_decisions(inputs: B2Inputs) -> list[dict[str, str]]:
             "alternative_answer": "HOLD یکپارچه تا تکمیل مدارک ۸۰ SKU قلاویز‌زن",
             "owner_architecture_decision_status": "PENDING",
             "affected_category_ids": "163|164",
-            "affected_product_counts": "163: descendant=80 | 164: direct=80 decomposition blocked",
+            "affected_product_counts": (
+                f"163: descendant_inclusive_distinct={_desc(163)} | "
+                f"164: direct={len(impact_ref[164].direct_product_ids)} "
+                f"unresolved_desc={_unres_desc(164)}"
+            ),
             "navigation_consequence": "جداسازی لوازم قلاویز‌زن از هاب ماشین",
             "blocks_architecture_freeze": "YES",
             "blocks_execution_release_gate": "YES",
@@ -642,13 +748,18 @@ def build_product_impact(inputs: B2Inputs) -> list[dict[str, str]]:
     return rows
 
 
-def build_sensitive_dossier(inputs: B2Inputs) -> list[dict[str, str]]:
+def build_sensitive_dossier(
+    inputs: B2Inputs,
+    impact_ref: dict[int, CategoryProductImpactRef] | None = None,
+) -> list[dict[str, str]]:
+    impact_ref = impact_ref or build_category_product_impact_reference(inputs)
     by_id = {int(r["current_category_id"]): r for r in inputs.manifest}
     mixed = {int(r["category_id"]): r for r in inputs.mixed_matrix}
     rows: list[dict[str, str]] = []
     for cid in sorted(SENSITIVE_CATEGORY_IDS):
         m = by_id[cid]
         mx = mixed.get(cid, {})
+        imp = impact_ref[cid]
         rows.append(
             {
                 "category_id": str(cid),
@@ -659,6 +770,13 @@ def build_sensitive_dossier(inputs: B2Inputs) -> list[dict[str, str]]:
                 "structural_proposal": m.get("category_migration_action", ""),
                 "product_ids": mx.get("product_ids_requiring_review", ""),
                 "protected_cohort": mx.get("protected_cohort", ""),
+                "direct_distinct_product_ids_count": str(len(imp.direct_product_ids)),
+                "descendant_inclusive_distinct_product_ids_count": str(
+                    len(imp.descendant_inclusive_product_ids)
+                ),
+                "descendant_inclusive_unresolved_product_ids_count": str(
+                    len(imp.descendant_inclusive_unresolved_product_ids)
+                ),
                 "blanket_removal_blocked": mx.get("blanket_removal_blocked", "YES"),
                 "owner_architecture_decision_status": "PENDING",
                 "apply_authorization_status": "NO",
@@ -675,6 +793,13 @@ def build_sensitive_dossier(inputs: B2Inputs) -> list[dict[str, str]]:
             "structural_proposal": "THREAD_REPAIR domain; historic 186/187/188 deprecated separately",
             "product_ids": helicoil_ids,
             "protected_cohort": "HELICOIL_29_EXACT",
+            "direct_distinct_product_ids_count": str(len(impact_ref[HELICOIL_CATEGORY_ID].direct_product_ids)),
+            "descendant_inclusive_distinct_product_ids_count": str(
+                len(impact_ref[HELICOIL_CATEGORY_ID].descendant_inclusive_product_ids)
+            ),
+            "descendant_inclusive_unresolved_product_ids_count": str(
+                len(impact_ref[HELICOIL_CATEGORY_ID].descendant_inclusive_unresolved_product_ids)
+            ),
             "blanket_removal_blocked": "YES",
             "owner_architecture_decision_status": "PENDING",
             "apply_authorization_status": "NO",
@@ -937,12 +1062,13 @@ def generate_b2_package(
     out_dir.mkdir(parents=True, exist_ok=True)
     inputs = load_b2_inputs()
     invariants = recalculate_invariants(inputs)
-    arch = build_architecture_review_matrix(inputs)
+    impact_ref = build_category_product_impact_reference(inputs)
+    arch = build_architecture_review_matrix(inputs, impact_ref)
     tree_disp = build_tree_disposition(inputs)
-    owner_groups = build_grouped_owner_decisions(inputs)
+    owner_groups = build_grouped_owner_decisions(inputs, impact_ref)
     hold_map = build_hold_category_decision_map(owner_groups)
     product_impact = build_product_impact(inputs)
-    sensitive = build_sensitive_dossier(inputs)
+    sensitive = build_sensitive_dossier(inputs, impact_ref)
     seo = build_seo_dossier(inputs)
     impl = build_implementation_plan(inputs)
 
