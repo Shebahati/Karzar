@@ -3,8 +3,8 @@ import pytest
 from pydantic import ValidationError
 
 from app.api.endpoints.home_merchandising import (
-    MAX_ITEMS,
     BestsellerSelectionWrite,
+    MAX_ITEMS,
     as_response,
 )
 
