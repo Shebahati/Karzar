@@ -755,7 +755,7 @@
               "anyOf": [
                 {
                   "type": "number",
-                  "minimum": 0
+                  "minimum": 0.0
                 },
                 {
                   "type": "string",
@@ -778,7 +778,7 @@
               "anyOf": [
                 {
                   "type": "number",
-                  "minimum": 0
+                  "minimum": 0.0
                 },
                 {
                   "type": "string",
@@ -10535,15 +10535,15 @@
                   },
                   "page": {
                     "type": "integer",
-                    "minimum": 1,
+                    "minimum": 1.0,
                     "title": "Page",
                     "description": "1-based page index",
                     "default": 1
                   },
                   "limit": {
                     "type": "integer",
-                    "maximum": 100,
-                    "minimum": 1,
+                    "maximum": 100.0,
+                    "minimum": 1.0,
                     "title": "Limit",
                     "description": "Page size (default 50, hard cap 100)",
                     "default": 50
@@ -10572,15 +10572,15 @@
                   },
                   "page": {
                     "type": "integer",
-                    "minimum": 1,
+                    "minimum": 1.0,
                     "title": "Page",
                     "description": "1-based page index",
                     "default": 1
                   },
                   "limit": {
                     "type": "integer",
-                    "maximum": 100,
-                    "minimum": 1,
+                    "maximum": 100.0,
+                    "minimum": 1.0,
                     "title": "Limit",
                     "description": "Page size (default 50, hard cap 100)",
                     "default": 50
@@ -13394,7 +13394,7 @@
           },
           "reading_minutes": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Reading Minutes",
             "default": 5
           },
@@ -13569,7 +13569,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -13952,7 +13952,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 0
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -14040,7 +14040,7 @@
         "properties": {
           "product_id": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Product Id"
           },
           "quantity_delta": {
@@ -14167,8 +14167,8 @@
           },
           "quantity": {
             "type": "integer",
-            "maximum": 999,
-            "minimum": 0,
+            "maximum": 999.0,
+            "minimum": 0.0,
             "title": "Quantity"
           }
         },
@@ -14467,7 +14467,7 @@
           },
           "depth": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Depth",
             "description": "1-based depth; roots are depth 1"
           },
@@ -14498,7 +14498,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 0
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -14785,7 +14785,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 0
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -15052,7 +15052,7 @@
           },
           "quantity": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Quantity"
           }
         },
@@ -16904,7 +16904,7 @@
           },
           "quantity": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Quantity"
           }
         },
@@ -17032,8 +17032,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1,
-                "minimum": 0
+                "maximum": 1.0,
+                "minimum": 0.0
               },
               {
                 "type": "string",
@@ -17423,8 +17423,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1,
-                "minimum": 0
+                "maximum": 1.0,
+                "minimum": 0.0
               },
               {
                 "type": "string",
@@ -17781,8 +17781,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1,
-                "minimum": 0
+                "maximum": 1.0,
+                "minimum": 0.0
               },
               {
                 "type": "string",
@@ -18235,12 +18235,12 @@
           },
           "product_type_id": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Product Type Id"
           },
           "definition_id": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Definition Id"
           },
           "policy_json": {
@@ -18521,7 +18521,7 @@
         "properties": {
           "product_id": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Product Id"
           },
           "sku_snapshot": {
@@ -19189,7 +19189,7 @@
         "properties": {
           "product_id": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Product Id"
           },
           "sku": {
@@ -19241,7 +19241,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -19253,7 +19253,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -20385,17 +20385,17 @@
         "properties": {
           "total_count": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Total Count"
           },
           "skip": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Skip"
           },
           "limit": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Limit"
           },
           "has_next": {
@@ -20488,7 +20488,7 @@
         "properties": {
           "order_id": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Order Id"
           },
           "external_reference": {
@@ -20559,7 +20559,7 @@
         "properties": {
           "order_id": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Order Id"
           }
         },
@@ -20599,7 +20599,7 @@
         "properties": {
           "order_id": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Order Id"
           }
         },
@@ -20655,7 +20655,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -20890,8 +20890,8 @@
           },
           "rating": {
             "type": "integer",
-            "maximum": 5,
-            "minimum": 1,
+            "maximum": 5.0,
+            "minimum": 1.0,
             "title": "Rating"
           },
           "body": {
@@ -20984,7 +20984,7 @@
           },
           "category_id": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Category Id",
             "description": "Required selectable leaf category (depth 2 or 3)"
           },
@@ -21160,8 +21160,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 100,
-                "minimum": 0
+                "maximum": 100.0,
+                "minimum": 0.0
               },
               {
                 "type": "string",
@@ -22702,7 +22702,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -22998,7 +22998,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -23862,22 +23862,22 @@
         "properties": {
           "length_cm": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Length Cm"
           },
           "width_cm": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Width Cm"
           },
           "height_cm": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Height Cm"
           },
           "weight_grams": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Weight Grams"
           },
           "is_fragile": {
@@ -24159,7 +24159,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -24322,12 +24322,12 @@
         "properties": {
           "product_id": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Product Id"
           },
           "quantity": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Quantity"
           }
         },
@@ -24400,7 +24400,7 @@
           },
           "location_code": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Location Code"
           },
           "postal_code": {
@@ -25140,7 +25140,7 @@
           "product_ids": {
             "items": {
               "type": "integer",
-              "exclusiveMinimum": 0.0
+              "exclusiveMinimum": 0
             },
             "type": "array",
             "maxItems": 24,
