@@ -47,6 +47,10 @@ export default async function HomePage() {
         queryFn: () => catalogService.listProducts(HOME_DEALS_PRODUCTS_PARAMS),
       }),
       queryClient.prefetchQuery({
+        queryKey: ["home-bestsellers"],
+        queryFn: () => catalogService.getHomeBestsellers(),
+      }),
+      queryClient.prefetchQuery({
         queryKey: catalogKeys.brands(),
         queryFn: () => catalogService.listBrands(),
       }),

@@ -12847,6 +12847,89 @@
           }
         }
       }
+    },
+    "/api/v1/home/bestsellers": {
+      "get": {
+        "tags": [
+          "Homepage merchandising"
+        ],
+        "summary": "Get Home Bestsellers",
+        "operationId": "get_home_bestsellers_api_v1_home_bestsellers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BestsellerSelectionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Homepage merchandising"
+        ],
+        "summary": "Publish Home Bestsellers",
+        "operationId": "publish_home_bestsellers_api_v1_home_bestsellers_put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "karzar_access",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Karzar Access"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BestsellerSelectionWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BestsellerSelectionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -25017,6 +25100,64 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "BestsellerSelectionResponse": {
+        "properties": {
+          "product_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Product Ids"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_ids",
+          "revision",
+          "published_at"
+        ],
+        "title": "BestsellerSelectionResponse"
+      },
+      "BestsellerSelectionWrite": {
+        "properties": {
+          "product_ids": {
+            "items": {
+              "type": "integer",
+              "exclusiveMinimum": 0.0
+            },
+            "type": "array",
+            "maxItems": 24,
+            "title": "Product Ids"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_ids",
+          "expected_revision"
+        ],
+        "title": "BestsellerSelectionWrite"
       }
     },
     "securitySchemes": {

@@ -335,7 +335,7 @@ def test_t17_t21_legacy_dimensions_still_valid_in_seed():
 def test_alembic_head_is_single_descendant_of_s2():
     script = get_alembic_script_directory()
     heads = script.get_heads()
-    assert heads == ["c1d2e3f4a5b6"]
+    assert heads == ["c2d3e4f5a6b7"]
     assert is_runtime_revision_compatible(
         "s2t3u4v5w6x7",
         "c1d2e3f4a5b6",

@@ -173,6 +173,7 @@ export function ProductCarousel({
   intervalMs = 3400,
   lead,
   headingId,
+  loopProducts = true,
 }: {
   products: ProductSummary[];
   isLoading?: boolean;
@@ -182,6 +183,8 @@ export function ProductCarousel({
   /** Lead promo panel for deal carousel (RTL visual start — pinned on desktop). */
   lead?: DealLeadPromo;
   headingId?: string;
+  /** Exact owner-curated count/order: never clone cards for an infinite loop. */
+  loopProducts?: boolean;
 }) {
   const isDeal = variant === "deal" && Boolean(lead);
   const cardWidth =
@@ -231,6 +234,7 @@ export function ProductCarousel({
 
   // Duplicate for seamless infinite feel when short lists — lead stays pinned once.
   const loop =
+    !loopProducts ? visibleProducts :
     visibleProducts.length > 0 && visibleProducts.length < 8
       ? [...visibleProducts, ...visibleProducts, ...visibleProducts]
       : visibleProducts.length >= 8
