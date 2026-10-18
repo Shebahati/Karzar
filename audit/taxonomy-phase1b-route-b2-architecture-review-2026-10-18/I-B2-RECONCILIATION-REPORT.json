@@ -2,7 +2,7 @@
   "base_git_sha": "8be4a5807a2eeb25da26c802e74bb9b0fc301916",
   "b1_merge_sha": "8be4a5807a2eeb25da26c802e74bb9b0fc301916",
   "b1_artifact_dir": "audit/taxonomy-phase1b-route-b-target-design-2026-10-18",
-  "generator_run_git_sha": "947c9595e5c973507fddb3e0efa13589bceb17ed",
+  "generator_run_git_sha": "bcfaefa0e8ead1d62dc317d8c36e0b263e11a6c2",
   "invariants_recalculated": {
     "current_category_count": 135,
     "commerce_tree_nodes": 123,
@@ -29,8 +29,29 @@
     "HOLD": 11
   },
   "tree_disposition_counts": {
-    "HOLD": 8,
-    "FREEZE": 115
+    "HOLD": 11,
+    "FREEZE": 112
+  },
+  "hold_category_ids": [
+    116,
+    117,
+    118,
+    154,
+    155,
+    157,
+    158,
+    159,
+    160,
+    163,
+    164
+  ],
+  "owner_decision_group_count": 10,
+  "decomposition_required_by_category": {
+    "116": 571,
+    "117": 40,
+    "118": 0,
+    "156": 27,
+    "164": 80
   },
   "domain_summary": {
     "KZ.DOM.TOOLHOLDING": 10,
@@ -48,6 +69,24 @@
       "status": "PASS",
       "errors": [],
       "checks_run": true
+    },
+    "b2_deliverable_validation": {
+      "status": "PASS",
+      "errors": [],
+      "hold_coverage": [
+        116,
+        117,
+        118,
+        154,
+        155,
+        157,
+        158,
+        159,
+        160,
+        163,
+        164
+      ],
+      "decision_group_count": 10
     }
   },
   "safety": {

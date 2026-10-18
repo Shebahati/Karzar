@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import sys
 import tempfile
 import unittest
@@ -12,13 +13,19 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.taxonomy_route_b2_architecture_review import (  # noqa: E402
+    HOLD_CATEGORY_IDS,
     PR533_MERGE_SHA,
     build_architecture_review_matrix,
+    build_grouped_owner_decisions,
+    build_hold_category_decision_map,
     build_product_impact,
     generate_b2_package,
     load_b2_inputs,
     recalculate_invariants,
     validate_b2_package,
+)
+from catalog_target.taxonomy_route_b2_deliverable_validation import (  # noqa: E402
+    validate_b2_deliverables,
 )
 
 
@@ -43,6 +50,12 @@ class RouteB2ArchitectureReviewTests(unittest.TestCase):
         self.assertEqual(inv["approved_executable_target_codes"], 0)
         self.assertEqual(inv["product_level_decomposition_required"], 718)
 
+    def test_hold_categories_covered_by_decision_map(self):
+        groups = build_grouped_owner_decisions(load_b2_inputs())
+        hold_map = build_hold_category_decision_map(groups)
+        self.assertEqual(len(hold_map), len(HOLD_CATEGORY_IDS))
+        self.assertEqual({int(r["hold_category_id"]) for r in hold_map}, HOLD_CATEGORY_IDS)
+
     def test_generate_b2_passes(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp)
@@ -52,7 +65,8 @@ class RouteB2ArchitectureReviewTests(unittest.TestCase):
                 generator_run_git_sha="test",
             )
             self.assertEqual(payload["validation"]["status"], "PASS")
-            self.assertIn("FREEZE", payload["category_disposition_counts"])
+            self.assertEqual(payload["owner_decision_group_count"], 10)
+            self.assertTrue((out / "C2-HOLD-CATEGORY-TO-DECISION-GROUP-MAP.csv").is_file())
 
     def test_validation_fails_if_category_removed(self):
         inputs = load_b2_inputs()
@@ -62,6 +76,66 @@ class RouteB2ArchitectureReviewTests(unittest.TestCase):
         product_impact = build_product_impact(inputs)
         bad = validate_b2_package(inputs, inv, arch, product_impact)
         self.assertEqual(bad["status"], "FAIL")
+
+    def test_deliverable_validation_fails_missing_hold_coverage(self):
+        inputs = load_b2_inputs()
+        inv = recalculate_invariants(inputs)
+        arch = build_architecture_review_matrix(inputs)
+        product_impact = build_product_impact(inputs)
+        groups = build_grouped_owner_decisions(inputs)
+        hold_map = build_hold_category_decision_map(groups)
+        groups_bad = [g for g in groups if g["decision_group_id"] != "MACHINE-ACCESSORIES-163-164"]
+        hold_map_bad = [r for r in hold_map if r["hold_category_id"] not in {"163", "164"}]
+        from catalog_target.taxonomy_route_b2_architecture_review import (
+            build_sensitive_dossier,
+            build_tree_disposition,
+        )
+
+        tree = build_tree_disposition(inputs)
+        sensitive = build_sensitive_dossier(inputs)
+        b1_ids = {int(r["product_id"]) for r in inputs.product_map if r["product_id"].isdigit()}
+        result = validate_b2_deliverables(
+            inputs=inputs,
+            invariants=inv,
+            arch_matrix=arch,
+            tree_disposition=tree,
+            owner_groups=groups_bad,
+            hold_category_map=hold_map_bad,
+            product_impact=product_impact,
+            sensitive_dossier=sensitive,
+            b1_product_ids=b1_ids,
+        )
+        self.assertEqual(result["status"], "FAIL")
+        self.assertTrue(any("163" in e or "164" in e or "missing" in e for e in result["errors"]))
+
+    def test_deliverable_validation_fails_if_owner_marked_approved(self):
+        inputs = load_b2_inputs()
+        inv = recalculate_invariants(inputs)
+        arch = copy.deepcopy(build_architecture_review_matrix(inputs))
+        arch[0]["owner_architecture_decision_status"] = "OWNER_APPROVED"
+        product_impact = build_product_impact(inputs)
+        groups = build_grouped_owner_decisions(inputs)
+        hold_map = build_hold_category_decision_map(groups)
+        from catalog_target.taxonomy_route_b2_architecture_review import (
+            build_sensitive_dossier,
+            build_tree_disposition,
+        )
+
+        tree = build_tree_disposition(inputs)
+        sensitive = build_sensitive_dossier(inputs)
+        b1_ids = {int(r["product_id"]) for r in inputs.product_map if r["product_id"].isdigit()}
+        result = validate_b2_deliverables(
+            inputs=inputs,
+            invariants=inv,
+            arch_matrix=arch,
+            tree_disposition=tree,
+            owner_groups=groups,
+            hold_category_map=hold_map,
+            product_impact=product_impact,
+            sensitive_dossier=sensitive,
+            b1_product_ids=b1_ids,
+        )
+        self.assertEqual(result["status"], "FAIL")
 
 
 if __name__ == "__main__":
