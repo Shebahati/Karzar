@@ -25140,7 +25140,7 @@
           "product_ids": {
             "items": {
               "type": "integer",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0.0
             },
             "type": "array",
             "maxItems": 24,
@@ -25148,7 +25148,7 @@
           },
           "expected_revision": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Expected Revision"
           }
         },
