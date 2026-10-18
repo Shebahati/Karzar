@@ -28,6 +28,7 @@ import {
 } from "@/features/home-layout/lib/publish-home-layout";
 import type { CategoryFlat } from "@/types/category";
 import { cn } from "@/lib/utils";
+import { BestsellersEditor } from "./bestsellers-editor";
 
 function sectionLabel(section: HomeLayoutSection): string {
   if (section.type === "category_carousel") {
@@ -311,8 +312,17 @@ export function HomeLayoutEditor() {
                         <Delete set="light" size={16} />
                       </Button>
                     </>
+                  ) : section.type === "bestsellers" ? (
+                    <Button type="button" variant="outline" size="sm"
+                      onClick={() => setExpandedId(expanded ? null : section.id)}>
+                      {expanded ? "بستن" : "انتخاب محصولات"}
+                    </Button>
                   ) : null}
                 </div>
+
+                {section.type === "bestsellers" && expanded ? (
+                  <BestsellersEditor />
+                ) : null}
 
                 {carousel && expanded ? (
                   <div className="mt-4 grid gap-3 rounded-lg border border-border/60 bg-white p-4 sm:grid-cols-2">
