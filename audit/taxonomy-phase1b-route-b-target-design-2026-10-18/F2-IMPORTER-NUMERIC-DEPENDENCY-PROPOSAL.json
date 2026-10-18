@@ -1,0 +1,6 @@
+{
+  "scan_summary_path": "audit/taxonomy-phase1b-baseline-2026-10-15/08-NUMERIC-DEPENDENCY-SCAN-SUMMARY.json",
+  "dependencies_csv": "audit/taxonomy-phase1b-baseline-2026-10-15/08-NUMERIC-CATEGORY-ID-DEPENDENCIES.csv",
+  "deduped_hits": 46,
+  "remap_design": "semantic KZ.CAT.* → runtime categories.id via E-TARGET-IDENTITY-REGISTRY.csv"
+}
