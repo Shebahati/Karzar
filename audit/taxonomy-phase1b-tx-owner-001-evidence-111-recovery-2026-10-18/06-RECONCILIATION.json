@@ -1,15 +1,15 @@
 {
   "status": "PASS",
-  "action_register_sha256_on_disk": "da51a45ad4a7c6f34ed52a94ad169c7e2a1bc5dee0051d8afca20ef2811d2953",
-  "user_prompt_register_sha256_expected": "bb723a79314314edc080c80c79616f3478e94082",
-  "register_sha_attestation": "TARGET_MOVED: canonical register on origin/main differs from prompt SHA; this package pins the on-disk register hash above.",
+  "canonical_action_register_git_blob_sha1": "bb723a79314314edc080c80c79616f3478e94082",
+  "canonical_action_register_raw_sha256": "da51a45ad4a7c6f34ed52a94ad169c7e2a1bc5dee0051d8afca20ef2811d2953",
+  "register_identity_attestation": "MATCH_CANONICAL_GIT_BLOB",
   "frozen_262_review_blob_note": "e0d1dd1b0ab80b1a4b7b92c8a2ddbe43dca36cc3",
   "pr499_row_count": 262,
+  "pr499_unique_product_ids": 262,
   "owner_journal_csv_count": 11,
+  "owner_journal_unique_product_ids": 262,
   "open_evidence_request_count": 111,
   "documentary_exit_count_in_journals": 151,
-  "expected_documentary_exits": 151,
-  "documentary_exit_count_matches_expected": true,
   "apply_authorization_rows": 0,
   "wave_counts": {
     "W4_SPECIAL_27": 27,
@@ -30,16 +30,16 @@
     "P1_M7_SUFFIX_VARIANT_6": 6
   },
   "evidence_recovery_status_counts": {
-    "REMOTE_RESEARCH_UNRESOLVED": 62,
-    "EXACT_OEM_MODEL_DOCUMENTARY": 10,
-    "CONFLICTING_EVIDENCE_DOCUMENTED": 26,
-    "PARTIAL_OR_FAMILY_LEVEL_EVIDENCE": 13
+    "REMOTE_RESEARCH_UNRESOLVED": 56,
+    "PARTIAL_OR_FAMILY_LEVEL_EVIDENCE": 27,
+    "CONFLICTING_EVIDENCE_DOCUMENTED": 27,
+    "EXACT_OEM_MODEL_DOCUMENTARY": 1
   },
   "physical_stock_required_count": 111,
-  "exact_oem_documentary_yes_count": 10,
-  "partial_family_yes_count": 24,
-  "remote_unresolved_count": 62,
-  "conflicting_evidence_count": 26,
+  "exact_oem_documentary_yes_count": 1,
+  "partial_family_yes_count": 49,
+  "remote_unresolved_count": 56,
+  "conflicting_evidence_count": 27,
   "all_owner_decisions_unchanged_REQUEST_MORE_EVIDENCE": true,
   "zero_mutation": {
     "PRODUCTION_MUTATION": "NO",

@@ -4,14 +4,13 @@ from __future__ import annotations
 
 import csv
 import hashlib
-import json
 import re
 import ssl
+import subprocess
 import urllib.error
 import urllib.request
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -38,7 +37,7 @@ ACTION_REGISTER = (
 OWNER_PKG = ROOT / "audit" / "taxonomy-phase1b-tx-owner-001-owner-decision-package"
 PR499_REVIEW = ROOT / "audit" / "taxonomy-phase1b-tx-owner-001-review" / "01-262-PRODUCT-SEMANTIC-REVIEW.csv"
 FROZEN_REVIEW_BLOB_NOTE = "e0d1dd1b0ab80b1a4b7b92c8a2ddbe43dca36cc3"
-USER_PROMPT_REGISTER_SHA256 = "bb723a79314314edc080c80c79616f3478e94082"
+CANONICAL_ACTION_REGISTER_GIT_BLOB_SHA1 = "bb723a79314314edc080c80c79616f3478e94082"
 
 WAVE_COUNTS = {
     "W1_BLADEKAT_34": 34,
@@ -138,7 +137,6 @@ SUPPLEMENTAL_GROZ_SOURCES: list[dict[str, str]] = [
         "source_url": "https://www.groz-tools.com/products/machine-shop-essentials/lathe-tools",
         "manufacturer": "Groz Tools (OEM)",
         "model_identity": "Lathe tools / turning accessories (category)",
-        "evidence_class": "OEM_CATEGORY_PAGE",
         "evidence_match_type": "OEM_PRODUCT_FAMILY",
         "supported_claim": (
             "Groz publishes lathe-tooling families; does not map Karzar SKU 2064 to a specific article "
@@ -152,7 +150,6 @@ SUPPLEMENTAL_GROZ_SOURCES: list[dict[str, str]] = [
         "source_url": "https://www.groz-tools.com/products/machine-shop-essentials",
         "manufacturer": "Groz Tools (OEM)",
         "model_identity": "Machine shop essentials (category)",
-        "evidence_class": "OEM_CATEGORY_PAGE",
         "evidence_match_type": "OEM_PRODUCT_FAMILY",
         "supported_claim": (
             "Groz machine-shop category includes jacks/support tooling families; "
@@ -163,6 +160,25 @@ SUPPLEMENTAL_GROZ_SOURCES: list[dict[str, str]] = [
     },
 ]
 
+# Explicit positive OEM page tiers (full-token semantics; no substring match on "EXACT_OEM" alone).
+POSITIVE_EXACT_OEM_TIER_FRAGMENTS: tuple[str, ...] = (
+    "EXACT_OEM_PRODUCT_PAGE_MODEL",
+    "EXACT_OEM_MODEL_PRODUCT_PAGE",
+    "EXACT_SKU_OEM_PAGE",
+    "OEM_EXACT_INDIVIDUAL_PAGE_FETCHED",
+    "EXACT_OEM_INDIVIDUAL_PAGE_FETCHED",
+    "EXACT_OEM_MODEL_SEARCH_SNIPPET_DIRECT_FETCH_FAILED_NOT_STOCK",
+    "EXACT_OEM_MODEL_PRODUCT_PAGE",
+)
+
+NEGATIVE_TIER_FRAGMENTS: tuple[str, ...] = (
+    "UNRESOLVED_NO_EXACT",
+    "NO_EXACT_OEM",
+    "NO_VERIFIED_EXACT",
+    "NO_VERIFIED_OEM",
+    "NO_VERIFIED_EXACT_BLADEKAT",
+)
+
 
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
@@ -172,7 +188,27 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def git_blob_sha1(path: Path) -> str:
+    return subprocess.check_output(["git", "hash-object", str(path)], cwd=ROOT, text=True).strip()
+
+
+def verify_action_register_identity() -> dict[str, str]:
+    blob = git_blob_sha1(ACTION_REGISTER)
+    digest = sha256_file(ACTION_REGISTER)
+    if blob != CANONICAL_ACTION_REGISTER_GIT_BLOB_SHA1:
+        raise RuntimeError(
+            f"ACTION_REGISTER_SOURCE_DRIFT git_blob_sha1={blob} "
+            f"expected={CANONICAL_ACTION_REGISTER_GIT_BLOB_SHA1}"
+        )
+    return {
+        "canonical_action_register_git_blob_sha1": blob,
+        "canonical_action_register_raw_sha256": digest,
+        "register_identity_attestation": "MATCH_CANONICAL_GIT_BLOB",
+    }
+
+
 def load_action_register() -> list[dict[str, str]]:
+    verify_action_register_identity()
     with ACTION_REGISTER.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
     if len(rows) != 111:
@@ -214,7 +250,7 @@ def build_prior_index(register_ids: set[int]) -> PriorIndex:
 
 
 def probe_url(url: str, timeout: float = 20.0) -> tuple[str, str]:
-    """Return (retrieval_status, http_detail). Does not treat failure as non-existence."""
+    """Transport probe only; HTTP 200 is not model-content concordance."""
     if not url.startswith("http"):
         return "SKIPPED_NON_HTTP", ""
     req = urllib.request.Request(
@@ -234,7 +270,7 @@ def probe_url(url: str, timeout: float = 20.0) -> tuple[str, str]:
         if "timed out" in reason.lower():
             return "HTTP_TIMEOUT", reason[:120]
         return "HTTP_UNAVAILABLE", reason[:120]
-    except Exception as exc:  # noqa: BLE001 — audit probe must not crash generator
+    except Exception as exc:  # noqa: BLE001
         return "HTTP_PROBE_ERROR", str(exc)[:120]
 
 
@@ -258,196 +294,129 @@ def _tier_from_prior(slices: list[PriorSlice]) -> str:
     return ""
 
 
-def _urls_from_prior(slices: list[PriorSlice]) -> list[str]:
-    urls: list[str] = []
-    for sl in slices:
-        for key in ("oem_source_urls", "oem_source_url", "source_url", "primary_oem_url"):
-            blob = sl.row.get(key, "")
-            if blob:
-                urls.extend(u.strip() for u in blob.replace("|", " ").split() if u.strip().startswith("http"))
-    return urls
-
-
-def _conflict_note(slices: list[PriorSlice], register_row: dict[str, str]) -> str:
-    notes: list[str] = []
-    for sl in slices:
-        for key in ("model_vs_title_or_identity_issue", "review_note_and_specific_gap", "competing_interpretations"):
-            val = sl.row.get(key, "").strip()
-            if val and ("mismatch" in val.lower() or "not " in val.lower() or "do not" in val.lower()):
-                notes.append(val[:280])
-    title = register_row.get("historical_title", "")
-    if "5 کاره" in title and any("ratchet" in (s.row.get("bounded_manufacturer_model_class", "") or "").lower() for s in slices):
-        notes.append("Owner/title saw-accessory wording conflicts with OEM air-ratchet kit class (prior M7 research).")
-    return " | ".join(dict.fromkeys(notes))[:500]
-
-
-def classify_recovery(
-    register_row: dict[str, str],
-    prior_slices: list[PriorSlice],
-    supplemental_urls: list[str],
-) -> dict[str, str]:
-    ws = register_row["evidence_workstream"]
-    tier_blob = _tier_from_prior(prior_slices).upper()
-    conflict = _conflict_note(prior_slices, register_row)
-
-    exact_oem = False
-    partial = False
-    unresolved_remote = False
-
+def classify_tier_semantics(tier: str) -> str:
+    """Return semantic bucket; negatives must be checked before positive EXACT fragments."""
+    u = tier.upper().strip()
+    if not u:
+        return "UNKNOWN_EMPTY"
+    for neg in NEGATIVE_TIER_FRAGMENTS:
+        if neg in u:
+            return "NEGATIVE_UNRESOLVED"
+    if u == "UNRESOLVED" or u.startswith("UNRESOLVED_"):
+        return "NEGATIVE_UNRESOLVED"
+    if "NEAR_MODEL" in u:
+        return "NEAR_MODEL_PARTIAL"
     if any(
-        token in tier_blob
+        token in u
         for token in (
-            "EXACT_OEM",
-            "EXACT_SKU",
-            "OEM_EXACT_INDIVIDUAL_PAGE_FETCHED",
-            "EXACT_OEM_PRODUCT_PAGE",
-            "EXACT_OEM_MODEL_PRODUCT_PAGE",
-        )
-    ):
-        exact_oem = True
-    if any(
-        token in tier_blob
-        for token in (
-            "NEAR_MODEL",
-            "FAMILY",
             "DISTRIBUTOR",
-            "INDEX",
             "APPLICATION_CLASS",
-            "HEURISTIC",
+            "MARKET_REFERENCE",
             "MARKET",
-            "SNIPPET",
+            "HEURISTIC",
+            "CENSUS_ONLY",
+            "OEM_CATEGORY",
+            "OEM_MODEL_INDEX",
+            "OEM_INDEX",
+            "OEM_GROUPED",
+            "INDEX_TOKEN",
+            "FAMILY",
         )
     ):
-        partial = True
-    if "NO_VERIFIED" in tier_blob or tier_blob in ("", "UNRESOLVED"):
-        if ws.startswith("BLADEKAT") or register_row["product_id"] in ("2915", "3238"):
-            unresolved_remote = True
-        elif not exact_oem and not partial:
-            unresolved_remote = True
-
-    if register_row["product_id"] in ("5146", "5147"):
-        exact_oem = False
-        partial = True
-        conflict = (
-            conflict
-            or "Karzar SKU omits Q suffix; OEM pages document NC-4277Q / NC-4299Q — not exact token match."
-        )
-
-    if exact_oem and ("TITLE" in tier_blob or "MISMATCH" in tier_blob or "SCOPE_MISMATCH" in tier_blob):
-        conflict = conflict or "OEM model page recovered but title/family scope mismatch documented in prior pass."
-
-    if exact_oem and partial:
-        recovery_status = "EXACT_OEM_MODEL_DOCUMENTARY_WITH_FAMILY_CONTEXT"
-    elif exact_oem:
-        recovery_status = "EXACT_OEM_MODEL_DOCUMENTARY"
-    elif partial:
-        recovery_status = "PARTIAL_OR_FAMILY_LEVEL_EVIDENCE"
-    elif unresolved_remote:
-        recovery_status = "REMOTE_RESEARCH_UNRESOLVED"
-    else:
-        recovery_status = "REMOTE_RESEARCH_UNRESOLVED"
-
-    if conflict:
-        recovery_status = "CONFLICTING_EVIDENCE_DOCUMENTED"
-
-    physical_required = "YES"
-    for sl in prior_slices:
-        phys = sl.row.get("physical_karzar_stock_verified", sl.row.get("karzar_product_oem_identity_verification", ""))
-        if phys.upper() in ("YES", "VERIFIED"):
-            physical_required = "NO"
-    if "UNRESOLVED" in tier_blob or "NOT_PHYSICAL" in tier_blob or "UNVERIFIED" in tier_blob:
-        physical_required = "YES"
-    if ws.startswith("BLADEKAT"):
-        physical_required = "YES"
-
-    owner_disposition = "REQUEST_MORE_EVIDENCE_UNCHANGED"
-    if recovery_status == "CONFLICTING_EVIDENCE_DOCUMENTED":
-        owner_disposition = "REQUEST_MORE_EVIDENCE_CONFLICT_REQUIRES_STOCK"
-
-    return {
-        "evidence_recovery_status": recovery_status,
-        "exact_oem_documentary_recovered": "YES" if exact_oem and recovery_status != "CONFLICTING_EVIDENCE_DOCUMENTED" else "NO",
-        "partial_or_family_evidence": "YES" if partial else "NO",
-        "conflicting_evidence_flag": "YES" if conflict else "NO",
-        "conflicting_evidence_summary": conflict,
-        "physical_stock_evidence_required": physical_required,
-        "remote_research_unresolved": "YES" if recovery_status == "REMOTE_RESEARCH_UNRESOLVED" else "NO",
-        "owner_disposition_unchanged": owner_disposition,
-        "prior_bounded_evidence_tier_echo": tier_blob[:240],
-    }
+        return "PARTIAL_FAMILY_OR_MARKET"
+    for pos in POSITIVE_EXACT_OEM_TIER_FRAGMENTS:
+        if pos in u:
+            return "POSITIVE_EXACT_OEM_PAGE"
+    return "PARTIAL_FAMILY_OR_MARKET" if u else "UNKNOWN_EMPTY"
 
 
-def boundary_assessment_row(register_row: dict[str, str], recovery: dict[str, str]) -> dict[str, str]:
-    pid = register_row["product_id"]
-    ws = register_row["evidence_workstream"]
-    cat_note = ""
-    if register_row.get("historical_title", "").find("cnc") >= 0 or "CNC" in register_row.get("sku", ""):
-        cat_note = "CNC token does not imply metal-cutting domain membership."
-    if "PNEUMATIC" in ws or "M7" in ws:
-        cat_note = (cat_note + " Pneumatic power does not imply industrial machinery domain.").strip()
-    if ws.startswith("BLADEKAT"):
-        cat_note = (
-            "Wood-router versus metal-cutting boundary open until substrate/material and exact article are proven; "
-            "no Workshop catch-all."
-        )
-    if pid in P0_PRODUCT_IDS:
-        spec = P0_PRODUCTS[int(pid)]
-        domain = spec.get("approved_domain_fit_assessment", "UNASSESSED")
-    else:
-        domain = "UNASSESSED_REQUIRES_OWNER_GATE"
-    return {
-        "product_id": pid,
-        "sku": register_row["sku"],
-        "evidence_workstream": ws,
-        "parallel_work_wave": register_row["parallel_work_wave"],
-        "seven_domain_boundary_note": cat_note,
-        "approved_domain_fit_assessment": domain,
-        "category_154_protected": "YES",
-        "category_156_oils_protected": "YES",
-        "workshop_catch_all_forbidden": "YES",
-        "industrial_exception_invented": "NO",
-        "evidence_recovery_status": recovery["evidence_recovery_status"],
-    }
+def provenance_class_for_source(src: dict[str, str]) -> str:
+    url = src.get("source_url", "").strip()
+    match = src.get("evidence_match_type", src.get("evidence_class", "")).upper()
+    mfr = src.get("manufacturer", "").lower()
+    if not url:
+        return "PRIOR_INDEXED_REFERENCE_NO_URL"
+    if "mighty-seven.com/product/" in url:
+        return "OFFICIAL_INDIVIDUAL_PRODUCT_PAGE"
+    if "mighty-seven.com" in url and ("product_list" in url or "other_category" in url):
+        return "MANUFACTURER_FAMILY_OR_INDEX"
+    if "groz-tools.com" in url:
+        return "OFFICIAL_MANUFACTURER_SOURCE"
+    if "DISTRIBUTOR" in match or "indiamart" in url or "fastenersweb" in url:
+        return "INDEPENDENT_DISTRIBUTOR"
+    if "APPLICATION_CLASS" in match or "MARKET" in match or "RETAIL" in match:
+        return "GENERAL_MARKET_APPLICATION_COMPARATOR"
+    if "mighty-seven" in mfr or "groz" in mfr:
+        return "OFFICIAL_MANUFACTURER_SOURCE"
+    return "GENERAL_MARKET_APPLICATION_COMPARATOR"
 
 
-def collect_source_rows(register_rows: list[dict[str, str]], access_date: str) -> list[dict[str, str]]:
-    register_ids = {int(r["product_id"]) for r in register_rows}
-    sources: dict[str, dict[str, str]] = {}
+def model_concordance_for_match_type(match_type: str) -> str:
+    u = match_type.upper()
+    if "NEAR_MODEL" in u:
+        return "NEAR_MODEL_NOT_EXACT_SKU"
+    if any(p in u for p in POSITIVE_EXACT_OEM_TIER_FRAGMENTS):
+        return "OEM_MODEL_PAGE_DOCUMENTED_NOT_KARZAR_STOCK"
+    if "DISTRIBUTOR" in u or "FAMILY" in u or "INDEX" in u:
+        return "FAMILY_OR_DISTRIBUTOR_NOT_EXACT_ARTICLE"
+    if "APPLICATION_CLASS" in u or "MARKET" in u:
+        return "APPLICATION_CLASS_ONLY"
+    return "UNRESOLVED_CONCORDANCE"
 
-    def ingest(src: dict[str, str], default_ids: str = "") -> None:
+
+@dataclass
+class SourceCatalog:
+    by_id: dict[str, dict[str, str]] = field(default_factory=dict)
+    by_product: dict[int, list[str]] = field(default_factory=lambda: defaultdict(list))
+
+    def add(self, src: dict[str, str], origin: str, default_pid: str = "") -> None:
         sid = src.get("source_id", "").strip()
         if not sid:
             return
         url = src.get("source_url", "").strip()
-        ids = src.get("related_karzar_product_ids", src.get("product_ids", src.get("affected_product_ids", default_ids)))
-        match_type = src.get(
-            "evidence_match_type",
-            src.get("evidence_class", src.get("oem_evidence_class_and_identity_scope", "")),
+        ids_blob = src.get(
+            "related_karzar_product_ids",
+            src.get("product_ids", src.get("affected_product_ids", default_pid)),
         )
+        pids = sorted({int(x) for x in re.findall(r"\d+", ids_blob) if x.isdigit()})
+        match_type = src.get("evidence_match_type", src.get("evidence_class", ""))
         row = {
             "source_id": sid,
             "source_url": url,
             "manufacturer": src.get("manufacturer", ""),
-            "model_identity": src.get("model_identity", src.get("model_identity_reference", "")),
-            "evidence_type": match_type,
-            "exact_model_concordance": src.get("evidence_match_type", src.get("new_bounded_oem_tier", "SEE_NOTES")),
-            "related_product_ids": ids,
+            "model_identity": src.get("model_identity", ""),
+            "evidence_match_type": match_type,
+            "provenance_class": provenance_class_for_source(src),
+            "model_content_concordance": model_concordance_for_match_type(match_type),
+            "evidence_origin": origin,
+            "related_product_ids": ",".join(str(p) for p in pids),
             "prior_verification_status": src.get("verification_status", ""),
-            "access_date_utc": access_date,
-            "retrieval_status": "NOT_PROBED",
-            "http_detail": "",
-            "notes": src.get("supported_claim", src.get("notes", ""))[:400],
+            "notes": (src.get("supported_claim", src.get("notes", "")) or "")[:400],
         }
-        sources[sid] = row
+        if sid in self.by_id:
+            existing = self.by_id[sid]
+            merged = set(existing["related_product_ids"].split(",")) | {str(p) for p in pids}
+            existing["related_product_ids"] = ",".join(sorted(x for x in merged if x))
+        else:
+            self.by_id[sid] = row
+        for pid in pids:
+            if sid not in self.by_product[pid]:
+                self.by_product[pid].append(sid)
+
+
+def build_source_catalog(register_rows: list[dict[str, str]]) -> SourceCatalog:
+    register_ids = {int(r["product_id"]) for r in register_rows}
+    sku_to_pid = {_normalize_m7_token(r["sku"]): int(r["product_id"]) for r in register_rows}
+    catalog = SourceCatalog()
 
     for src in P0_OEM_SOURCES:
         related = src.get("related_karzar_product_ids", "")
         if any(pid in register_ids for pid in (int(x) for x in re.findall(r"\d+", related) if x.isdigit())):
-            ingest(src)
+            catalog.add(src, "PRIOR_AUDIT_PACKAGE_REINDEX")
     for src in UNRESOLVED_11_SOURCES:
-        ingest(src)
+        catalog.add(src, "PRIOR_AUDIT_PACKAGE_REINDEX")
     for src in SUPPLEMENTAL_GROZ_SOURCES:
-        ingest(src)
+        catalog.add(src, "SUPPLEMENTAL_OEM_CATEGORY_PASS")
 
     wave_b_reg = (
         ROOT
@@ -458,24 +427,23 @@ def collect_source_rows(register_rows: list[dict[str, str]], access_date: str) -
     if wave_b_reg.is_file():
         with wave_b_reg.open(encoding="utf-8", newline="") as handle:
             for row in csv.DictReader(handle):
-                pid_match = False
                 sku = row.get("karzar_catalog_sku", row.get("karzar_sku", ""))
-                for reg in register_rows:
-                    if _normalize_m7_token(reg["sku"]) == _normalize_m7_token(sku):
-                        pid_match = True
-                if pid_match:
-                    ingest(
-                        {
-                            "source_id": row.get("source_id", f"M7-WB-{sku}"),
-                            "source_url": row.get("oem_evidence_url", ""),
-                            "manufacturer": "Mighty Seven (M7)",
-                            "model_identity": row.get("bounded_oem_claim", ""),
-                            "evidence_match_type": row.get("fetch_evidence_tier", ""),
-                            "related_karzar_product_ids": "",
-                            "supported_claim": row.get("claim_limit", ""),
-                            "verification_status": "PRIOR_PACKAGE_2026-10-18",
-                        }
-                    )
+                pid = sku_to_pid.get(_normalize_m7_token(sku))
+                if pid is None:
+                    continue
+                catalog.add(
+                    {
+                        "source_id": row.get("source_id", f"M7-WB-{sku}"),
+                        "source_url": row.get("oem_evidence_url", ""),
+                        "manufacturer": "Mighty Seven (M7)",
+                        "model_identity": row.get("bounded_oem_claim", ""),
+                        "evidence_match_type": row.get("fetch_evidence_tier", ""),
+                        "related_karzar_product_ids": str(pid),
+                        "supported_claim": row.get("claim_limit", ""),
+                        "verification_status": "PRIOR_PACKAGE_2026-10-18",
+                    },
+                    "PRIOR_AUDIT_PACKAGE_REINDEX",
+                )
 
     m7_reg = (
         ROOT
@@ -486,49 +454,250 @@ def collect_source_rows(register_rows: list[dict[str, str]], access_date: str) -
     if m7_reg.is_file():
         with m7_reg.open(encoding="utf-8", newline="") as handle:
             for row in csv.DictReader(handle):
-                ingest(
+                catalog.add(
                     {
                         "source_id": row["source_id"],
-                        "source_url": row.get("source_url", row.get("official_url", "")),
+                        "source_url": row.get("official_url", row.get("source_url", "")),
                         "manufacturer": "Mighty Seven (M7)",
-                        "model_identity": row.get("limit", row.get("concordance_notes", "")),
-                        "evidence_match_type": row.get("evidence_kind", row.get("evidence_tier", "")),
+                        "model_identity": row.get("limit", ""),
+                        "evidence_match_type": row.get("evidence_kind", ""),
+                        "related_karzar_product_ids": "",
                         "supported_claim": row.get("limit", ""),
                         "verification_status": "PRIOR_PACKAGE_2026-10-18",
-                    }
+                    },
+                    "PRIOR_AUDIT_PACKAGE_REINDEX",
                 )
 
     for pid in register_ids:
         for src in p0_sources_for_product(pid):
-            ingest(src, default_ids=str(pid))
+            catalog.add(src, "PRIOR_AUDIT_PACKAGE_REINDEX", default_pid=str(pid))
         for src in unresolved_11_sources_for_product(pid):
-            ingest(src, default_ids=str(pid))
+            catalog.add(src, "PRIOR_AUDIT_PACKAGE_REINDEX", default_pid=str(pid))
 
+    for _package, path in PRIOR_MATRIX_PATHS:
+        with path.open(encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle):
+                pid_raw = row.get("product_id", "").strip()
+                if not pid_raw.isdigit() or int(pid_raw) not in register_ids:
+                    continue
+                pid = int(pid_raw)
+                for key in ("source_id", "oem_source_id"):
+                    sid = row.get(key, "").strip()
+                    if sid and sid in catalog.by_id:
+                        if sid not in catalog.by_product[pid]:
+                            catalog.by_product[pid].append(sid)
+                        ids = set(catalog.by_id[sid]["related_product_ids"].split(","))
+                        ids.add(str(pid))
+                        catalog.by_id[sid]["related_product_ids"] = ",".join(sorted(x for x in ids if x))
+                blob = row.get("oem_source_ids", "")
+                for sid in (s.strip() for s in blob.split("|") if s.strip()):
+                    if sid in catalog.by_id:
+                        if sid not in catalog.by_product[pid]:
+                            catalog.by_product[pid].append(sid)
+
+    return catalog
+
+
+def finalize_source_register(
+    catalog: SourceCatalog,
+    access_date: str,
+    live_probe: bool,
+) -> list[dict[str, str]]:
     probed: dict[str, tuple[str, str]] = {}
-    for sid, row in sources.items():
-        url = row["source_url"]
-        if url in probed:
-            status, detail = probed[url]
+    rows: list[dict[str, str]] = []
+    for sid in sorted(catalog.by_id):
+        base = catalog.by_id[sid]
+        url = base["source_url"]
+        if not url:
+            retrieval = "PRIOR_REFERENCE_NO_URL"
+            detail = "not_a_live_recovery"
+        elif not live_probe:
+            retrieval = "TRANSPORT_PROBE_SKIPPED_REPRODUCIBLE_BUILD"
+            detail = ""
+        elif url in probed:
+            retrieval, detail = probed[url]
         else:
-            status, detail = probe_url(url)
-            probed[url] = (status, detail)
-        row["retrieval_status"] = status
-        row["http_detail"] = detail
+            retrieval, detail = probe_url(url)
+            probed[url] = (retrieval, detail)
+        rows.append(
+            {
+                **base,
+                "access_date_utc": access_date,
+                "http_transport_status": retrieval,
+                "http_detail": detail,
+                "transport_note": (
+                    "HTTP status is transport-only; not verified product-content concordance."
+                    if url
+                    else "Empty URL — prior indexed reference only."
+                ),
+            }
+        )
+    return rows
 
-    return sorted(sources.values(), key=lambda r: r["source_id"])
+
+def _conflict_note(slices: list[PriorSlice], register_row: dict[str, str], catalog: SourceCatalog) -> str:
+    notes: list[str] = []
+    pid = int(register_row["product_id"])
+    for sl in slices:
+        for key in ("model_vs_title_or_identity_issue", "review_note_and_specific_gap", "competing_interpretations"):
+            val = sl.row.get(key, "").strip()
+            if val and ("mismatch" in val.lower() or "not " in val.lower() or "do not" in val.lower()):
+                notes.append(val[:280])
+    for sid in catalog.by_product.get(pid, []):
+        src = catalog.by_id[sid]
+        if src["model_content_concordance"] == "NEAR_MODEL_NOT_EXACT_SKU":
+            notes.append(f"{sid}: near-model OEM reference; Karzar catalog token not exact match.")
+    title = register_row.get("historical_title", "")
+    if "5 کاره" in title and any(
+        "ratchet" in (s.row.get("bounded_manufacturer_model_class", "") or "").lower() for s in slices
+    ):
+        notes.append("Owner/title saw-accessory wording conflicts with OEM air-ratchet kit class (prior M7 research).")
+    return " | ".join(dict.fromkeys(notes))[:500]
+
+
+def classify_recovery(
+    register_row: dict[str, str],
+    prior_slices: list[PriorSlice],
+    catalog: SourceCatalog,
+) -> dict[str, str]:
+    ws = register_row["evidence_workstream"]
+    pid = int(register_row["product_id"])
+    tier_raw = _tier_from_prior(prior_slices)
+    tier_sem = classify_tier_semantics(tier_raw)
+    source_ids = catalog.by_product.get(pid, [])
+    conflict = _conflict_note(prior_slices, register_row, catalog)
+
+    has_official_product_page = any(
+        catalog.by_id[sid]["provenance_class"] == "OFFICIAL_INDIVIDUAL_PRODUCT_PAGE" for sid in source_ids
+    )
+    has_near_model_source = any(
+        catalog.by_id[sid]["model_content_concordance"] == "NEAR_MODEL_NOT_EXACT_SKU" for sid in source_ids
+    )
+
+    exact_oem = (
+        tier_sem == "POSITIVE_EXACT_OEM_PAGE"
+        and has_official_product_page
+        and not has_near_model_source
+        and register_row["product_id"] not in ("5146", "5147")
+    )
+
+    partial = tier_sem in ("NEAR_MODEL_PARTIAL", "PARTIAL_FAMILY_OR_MARKET") or has_near_model_source
+    if tier_sem == "NEGATIVE_UNRESOLVED":
+        partial = partial or bool(source_ids)
+
+    unresolved_remote = tier_sem in ("NEGATIVE_UNRESOLVED", "UNKNOWN_EMPTY") and not exact_oem
+    if ws.startswith("BLADEKAT") and tier_sem == "NEGATIVE_UNRESOLVED":
+        unresolved_remote = True
+        exact_oem = False
+
+    if register_row["product_id"] in ("5146", "5147"):
+        exact_oem = False
+        partial = True
+        conflict = conflict or "Karzar SKU omits Q suffix; OEM pages document NC-4277Q / NC-4299Q — not exact token match."
+
+    if exact_oem and conflict:
+        exact_oem = False
+
+    if exact_oem:
+        recovery_status = "EXACT_OEM_MODEL_DOCUMENTARY"
+    elif partial and conflict:
+        recovery_status = "CONFLICTING_EVIDENCE_DOCUMENTED"
+    elif partial:
+        recovery_status = "PARTIAL_OR_FAMILY_LEVEL_EVIDENCE"
+    elif conflict:
+        recovery_status = "CONFLICTING_EVIDENCE_DOCUMENTED"
+    elif unresolved_remote:
+        recovery_status = "REMOTE_RESEARCH_UNRESOLVED"
+    else:
+        recovery_status = "REMOTE_RESEARCH_UNRESOLVED"
+
+    physical_required = "YES"
+    if ws.startswith("BLADEKAT") or tier_sem == "NEGATIVE_UNRESOLVED" or "NOT_PHYSICAL" in tier_raw.upper():
+        physical_required = "YES"
+
+    return {
+        "evidence_recovery_status": recovery_status,
+        "exact_oem_documentary_recovered": "YES" if exact_oem else "NO",
+        "partial_or_family_evidence": "YES" if partial else "NO",
+        "conflicting_evidence_flag": "YES" if conflict else "NO",
+        "conflicting_evidence_summary": conflict,
+        "physical_stock_evidence_required": physical_required,
+        "remote_research_unresolved": "YES" if recovery_status == "REMOTE_RESEARCH_UNRESOLVED" else "NO",
+        "owner_disposition_unchanged": "REQUEST_MORE_EVIDENCE_UNCHANGED",
+        "prior_bounded_evidence_tier_echo": tier_raw[:240],
+        "evidence_tier_semantics": tier_sem,
+        "traceable_source_ids": "|".join(source_ids),
+    }
+
+
+def boundary_assessment_row(
+    register_row: dict[str, str],
+    recovery: dict[str, str],
+    prior_slices: list[PriorSlice],
+) -> dict[str, str]:
+    pid = register_row["product_id"]
+    ws = register_row["evidence_workstream"]
+    assessment_kind = "OWNER_GATE_PLACEHOLDER"
+    domain = "UNASSESSED_REQUIRES_OWNER_GATE"
+    bounded_note = ""
+
+    for sl in prior_slices:
+        if sl.package == "p1b_eight_domain":
+            assessment_kind = "BOUNDED_PRIOR_SEVEN_DOMAIN_RESEARCH"
+            domain = sl.row.get("seven_domain_fit_assessment_not_owner_authority", domain)
+            bounded_note = sl.row.get("domain_boundary_rationale", "")[:300]
+            break
+        if sl.package == "p0_industrial_boundary":
+            assessment_kind = "BOUNDED_P0_INDUSTRIAL_BOUNDARY"
+            spec = P0_PRODUCTS.get(int(pid))
+            if spec:
+                domain = spec.get("approved_domain_fit_assessment", domain)
+                bounded_note = spec.get("approved_domain_fit_assessment", "")
+            break
+
+    if ws.startswith("BLADEKAT"):
+        assessment_kind = "BOUNDED_WOOD_VS_METAL_CUTTING_OPEN"
+        bounded_note = (
+            "Wood-router versus metal-cutting boundary open until substrate/material and exact article are proven; "
+            "CNC token does not imply metal-cutting; no Workshop catch-all."
+        )
+    elif ws.startswith("EARLY_TECH_BOUNDARY"):
+        assessment_kind = "BOUNDED_GROZ_IDENTITY_OPEN"
+        bounded_note = "Groz article and physical application (metal vs wood / jack class) unresolved; no invented exception."
+    elif "M7" in ws:
+        if assessment_kind == "OWNER_GATE_PLACEHOLDER":
+            assessment_kind = "BOUNDED_PNEUMATIC_OEM_CLASS_VS_DOMAIN"
+        bounded_note = (bounded_note or "") + " Pneumatic power does not imply industrial machinery domain."
+
+    return {
+        "product_id": pid,
+        "sku": register_row["sku"],
+        "evidence_workstream": ws,
+        "parallel_work_wave": register_row["parallel_work_wave"],
+        "technical_assessment_kind": assessment_kind,
+        "seven_domain_boundary_note": bounded_note[:400],
+        "approved_domain_fit_assessment": domain,
+        "owner_final_gate_required": "YES",
+        "category_154_protected": "YES",
+        "category_156_oils_protected": "YES",
+        "workshop_catch_all_forbidden": "YES",
+        "industrial_exception_invented": "NO",
+        "evidence_recovery_status": recovery["evidence_recovery_status"],
+    }
 
 
 def build_recovery_matrix(
     register_rows: list[dict[str, str]],
     prior_index: PriorIndex,
+    catalog: SourceCatalog,
 ) -> list[dict[str, str]]:
     matrix: list[dict[str, str]] = []
     for reg in register_rows:
         pid = int(reg["product_id"])
         slices = prior_index.by_product.get(pid, [])
-        if not slices and pid not in (2915, 3238):
+        if not slices:
             raise RuntimeError(f"missing_prior_research_slice product_id={pid}")
-        recovery = classify_recovery(reg, slices, [])
+        recovery = classify_recovery(reg, slices, catalog)
         matrix.append(
             {
                 "product_id": reg["product_id"],
@@ -556,8 +725,7 @@ def build_physical_manifest(register_rows: list[dict[str, str]], matrix: list[di
     by_id = {m["product_id"]: m for m in matrix}
     grouped: dict[str, list[dict[str, str]]] = defaultdict(list)
     for reg in register_rows:
-        role = reg["requested_from_role_RECOMMENDATION"]
-        grouped[role].append(reg)
+        grouped[reg["requested_from_role_RECOMMENDATION"]].append(reg)
     rows: list[dict[str, str]] = []
     for role, items in sorted(grouped.items()):
         for reg in sorted(items, key=lambda r: int(r["product_id"])):
@@ -585,13 +753,13 @@ def build_physical_manifest(register_rows: list[dict[str, str]], matrix: list[di
     return rows
 
 
-def fail_closed_reconciliation(register_rows: list[dict[str, str]], matrix: list[dict[str, str]]) -> dict[str, Any]:
+def fail_closed_reconciliation(
+    register_rows: list[dict[str, str]],
+    matrix: list[dict[str, str]],
+    physical: list[dict[str, str]],
+    register_identity: dict[str, str],
+) -> dict[str, Any]:
     errors: list[str] = []
-
-    reg_sha = sha256_file(ACTION_REGISTER)
-    if reg_sha != USER_PROMPT_REGISTER_SHA256:
-        # Attest canonical main blob; prompt SHA is stale vs merge 2e37c5de.
-        pass
 
     waves = Counter(r["parallel_work_wave"] for r in register_rows)
     if dict(waves) != WAVE_COUNTS:
@@ -602,66 +770,73 @@ def fail_closed_reconciliation(register_rows: list[dict[str, str]], matrix: list
 
     with PR499_REVIEW.open(encoding="utf-8", newline="") as handle:
         pr499 = list(csv.DictReader(handle))
-    if len(pr499) != 262:
-        errors.append(f"pr499_row_count expected=262 got={len(pr499)}")
+    pr499_ids = [int(r["product_id"]) for r in pr499]
+    if len(pr499) != 262 or len(set(pr499_ids)) != 262:
+        errors.append(f"pr499_frozen_cohort expected=262_unique got_rows={len(pr499)} unique={len(set(pr499_ids))}")
 
     batch_paths = sorted(OWNER_PKG.glob("OWNER-AUTHORIZATION-BATCH-*-2026-10-1*.csv"))
     if len(batch_paths) != 11:
-        errors.append(f"owner_batch_csv_count expected=11 got={len(batch_paths)}")
+        errors.append(f"owner_journal_csv_count expected=11 got={len(batch_paths)}")
 
-    decisions: list[str] = []
-    apply_flags: list[str] = []
+    journal_pids: list[int] = []
     evidence_requests: list[int] = []
     exits = 0
+    apply_yes = 0
     for path in batch_paths:
         with path.open(encoding="utf-8", newline="") as handle:
             for row in csv.DictReader(handle):
+                pid_raw = row.get("product_id", "").strip()
+                if not pid_raw.isdigit():
+                    errors.append(f"journal_missing_product_id file={path.name}")
+                    continue
+                pid = int(pid_raw)
+                journal_pids.append(pid)
                 od = row.get("owner_decision", row.get("owner_response", "")).strip()
-                decisions.append(od)
-                apply_flags.append(row.get("apply_authorization", "NO").strip().upper())
+                apply = row.get("apply_authorization", "NO").strip().upper()
+                if apply not in ("NO", ""):
+                    apply_yes += 1
                 if od == "REQUEST_MORE_EVIDENCE":
-                    pid = row.get("product_id", "")
-                    if pid.isdigit():
-                        evidence_requests.append(int(pid))
-                if od == "APPROVE_CATALOG_EXIT":
+                    evidence_requests.append(pid)
+                elif od == "APPROVE_CATALOG_EXIT":
                     exits += 1
+                else:
+                    errors.append(f"unexpected_owner_decision pid={pid} decision={od}")
 
     reg_ids = {int(r["product_id"]) for r in register_rows}
+    if len(journal_pids) != 262 or len(set(journal_pids)) != 262:
+        errors.append(f"journal_row_integrity expected=262_unique got={len(journal_pids)} unique={len(set(journal_pids))}")
     if set(evidence_requests) != reg_ids:
-        missing = reg_ids - set(evidence_requests)
-        extra = set(evidence_requests) - reg_ids
-        if missing or extra:
-            errors.append(f"journal_evidence_id_set_mismatch missing={sorted(missing)[:5]} extra={sorted(extra)[:5]}")
+        errors.append("journal_evidence_request_set_mismatch_register")
+    if exits != 151:
+        errors.append(f"documentary_exit_count expected=151 got={exits}")
+    if apply_yes != 0:
+        errors.append(f"apply_authorization_in_journals count={apply_yes}")
 
-    if any(a not in ("NO", "") for a in apply_flags):
-        errors.append("apply_authorization_found_in_owner_batches")
-
-    matrix_ids = [int(r["product_id"]) for r in matrix]
-    if len(matrix_ids) != 111 or len(set(matrix_ids)) != 111:
+    matrix_ids = {r["product_id"] for r in matrix}
+    manifest_ids = {r["product_id"] for r in physical}
+    if len(matrix) != 111 or matrix_ids != {r["product_id"] for r in register_rows}:
         errors.append("matrix_id_integrity_failed")
+    if manifest_ids != matrix_ids:
+        errors.append("physical_manifest_id_mismatch_matrix")
 
-    status_counts = Counter(r["evidence_recovery_status"] for r in matrix)
+    if any(r.get("apply_authorization") != "NO" for r in matrix):
+        errors.append("matrix_apply_authorization_not_all_no")
+
     if errors:
         raise RuntimeError("RECONCILIATION_FAILED: " + "; ".join(errors))
 
+    status_counts = Counter(r["evidence_recovery_status"] for r in matrix)
     return {
         "status": "PASS",
-        "action_register_sha256_on_disk": reg_sha,
-        "user_prompt_register_sha256_expected": USER_PROMPT_REGISTER_SHA256,
-        "register_sha_attestation": (
-            "TARGET_MOVED: canonical register on origin/main differs from prompt SHA; "
-            "this package pins the on-disk register hash above."
-            if reg_sha != USER_PROMPT_REGISTER_SHA256
-            else "MATCH"
-        ),
+        **register_identity,
         "frozen_262_review_blob_note": FROZEN_REVIEW_BLOB_NOTE,
         "pr499_row_count": len(pr499),
+        "pr499_unique_product_ids": len(set(pr499_ids)),
         "owner_journal_csv_count": len(batch_paths),
+        "owner_journal_unique_product_ids": len(set(journal_pids)),
         "open_evidence_request_count": len(reg_ids),
         "documentary_exit_count_in_journals": exits,
-        "expected_documentary_exits": 151,
-        "documentary_exit_count_matches_expected": exits == 151,
-        "apply_authorization_rows": 0,
+        "apply_authorization_rows": apply_yes,
         "wave_counts": dict(waves),
         "workstream_counts": dict(workstreams),
         "evidence_recovery_status_counts": dict(status_counts),
@@ -680,3 +855,17 @@ def fail_closed_reconciliation(register_rows: list[dict[str, str]], matrix: list
             "PRODUCT_TITLE_CATEGORY_MANIFEST": "NO",
         },
     }
+
+
+# Back-compat aliases for audit script imports
+def collect_source_rows(
+    register_rows: list[dict[str, str]],
+    access_date: str,
+    live_probe: bool = False,
+) -> list[dict[str, str]]:
+    catalog = build_source_catalog(register_rows)
+    return finalize_source_register(catalog, access_date, live_probe=live_probe)
+
+
+def build_source_catalog_public(register_rows: list[dict[str, str]]) -> SourceCatalog:
+    return build_source_catalog(register_rows)

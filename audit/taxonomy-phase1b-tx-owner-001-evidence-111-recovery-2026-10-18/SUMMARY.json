@@ -1,10 +1,19 @@
 {
   "STATUS": "READY_FOR_OWNER_REVIEW",
   "matrix_rows": 111,
-  "source_rows": 42,
+  "source_register_rows": 42,
+  "source_rows_with_url": 36,
+  "source_rows_without_url": 6,
   "physical_manifest_rows": 111,
-  "exact_oem_documentary_yes_count": 10,
-  "partial_family_yes_count": 24,
-  "remote_unresolved_count": 62,
+  "live_http_probe_enabled": false,
+  "evidence_recovery_status_counts": {
+    "REMOTE_RESEARCH_UNRESOLVED": 56,
+    "PARTIAL_OR_FAMILY_LEVEL_EVIDENCE": 27,
+    "CONFLICTING_EVIDENCE_DOCUMENTED": 27,
+    "EXACT_OEM_MODEL_DOCUMENTARY": 1
+  },
+  "exact_oem_documentary_yes_count": 1,
+  "partial_family_yes_count": 49,
+  "remote_unresolved_count": 56,
   "physical_stock_required_count": 111
 }
