@@ -200,6 +200,29 @@ test.describe("calibrated five-hero campaign", () => {
   });
 });
 
+test("all five calibrated hero CTA links resolve without category-hub 404", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await gotoHome(page);
+  const region = page.getByRole("region", { name: "هیرو کارزار" });
+  for (let index = 0; index < SLIDES.length; index += 1) {
+    const slide = SLIDES[index]!;
+    await expect(region.getByRole("heading", { name: slide.title })).toBeVisible();
+    const labels = [slide.cta, ...("secondary" in slide ? [slide.secondary] : [])];
+    for (const label of labels) {
+      const link = region.getByRole("link", { name: label }).first();
+      await expect(link).toBeVisible();
+      await expect.poll(() => link.getAttribute("href")).toMatch(/^\\/catalog\\?/);
+      const href = await link.getAttribute("href");
+      expect(href).not.toBeNull();
+      const response = await page.request.get(href!);
+      expect(response.status(), "CTA must open a valid catalog route: " + href).toBe(200);
+    }
+    if (index < SLIDES.length - 1) {
+      await page.getByRole("button", { name: "اسلاید بعدی" }).click();
+    }
+  }
+});
+
 test.describe("calibrated hero interactions", () => {
   test("desktop arrows, keyboard, and reduced motion stay stable", async ({ page }) => {
     const errors: string[] = [];
