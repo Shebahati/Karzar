@@ -1,0 +1,9 @@
+decision_group_id,freeze_tier,question_fa,recommended_choice,alternative,affected_scope,consequence,blocks_architecture_freeze,blocks_execution_only,traceability
+ARCH-7-L1-ROOTS,A,آیا هفت ریشه تجاری خریدار (جدا از دامنه علمی) تأیید شود؟,FREEZE پس از تأیید مالک,ادغام L1های قدیمی تحت ریشه‌های واحد,7 ریشه در C-TARGET-TAXONOMY-TREE,بلوک معماری,YES,NO,B1+CENSUS;group=ARCH-7-L1-ROOTS
+METROLOGY-L2-FAMILIES,A,آیا سه خانواده L2 اندازه‌گیری (دقیق / CNC / آزمایشگاهی) حفظ شود؟,FREEZE,یک L2 واحد,گره‌های METROLOGY_FAMILY_*,بلوک معماری,YES,NO,B1+CENSUS;group=METROLOGY-L2-FAMILIES
+ACCESSORIES-154-DECOMPOSE,B,لوازم جانبی صنعتی ۱۵۴: تجزیه بدون حذف دسته‌ای؟,DECOMPOSE + HOLD,حذف والد,cat 154 و فرزندان غیر روغن,هویت commerce,YES,NO,B1+CENSUS;group=ACCESSORIES-154-DECOMPOSE
+FLUIDS-156-PROTECT,B,۲۷ روغن صنعتی تحت FLUIDS بدون خروج؟,FREEZE,انتقال به دامنه دیگر,cat 156 + 27 SKU,هویت commerce,NO,NO,B1+CENSUS;group=FLUIDS-156-PROTECT
+TX-OWNER-SCOPE-157-160,C,خروج کاتالوگ ابزار دستی/چوبی (طراحی سندی)؟,OWNER_APPROVED_DOCUMENTARY فقط,استثناء صنعتی,157-160 + محصولات,اجرای APPLY,YES,YES,B1+CENSUS;group=TX-OWNER-SCOPE-157-160
+MIXED-CHUCKS-116-118,C,تجزیه سه‌نظام/چهارنظام/دونظام در سطح محصول؟,HOLD,نگه‌داری برگ mixed,116-118,نقشه محصول,YES,YES,B1+CENSUS;group=MIXED-CHUCKS-116-118
+HELICOIL-55-THREAD-REPAIR,B,هلی‌کویل ۵۵ تحت THREAD_REPAIR (نه Cutting)؟,FREEZE,بازگشت به قلاویز,cat 55 + 29 SKU,هویت commerce,YES,NO,B1+CENSUS;group=HELICOIL-55-THREAD-REPAIR
+MEGAMENU-186-187-188,D,رفع ارجاع منوی هلی‌کویل به ۱۸۶/۱۸۷/۱۸۸؟,به‌روزرسانی منو یا retire,ریدایرکت به هاب نامرتبط,megamenu,SEO/اجراء,YES,YES,B1+CENSUS;group=MEGAMENU-186-187-188

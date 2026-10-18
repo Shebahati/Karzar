@@ -1,0 +1,15 @@
+{
+  "status": "PLAN_ONLY",
+  "phases": [
+    "Owner architecture freeze (7 L1 + identity registry)",
+    "Product-level evidence completion (111 SKUs)",
+    "Schema KZ.CAT.* + importer remap",
+    "Category/product APPLY (separate authorization)",
+    "SEO redirect deployment"
+  ],
+  "helicoil_megamenu": {
+    "issue": "nav group references removed roots 186/187/188",
+    "proposal": "Retarget to live category 55 or retire group; no unrelated 301"
+  },
+  "rollback": "Reversible mapping tables; no production mutation in B2"
+}
