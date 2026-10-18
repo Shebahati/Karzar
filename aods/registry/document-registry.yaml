@@ -1206,6 +1206,16 @@ documents:
       Owner Architecture Decision 007 — exclude categories 157–160 from seven-root
       commerce; DEPRECATED target design only; TX-OWNER-001 151/111/262 preserved.
 
+  - id: TAXONOMY-PHASE1B-OWNER-ARCH-DECISION-008-20261018
+    path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/11-DECISION-MIXED-CHUCKS-116-118-2026-10-18.md
+    class: DECISION
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner Architecture Decision 008 — mixed lathe chucks 116–118 decomposition;
+      611 PRODUCT_LEVEL_REQUIRED; STAGING/HOLD; structural approval only.
+
   - id: TAXONOMY-PHASE1B-OWNER-ARCH-JOURNAL-README-20261018
     path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/README.md
     class: EVIDENCE

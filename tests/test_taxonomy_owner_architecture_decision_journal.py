@@ -20,6 +20,7 @@ from catalog_target.taxonomy_owner_architecture_decision_journal import (  # noq
     DECISION_ID_FLUIDS_156_PUBLICATION,
     DECISION_ID_MACHINE_ACCESSORIES_163_164,
     DECISION_ID_METROLOGY_L2,
+    DECISION_ID_MIXED_CHUCKS_116_118,
     DECISION_ID_TX_OWNER_SCOPE_157_160,
     JOURNAL_ENTRY_SPECS,
     JournalPaths,
@@ -49,6 +50,7 @@ class OwnerArchitectureDecisionJournalTests(unittest.TestCase):
             DECISION_ID_FLUIDS_156_PUBLICATION,
             DECISION_ID_MACHINE_ACCESSORIES_163_164,
             DECISION_ID_TX_OWNER_SCOPE_157_160,
+            DECISION_ID_MIXED_CHUCKS_116_118,
         ):
             row = next(r for r in rows if r["decision_group_id"] == gid)
             self.assertEqual(row["owner_architecture_decision_status"], "PENDING")

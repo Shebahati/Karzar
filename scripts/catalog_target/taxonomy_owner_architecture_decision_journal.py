@@ -22,6 +22,7 @@ DECISION_ID_FLUIDS_155 = "FLUIDS-155-FACET-NAV"
 DECISION_ID_FLUIDS_156_PUBLICATION = "FLUIDS-156-PUBLICATION"
 DECISION_ID_MACHINE_ACCESSORIES_163_164 = "MACHINE-ACCESSORIES-163-164"
 DECISION_ID_TX_OWNER_SCOPE_157_160 = "TX-OWNER-SCOPE-157-160"
+DECISION_ID_MIXED_CHUCKS_116_118 = "MIXED-CHUCKS-116-118"
 GATE_IR_MARKET_NAMING_SEO = "IR-MARKET-NAMING-SEO"
 
 OWNER_DECIDED_B2_GROUP_IDS = frozenset(
@@ -33,6 +34,7 @@ OWNER_DECIDED_B2_GROUP_IDS = frozenset(
         DECISION_ID_FLUIDS_156_PUBLICATION,
         DECISION_ID_MACHINE_ACCESSORIES_163_164,
         DECISION_ID_TX_OWNER_SCOPE_157_160,
+        DECISION_ID_MIXED_CHUCKS_116_118,
     }
 )
 
@@ -51,6 +53,7 @@ JOURNAL_ENTRY_SPECS: tuple[tuple[str, str, str], ...] = (
         "CONDITIONAL_STRUCTURAL_APPROVAL",
     ),
     ("OWNER-ARCH-DECISION-007", DECISION_ID_TX_OWNER_SCOPE_157_160, "STRUCTURAL_ARCHITECTURE_APPROVAL"),
+    ("OWNER-ARCH-DECISION-008", DECISION_ID_MIXED_CHUCKS_116_118, "CONDITIONAL_STRUCTURAL_APPROVAL"),
 )
 
 LEGACY_CATEGORY_154_ID = "154"
@@ -81,6 +84,16 @@ TX_OWNER_DEPRECATED_TARGET_CODES = (
     "KZ.CAT.DEPRECATED_TX_OWNER_WOODWORKING_159",
     "KZ.CAT.DEPRECATED_TX_OWNER_WOODWORKING_160",
 )
+
+MIXED_CHUCK_CATEGORY_IDS = ("116", "117", "118")
+MIXED_CHUCK_PLR_COUNT_BY_CATEGORY = {"116": 571, "117": 40, "118": 0}
+MIXED_CHUCK_PLR_TOTAL = 611
+MIXED_CHUCK_STAGING_CODES = (
+    "KZ.CAT.STAGING_LATHE_CHUCK_MIXED_116",
+    "KZ.CAT.STAGING_FOUR_JAW_MIXED_117",
+    "KZ.CAT.STAGING_TWO_JAW_MIXED_118",
+)
+WORKHOLDING_COMMERCE_ROOT_CODE = "KZ.CAT.BUYER_WORKHOLDING"
 
 OWNER_STATEMENT_FA = (
     "«به‌عنوان مالک، هفت ریشهٔ معماری پیشنهادی را به‌صورت مشروط می‌پذیرم، "
@@ -169,6 +182,10 @@ class JournalPaths:
     @property
     def decision_md_tx_owner_scope_157_160(self) -> Path:
         return self.root / "10-DECISION-TX-OWNER-SCOPE-157-160-2026-10-18.md"
+
+    @property
+    def decision_md_mixed_chucks_116_118(self) -> Path:
+        return self.root / "11-DECISION-MIXED-CHUCKS-116-118-2026-10-18.md"
 
     @property
     def pending_groups_csv(self) -> Path:
@@ -372,6 +389,42 @@ def build_journal_entry_007() -> dict[str, str]:
             f"{TX_OWNER_001_COHORT_PRODUCT_COUNT} product IDs total. No blanket deletion, "
             "auto retirement, reassignment, redirect, or 410; production requires separate "
             "per-product evidence and Owner execution authorization."
+        ),
+    }
+
+
+def build_journal_entry_008() -> dict[str, str]:
+    scope_ids = "|".join(MIXED_CHUCK_CATEGORY_IDS)
+    plr_breakdown = (
+        f"116={MIXED_CHUCK_PLR_COUNT_BY_CATEGORY['116']}; "
+        f"117={MIXED_CHUCK_PLR_COUNT_BY_CATEGORY['117']}; "
+        f"118={MIXED_CHUCK_PLR_COUNT_BY_CATEGORY['118']}"
+    )
+    return {
+        "journal_entry_id": "OWNER-ARCH-DECISION-008",
+        "decision_id": DECISION_ID_MIXED_CHUCKS_116_118,
+        "decision_date": "2026-10-18",
+        "decision_type": "CONDITIONAL_STRUCTURAL_APPROVAL",
+        "b2_decision_group_id": DECISION_ID_MIXED_CHUCKS_116_118,
+        "owner_statement_fa": (
+            "«تجزیهٔ کنترل‌شدهٔ نظام‌های ۱۱۶–۱۱۸ را تأیید می‌کنم: تفکیک نظام از لوازم "
+            "بر اساس هویت فنی؛ ۶۱۱ PRODUCT_LEVEL_REQUIRED (۵۷۱/۴۰/۰)؛ STAGING/HOLD تا "
+            "پیش‌نیازهای مهاجرت؛ حذف ۱۱۸ به‌خاطر صفر ممنوع؛ بدون catch-all عمومی.»"
+        ),
+        "owner_architecture_decision_status": "CONDITIONAL_STRUCTURAL_ACCEPTED",
+        "linked_prerequisite_gate_ids": GATE_IR_MARKET_NAMING_SEO,
+        "category_apply_authorization": "NO",
+        "product_reassignment_authorization": "NO",
+        "seo_deployment_authorization": "NO",
+        "production_mutation_authorization": "NO",
+        "b2_review_snapshot_preserved": "YES",
+        "notes_en": (
+            f"Controlled decomposition of categories {scope_ids}; separate chucks from "
+            "accessories by technical identity; preserve "
+            f"{MIXED_CHUCK_PLR_TOTAL} PRODUCT_LEVEL_REQUIRED ({plr_breakdown}); "
+            "STAGING/HOLD until validated migration prerequisites; per-product evidence "
+            "and destination review; do not delete category 118 for zero cohort; no generic "
+            f"mixed catch-all under {WORKHOLDING_COMMERCE_ROOT_CODE}. Structural approval only."
         ),
     }
 
@@ -737,6 +790,56 @@ def build_decision_markdown_tx_owner_scope_157_160() -> str:
     )
 
 
+def build_decision_markdown_mixed_chucks_116_118() -> str:
+    cats = " · ".join(f"**{cid}**" for cid in MIXED_CHUCK_CATEGORY_IDS)
+    staging = "\n".join(f"- `{code}`" for code in MIXED_CHUCK_STAGING_CODES)
+    plr_lines = "\n".join(
+        f"- Category **{cid}**: {MIXED_CHUCK_PLR_COUNT_BY_CATEGORY[cid]}"
+        for cid in MIXED_CHUCK_CATEGORY_IDS
+    )
+    return "\n".join(
+        [
+            "# Owner Architecture Decision — MIXED-CHUCKS-116-118",
+            "",
+            "| Field | Value |",
+            "|-------|-------|",
+            "| **Journal entry** | `OWNER-ARCH-DECISION-008` |",
+            "| **DECISION_ID** | `MIXED-CHUCKS-116-118` |",
+            "| **DECISION_DATE** | 2026-10-18 |",
+            "| **DECISION_TYPE** | `CONDITIONAL_STRUCTURAL_APPROVAL` |",
+            f"| **Legacy categories** | {cats} |",
+            f"| **PRODUCT_LEVEL_REQUIRED total** | {MIXED_CHUCK_PLR_TOTAL} |",
+            f"| **Workholding root** | `{WORKHOLDING_COMMERCE_ROOT_CODE}` |",
+            "| **B2 link** | group `MIXED-CHUCKS-116-118` |",
+            "| **Gate** | `IR-MARKET-NAMING-SEO` (mandatory for display/landing/URL) |",
+            "",
+            "## Approved direction (structural only)",
+            "",
+            "- Separate **chucks** from **chuck accessories** based on actual technical product identity.",
+            f"- Preserve **{MIXED_CHUCK_PLR_TOTAL}** `PRODUCT_LEVEL_REQUIRED` records:",
+            plr_lines,
+            "- Keep legacy categories in **STAGING/HOLD** until validated migration prerequisites are satisfied.",
+            "- Require per-product evidence and explicit destination review.",
+            "- Do **not** delete category **118** merely because its decomposition cohort is zero.",
+            "- Do **not** introduce another generic mixed catch-all destination.",
+            "",
+            "Staging identities (target design):",
+            staging,
+            "",
+            "## Explicitly NOT approved",
+            "",
+            "- Product reassignment, category mutation, deletion.",
+            "- SEO deployment, `CATEGORY_APPLY`, production deployment.",
+            "- Approval of other pending B2 decision groups.",
+            "",
+            "## B2 snapshot policy",
+            "",
+            "Frozen B2 register still shows `PENDING` for `MIXED-CHUCKS-116-118`; "
+            "this journal entry is authoritative.",
+        ]
+    )
+
+
 def _validate_journal_entry(row: dict[str, str], errors: list[str]) -> None:
     for auth_field in (
         "category_apply_authorization",
@@ -818,6 +921,9 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
     paths.decision_md_tx_owner_scope_157_160.write_text(
         build_decision_markdown_tx_owner_scope_157_160(), encoding="utf-8"
     )
+    paths.decision_md_mixed_chucks_116_118.write_text(
+        build_decision_markdown_mixed_chucks_116_118(), encoding="utf-8"
+    )
 
     with paths.journal_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=JOURNAL_CSV_COLUMNS)
@@ -829,6 +935,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         writer.writerow(build_journal_entry_005())
         writer.writerow(build_journal_entry_006())
         writer.writerow(build_journal_entry_007())
+        writer.writerow(build_journal_entry_008())
 
     pending = build_pending_b2_groups()
     with paths.pending_groups_csv.open("w", encoding="utf-8", newline="") as handle:
@@ -875,6 +982,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         "08-DECISION-FLUIDS-156-PUBLICATION-2026-10-18.md",
         "09-DECISION-MACHINE-ACCESSORIES-163-164-2026-10-18.md",
         "10-DECISION-TX-OWNER-SCOPE-157-160-2026-10-18.md",
+        "11-DECISION-MIXED-CHUCKS-116-118-2026-10-18.md",
         "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv",
         "README.md",
         "J-VALIDATION-CLOSEOUT-REPORT.md",
@@ -893,5 +1001,6 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
             build_journal_entry_005(),
             build_journal_entry_006(),
             build_journal_entry_007(),
+            build_journal_entry_008(),
         ],
     }
