@@ -17,11 +17,25 @@ PR534_MERGE_SHA = "25a2497c11b6a740fa606292af1e791d41335ba9"
 
 DECISION_ID_ARCH_7_L1 = "ARCH-7-L1-ROOTS"
 DECISION_ID_METROLOGY_L2 = "METROLOGY-L2-FAMILIES"
+DECISION_ID_ACCESSORIES_154 = "ACCESSORIES-154-DECOMPOSE"
 GATE_IR_MARKET_NAMING_SEO = "IR-MARKET-NAMING-SEO"
 
-OWNER_DECIDED_B2_GROUP_IDS = frozenset({DECISION_ID_ARCH_7_L1, DECISION_ID_METROLOGY_L2})
+OWNER_DECIDED_B2_GROUP_IDS = frozenset(
+    {DECISION_ID_ARCH_7_L1, DECISION_ID_METROLOGY_L2, DECISION_ID_ACCESSORIES_154}
+)
 
-B2_PENDING_GROUP_COUNT = 10 - len(OWNER_DECIDED_B2_GROUP_IDS)
+B2_TOTAL_DECISION_GROUPS = 10
+B2_PENDING_GROUP_COUNT = B2_TOTAL_DECISION_GROUPS - len(OWNER_DECIDED_B2_GROUP_IDS)
+
+JOURNAL_ENTRY_SPECS: tuple[tuple[str, str, str], ...] = (
+    ("OWNER-ARCH-DECISION-001", DECISION_ID_ARCH_7_L1, "CONDITIONAL_ARCHITECTURE_ACCEPTANCE"),
+    ("OWNER-ARCH-DECISION-002", DECISION_ID_METROLOGY_L2, "STRUCTURAL_ARCHITECTURE_APPROVAL"),
+    ("OWNER-ARCH-DECISION-003", DECISION_ID_ACCESSORIES_154, "CONDITIONAL_STRUCTURAL_APPROVAL"),
+)
+
+LEGACY_CATEGORY_154_ID = "154"
+LEGACY_CATEGORY_154_DESCENDANT_PRODUCT_COUNT = 289
+LEGACY_CATEGORY_154_STAGING_CODE = "KZ.CAT.TRANSITIONAL_INDUSTRIAL_ACCESSORIES_HUB_154"
 
 OWNER_STATEMENT_FA = (
     "«به‌عنوان مالک، هفت ریشهٔ معماری پیشنهادی را به‌صورت مشروط می‌پذیرم، "
@@ -92,6 +106,10 @@ class JournalPaths:
         return self.root / "05-DECISION-METROLOGY-L2-FAMILIES-2026-10-18.md"
 
     @property
+    def decision_md_accessories_154(self) -> Path:
+        return self.root / "06-DECISION-ACCESSORIES-154-DECOMPOSE-2026-10-18.md"
+
+    @property
     def pending_groups_csv(self) -> Path:
         return self.root / "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv"
 
@@ -146,6 +164,35 @@ def build_journal_entry_002() -> dict[str, str]:
     }
 
 
+def build_journal_entry_003() -> dict[str, str]:
+    return {
+        "journal_entry_id": "OWNER-ARCH-DECISION-003",
+        "decision_id": DECISION_ID_ACCESSORIES_154,
+        "decision_date": "2026-10-18",
+        "decision_type": "CONDITIONAL_STRUCTURAL_APPROVAL",
+        "b2_decision_group_id": DECISION_ID_ACCESSORIES_154,
+        "owner_statement_fa": (
+            "«تجزیهٔ کنترل‌شدهٔ لوازم جانبی صنعتی (دسته ۱۵۴) را تأیید می‌کنم: "
+            "حفظ هویت انتقالی، پوشش ۲۸۹ محصول، مقصد دامنه‌محور بر اساس مدرک، "
+            "بدون حذف دسته‌ای یا تخصیص خودکار؛ اجرا و APPLY جداگانه.»"
+        ),
+        "owner_architecture_decision_status": "CONDITIONAL_STRUCTURAL_ACCEPTED",
+        "linked_prerequisite_gate_ids": GATE_IR_MARKET_NAMING_SEO,
+        "category_apply_authorization": "NO",
+        "product_reassignment_authorization": "NO",
+        "seo_deployment_authorization": "NO",
+        "production_mutation_authorization": "NO",
+        "b2_review_snapshot_preserved": "YES",
+        "notes_en": (
+            f"Controlled decomposition of legacy category {LEGACY_CATEGORY_154_ID} "
+            f"({LEGACY_CATEGORY_154_DESCENDANT_PRODUCT_COUNT} descendant product IDs); "
+            f"preserve {LEGACY_CATEGORY_154_STAGING_CODE} as TRANSITIONAL; protect oils "
+            "cohort; retire legacy nav only after validated migration, SEO review, and "
+            "separate Owner execution approval."
+        ),
+    }
+
+
 def build_gate_ir_market_naming_seo() -> dict[str, Any]:
     return {
         "gate_id": GATE_IR_MARKET_NAMING_SEO,
@@ -162,10 +209,7 @@ def build_gate_ir_market_naming_seo() -> dict[str, Any]:
             "URL/SEO preservation and migration risk assessment",
             "Explicit Owner approval before naming and SEO freeze",
         ],
-        "linked_decision_journal_entries": [
-            "OWNER-ARCH-DECISION-001",
-            "OWNER-ARCH-DECISION-002",
-        ],
+        "linked_decision_journal_entries": [spec[0] for spec in JOURNAL_ENTRY_SPECS],
         "linked_b2_decision_groups": sorted(OWNER_DECIDED_B2_GROUP_IDS),
     }
 
@@ -198,7 +242,7 @@ def build_identity(generator_git_sha: str) -> dict[str, Any]:
         "frozen_b2_register_sha256": sha256_file(b2_register),
         "frozen_b2_reconciliation_sha256": sha256_file(b2_recon),
         "generator_run_git_sha": generator_git_sha,
-        "journal_entry_count": 2,
+        "journal_entry_count": len(JOURNAL_ENTRY_SPECS),
         "owner_decided_b2_groups": sorted(OWNER_DECIDED_B2_GROUP_IDS),
         "interpretation": (
             "This journal records Owner architecture decisions. It does not mutate the "
@@ -299,6 +343,43 @@ def build_decision_markdown_metrology_l2() -> str:
     )
 
 
+def build_decision_markdown_accessories_154() -> str:
+    return "\n".join(
+        [
+            "# Owner Architecture Decision — ACCESSORIES-154-DECOMPOSE",
+            "",
+            "| Field | Value |",
+            "|-------|-------|",
+            "| **Journal entry** | `OWNER-ARCH-DECISION-003` |",
+            "| **DECISION_ID** | `ACCESSORIES-154-DECOMPOSE` |",
+            "| **DECISION_DATE** | 2026-10-18 |",
+            "| **DECISION_TYPE** | `CONDITIONAL_STRUCTURAL_APPROVAL` |",
+            f"| **Legacy category** | `{LEGACY_CATEGORY_154_ID}` — Industrial Accessories |",
+            f"| **Staging code** | `{LEGACY_CATEGORY_154_STAGING_CODE}` |",
+            f"| **Descendant product IDs** | {LEGACY_CATEGORY_154_DESCENDANT_PRODUCT_COUNT} (census graph) |",
+            "| **B2 link** | group `ACCESSORIES-154-DECOMPOSE` |",
+            "| **Gate** | `IR-MARKET-NAMING-SEO` (mandatory) |",
+            "",
+            "## Approved architecture",
+            "",
+            "- Preserve category **154** as **TRANSITIONAL** during migration planning.",
+            f"- Account for all **{LEGACY_CATEGORY_154_DESCENDANT_PRODUCT_COUNT}** descendant live product IDs.",
+            "- Design domain-specific destinations from technical identity and evidence.",
+            "- Preserve protected subtrees/cohorts (including industrial oils under FLUIDS).",
+            "- No blanket deletion or automatic product reassignment.",
+            "- Retire legacy navigation only after validated migration, SEO review, and separate Owner execution approval.",
+            "",
+            "## Explicitly NOT approved",
+            "",
+            "- Production mutation, category deletion, product reassignment, redirects, `CATEGORY_APPLY`.",
+            "",
+            "## B2 snapshot policy",
+            "",
+            "Frozen B2 register still shows `PENDING` for `ACCESSORIES-154-DECOMPOSE`; this journal entry is authoritative.",
+        ]
+    )
+
+
 def _validate_journal_entry(row: dict[str, str], errors: list[str]) -> None:
     for auth_field in (
         "category_apply_authorization",
@@ -317,20 +398,16 @@ def validate_journal_package(paths: JournalPaths) -> dict[str, Any]:
         return {"status": "FAIL", "errors": errors}
 
     rows = _read_csv(paths.journal_csv)
-    if len(rows) != 2:
-        errors.append("journal_must_have_two_entries_v002")
+    if len(rows) != len(JOURNAL_ENTRY_SPECS):
+        errors.append(f"journal_entry_count_{len(rows)}_not_{len(JOURNAL_ENTRY_SPECS)}")
 
     by_id = {r["journal_entry_id"]: r for r in rows}
-    e1 = by_id.get("OWNER-ARCH-DECISION-001")
-    e2 = by_id.get("OWNER-ARCH-DECISION-002")
-    if not e1 or e1.get("decision_id") != DECISION_ID_ARCH_7_L1:
-        errors.append("decision_001_mismatch")
-    if not e2 or e2.get("decision_id") != DECISION_ID_METROLOGY_L2:
-        errors.append("decision_002_mismatch")
-    if e1 and e1.get("decision_type") != "CONDITIONAL_ARCHITECTURE_ACCEPTANCE":
-        errors.append("decision_001_type_mismatch")
-    if e2 and e2.get("decision_type") != "STRUCTURAL_ARCHITECTURE_APPROVAL":
-        errors.append("decision_002_type_mismatch")
+    for journal_id, decision_id, decision_type in JOURNAL_ENTRY_SPECS:
+        entry = by_id.get(journal_id)
+        if not entry or entry.get("decision_id") != decision_id:
+            errors.append(f"{journal_id}_decision_id_mismatch")
+        elif entry.get("decision_type") != decision_type:
+            errors.append(f"{journal_id}_type_mismatch")
     for row in rows:
         _validate_journal_entry(row, errors)
 
@@ -373,12 +450,16 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
     )
     paths.decision_md_arch7.write_text(build_decision_markdown_arch7(), encoding="utf-8")
     paths.decision_md_metrology_l2.write_text(build_decision_markdown_metrology_l2(), encoding="utf-8")
+    paths.decision_md_accessories_154.write_text(
+        build_decision_markdown_accessories_154(), encoding="utf-8"
+    )
 
     with paths.journal_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=JOURNAL_CSV_COLUMNS)
         writer.writeheader()
         writer.writerow(build_journal_entry_001())
         writer.writerow(build_journal_entry_002())
+        writer.writerow(build_journal_entry_003())
 
     pending = build_pending_b2_groups()
     with paths.pending_groups_csv.open("w", encoding="utf-8", newline="") as handle:
@@ -420,6 +501,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         "02-GATE-IR-MARKET-NAMING-SEO.json",
         "03-DECISION-ARCH-7-L1-ROOTS-2026-10-18.md",
         "05-DECISION-METROLOGY-L2-FAMILIES-2026-10-18.md",
+        "06-DECISION-ACCESSORIES-154-DECOMPOSE-2026-10-18.md",
         "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv",
         "README.md",
         "J-VALIDATION-CLOSEOUT-REPORT.md",
@@ -430,5 +512,9 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         raise RuntimeError("JOURNAL_VALIDATION_FAILED: " + "; ".join(validation["errors"]))
     return {
         "validation": validation,
-        "journal_entries": [build_journal_entry_001(), build_journal_entry_002()],
+        "journal_entries": [
+            build_journal_entry_001(),
+            build_journal_entry_002(),
+            build_journal_entry_003(),
+        ],
     }

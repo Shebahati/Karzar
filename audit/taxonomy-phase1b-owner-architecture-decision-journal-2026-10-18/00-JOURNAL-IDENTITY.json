@@ -4,9 +4,10 @@
   "frozen_b2_review_dir": "audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18",
   "frozen_b2_register_sha256": "0668dc71cd73069892e1ed0bc3cdec999f9ed64af8d098a4759a7051fe08b97b",
   "frozen_b2_reconciliation_sha256": "1b44242fe069228ae54e99163b132abe07227c3ffe062a349aab7d4fd9718e58",
-  "generator_run_git_sha": "03184a4bc021f023e015c5a52e9551ff3b5dea92",
-  "journal_entry_count": 2,
+  "generator_run_git_sha": "e59b8b1d91317642a523057f3a6f363c089025c5",
+  "journal_entry_count": 3,
   "owner_decided_b2_groups": [
+    "ACCESSORIES-154-DECOMPOSE",
     "ARCH-7-L1-ROOTS",
     "METROLOGY-L2-FAMILIES"
   ],

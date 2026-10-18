@@ -1156,6 +1156,16 @@ documents:
       Owner Architecture Decision 002 — three Metrology L2 families structural
       approval; naming gated; B2 snapshot unchanged.
 
+  - id: TAXONOMY-PHASE1B-OWNER-ARCH-DECISION-003-20261018
+    path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/06-DECISION-ACCESSORIES-154-DECOMPOSE-2026-10-18.md
+    class: DECISION
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner Architecture Decision 003 — conditional structural approval for
+      category 154 decomposition; 289 descendant SKUs; no APPLY/reassignment.
+
   - id: TAXONOMY-PHASE1B-OWNER-ARCH-JOURNAL-README-20261018
     path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/README.md
     class: EVIDENCE
