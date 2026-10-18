@@ -1108,6 +1108,34 @@ documents:
       Route B validation closeout report (fail-closed gate output); not a live
       operational final report.
 
+  - id: TAXONOMY-PHASE1B-ROUTE-B2-ARCHITECTURE-REVIEW-20261018
+    path: audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/H-OWNER-EXECUTIVE-DECISION-MEMO-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Route B2 architecture review over merged B1: 135-row matrix, tree
+      disposition, grouped owner decisions, product impact; design-only freeze prep.
+
+  - id: TAXONOMY-PHASE1B-ROUTE-B2-README-20261018
+    path: audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/README.md
+    class: EVIDENCE
+    rank: 7
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Route B2 package README and regeneration entrypoint.
+
+  - id: TAXONOMY-PHASE1B-ROUTE-B2-CLOSEOUT-20261018
+    path: audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/J-VALIDATION-CLOSEOUT-REPORT.md
+    class: EVIDENCE
+    rank: 7
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Route B2 validation closeout; fail-closed checks over pinned B1 artifacts.
+
   - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-011-20261018
     path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-011-2026-10-18.md
     class: DECISION

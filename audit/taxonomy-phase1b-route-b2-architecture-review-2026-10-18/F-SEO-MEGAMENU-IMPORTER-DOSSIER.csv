@@ -1,0 +1,139 @@
+current_category_id,current_slug,current_path,identity_status,proposed_commerce_code,proposed_url_slug,redirect_proposal,indexable_hub,megamenu_note,b2_execution_deferred,auto_redirect_approved,importer_script_hits,importer_dependency_files,blocks_execution_release_gate
+1,ابزارگیر,ابزارگیر,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,1,frontend/Storefront/src/lib/__tests__/json-ld.test.ts,NO
+2,ابزار-اینسرتی,ابزار اینسرتی,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,0,,NO
+4,ابزار-انگشتی,ابزار انگشتی,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,0,,NO
+5,مته,مته,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,0,,NO
+6,قلاویز,قلاویز,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,0,,NO
+8,ابزار-گیرشی,ابزار گیرشی,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,0,,NO
+9,دستگاه‌های-صنعتی,دستگاه‌های صنعتی,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,0,,NO
+12,ابزارگیر-فرز-cnc,ابزارگیر › ابزارگیر فرز CNC,PUBLISHED_PROPOSED,KZ.CAT.TOOLHOLDING_MILLING_CNC,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,NO,,YES,NO,0,,NO
+13,کولت-bt-و-فشنگی-و-آچار,ابزارگیر › ابزارگیر فرز CNC › کولت BT و فشنگی و آچار,PUBLISHED_PROPOSED,KZ.CAT.TOOLHOLDING_BT_COLLET_PULL_STUD,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+14,کولت-sk-و-فشنگی-و-آچار,ابزارگیر › ابزارگیر فرز CNC › کولت SK و فشنگی و آچار,PUBLISHED_PROPOSED,KZ.CAT.TOOLHOLDING_SK_COLLET,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+15,کولت-oz-و-فشنگی-و-آچار,ابزارگیر › ابزارگیر فرز CNC › کولت OZ و فشنگی و آچار,PUBLISHED_PROPOSED,KZ.CAT.TOOLHOLDING_OZ_COLLET,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+16,کولت-hsk-و-فشنگی-و-آچار,ابزارگیر › ابزارگیر فرز CNC › کولت HSK و فشنگی و آچار,PUBLISHED_PROPOSED,KZ.CAT.TOOLHOLDING_HSK_COLLET,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+17,pull-stud-–-پول-استاد,ابزارگیر › ابزارگیر فرز CNC › PULL STUD – پول استاد,PUBLISHED_PROPOSED,KZ.CAT.TOOLHOLDING_PULL_STUD_BT,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+18,ابزارگیر-تراش-cnc,ابزارگیر › ابزارگیر تراش منوال و CNC,PUBLISHED_PROPOSED,KZ.CAT.TOOLHOLDING_TURNING_CNC,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,NO,,YES,NO,0,,NO
+19,بیس-هولدر,ابزارگیر › ابزارگیر تراش منوال و CNC › بیس هولدر,PUBLISHED_PROPOSED,KZ.CAT.TOOLHOLDING_BORING_BAR_HOLDER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+20,کولت-vdi,ابزارگیر › ابزارگیر تراش منوال و CNC › کولت VDI,PUBLISHED_PROPOSED,KZ.CAT.TOOLHOLDING_VDI_COLLET,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+21,هولدر-فرز-cnc,ابزار اینسرتی › هولدر فرز CNC,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_INDEXABLE_MILL_HOLDERS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,NO,,YES,NO,0,,NO
+22,کف-تراش,ابزار اینسرتی › هولدر فرز CNC › کف تراش,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_FACE_MILL_HOLDER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+23,هولدر-انگشتی,ابزار اینسرتی › هولدر فرز CNC › هولدر انگشتی,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_END_MILL_CHUCK,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+24,هولدر-تراش-cnc,ابزار اینسرتی › هولدر تراش CNC,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_INDEXABLE_TURN_HOLDERS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,NO,,YES,NO,0,,NO
+25,برش(q-cut),ابزار اینسرتی › هولدر تراش CNC › برش(Q CUT),PUBLISHED_PROPOSED,KZ.CAT.CUTTING_PARTING_GROOVING_HOLDER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+26,داخل-تراش,ابزار اینسرتی › هولدر تراش CNC › داخل تراش,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_INTERNAL_TURN_HOLDER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+27,رو-تراش,ابزار اینسرتی › هولدر تراش CNC › رو تراش,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_EXTERNAL_TURN_HOLDER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+28,هولدر-u-drill,ابزار اینسرتی › هولدر U-Drill,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_U_DRILL_HOLDERS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,NO,,YES,NO,0,,NO
+29,u-drill-2d,ابزار اینسرتی › هولدر U-Drill › U-Drill 2D,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_U_DRILL_2D,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+30,u-drill-3d,ابزار اینسرتی › هولدر U-Drill › U-Drill 3D,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_U_DRILL_3D,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+31,u-drill-4d,ابزار اینسرتی › هولدر U-Drill › U-Drill 4D,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_U_DRILL_4D,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+32,u-drill-5d,ابزار اینسرتی › هولدر U-Drill › U-Drill 5D,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_U_DRILL_5D,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+35,انگشتی-سرتخت-کارباید,ابزار انگشتی › انگشتی سرتخت کارباید,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_END_MILL_SQUARE_CARBIDE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+36,انگشتی-سر-گرد-کارباید,ابزار انگشتی › انگشتی سر گرد کارباید,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_END_MILL_BALL_CARBIDE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+37,انگشتی-تیپ-کارباید,ابزار انگشتی › انگشتی تیپ کارباید,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_END_MILL_TAPER_CARBIDE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+38,انگشتی-hss,ابزار انگشتی › انگشتی HSS,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_END_MILL_HSS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+39,انگشتی-پخ-زن,ابزار انگشتی › انگشتی پخ زن,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_CHAMFER_MILL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+40,انگشتی-فرم-کارباید,ابزار انگشتی › انگشتی فرم کارباید,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_FORM_MILL_CARBIDE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+41,مته-کارباید,مته › مته کارباید,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_DRILL_TWIST_CARBIDE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+42,مته-پشت-گرد-hss-co,مته › مته پشت گرد HSS Co,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_DRILL_SPOT_HSS_CO,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+43,مته-پشت-گرد-hss,مته › مته پشت گرد HSS,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_DRILL_SPOT_HSS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+44,مته-پشت-کونیک-hss,مته › مته پشت کونیک HSS,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_DRILL_TAPER_HSS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+45,مته-سی-ان-سی(u_drill),مته › مته سی ان سی (U Drill),PUBLISHED_PROPOSED,KZ.CAT.CUTTING_U_DRILL_TOOL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+46,مته-مرغک,مته › مته مرغک,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_CENTER_DRILL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+47,برقو,مته › برقو,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_COUNTERSINK,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+48,قلاویز-ماشینی-مارپیچ,قلاویز › قلاویز ماشینی مارپیچ,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_TAP_MACHINE_SPIRAL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+49,قلاویز-ماشینی-صاف,قلاویز › قلاویز ماشینی صاف,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_TAP_MACHINE_STRAIGHT,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+50,قلاویز-دستی,قلاویز › قلاویز دستی,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_TAP_HAND,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+51,انگشتی-تردمیل-کارباید,قلاویز › انگشتی تردمیل کارباید,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_THREAD_MILL_CARBIDE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+52,قلاویز-چپ-گرد,قلاویز › قلاویز چپ گرد,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_TAP_LEFT_HAND,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+53,قلاویز-لوله,قلاویز › قلاویز لوله,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_TAP_PIPE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+54,حدیده,قلاویز › حدیده,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_THREAD_DIE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+55,هلی‌کویل-(helicoil),قلاویز › هلی‌کویل,PUBLISHED_PROPOSED,KZ.CAT.THREAD_REPAIR_HELICOIL_KITS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,helicoil_nav_186_187_188,YES,NO,0,,YES
+56,اندازه-گیری-دقیق,اندازه گیری دقیق,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,2,frontend/Storefront/src/config/__tests__/nav-groups.test.ts|scripts/promote_measurement_to_l1.py,NO
+57,انواع-کولیس,اندازه گیری دقیق › انواع کولیس,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_CALIPERS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+58,انواع-میکرومتر,اندازه گیری دقیق › انواع میکرومتر,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_MICROMETERS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+59,ساعت-اندیکاتور,اندازه گیری دقیق › ساعت اندیکاتور,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_DIAL_INDICATOR,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+60,ساعت-شیطانکی,اندازه گیری دقیق › ساعت شیطانکی,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_TEST_INDICATOR,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+61,ترکمتر,اندازه گیری دقیق › ترکمتر,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_TORQUE_METER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+62,عمق-سنج,اندازه گیری دقیق › عمق سنج,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_DEPTH_GAUGE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+63,گیج-داخل-سیلندر,اندازه گیری دقیق › گیج داخل سیلندر,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_BORE_GAUGE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+64,پایه-ساعت,اندازه گیری دقیق › پایه ساعت,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_INDICATOR_STAND,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+65,شابلون,اندازه گیری دقیق › شابلون,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_RADIUS_TEMPLATE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+66,راپورتر(گیج-بلوک-گیج-بلاک),اندازه گیری دقیق › راپورتر(گیج بلوک-گیج بلاک),PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_GAUGE_BLOCK,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+67,انواع-گیج,اندازه گیری دقیق › انواع گیج,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_FIXED_GAUGE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+68,زاویه-سنج,اندازه گیری دقیق › زاویه سنج,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_ANGLE_GAUGE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+69,ارتفاع-سنج,اندازه گیری دقیق › ارتفاع سنج,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_HEIGHT_GAUGE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+70,شعاع-سنج(r),اندازه گیری دقیق › شعاع سنج(R),PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_RADIUS_GAUGE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+71,تراز-صنعتی,اندازه گیری دقیق › تراز صنعتی,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_PRECISION_LEVEL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+72,پرگار-صنعتی,اندازه گیری دقیق › پرگار صنعتی,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_COMPASS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+73,فیلر,اندازه گیری دقیق › فیلر,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_FEELER_GAUGE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+74,پایه-میکرومتر,اندازه گیری دقیق › پایه میکرومتر,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_MICROMETER_STAND,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+75,گونیا,اندازه گیری دقیق › گونیا,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_ENGINEERS_SQUARE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+76,خط-کش,اندازه گیری دقیق › خط کش,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_STEEL_RULE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+77,متر,اندازه گیری دقیق › متر,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_MEASURING_TAPE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+78,گپ-سنج,اندازه گیری دقیق › گپ سنج,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_GAP_GAUGE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+79,صفحه-صافی-گرانیتی,اندازه گیری دقیق › صفحه صافی گرانیتی,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_SURFACE_PLATE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+80,قطعات-یدکی,اندازه گیری دقیق › قطعات یدکی,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_SPARE_PARTS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,1,scripts/parse_price_list_pdfs.py,NO
+81,cnc-اندازه-گیری,اندازه گیری فرز CNC,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,0,,NO
+82,z-سنج-عقربه-ای,اندازه گیری فرز CNC › Z سنج عقربه ای,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_CNC_Z_PRESETTER_DIAL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+83,مماس-یاب-مکانیکی,اندازه گیری فرز CNC › مماس یاب مکانیکی,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_CNC_EDGE_FINDER_MECH,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+84,مماس-یاب-نوری,اندازه گیری فرز CNC › مماس یاب نوری,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_CNC_EDGE_FINDER_OPTICAL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+85,ساعت-3d-(فرز-cnc),اندازه گیری فرز CNC › ساعت 3D (فرز cnc),PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_CNC_3D_INDICATOR,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+86,خط-کش-دیجیتال,اندازه گیری فرز CNC › خط کش دیجیتال,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_CNC_DRO_SCALE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+87,اندازه-گیری-آزمایشگاهی,اندازه گیری آزمایشگاهی,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,0,,NO
+88,میکروسکوپ,اندازه گیری آزمایشگاهی › میکروسکوپ,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_LAB_MICROSCOPE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+89,سختی-سنج,اندازه گیری آزمایشگاهی › سختی سنج,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_LAB_HARDNESS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+90,سختی-سنج-فلزات,اندازه گیری آزمایشگاهی › سختی سنج فلزات,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_LAB_HARDNESS_METAL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+91,سختی-سنج-لاستیک,اندازه گیری آزمایشگاهی › سختی سنج لاستیک,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_LAB_HARDNESS_RUBBER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+92,ترازو,اندازه گیری آزمایشگاهی › ترازو,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_LAB_BALANCE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+93,زبری-سنج,اندازه گیری آزمایشگاهی › زبری سنج,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_LAB_ROUGHNESS,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+94,رطوبت-سنج,اندازه گیری آزمایشگاهی › رطوبت سنج,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_LAB_MOISTURE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+95,نیرو-سنج,اندازه گیری آزمایشگاهی › نیرو سنج,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_LAB_FORCE_GAUGE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+96,وزنه,اندازه گیری آزمایشگاهی › وزنه,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_LAB_WEIGHT,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+97,تاکومتر,اندازه گیری آزمایشگاهی › تاکومتر,PUBLISHED_PROPOSED,KZ.CAT.METROLOGY_LAB_TACHOMETER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+98,گیرشی-فرز-cnc,ابزار گیرشی › گیرشی فرز CNC,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_MILLING_CNC,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,NO,,YES,NO,0,,NO
+99,گیره-مکانیک,ابزار گیرشی › گیرشی فرز CNC › گیره مکانیک,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_MACHINE_VISE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+100,گیره-هیدرولیک,ابزار گیرشی › گیرشی فرز CNC › گیره هیدرولیک,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_HYDRAULIC_VISE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+101,گیره-دقیق,ابزار گیرشی › گیرشی فرز CNC › گیره دقیق,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_PRECISION_VISE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+102,صفحه-گردان,ابزار گیرشی › گیرشی فرز CNC › صفحه گردان,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_ROTARY_TABLE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+103,تایکوپ,ابزار گیرشی › گیرشی فرز CNC › تایکوپ,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_T_SLOT_KIT,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+104,صفحه-مگنت-فرزکاری,ابزار گیرشی › گیرشی فرز CNC › صفحه مگنت فرزکاری,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_MAGNETIC_CHUCK_MILL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+105,ست-روبند,ابزار گیرشی › گیرشی فرز CNC › ست روبند,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_STRAP_CLAMP_SET,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+106,روبند-تک,ابزار گیرشی › گیرشی فرز CNC › روبند تک,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_STRAP_CLAMP,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+107,بغل-بند,ابزار گیرشی › گیرشی فرز CNC › بغل بند,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_SIDE_CLAMP,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+108,انواع-پیچ,ابزار گیرشی › گیرشی فرز CNC › انواع پیچ,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_CLAMPING_STUD,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+109,پیچ-دستی,ابزار گیرشی › گیرشی فرز CNC › پیچ دستی,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_MANUAL_SCREW,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+110,مهره-t-و-شش-گوش-و-واشر,ابزار گیرشی › گیرشی فرز CNC › مهره T و شش گوش و واشر,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_T_NUT_HARDWARE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+111,جک-زیر-سری(دستی),ابزار گیرشی › گیرشی فرز CNC › جک زیر سری(دستی),PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_JACK_SCREW_MANUAL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+112,زیر-سری-دقیق(زیرکاری),ابزار گیرشی › گیرشی فرز CNC › زیر سری دقیق(زیرکاری),PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_PRECISION_SUPPORT,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+113,وی-بلوک,ابزار گیرشی › گیرشی فرز CNC › وی بلوک,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_V_BLOCK,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+114,گیرشی-تراش-منوال-و-cnc,ابزار گیرشی › گیرشی تراش منوال و CNC,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_LATHE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,NO,,YES,NO,0,,NO
+115,سه-نظام-هیدرولیک,ابزار گیرشی › گیرشی تراش منوال و CNC › سه نظام هیدرولیک,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_LATHE_CHUCK_HYDRAULIC,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+116,سه-نظام-و-لوازم-جانبی,ابزار گیرشی › گیرشی تراش منوال و CNC › سه نظام و لوازم جانبی,STAGING_EVIDENCE_GATED,,defer,DEFER_PRODUCT_LEVEL,NO,,YES,NO,0,,NO
+117,چهار-نظام-و-لوازم-جانبی,ابزار گیرشی › گیرشی تراش منوال و CNC › چهار نظام و لوازم جانبی,STAGING_EVIDENCE_GATED,,defer,DEFER_PRODUCT_LEVEL,NO,,YES,NO,0,,NO
+118,دو-نظام-و-لوازم-جانبی,ابزار گیرشی › گیرشی تراش منوال و CNC › دو نظام و لوازم جانبی,STAGING_EVIDENCE_GATED,,defer,DEFER_PRODUCT_LEVEL,NO,,YES,NO,0,,NO
+119,مرغک-مورس,ابزار گیرشی › گیرشی تراش منوال و CNC › مرغک مورس,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_LATHE_DEAD_CENTER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+120,کلاهک-تبدیل-مورس,ابزار گیرشی › گیرشی تراش منوال و CNC › کلاهک تبدیل مورس,PUBLISHED_PROPOSED,KZ.CAT.WORKHOLDING_MORSE_ADAPTER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+121,دستگاه-ابزار-تیزکن,دستگاه‌های صنعتی › دستگاه ابزار تیزکن,PUBLISHED_PROPOSED,KZ.CAT.MACHINES_TOOL_GRINDER,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+122,دستگاه-قلاویز-زن,دستگاه‌های صنعتی › دستگاه قلاویز زن,PUBLISHED_PROPOSED,KZ.CAT.MACHINES_TAPPING,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+123,دستگاه-دریل-مگنت,دستگاه‌های صنعتی › دستگاه دریل مگنت,PUBLISHED_PROPOSED,KZ.CAT.MACHINES_MAGNETIC_DRILL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+124,دستگاه-اسپارک-پرتابل,دستگاه‌های صنعتی › دستگاه اسپارک پرتابل,PUBLISHED_PROPOSED,KZ.CAT.MACHINES_PORTABLE_EDM,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+125,دستگاه-کُر-گیری,دستگاه‌های صنعتی › دستگاه کرگیری,PUBLISHED_PROPOSED,KZ.CAT.MACHINES_BROACHING,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+154,لوازم-جانبی-صنعتی,لوازم جانبی صنعتی,TRANSITIONAL_EXCLUDED,,defer,DEFER_PRODUCT_LEVEL,NO,,YES,NO,0,,NO
+155,روغن-و-روانکار,لوازم جانبی صنعتی › روغن و روانکار,TRANSITIONAL_EXCLUDED,,defer,DEFER_PRODUCT_LEVEL,NO,,YES,NO,0,,NO
+156,روغن-صنعتی,لوازم جانبی صنعتی › روغن و روانکار › روغن صنعتی,PUBLISHED_PROPOSED,KZ.CAT.FLUIDS_INDUSTRIAL_OIL,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+157,ابزار-دستی,لوازم جانبی صنعتی › ابزار دستی,DEPRECATED_OWNER_SCOPE,,defer,PROPOSED_410_OR_DEFER,NO,,YES,NO,0,,NO
+158,ابزار-دستی-عمومی,لوازم جانبی صنعتی › ابزار دستی › ابزار دستی عمومی,DEPRECATED_OWNER_SCOPE,,defer,PROPOSED_410_OR_DEFER,NO,,YES,NO,0,,NO
+159,ابزار-چوبی,لوازم جانبی صنعتی › ابزار چوبی,DEPRECATED_OWNER_SCOPE,,defer,PROPOSED_410_OR_DEFER,NO,,YES,NO,0,,NO
+160,ابزار-آلات-چوبی,لوازم جانبی صنعتی › ابزار چوبی › ابزار آلات چوبی,DEPRECATED_OWNER_SCOPE,,defer,PROPOSED_410_OR_DEFER,NO,,YES,NO,0,,NO
+161,مولتی-اسپیندل,دستگاه‌های صنعتی › مولتی اسپیندل,PUBLISHED_PROPOSED,KZ.CAT.MACHINES_MULTI_SPINDLE_FAMILY,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,NO,,YES,NO,0,,NO
+162,مولتی-اسپیندل-2,دستگاه‌های صنعتی › مولتی اسپیندل › مولتی اسپیندل,PUBLISHED_PROPOSED,KZ.CAT.MACHINES_MULTI_SPINDLE,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+163,لوازم-جانبی-دستگاه,دستگاه‌های صنعتی › لوازم جانبی دستگاه,TRANSITIONAL_EXCLUDED,,defer,DEFER_PRODUCT_LEVEL,NO,,YES,NO,0,,NO
+164,لوازم-جانبی-قلاویز-زن,دستگاه‌های صنعتی › لوازم جانبی دستگاه › لوازم جانبی قلاویز زن,STAGING_EVIDENCE_GATED,,defer,DEFER_PRODUCT_LEVEL,NO,,YES,NO,0,,NO
+165,اینسرت,اینسرت,LEGACY_HUB_RETIRED,,defer,PROPOSED_301_TO_CHILDREN,NO,,YES,NO,0,,NO
+166,اینسرت-تراش-cnc,اینسرت › اینسرت تراش CNC,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_INSERT_TURNING,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+168,اینسرت-فرز-cnc,اینسرت › اینسرت فرز CNC,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_INSERT_MILLING,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+170,اینسرت-شیار-و-برش,اینسرت › اینسرت شیار و برش,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_INSERT_GROOVING,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+172,اینسرت-رزوهزنی,اینسرت › اینسرت رزوه‌زنی,PUBLISHED_PROPOSED,KZ.CAT.CUTTING_INSERT_THREADING,review_on_apply,PROPOSED_301_IF_SLUG_CHANGE,REVIEW,,YES,NO,0,,NO
+186,removed-historical-186,REMOVED_FROM_LIVE_TREE,DEPRECATED_HISTORICAL,KZ.CAT.DEPRECATED_HELICOIL_L1_SPRING_INSERT_ROOT,n/a,NO_UNRELATED_REDIRECT;megamenu_dangling_ref,NO,update_helicoil_nav_group_or_retire,YES,NO,0,,YES
+187,removed-historical-187,REMOVED_FROM_LIVE_TREE,DEPRECATED_HISTORICAL,KZ.CAT.DEPRECATED_HELICOIL_L1_TAP_RANGE_ROOT,n/a,NO_UNRELATED_REDIRECT;megamenu_dangling_ref,NO,update_helicoil_nav_group_or_retire,YES,NO,0,,YES
+188,removed-historical-188,REMOVED_FROM_LIVE_TREE,DEPRECATED_HISTORICAL,KZ.CAT.DEPRECATED_HELICOIL_L1_INSTALL_TOOL_ROOT,n/a,NO_UNRELATED_REDIRECT;megamenu_dangling_ref,NO,update_helicoil_nav_group_or_retire,YES,NO,0,,YES

@@ -1,0 +1,98 @@
+{
+  "base_git_sha": "8be4a5807a2eeb25da26c802e74bb9b0fc301916",
+  "b1_merge_sha": "8be4a5807a2eeb25da26c802e74bb9b0fc301916",
+  "b1_artifact_dir": "audit/taxonomy-phase1b-route-b-target-design-2026-10-18",
+  "generator_run_git_sha": "ad85ff7dc55577db4b49e6583a69f8c7f883bb59",
+  "invariants_recalculated": {
+    "current_category_count": 135,
+    "commerce_tree_nodes": 123,
+    "commerce_l1_roots": 7,
+    "depth_histogram": {
+      "1": 7,
+      "2": 42,
+      "3": 74
+    },
+    "inherited_from_current_category": 113,
+    "selectable_leaves": 105,
+    "live_product_rows": 6536,
+    "product_level_decomposition_required": 718,
+    "product_decomposition_or_blocked_rows": 980,
+    "tx_owner_product_rows": 262,
+    "category_156_product_rows": 27,
+    "approved_executable_target_codes": 0,
+    "owner_journal_exits": 151,
+    "owner_journal_evidence": 111,
+    "evidence_111_register_ids": 111
+  },
+  "category_disposition_counts": {
+    "FREEZE": 124,
+    "HOLD": 11
+  },
+  "tree_disposition_counts": {
+    "HOLD": 11,
+    "FREEZE": 112
+  },
+  "hold_category_ids": [
+    116,
+    117,
+    118,
+    154,
+    155,
+    157,
+    158,
+    159,
+    160,
+    163,
+    164
+  ],
+  "owner_decision_group_count": 10,
+  "decomposition_required_by_category": {
+    "116": 571,
+    "117": 40,
+    "118": 0,
+    "156": 27,
+    "164": 80
+  },
+  "domain_summary": {
+    "KZ.DOM.TOOLHOLDING": 10,
+    "KZ.DOM.CUTTING": 41,
+    "KZ.DOM.WORKHOLDING": 24,
+    "KZ.DOM.MACHINES": 10,
+    "KZ.DOM.THREAD_REPAIR": 1,
+    "KZ.DOM.METROLOGY": 42,
+    "KZ.DOM.FLUIDS": 2
+  },
+  "validation": {
+    "status": "PASS",
+    "errors": [],
+    "b1_validation": {
+      "status": "PASS",
+      "errors": [],
+      "checks_run": true
+    },
+    "b2_deliverable_validation": {
+      "status": "PASS",
+      "errors": [],
+      "hold_coverage": [
+        116,
+        117,
+        118,
+        154,
+        155,
+        157,
+        158,
+        159,
+        160,
+        163,
+        164
+      ],
+      "decision_group_count": 10
+    }
+  },
+  "safety": {
+    "DESIGN_ONLY": "YES",
+    "OWNER_DECISIONS_PENDING": "YES",
+    "PRODUCTION_MUTATION": "NO",
+    "CATEGORY_APPLY": "NO"
+  }
+}
