@@ -1,0 +1,13 @@
+source_id,url,evidence_scope,claim_limit
+M7-ME011N-REGIONAL,https://www.m7tuning.com/product/ME011N,REGIONAL_OFFICIAL_EXACT_MODEL_PAGE,ME011N 11-piece impact adapter set 8 adapters and 3 universal joints; not physical Karzar stock
+M7-QA101,https://www.mighty-seven.com/product/147,OFFICIAL_GROUPED_VARIANT_PAGE,QA-101 A/B grouped; unspecified Karzar variant
+M7-QA511,https://www.mighty-seven.com/product/184,OFFICIAL_NEAR_MODEL_PAGE,QA-511 engraving pen; QA511A A suffix not independently mapped
+M7-QA611,https://www.mighty-seven.com/product/165,OFFICIAL_GROUPED_VARIANT_PAGE,QA-611 A/B grouped; unit A not attested
+M7-QA633Q,https://www.mighty-seven.com/product/167,OFFICIAL_GROUPED_VARIANT_PAGE,QA-633Q A/B grouped; QA633QA not independently attested
+M7-QD291N,https://www.mighty-seven.com/product/284,OFFICIAL_NEAR_MODEL_PAGE,QD-291N air saw set; QD291 suffix identity unresolved
+M7-QP317X,https://www.mighty-seven.com/product_list/10,OFFICIAL_INDEX_NEAR_MODEL_ONLY,"QP-317X token, not QP317 proof"
+GROZ-HACKSAWS,https://groz-tools.com/hand-tools/hacksaw-frames-blades.html,OFFICIAL_PRODUCT_FAMILY,Distinct manual/junior/fret/piercing frames; no Karzar internal SKU to manufacturer article mapping
+GROZ-PUNCHES,https://groz-tools.com/hand-tools/punches-chisels.html,OFFICIAL_PRODUCT_FAMILY,ACP CP-HD CP-HDST PP family articles distinct; no internal SKU mapping
+GROZ-HPL,https://groz-tools.com/punches-and-chisels-hpl-5.html,OFFICIAL_FAMILY_MODEL_EXAMPLE,HPL hollow soft-material punch family; exact Karzar diameter/article unknown
+GROZ-STAMPS,https://groz-tools.com/hand-tools/punches-chisels.html,OFFICIAL_FAMILY_INDEX_ONLY,Letter and number stamp categories are distinct; 9-piece letter claim not validated
+CHAGAN-EXACT,,NO_VERIFIED_MANUFACTURER_SOURCE,Do not substitute Groz file sources for Chagan article
