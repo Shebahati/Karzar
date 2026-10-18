@@ -39,3 +39,18 @@ Owner confirmed both products are physically available on 2026-10-18. This is a 
 - Prices: SUPERSEDED BY OWNER APPROVAL later on 2026-10-18. Owner confirmed 47,100,000 toman (1944) and 53,400,000 toman (3639) as ordinary prices; sale targets at 15% are 40,035,000 and 45,390,000 toman respectively. See OWNER_PRICE_SCOPED_APPLY.md. Production prices remain unchanged pending preflight/media and scoped APPLY; 3639 historic original_price=10 remains a live-inspection blocker.
 - Production: no direct live DB/VPS access in this workflow. Need operator READ-ONLY snapshot for these IDs (ID, exact SKU, is_active, is_available, deleted_at, base_price, original_price, image count/URLs, updated_at and public storefront response). Gate: PENDING.
 - No merge, deploy, image upload, price write, availability flip, SKU rename or Hesabfa side effect until the remaining gates pass and scoped APPLY/rollback is approved.
+
+## Exact-SKU web photo shortlist — 2026-10-18 (reference links, not uploaded files)
+
+- Product 1944 / stored SKU 3203-1506 / manufacturer variant 3203-1506A:
+  - Exact six-piece merchant page: https://mytools.co.nz/products/insize-micrometer-ext-set-0-150-x001mm
+  - Page-linked 1000px candidate: https://mytools.co.nz/cdn/shop/files/75da86510101769587cf205f30d0d432_f8a22e28-8ab5-42f2-b54a-d7edb50140e5.jpg?v=1754347448&width=1000
+  - Alternate page-linked photo: https://mytools.co.nz/cdn/shop/files/ef079ae14ca0c9461b71baa234d1fce1.jpg?v=1754347448&width=1000
+  - Exact SKU seller page with indexed main image: https://www.cutwel.co.uk/0-150mm-metric-outside-micrometer-set-3203-series-insize-3203-1506a
+  - Avoid manufacturer 3203 PDF case photos labelled 1004A and 3006A.
+- Product 3639 / stored SKU S3-2824 / official variant 2824-S3:
+  - Exact 3-piece dial bore gauge merchant page: https://www.cutwel.co.uk/18-160mm-bore-gauge-set-series-3-piece-2824-series-insize-2824-s3
+  - Current page-indexed main image: https://www.cutwel.co.uk/media/catalog/product/2/8/2824-INSIZE-SET-1_1_1.jpg
+  - Backup exact-code product gallery explicitly describing the green case: https://organametrisis.gr/en/products/2824-s3-kylindrometra-set-3-temaxiwn-18-160-mm
+  - Manufacturer catalogue matches packaging with code 2824-S3; do not substitute 2824-S160 or digital 2724-S3.
+- Selection: these are exact-SKU source-page leads and direct-image URLs where indexed. The remote media hosts refused direct binary retrieval in this environment. Therefore no byte-size, hash, image-dimension, storefront permission, or production upload is claimed. Obtain/use original assets via an authorized supplier/manufacturer channel. Do not hotlink external merchant CDNs into the live product gallery.
