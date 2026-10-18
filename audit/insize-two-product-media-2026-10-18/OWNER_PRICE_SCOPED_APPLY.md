@@ -148,3 +148,35 @@ Owner explicitly confirmed commercial-use rights for the selected online product
 ## Two real product image assets locally ready — 2026-10-18
 
 Both exact-SKU image binaries were downloaded by owner and visually inspected. The ID 1944 Rubutek source actually contains six micrometers (750x750), and its separate spec table identifies 3203-1506A; ID 3639 fitted case actually contains three analog bore gauges (1600x1600). Owner attested commercial rights. Final verified chat artifact `karzar_insize_media_final_20261018.zip` SHA-256 `52394c679c3af6a4deebc7ac9b2b5598dbbdecfc68872ff18e9831e9468abf35` contains both heroes/thumbs, provenance and source/reference; full item SHA-256 values are in SOURCE_REVIEW.md and the archive manifest. **MEDIA_READY_LOCAL_BOTH; production image association still NO.** Remaining gates before any actual write: fresh read-only live state/identity/CAS, reviewed and tested side-effect-free no-Hesabfa path, scoped reversible media upload and price/brand action, and separately confirmed owner APPLY authorization. Do not merge/deploy/write automatically based on presence of zip.
+
+## Owner-authorized release-package preparation — 2026-10-18
+
+Owner explicitly authorized preparing a **protected, exact two-ID release**
+to restore `brand_id=3`, assign approved 15% sale/list prices and attach
+the locally verified two real primary photos; numeric stock and Hesabfa
+must remain untouched. This is permission to **prepare** the run path,
+not evidence of a completed production APPLY or permission to skip fresh
+preflight/rollback gates.
+
+A separately downloadable operator-only **read-only preflight** bundle was
+created for Ubuntu:
+`karzar_insize_release_preflight_20261018.zip` SHA-256
+`c2633aa025bca8ee2a28ea28e6e13b38e0ab5acb07fe0e2999dcc887582b00b6`.
+It contains `run_preflight.sh`, `release_preflight.sql`,
+`README_FIRST.txt` and the two verified heroes with SHA256SUMS. The script
+verifies exact pinned host and Compose project, `karzar_postgres_data` and
+the API upload volume, executes its DB query under `REPEATABLE READ READ
+ONLY` with `PGOPTIONS=default_transaction_read_only=on`, enumerates
+any enabled noninternal product/image/audit-table triggers, and ends in
+`ROLLBACK`. **NO production write path is inside this archive.**
+It is not yet executed by owner. Do not label the release APPLIED.
+
+After this report returns two `DATA_SNAPSHOT_MATCH_MEDIA_AND_AUTH_PENDING`
+rows and no new triggers/changes, review a separate guarded transactional
+writer. For image materialization use the existing API shared
+`/app/data/uploads` volume; a direct admin image POST would commit
+separately, so stage verified files before a single DB association and
+price/brand transaction. Do not invoke `ProductService.update_product_with_validation`:
+it invokes `ensure_product_in_hesabfa` after committing the product.
+All writes need saved before-image, changed-row cardinality checks, and a
+post-commit rollback journal; no broad catalog mutation/rename/deploy.
