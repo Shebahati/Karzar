@@ -4,7 +4,7 @@ import { resolveCampaignHeroCtas } from "@/lib/hero-campaign-cta";
 import type { CategoryTreeNode } from "@/types/category";
 
 const node = (id: number, name: string, slug: string): CategoryTreeNode =>
-  ({ id, name, slug, subcategories: [] }) as CategoryTreeNode;
+  ({ id, name, slug, parent_id: null, subcategories: [] }) as CategoryTreeNode;
 
 describe("approved hero CTA target safety", () => {
   const slides = buildFiveHeroPublishedPack().slides;
