@@ -1057,6 +1057,17 @@ documents:
       Evidence-only Owner decision options for 13 exact-OEM-reference M7 products
       and two unresolved Groz families. No Batch 006 or Owner approval, no APPLY.
 
+  - id: TAXONOMY-TX-OWNER-001-OUTSIDE176-64-OPTIONS-20261018
+    path: audit/taxonomy-phase1b-tx-owner-001-outside176-64-deep-review-2026-10-18/00-OWNER-64-REVIEW-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Sixty-four exact SKU woodworking, BladeKat, CP GRAT-EX and M7
+      research options, thirty-one candidate exits and thirty-three
+      evidence requests; no Owner decision, exception or APPLY.
+
   - id: TAXONOMY-TX-OWNER-001-BULK-184-RESEARCH-20261018
     path: audit/taxonomy-phase1b-tx-owner-001-bulk-184-2026-10-18/00-OWNER-BULK-184-PLAN-FA.md
     class: EVIDENCE
