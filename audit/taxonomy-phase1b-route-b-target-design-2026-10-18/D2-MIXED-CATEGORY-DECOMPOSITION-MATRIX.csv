@@ -1,0 +1,13 @@
+category_id,category_name,full_path,direct_live_products,descendant_live_products,decomposition_strategy,cct1_result,product_level_review_required,protected_cohort,owner_scope
+116,سه نظام و لوازم جانبی,ابزار گیرشی › گیرشی تراش منوال و CNC › سه نظام و لوازم جانبی,571,571,DECOMPOSE_OR_EVIDENCE_GATED,NOT_ENOUGH_EVIDENCE,YES,NO,NO
+117,چهار نظام و لوازم جانبی,ابزار گیرشی › گیرشی تراش منوال و CNC › چهار نظام و لوازم جانبی,40,40,DECOMPOSE_OR_EVIDENCE_GATED,NOT_ENOUGH_EVIDENCE,YES,NO,NO
+118,دو نظام و لوازم جانبی,ابزار گیرشی › گیرشی تراش منوال و CNC › دو نظام و لوازم جانبی,0,0,DECOMPOSE_OR_EVIDENCE_GATED,NOT_ENOUGH_EVIDENCE,YES,NO,NO
+154,لوازم جانبی صنعتی,لوازم جانبی صنعتی,0,289,DECOMPOSE_HUB,NOT_ENOUGH_EVIDENCE,YES,NO,NO
+155,روغن و روانکار,لوازم جانبی صنعتی › روغن و روانکار,0,27,DECOMPOSE_HUB,BETTER_AS_FACET,YES,NO,NO
+156,روغن صنعتی,لوازم جانبی صنعتی › روغن و روانکار › روغن صنعتی,27,27,RETAIN_REHOME,KEEP_AS_CATEGORY,YES,YES,NO
+157,ابزار دستی,لوازم جانبی صنعتی › ابزار دستی,0,196,DEPRECATE_REMOVE,DEPRECATE_REMOVE,YES,NO,YES
+158,ابزار دستی عمومی,لوازم جانبی صنعتی › ابزار دستی › ابزار دستی عمومی,196,196,DEPRECATE_REMOVE,DEPRECATE_REMOVE,YES,NO,YES
+159,ابزار چوبی,لوازم جانبی صنعتی › ابزار چوبی,0,66,DEPRECATE_REMOVE,DEPRECATE_REMOVE,YES,NO,YES
+160,ابزار آلات چوبی,لوازم جانبی صنعتی › ابزار چوبی › ابزار آلات چوبی,66,66,DEPRECATE_REMOVE,DEPRECATE_REMOVE,YES,NO,YES
+163,لوازم جانبی دستگاه,دستگاه‌های صنعتی › لوازم جانبی دستگاه,0,80,DECOMPOSE_HUB,NOT_ENOUGH_EVIDENCE,YES,NO,NO
+164,لوازم جانبی قلاویز زن,دستگاه‌های صنعتی › لوازم جانبی دستگاه › لوازم جانبی قلاویز زن,80,80,DECOMPOSE_OR_EVIDENCE_GATED,NOT_ENOUGH_EVIDENCE,YES,NO,NO
