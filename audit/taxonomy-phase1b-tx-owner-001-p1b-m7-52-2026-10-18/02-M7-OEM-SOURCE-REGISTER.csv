@@ -2,13 +2,13 @@ source_id,official_url,evidence_kind,limit
 M7-NE0405-PRODUCT,https://www.mighty-seven.com/product/109,EXACT_OEM_PRODUCT_PAGE_MODEL,NE-0405-KIT class air ratchet; physical components and Karzar title need proof
 M7-QB48111-PRODUCT,https://www.mighty-seven.com/product/260,EXACT_OEM_PRODUCT_PAGE_MODEL,QB-48111 air jitterbug sander 100x110mm; original CLAMPS_VICES misbucket
 M7-RATCHET,https://www.mighty-seven.com/product_list/3,OEM_CATEGORY_MODEL_LISTING,Model tokens and class only; not Karzar stock inspection
-M7-RIVETER,https://www.mighty-seven.com/product_list/15,OEM_CATEGORY_REFERENCE_PENDING_MODEL_CONFIRMATION,Verify each model token and page before exact-match claims
-M7-DIE,https://www.mighty-seven.com/product_list/6,OEM_CATEGORY_REFERENCE_PENDING_MODEL_CONFIRMATION,Die-grinder family may include variants; verify exact article
+M7-RIVETER,,SOURCE_URL_NOT_VERIFIED_THIS_PASS,Verify each model token and page before exact-match claims
+M7-DIE,,SOURCE_URL_NOT_VERIFIED_THIS_PASS,Die-grinder family may include variants; verify exact article
 M7-SANDER,https://www.mighty-seven.com/product_list/10,OEM_CATEGORY_MODEL_LISTING,QP-317X is not automatically QP317
-M7-NEEDLE,https://www.mighty-seven.com/product_list/18,OEM_CATEGORY_REFERENCE_PENDING_MODEL_CONFIRMATION,Needle scaler family; article and parts unverified
-M7-DRILL,https://www.mighty-seven.com/product_list/5,OEM_CATEGORY_REFERENCE_PENDING_MODEL_CONFIRMATION,Drill model features must be verified individually
-M7-CUTTING,https://www.mighty-seven.com/product_list/13,OEM_CATEGORY_REFERENCE_PENDING_MODEL_CONFIRMATION,QD291 versus QD-291N and shear variants must not be conflated
+M7-NEEDLE,,SOURCE_URL_NOT_VERIFIED_THIS_PASS,Needle scaler family; article and parts unverified
+M7-DRILL,,SOURCE_URL_NOT_VERIFIED_THIS_PASS,Drill model features must be verified individually
+M7-CUTTING,,SOURCE_URL_NOT_VERIFIED_THIS_PASS,QD291 versus QD-291N and shear variants must not be conflated
 M7-OTHER,https://www.mighty-seven.com/product_list/3,OEM_CATEGORY_INDEX_ONLY,General index is not a model-level source
-M7-NAILER,https://www.mighty-seven.com/product_list/16,OEM_CATEGORY_REFERENCE_PENDING_MODEL_CONFIRMATION,Fastener compatibility and exact article require per-model verification
+M7-NAILER,,SOURCE_URL_NOT_VERIFIED_THIS_PASS,Fastener compatibility and exact article require per-model verification
 M7-AUTO,https://www.mighty-seven.com/other_category/2,OEM_USE_CATEGORY_ONLY,Carpentry usage cannot establish exact model or industrial exception
 M7-CLEANING,https://www.mighty-seven.com/product/568,EXACT_OEM_PRODUCT_PAGE_FOR_SX2101_ONLY,SX-2101 Air Twister Gun only; cannot validate SX1618 or other products
