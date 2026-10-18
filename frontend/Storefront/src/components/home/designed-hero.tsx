@@ -44,6 +44,7 @@ import {
 } from "@/config/hero-orbs";
 import { CampaignHeroGeometrySizer } from "@/components/home/campaign-hero-geometry-sizer";
 import { CampaignHeroSlide } from "@/components/home/campaign-hero-slide";
+import { resolveCampaignHeroCtas } from "@/lib/hero-campaign-cta";
 import { HeroBackgroundImage } from "@/lib/hero-background-image";
 import {
   CAMPAIGN_COMPACT_MAX_PX,
@@ -741,8 +742,9 @@ export function DesignedHero({
         seen.add(s.id);
         return true;
       })
-      .slice(0, MAX_ACTIVE_SLIDES);
-  }, [pack.slides]);
+      .slice(0, MAX_ACTIVE_SLIDES)
+      .map((slide) => resolveCampaignHeroCtas(slide, roots));
+  }, [pack.slides, roots]);
 
   const publishedDockCategories = pack.categoryDock?.categories;
   const hasPublishedDock = Boolean(publishedDockCategories?.length);

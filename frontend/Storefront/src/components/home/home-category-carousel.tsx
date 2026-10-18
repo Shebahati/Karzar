@@ -6,6 +6,7 @@ import { SectionHeading } from "@/components/home/section-heading";
 import { FINAL_L1_CATEGORIES } from "@/config/l1-categories";
 import { categoryHref } from "@/config/nav-groups";
 import { useProducts } from "@/features/catalog/queries";
+import { isPubliclyAvailable } from "@/lib/public-product-availability";
 import type { CategoryCarouselSection } from "@/types/home-layout";
 import type { CategoryTreeNode } from "@/types/category";
 
@@ -77,14 +78,15 @@ export function HomeCategoryCarousel({
   const root = useMemo(() => resolveCategory(tree, section), [tree, section]);
   const limit = section.limit && section.limit > 0 ? section.limit : 12;
 
-  const catalog = useProducts({
-    limit,
-    sort: "newest",
-    // 0 until resolved — never accidentally list full catalog.
-    category_id: root?.id ?? 0,
-  });
+  // Resolve first; never send category_id=0 (which backend treats as all products).
+  // Filter in SQL before pagination; defense-in-depth drops contradictory DTOs.
+  const catalog = useProducts(
+    { limit, sort: "newest", category_id: root?.id, in_stock: true },
+    undefined,
+    { enabled: Boolean(root?.id), keepPreviousData: false },
+  );
 
-  const products = catalog.data?.data ?? [];
+  const products = (catalog.data?.data ?? []).filter(isPubliclyAvailable);
   if (!root) return null;
   if (!catalog.isLoading && products.length === 0) return null;
 

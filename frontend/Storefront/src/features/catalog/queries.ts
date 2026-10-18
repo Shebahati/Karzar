@@ -54,12 +54,14 @@ export function useBrands(): UseQueryResult<Brand[]> {
 export function useProducts(
   params: ProductListParams,
   initialData?: ProductListResponse,
+  options: { enabled?: boolean; keepPreviousData?: boolean } = {},
 ): UseQueryResult<ProductListResponse> {
   const normalized = normalizeProductListParams(params);
   return useQuery({
     queryKey: catalogKeys.products(normalized),
     queryFn: () => catalogService.listProducts(normalized),
-    placeholderData: keepPreviousData,
+    enabled: options.enabled ?? true,
+    ...(options.keepPreviousData === false ? {} : { placeholderData: keepPreviousData }),
     ...(initialData !== undefined ? { initialData } : {}),
   });
 }
