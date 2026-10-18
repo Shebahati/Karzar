@@ -1,5 +1,5 @@
 """Live, audited homepage bestseller curation. No static JSON/container cross-write."""
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
@@ -95,7 +95,7 @@ async def publish_home_bestsellers(
     old_ids = list(row.product_ids or [])
     row.product_ids = ids[:]
     row.revision += 1
-    row.published_at = datetime.now().astimezone()
+    row.published_at = datetime.now(UTC)
     row.actor_user_id = user.id
     await record_audit(
         db, actor_user_id=user.id, action="publish",

@@ -2,7 +2,11 @@
 import pytest
 from pydantic import ValidationError
 
-from app.api.endpoints.home_merchandising import BestsellerSelectionWrite, as_response, MAX_ITEMS
+from app.api.endpoints.home_merchandising import (
+    MAX_ITEMS,
+    BestsellerSelectionWrite,
+    as_response,
+)
 
 def test_payload_limits_and_positive_ids():
     assert BestsellerSelectionWrite(product_ids=[1, 2], expected_revision=0).product_ids == [1, 2]
