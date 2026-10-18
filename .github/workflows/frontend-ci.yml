@@ -137,6 +137,17 @@ jobs:
         env:
           NEXT_PUBLIC_USE_MOCK: "true"
           CI: "true"
+      # Preserve real Chromium screenshots before the separate HTTP-contract run
+      # cleans Playwright's test-results directory. PR-only; no production action.
+      - name: Upload calibrated hero review screenshots
+        if: ${{ always() && needs.classify.outputs.run_frontend_e2e == 'true' && github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: karzar-calibrated-hero-review
+          path: frontend/Storefront/test-results/hero-review/*.png
+          if-no-files-found: error
+          retention-days: 14
+
       - if: needs.classify.outputs.run_frontend_e2e == 'true'
         run: npm run test:http-contract
         env:

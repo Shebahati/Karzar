@@ -1,0 +1,94 @@
+{
+  "status": "PLAN_ONLY",
+  "pinned_b1_importer_evidence": {
+    "scan_summary_path": "audit/taxonomy-phase1b-baseline-2026-10-15/08-NUMERIC-DEPENDENCY-SCAN-SUMMARY.json",
+    "dependencies_csv": "audit/taxonomy-phase1b-baseline-2026-10-15/08-NUMERIC-CATEGORY-ID-DEPENDENCIES.csv",
+    "deduped_hits": 46,
+    "remap_design": "semantic KZ.CAT.* → runtime categories.id via E-TARGET-IDENTITY-REGISTRY.csv"
+  },
+  "prerequisite_graph": [
+    {
+      "id": "P0_OWNER_ARCH_FREEZE",
+      "depends_on": [],
+      "verifies": [
+        "C-GROUPED-OWNER-DECISION-REGISTER.csv",
+        "C2-HOLD-CATEGORY-TO-DECISION-GROUP-MAP.csv"
+      ]
+    },
+    {
+      "id": "P1_IDENTITY_REGISTRY",
+      "depends_on": [
+        "P0_OWNER_ARCH_FREEZE"
+      ],
+      "verifies": [
+        "B1/E-TARGET-IDENTITY-REGISTRY.csv",
+        "KZ.CAT.* codes"
+      ]
+    },
+    {
+      "id": "P2_PRODUCT_EVIDENCE",
+      "depends_on": [
+        "P0_OWNER_ARCH_FREEZE"
+      ],
+      "verifies": [
+        "111 evidence register",
+        "718 decomposition rows"
+      ]
+    },
+    {
+      "id": "P3_IMPORTER_REMAP",
+      "depends_on": [
+        "P1_IDENTITY_REGISTRY"
+      ],
+      "verifies": [
+        "audit/taxonomy-phase1b-baseline-2026-10-15/08-NUMERIC-CATEGORY-ID-DEPENDENCIES.csv",
+        "numeric category_id hits"
+      ],
+      "numeric_dependency_sample_count": 3
+    },
+    {
+      "id": "P4_APPLY_AUTHORIZATION",
+      "depends_on": [
+        "P2_PRODUCT_EVIDENCE",
+        "P3_IMPORTER_REMAP"
+      ],
+      "verifies": [
+        "explicit OWNER APPLY gate — not in B2"
+      ]
+    },
+    {
+      "id": "P5_SEO_REDIRECT_DEPLOY",
+      "depends_on": [
+        "P4_APPLY_AUTHORIZATION"
+      ],
+      "verifies": [
+        "F-SEO dossier",
+        "no auto 301/410 in B2"
+      ]
+    }
+  ],
+  "dependency_dimensions": {
+    "category_identity": "current categories.id → proposed KZ.CAT.* (E-TARGET-IDENTITY-REGISTRY)",
+    "product_mapping": "6536 rows D-PRODUCT-MAPPING-READINESS; 0 executable in B2",
+    "megamenu": "nav_groups root_category_ids — see F dossier + helicoil dangling refs",
+    "url_slug": "baseline census slugs; redirect proposals PROPOSED only",
+    "importer_numeric_ids": [
+      1,
+      56,
+      80
+    ],
+    "backward_compatibility": "dual-read mapping table; rollback = revert mapping package"
+  },
+  "helicoil_megamenu": {
+    "issue": "nav group references removed roots 186/187/188",
+    "dangling_refs": [
+      186,
+      187,
+      188
+    ],
+    "proposal": "Retarget to category 55 or retire group; no unrelated 301",
+    "blocks_execution_release_gate": "YES",
+    "blocks_architecture_freeze": "NO"
+  },
+  "rollback": "Reversible mapping tables versioned per APPLY batch; B2 produces no runtime change"
+}

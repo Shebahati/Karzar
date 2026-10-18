@@ -1,0 +1,43 @@
+{
+  "gate_id": "IR-MARKET-NAMING-SEO",
+  "status": "PENDING_OWNER_REVIEW",
+  "blocks_naming_and_seo_freeze": true,
+  "blocks_category_apply": true,
+  "blocks_seo_deployment": true,
+  "required_evidence": [
+    "Iranian-market terminology and search intent",
+    "Karzar Search Console evidence where accessible",
+    "Competitor taxonomy and keyword research",
+    "All seven L1 display names (FA/EN proposals — not final until Owner freeze)",
+    "Three Metrology L2 display names (KZ.CAT.METROLOGY_FAMILY_PRECISION, KZ.CAT.METROLOGY_FAMILY_CNC, KZ.CAT.METROLOGY_FAMILY_LABORATORY)",
+    "Impacted descendant landing pages",
+    "Proposed SEO titles and H1",
+    "URL preservation, slug changes, canonical and redirect implications",
+    "Explicit separate Owner approval before naming/SEO freeze"
+  ],
+  "provisional_b1_b2_labels_are_not_final": true,
+  "linked_decision_journal_entries": [
+    "OWNER-ARCH-DECISION-001",
+    "OWNER-ARCH-DECISION-002",
+    "OWNER-ARCH-DECISION-003",
+    "OWNER-ARCH-DECISION-004",
+    "OWNER-ARCH-DECISION-005",
+    "OWNER-ARCH-DECISION-006",
+    "OWNER-ARCH-DECISION-007",
+    "OWNER-ARCH-DECISION-008",
+    "OWNER-ARCH-DECISION-009",
+    "OWNER-ARCH-DECISION-010"
+  ],
+  "linked_b2_decision_groups": [
+    "ACCESSORIES-154-DECOMPOSE",
+    "ARCH-7-L1-ROOTS",
+    "FLUIDS-155-FACET-NAV",
+    "FLUIDS-156-PUBLICATION",
+    "HELICOIL-55-THREAD-REPAIR",
+    "MACHINE-ACCESSORIES-163-164",
+    "MEGAMENU-186-187-188",
+    "METROLOGY-L2-FAMILIES",
+    "MIXED-CHUCKS-116-118",
+    "TX-OWNER-SCOPE-157-160"
+  ]
+}

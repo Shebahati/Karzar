@@ -41,7 +41,7 @@ const REVIEW_VIEWPORTS = [
 ] as const;
 
 function shotPath(viewport: string, slide: string) {
-  return `/tmp/karzar-hero-review/${viewport}-${slide}.png`;
+  return `test-results/hero-review/${viewport}-${slide}.png`;
 }
 
 async function gotoHome(page: Page) {
