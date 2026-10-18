@@ -2,7 +2,7 @@
   "base_git_sha": "8be4a5807a2eeb25da26c802e74bb9b0fc301916",
   "b1_merge_sha": "8be4a5807a2eeb25da26c802e74bb9b0fc301916",
   "b1_artifact_dir": "audit/taxonomy-phase1b-route-b-target-design-2026-10-18",
-  "generator_run_git_sha": "8be4a5807a2eeb25da26c802e74bb9b0fc301916",
+  "generator_run_git_sha": "947c9595e5c973507fddb3e0efa13589bceb17ed",
   "invariants_recalculated": {
     "current_category_count": 135,
     "commerce_tree_nodes": 123,
