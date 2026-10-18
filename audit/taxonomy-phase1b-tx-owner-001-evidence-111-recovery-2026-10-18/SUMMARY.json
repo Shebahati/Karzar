@@ -1,0 +1,10 @@
+{
+  "STATUS": "READY_FOR_OWNER_REVIEW",
+  "matrix_rows": 111,
+  "source_rows": 42,
+  "physical_manifest_rows": 111,
+  "exact_oem_documentary_yes_count": 10,
+  "partial_family_yes_count": 24,
+  "remote_unresolved_count": 62,
+  "physical_stock_required_count": 111
+}

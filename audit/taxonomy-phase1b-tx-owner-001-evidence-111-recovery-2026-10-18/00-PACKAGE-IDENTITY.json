@@ -1,0 +1,43 @@
+{
+  "package_generated_at_utc": "2026-10-18T10:26:49Z",
+  "package_generation_git_head_sha": "2e37c5de0768a9d85c142b5d9b1f631102aa615c",
+  "scope": "TX-OWNER-001 Phase 1B evidence recovery — 111 open Owner evidence requests",
+  "base_merge_commit_pr531": "2e37c5de0768a9d85c142b5d9b1f631102aa615c",
+  "canonical_action_register_path": "audit/taxonomy-phase1b-tx-owner-001-evidence-111-action-2026-10-18/01-EXACT-111-OPEN-EVIDENCE-ACTION-REGISTER.csv",
+  "canonical_action_register_sha256": "da51a45ad4a7c6f34ed52a94ad169c7e2a1bc5dee0051d8afca20ef2811d2953",
+  "user_prompt_register_sha256": "bb723a79314314edc080c80c79616f3478e94082",
+  "register_sha_attestation": "TARGET_MOVED: canonical register on origin/main differs from prompt SHA; this package pins the on-disk register hash above.",
+  "approved_domain_codes": [
+    "KZ.DOM.CUTTING",
+    "KZ.DOM.FLUIDS",
+    "KZ.DOM.MACHINES",
+    "KZ.DOM.METROLOGY",
+    "KZ.DOM.THREAD_REPAIR",
+    "KZ.DOM.TOOLHOLDING",
+    "KZ.DOM.WORKHOLDING"
+  ],
+  "wave_counts": {
+    "W4_SPECIAL_27": 27,
+    "W1_BLADEKAT_34": 34,
+    "W3_P2_19": 19,
+    "W2_P1_31": 31
+  },
+  "workstream_counts": {
+    "EARLY_TECH_BOUNDARY_8": 8,
+    "BLADEKAT_WOOD_METAL_34": 34,
+    "EARLY_M7_MODEL_SUFFIX_2": 2,
+    "M7_MODEL_UNIT_DOMAIN_9": 9,
+    "WOOD_BLADE_CHISEL_4": 4,
+    "CP_GRAT_EXACT_ARTICLE_4": 4,
+    "P2_SPECIAL_IDENTITY_DOMAIN_19": 19,
+    "P1_GROZ_CHAGAN_EXACT_16": 16,
+    "P1_M7_EXACT_PAGE_9": 9,
+    "P1_M7_SUFFIX_VARIANT_6": 6
+  },
+  "safety": {
+    "PRODUCTION_MUTATION": "NO",
+    "CATALOG_APPLY": "NO",
+    "OWNER_BATCH_JOURNALS_MUTATED": "NO",
+    "PRODUCT_TITLE_CATEGORY_MANIFEST": "NO"
+  }
+}
