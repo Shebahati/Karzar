@@ -25,6 +25,7 @@ import { LogisticsReadinessHint } from "@/features/catalog/components/logistics-
 import { ProductDescriptionEditor } from "@/features/catalog/components/product-description-editor";
 import { ProductImagesSection } from "@/features/catalog/components/product-images-section";
 import { ProductStockSection } from "@/features/catalog/components/product-stock-section";
+import { ProductDiscountCalculator } from "@/features/catalog/components/product-discount-calculator";
 import { ProductChangeLogSection } from "@/features/catalog/components/product-change-log-section";
 import { ProductNamingPreviewSection } from "@/features/catalog/components/product-naming-preview-section";
 import { ProductSpecificationsForm } from "@/features/catalog/components/product-specifications-form";
@@ -74,6 +75,9 @@ export default function EditProductPage() {
   } = form;
 
   const categoryId = useWatch({ control, name: "category_id" });
+  const currentBasePrice = useWatch({ control, name: "base_price" });
+  const currentOriginalPrice = useWatch({ control, name: "original_price" });
+  const requestedActive = useWatch({ control, name: "is_active" });
   const logisticsClass = useWatch({ control, name: "shipping_class" });
   const logisticsFragile = useWatch({ control, name: "shipping_is_fragile" });
   const logisticsLiquid = useWatch({ control, name: "shipping_is_liquid" });
@@ -119,8 +123,9 @@ export default function EditProductPage() {
     try {
       const payload = toProductUpdatePayload(parsed.data, specTemplate ?? null);
       const updated = await updateProduct.mutateAsync({ id: productId, payload });
+      const imaged = updated.images?.some((image) => image.url && !/placeholder|no[-_]?image|default[-_]?(image|product)|karzar-editorial/i.test(image.url));
       toast.success("محصول به‌روزرسانی شد", {
-        description: `«${updated.name}» ذخیره شد.`,
+        description: !updated.is_active ? "محصول غیرفعال ذخیره شد." : !imaged ? "محصول فعال شد، اما بدون تصویر معتبر در فروشگاه نمایش داده نمی‌شود." : !(updated.is_available ?? updated.availability) ? "محصول فعال است اما به‌عنوان ناموجود نمایش داده می‌شود." : `«${updated.name}» ذخیره شد.`,
       });
       router.push("/catalog/products");
     } catch (err) {
@@ -392,6 +397,15 @@ export default function EditProductPage() {
                 />
               </Field>
 
+              <ProductDiscountCalculator
+                basePrice={currentBasePrice}
+                originalPrice={currentOriginalPrice}
+                onApply={({ basePrice, originalPrice }) => {
+                  setValue("original_price", originalPrice, { shouldDirty: true, shouldValidate: true });
+                  setValue("base_price", basePrice, { shouldDirty: true, shouldValidate: true });
+                }}
+              />
+
               <Field label="واحد" error={errors.stock_unit?.message}>
                 <Controller
                   control={control}
@@ -534,6 +548,18 @@ export default function EditProductPage() {
               <CardTitle className="text-[#4F4F4F]">تنظیمات انتشار</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-5">
+              {requestedActive && (
+                <div className="rounded-xl border border-input p-3 text-sm" role="status">
+                  {!product.images?.some((image) => image.url && !/placeholder|no[-_]?image|default[-_]?(image|product)|karzar-editorial/i.test(image.url)) && (
+                    <p>تصویر معتبر ثبت نشده است؛ با تنظیم پیش‌فرض فروشگاه، محصول بدون تصویر عمومی نمایش داده نمی‌شود.</p>
+                  )}
+                  {!(product.is_available ?? product.availability) && (
+                    <p>این محصول در سایت ناموجود است؛ وضعیت موجودی از بخش «وضعیت موجودی (سایت)» جداگانه تغییر می‌کند.</p>
+                  )}
+                  {!(Number(currentBasePrice) > 0) && <p>برای فروش، قیمت معتبر و بزرگ‌تر از صفر ضروری است.</p>}
+                  <p className="text-xs text-muted-foreground">روشن کردن «محصول فعال» به‌تنهایی به معنی قابل‌خرید بودن نیست. موجودی واقعی را با منبع معتبر کنترل کنید.</p>
+                </div>
+              )}
               <Controller
                 control={control}
                 name="is_active"
