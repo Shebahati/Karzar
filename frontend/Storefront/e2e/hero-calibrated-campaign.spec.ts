@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { skipFirstVisitSplash } from "./helpers/storefront-e2e";
 
 const SLIDES = [
   {
@@ -40,6 +41,11 @@ const REVIEW_VIEWPORTS = [
   { width: 1440, height: 900, name: "1440x900" },
 ] as const;
 
+// Review evidence is captured after the first-visit splash, never through its veil.
+test.beforeEach(async ({ page }) => {
+  await skipFirstVisitSplash(page);
+});
+
 function shotPath(viewport: string, slide: string) {
   return `test-results/hero-review/${viewport}-${slide}.png`;
 }
@@ -48,6 +54,10 @@ async function gotoHome(page: Page) {
   await page.goto("/", { waitUntil: "domcontentloaded", timeout: 120_000 });
   await expect(page.getByRole("region", { name: "هیرو کارزار" })).toBeVisible({
     timeout: 30_000,
+  });
+  await expect(page.locator(".karzar-splash")).toHaveCount(0, { timeout: 15_000 });
+  await expect(page.locator("style[data-karzar-splash-boot]")).toHaveCount(0, {
+    timeout: 15_000,
   });
 }
 
@@ -77,6 +87,10 @@ async function expectSlide(page: Page, index: number, compact: boolean) {
       timeout: 20_000,
     })
     .toContain(compact ? slide.mobile : slide.desktop);
+  await expect.poll(async () => img.evaluate((node) => {
+    const image = node as HTMLImageElement;
+    return image.complete && image.naturalWidth > 0;
+  }), { timeout: 20_000 }).toBe(true);
   const currentSrc = await img.evaluate((node) => (node as HTMLImageElement).currentSrc);
   if (compact) {
     expect(currentSrc).not.toContain("desktop-16x9");
