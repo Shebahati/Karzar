@@ -33,3 +33,34 @@ Scope locked to existing product IDs `1944` and `3639`. No inferred lookup by fu
 
 ## Current disposition
 Price and arithmetic: PASS (owner confirmation). Real stock: PASS (owner confirmation). Latest deployed production read-only inspection: PENDING. Licensed downloaded product image bytes: PENDING. No-Hesabfa-write isolated path and tests: PENDING. The last two plus fresh CI and owner APPLY approval are required before live publication.
+
+## Preflight implementation handoff
+
+An exact two-ID SQL read-only report now lives at
+`scripts/catalog_target/insize_two_product_readonly_preflight_20261018.sql`.
+On an already-approved **read-only Production connection**, operator runs:
+
+```bash
+psql "$READ_ONLY_DSN" -X -v ON_ERROR_STOP=1 \
+  -f scripts/catalog_target/insize_two_product_readonly_preflight_20261018.sql
+```
+
+The session explicitly starts `REPEATABLE READ READ ONLY`, prints database identity
+and `transaction_read_only`, lists current product and image rows, then
+`ROLLBACK`s. Accept only `transaction_read_only=on`, exact `found_target_rows=2`,
+`matching_identity_rows=2`, `nondeleted_rows=2` and both `identity_gate=IDENTITY_MATCH`.
+If the database is not independently proven to be the live data plane, STOP. Never
+share credentials, environment values or unredacted DB network details. The report
+is a preflight **request**, not evidence it has been run.
+
+Independent public storefront probes were attempted from the external retrieval
+environment, but the live shop/API could not be fetched reliably; no HTTP status,
+image materialization or cart result is claimed.
+
+Media acquisition: candidate Cutwel exact-SKU direct JPEG paths were investigated
+but could not be materialized/verified through the available download environment.
+The official INSIZE product pages certify 2824-S3 specs and 3203 series code, but
+do not grant republication rights for image assets. Original full-resolution
+storefront-authorized photographs must come from the owner or supplier. Manufacturer
+contact is `sales@insize.com` per its official contact page; written rights and
+the exact kit photo should be requested before image ingestion.
