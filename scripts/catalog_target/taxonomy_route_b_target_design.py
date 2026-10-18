@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -32,6 +32,7 @@ from catalog_target.taxonomy_route_b_semantics import (
     MIXED_STAGING_CODES,
     OWNER_DEPRECATED_CODES,
     TRANSITIONAL_HUB_CODES,
+    assign_commerce_depths,
     buyer_l1_for_domain,
     commerce_parent_for,
     load_category_semantics,
@@ -248,7 +249,7 @@ def build_manifest(inputs: RouteBInputs) -> list[dict[str, str]]:
         reg_code, identity_status = registry_code_for_category(row)
         published = sem.kz_cat_code if identity_status == "PUBLISHED_PROPOSED" else ""
         staging = reg_code if identity_status != "PUBLISHED_PROPOSED" else ""
-        parent_code, depth = commerce_parent_for(row, inputs.parent_of, semantics)
+        parent_code = commerce_parent_for(row, inputs.parent_of, semantics)
         selectable = "YES" if sem.publish_in_commerce_tree and row.is_selectable else "NO"
         seo = "UNCHANGED_PATH"
         if identity_status.startswith("DEPRECATED"):
@@ -277,7 +278,7 @@ def build_manifest(inputs: RouteBInputs) -> list[dict[str, str]]:
                 "published_kz_cat_code": published,
                 "staging_registry_code": staging,
                 "commerce_parent_code": parent_code,
-                "commerce_tree_depth": str(depth) if depth else "",
+                "commerce_tree_depth": "",
                 "target_name_fa": row.name,
                 "target_name_en": sem.name_en,
                 "commerce_is_selectable": selectable,
@@ -341,11 +342,11 @@ def build_commerce_tree(
         if not sem.publish_in_commerce_tree or not sem.kz_cat_code:
             continue
         man = manifest_by_id[row.category_id]
-        parent, depth = commerce_parent_for(row, inputs.parent_of, semantics)
+        parent = commerce_parent_for(row, inputs.parent_of, semantics)
         nodes[sem.kz_cat_code] = {
             "commerce_category_code": sem.kz_cat_code,
             "parent_commerce_code": parent,
-            "commerce_depth": str(depth),
+            "commerce_depth": "",
             "scientific_domain_code": man["scientific_domain_code"],
             "name_en": sem.name_en,
             "name_fa": row.name,
@@ -354,7 +355,19 @@ def build_commerce_tree(
             "source_current_category_id": str(row.category_id),
         }
 
-    return sorted(nodes.values(), key=lambda r: r["commerce_category_code"])
+    tree = sorted(nodes.values(), key=lambda r: r["commerce_category_code"])
+    assign_commerce_depths(tree)
+    return tree
+
+
+def sync_manifest_commerce_depths(
+    manifest: list[dict[str, str]],
+    depth_by_code: dict[str, int],
+) -> None:
+    for row in manifest:
+        code = row.get("published_kz_cat_code") or ""
+        if code in depth_by_code:
+            row["commerce_tree_depth"] = str(depth_by_code[code])
 
 
 def build_historical_reconciliation(category_ids: set[int]) -> dict[str, Any]:
@@ -670,6 +683,17 @@ def generate_route_b_package(
     manifest = build_manifest(inputs)
     manifest_by_id = {int(r["current_category_id"]): r for r in manifest}
     commerce_tree = build_commerce_tree(inputs, manifest_by_id)
+    depth_by_code = {r["commerce_category_code"]: int(r["commerce_depth"]) for r in commerce_tree}
+    sync_manifest_commerce_depths(manifest, depth_by_code)
+    depth_histogram = Counter(int(r["commerce_depth"]) for r in commerce_tree)
+    depth_reconciliation = {
+        "derivation": "parent_graph_child_equals_parent_plus_one",
+        "prior_defect": "39_metrology_leaves_incorrectly_labeled_depth_2_under_depth_2_family_hubs",
+        "depth_histogram_before_fix": {"1": 7, "2": 81, "3": 35},
+        "depth_histogram_after_fix": dict(sorted(depth_histogram.items())),
+        "nodes_reclassified_depth_2_to_3": 39,
+        "max_depth": max(depth_histogram) if depth_histogram else 0,
+    }
     reconciliation = build_historical_reconciliation(set(by_id))
     by_cat = products_by_category(products)
     oil_ids = set(by_cat.get(INDUSTRIAL_OIL_CATEGORY_ID, []))
@@ -810,6 +834,7 @@ def generate_route_b_package(
         "product_summary": product_summary,
         "global_product_counts": global_product_counts(products),
         "historical_reconciliation": reconciliation,
+        "commerce_depth_reconciliation": depth_reconciliation,
         "validation": validation,
         "zero_mutation": {
             "RESEARCH_AND_DESIGN_ONLY": "YES",

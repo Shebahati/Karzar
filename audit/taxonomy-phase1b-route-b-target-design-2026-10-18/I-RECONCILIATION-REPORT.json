@@ -1,6 +1,6 @@
 {
   "pinned_input_git_sha": "0d04e794712206e1421a596e28993002d05e338c",
-  "generator_run_git_sha": "0006cdf05be4b87f767d1c7ba73b5c587b112071",
+  "generator_run_git_sha": "32a1214c1f1b931ce92959ad0437faee3c10313c",
   "pr532_merge_base_sha": "0d04e794712206e1421a596e28993002d05e338c",
   "category_manifest_rows": 135,
   "commerce_tree_nodes": 123,
@@ -941,6 +941,22 @@
         "product_deletion_inferred": "NO"
       }
     ]
+  },
+  "commerce_depth_reconciliation": {
+    "derivation": "parent_graph_child_equals_parent_plus_one",
+    "prior_defect": "39_metrology_leaves_incorrectly_labeled_depth_2_under_depth_2_family_hubs",
+    "depth_histogram_before_fix": {
+      "1": 7,
+      "2": 81,
+      "3": 35
+    },
+    "depth_histogram_after_fix": {
+      "1": 7,
+      "2": 42,
+      "3": 74
+    },
+    "nodes_reclassified_depth_2_to_3": 39,
+    "max_depth": 3
   },
   "validation": {
     "status": "PASS",

@@ -95,6 +95,58 @@ class RouteBTargetDesignTests(unittest.TestCase):
     def test_historical_helicoil_deprecated_codes_unique(self):
         self.assertEqual(len(set(HISTORICAL_DEPRECATED_CODES.values())), 3)
 
+    def test_commerce_depth_parent_plus_one(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            generate_route_b_package(out, pinned_input_git_sha="p", generator_run_git_sha="r")
+            with (out / "C-TARGET-TAXONOMY-TREE.csv").open(encoding="utf-8", newline="") as handle:
+                tree = list(csv.DictReader(handle))
+            by_code = {r["commerce_category_code"]: r for r in tree}
+            for row in tree:
+                parent = (row.get("parent_commerce_code") or "").strip()
+                if not parent:
+                    self.assertEqual(int(row["commerce_depth"]), 1)
+                    continue
+                self.assertEqual(
+                    int(row["commerce_depth"]),
+                    int(by_code[parent]["commerce_depth"]) + 1,
+                )
+            metrology_l3 = [
+                r
+                for r in tree
+                if r["scientific_domain_code"] == "KZ.DOM.METROLOGY"
+                and int(r["commerce_depth"]) == 3
+                and r["node_kind"] == "BUYER_COMMERCE_PUBLISHABLE"
+            ]
+            self.assertEqual(len(metrology_l3), 39)
+
+    def test_validation_fails_on_incorrect_commerce_depth(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            generate_route_b_package(out, pinned_input_git_sha="p", generator_run_git_sha="r")
+            recon = json.loads((out / "I-RECONCILIATION-REPORT.json").read_text())
+            with (out / "A-135-CURRENT-TARGET-MANIFEST.csv").open(encoding="utf-8", newline="") as handle:
+                manifest = list(csv.DictReader(handle))
+            with (out / "C-TARGET-TAXONOMY-TREE.csv").open(encoding="utf-8", newline="") as handle:
+                tree = list(csv.DictReader(handle))
+            with (out / "D-PRODUCT-MAPPING-READINESS.csv").open(encoding="utf-8", newline="") as handle:
+                products = list(csv.DictReader(handle))
+            with (out / "E-TARGET-IDENTITY-REGISTRY.csv").open(encoding="utf-8", newline="") as handle:
+                registry = list(csv.DictReader(handle))
+            leaf = next(r for r in tree if int(r["commerce_depth"]) == 3)
+            leaf["commerce_depth"] = "2"
+            bad = validate_route_b_package(
+                manifest=manifest,
+                commerce_tree=tree,
+                product_rows=products,
+                identity_registry=registry,
+                owner_journal=load_owner_authorization_journals(),
+                reconciliation=recon["historical_reconciliation"],
+                oil_product_ids=set(recon["product_summary"]["category_156_oil_product_ids"]),
+                inputs_products=load_baseline_products(),
+            )
+            self.assertEqual(bad["status"], "FAIL")
+
     def test_commerce_tree_has_single_root_tier(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp)
