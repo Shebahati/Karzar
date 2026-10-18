@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { skipFirstVisitSplash } from "./helpers/storefront-e2e";
 
 const SLIDES = [
   {
@@ -40,11 +39,6 @@ const REVIEW_VIEWPORTS = [
   { width: 768, height: 1024, name: "768x1024" },
   { width: 1440, height: 900, name: "1440x900" },
 ] as const;
-
-// Review evidence is captured after the first-visit splash, never through its veil.
-test.beforeEach(async ({ page }) => {
-  await skipFirstVisitSplash(page);
-});
 
 function shotPath(viewport: string, slide: string) {
   return `test-results/hero-review/${viewport}-${slide}.png`;
