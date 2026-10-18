@@ -1,6 +1,6 @@
 # Two-product owner-confirmed pricing and gated rollout (2026-10-18)
 
-Status: **OWNER_PRICE_APPROVED / STOCK_CONFIRMED / LIVE_PREFLIGHT_PENDING / MEDIA_BINARY_PENDING / APPLY_NOT_EXECUTED**.
+Status: **OWNER_PRICE_APPROVED / STOCK_CONFIRMED / LIVE_PREFLIGHT_EXECUTED_IDENTITY_BLOCKED / MEDIA_BINARY_PENDING / APPLY_NOT_EXECUTED**.
 This is a plan and immutable price intent, **not production write authorization**.
 Scope locked to existing product IDs `1944` and `3639`. No inferred lookup by fuzzy name or reverse SKU may add other rows.
 
@@ -113,3 +113,7 @@ allowed field set after fresh CAS preflight and canonical audit-log proof.
 The previous field whitelist excluding brand is superseded **only for
 that separate proposal**, not a grant of live APPLY. Do not infer the
 specific human actor from `reason=product_update`.
+
+## Second read-only follow-up gate
+
+The SQL report now includes an exact 2026-10-18T10:40:12Z before-image drift check for both IDs, brand-master and brand-change-log verification, target price preview, and recent admin audit metadata. Its success state is `DATA_SNAPSHOT_MATCH_MEDIA_AND_AUTH_PENDING`, **not** APPLY permission. Any `STOP_*` result needs fresh investigation. The original `identity_gate` still intentionally reports `STOP_IDENTITY_MISMATCH` until the separate brand repair is authorized and applied. Execute only from a fresh `git show` extract, never use an older local /tmp file and never switch the data plane.
