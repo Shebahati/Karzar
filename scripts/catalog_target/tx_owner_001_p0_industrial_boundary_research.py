@@ -450,8 +450,11 @@ P0_PRODUCTS: dict[int, dict[str, Any]] = {
             "MEDIUM for reference product class only; does not verify Karzar warehouse unit matches QE-98L."
         ),
         "post_research_agent_proposal": "CATALOG_EXIT_CANDIDATE",
-        "recommended_owner_review_option": "APPROVE_CATALOG_EXIT",
-        "unresolved_questions": "Photo of engraved model; confirm not a different M7 QE accessory.",
+        "recommended_owner_review_option": "REQUEST_MORE_EVIDENCE",
+        "unresolved_questions": (
+            "Stock/nameplate photo required before final catalog-exit decision; confirm engraved model "
+            "matches QE-98L reference and is not a different M7 QE accessory."
+        ),
     },
     5259: {
         "karzar_catalog_sku": "SB201",
@@ -840,6 +843,25 @@ P0_PRODUCTS: dict[int, dict[str, Any]] = {
 }
 
 
+def domain_fit_gap_description(product_id: int, spec: dict[str, Any]) -> str:
+    domain = spec.get("industrial_domain_hypothesis", "")
+    if product_id == 3008:
+        return (
+            f"Domain hypothesis {domain} is UNPROVEN for this brandless row; requires "
+            "brand/manufacturer identification, physical product evidence, and exact manufacturer "
+            "article where available. Do not infer any manufacturer/OEM identity without proof."
+        )
+    if product_id == 3009:
+        return (
+            f"Domain hypothesis {domain} requires Groz article proof, physical verification, "
+            "and Owner policy for industrial exception (hypothesis only — not approved)."
+        )
+    return (
+        f"Domain hypothesis {domain} requires manufacturer article proof and Owner policy "
+        "for industrial exception."
+    )
+
+
 def sources_for_product(product_id: int) -> list[dict[str, str]]:
     hits: list[dict[str, str]] = []
     pid = str(product_id)
@@ -888,10 +910,7 @@ def evidence_gaps() -> list[dict[str, str]]:
                     "product_id": str(pid),
                     "gap_id": f"GAP-{pid}-DOMAIN",
                     "gap_category": "APPROVED_DOMAIN_FIT",
-                    "gap_description": (
-                        f"Domain hypothesis {spec.get('industrial_domain_hypothesis', '')} requires "
-                        "Groz article proof and Owner policy for industrial exception."
-                    ),
+                    "gap_description": domain_fit_gap_description(pid, spec),
                     "blocks_disposition": "YES",
                 }
             )

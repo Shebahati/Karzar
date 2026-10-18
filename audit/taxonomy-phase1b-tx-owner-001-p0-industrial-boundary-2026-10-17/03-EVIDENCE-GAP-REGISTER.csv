@@ -1,11 +1,11 @@
 product_id,gap_id,gap_category,gap_description,blocks_disposition
 3008,GAP-3008-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,"Jaw opening, bar length, brand, photos; confirm wood vs metal machine workholding.",YES
-3008,GAP-3008-DOMAIN,APPROVED_DOMAIN_FIT,Domain hypothesis KZ.DOM.WORKHOLDING requires Groz article proof and Owner policy for industrial exception.,YES
+3008,GAP-3008-DOMAIN,APPROVED_DOMAIN_FIT,"Domain hypothesis KZ.DOM.WORKHOLDING is UNPROVEN for this brandless row; requires brand/manufacturer identification, physical product evidence, and exact manufacturer article where available. Do not infer any manufacturer/OEM identity without proof.",YES
 3009,GAP-3009-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,"Shank type (straight vs R8), saw bore range, Groz article on label/packing slip, photo.",YES
-3009,GAP-3009-DOMAIN,APPROVED_DOMAIN_FIT,Domain hypothesis KZ.DOM.TOOLHOLDING requires Groz article proof and Owner policy for industrial exception.,YES
+3009,GAP-3009-DOMAIN,APPROVED_DOMAIN_FIT,"Domain hypothesis KZ.DOM.TOOLHOLDING requires Groz article proof, physical verification, and Owner policy for industrial exception (hypothesis only — not approved).",YES
 3010,GAP-3010-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Confirm WD size on unit; photo for Groz article stamp.,YES
 3184,GAP-3184-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Flat vs half-round vs triangular; blade length; Groz article on product.,YES
-5227,GAP-5227-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Photo of engraved model; confirm not a different M7 QE accessory.,YES
+5227,GAP-5227-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Stock/nameplate photo required before final catalog-exit decision; confirm engraved model matches QE-98L reference and is not a different M7 QE accessory.,YES
 5259,GAP-5259-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,None for OEM class; optional photo to confirm SB-201 marking on received stock.,NO
 5260,GAP-5260-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Optional nameplate photo for SB-423.,NO
 5261,GAP-5261-IDENTITY,OEM_IDENTITY_OR_STOCK_PROOF,Optional stock photo.,NO

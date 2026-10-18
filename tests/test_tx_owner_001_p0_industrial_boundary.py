@@ -106,6 +106,20 @@ class TxOwner001P0BoundaryTests(unittest.TestCase):
             "REFERENCE_MODEL_NEAR_QE-98L_PHYSICAL_STOCK_UNVERIFIED",
         )
         self.assertNotIn("EXACT_SKU", row["karzar_product_oem_identity_verification"])
+        self.assertEqual(row["historical_pr499_proposal"], "CATALOG_EXIT_CANDIDATE")
+        self.assertEqual(row["post_research_agent_proposal_not_owner_approved"], "CATALOG_EXIT_CANDIDATE")
+        self.assertEqual(row["recommended_owner_review_option"], "REQUEST_MORE_EVIDENCE")
+
+    def test_documentary_consistency_3008_domain_gap_not_groz(self):
+        with GAP_REG.open(encoding="utf-8", newline="") as handle:
+            domain_gap = next(
+                r for r in csv.DictReader(handle) if r["product_id"] == "3008" and r["gap_id"] == "GAP-3008-DOMAIN"
+            )
+        desc = domain_gap["gap_description"]
+        self.assertNotIn("Groz article", desc)
+        self.assertNotIn("groz article", desc.lower())
+        self.assertIn("brandless", desc.lower())
+        self.assertIn("manufacturer", domain_gap["gap_description"].lower())
 
     def test_semantic_safety_5301_title_mismatch_blocks(self):
         with (PKG / "01-P0-19-TECHNICAL-EVIDENCE-MATRIX.csv").open(encoding="utf-8", newline="") as handle:

@@ -1,6 +1,6 @@
 {
-  "package_generated_at_utc": "2026-10-17T14:46:40Z",
-  "package_generation_git_head_sha": "245b7ad237c96d19b901d8153e0cc6ae505098c4",
+  "package_generated_at_utc": "2026-10-18T06:24:28Z",
+  "package_generation_git_head_sha": "78672b27b42c2501f2922ebeb04273c1406179f7",
   "scope": "TX-OWNER-001 P0 industrial boundary research (19 SKUs)",
   "frozen_baseline_product_census_csv_sha256": "ebd19943e4e86c238a3419a2dcbb0dac7ee3c6dca8041308247bfd5e35c121f3",
   "frozen_pr499_semantic_review_csv_sha256": "a3590236eb7e0e2e58bc4bc17e2bce7c588a62f7e07c8b2c4bf0adb8b4ec8e12",
