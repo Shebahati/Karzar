@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import {
+  CAMPAIGN_COMPACT_COPY_STYLE,
   CAMPAIGN_DESKTOP_COPY_MAX_WIDTH,
   CAMPAIGN_DESKTOP_HEADER_CLEARANCE,
   CAMPAIGN_DESKTOP_SAFE_PADDING_X,
@@ -148,11 +149,8 @@ export function CampaignHeroSlide({
         data-testid="campaign-hero-compact"
       >
         <div
-          className={cn(
-            "relative w-full shrink-0 overflow-hidden",
-            stageFill && "min-h-0 flex-1",
-          )}
-          style={stageFill ? undefined : { aspectRatio: `${media.compactAspect}` }}
+          className="relative w-full shrink-0 overflow-hidden"
+          style={{ aspectRatio: `${media.compactAspect}` }}
           data-testid="campaign-hero-compact-media"
         >
           <HeroImageHandoff
@@ -167,16 +165,13 @@ export function CampaignHeroSlide({
             className="absolute inset-0 h-full w-full"
             imageClassName="object-cover"
           />
-          <div
-            className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.55)_0%,transparent_55%)]"
-            aria-hidden
-          />
         </div>
         <div
           className={cn(
             "relative z-10 flex shrink-0 flex-col bg-[#121212]",
             media.compactCopyClass,
           )}
+          style={CAMPAIGN_COMPACT_COPY_STYLE}
         >
           <HeroCopyStack
             slide={slide}
@@ -201,6 +196,7 @@ export function CampaignHeroSlide({
         mobileSrc={mobileSrc}
         focal={focal}
         priority={priority}
+        mobileSourceMaxWidthPx={CAMPAIGN_MOBILE_SOURCE_MAX_PX}
         onReadyChange={onImageReadyChange}
         className="absolute inset-0 h-full w-full"
         imageClassName="object-cover"

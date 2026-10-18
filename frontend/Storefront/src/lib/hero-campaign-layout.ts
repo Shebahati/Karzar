@@ -50,18 +50,26 @@ export type CampaignMediaLayout = {
   compactCopyClass: string;
 };
 
-const DEFAULT_COMPACT_ASPECT = 4 / 3;
+/** Shared 4:3 media band for every calibrated compact slide. */
+export const DEFAULT_COMPACT_ASPECT = 4 / 3;
 
-export const COMPACT_BAND_ART_WIDTH_PX = 1280;
+/** Calibrated desktop masters: 3840×2160 (16:9). */
+export const CAMPAIGN_DESKTOP_ART_WIDTH_PX = 3840;
+export const CAMPAIGN_DESKTOP_ART_HEIGHT_PX = 2160;
 
-export const COMPACT_BAND_PORTRAIT_ASPECT = 3 / 4;
+/** Calibrated compact masters: 2880×2160 (4:3). Not a crop of the desktop file. */
+export const CAMPAIGN_COMPACT_ART_WIDTH_PX = 2880;
+export const CAMPAIGN_COMPACT_ART_HEIGHT_PX = 2160;
 
-export const COMPACT_BAND_PORTRAIT_HEIGHT_PX = Math.round(
-  COMPACT_BAND_ART_WIDTH_PX / COMPACT_BAND_PORTRAIT_ASPECT,
-);
+// Keep the shared padding as inline style: Tailwind's content globs currently omit
+// src/lib, so arbitrary utilities authored only here were absent from production CSS.
+export const CAMPAIGN_COMPACT_COPY_STYLE = {
+  paddingInline: CAMPAIGN_COMPACT_SAFE_PADDING_X,
+  paddingTop: "0.75rem",
+  paddingBottom: "max(1.5rem, env(safe-area-inset-bottom, 0px))",
+} as const;
 
-const DEFAULT_COMPACT_COPY =
-  "relative w-full px-[clamp(1.25rem,5vw,1.5rem)] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pt-3";
+const DEFAULT_COMPACT_COPY = "relative w-full";
 
 function desktopVerticalNudgeFor(def: HeroCampaignSlideDef): number {
   switch (def.linkedOrbKey) {
@@ -80,15 +88,10 @@ function desktopVerticalNudgeFor(def: HeroCampaignSlideDef): number {
   }
 }
 
-function compactAspectFor(def: HeroCampaignSlideDef): number {
-  switch (def.linkedOrbKey) {
-    case "industrial-machines":
-      return 16 / 10;
-    case "inserts":
-      return 3 / 2;
-    default:
-      return DEFAULT_COMPACT_ASPECT;
-  }
+function compactAspectFor(): number {
+  // Interim H03 (3:2) and H05 (16:10) overrides cropped the older landscape
+  // derivatives. The calibrated masters are dedicated 4:3 art for every slide.
+  return DEFAULT_COMPACT_ASPECT;
 }
 
 export function campaignMediaForSlide(slideId: string): CampaignMediaLayout {
@@ -106,7 +109,7 @@ export function campaignMediaForSlide(slideId: string): CampaignMediaLayout {
   return {
     desktopFocal: def.desktopFocal,
     mobileFocal: def.mobileFocal,
-    compactAspect: compactAspectFor(def),
+    compactAspect: compactAspectFor(),
     desktopVerticalNudgePx: Math.max(
       -CAMPAIGN_DESKTOP_MAX_VERTICAL_NUDGE_PX,
       Math.min(CAMPAIGN_DESKTOP_MAX_VERTICAL_NUDGE_PX, nudge),

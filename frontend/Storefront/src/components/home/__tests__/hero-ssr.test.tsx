@@ -30,7 +30,9 @@ describe("Hero SSR", () => {
 
     expect(html).toContain("تخفیف‌های ویژه‌ی کارزار");
     expect(html).toContain("/_next/image?");
-    expect(html).toContain("H01-special-offers-1280.webp");
+    expect(html).toContain("H01-special-offers-mobile-4x3.webp");
+    expect(html).toContain("H01-special-offers-desktop-16x9.webp");
+    expect(html).toContain("(max-width: 1023px)");
     expect(html).toContain("<picture");
     expect(html).not.toContain("animate-pulse");
   });

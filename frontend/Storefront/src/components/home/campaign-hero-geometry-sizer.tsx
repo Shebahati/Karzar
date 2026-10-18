@@ -1,6 +1,6 @@
 "use client";
 
-import { campaignMediaForSlide } from "@/lib/hero-campaign-layout";
+import { CAMPAIGN_COMPACT_COPY_STYLE, campaignMediaForSlide } from "@/lib/hero-campaign-layout";
 import { cn } from "@/lib/utils";
 import type { DesignedHeroSlide } from "@/types/hero-design";
 
@@ -25,7 +25,7 @@ export function CampaignHeroGeometrySizer({ slide }: { slide: DesignedHeroSlide 
         data-testid="campaign-geometry-media-band"
         aria-hidden
       />
-      <div className={cn("flex flex-col bg-[#121212]", media.compactCopyClass)}>
+      <div className={cn("flex flex-col bg-[#121212]", media.compactCopyClass)} style={CAMPAIGN_COMPACT_COPY_STYLE}>
         <div
           className={cn(
             "font-extrabold leading-[1.2] tracking-tight",
