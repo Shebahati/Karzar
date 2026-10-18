@@ -23,6 +23,8 @@ DECISION_ID_FLUIDS_156_PUBLICATION = "FLUIDS-156-PUBLICATION"
 DECISION_ID_MACHINE_ACCESSORIES_163_164 = "MACHINE-ACCESSORIES-163-164"
 DECISION_ID_TX_OWNER_SCOPE_157_160 = "TX-OWNER-SCOPE-157-160"
 DECISION_ID_MIXED_CHUCKS_116_118 = "MIXED-CHUCKS-116-118"
+DECISION_ID_HELICOIL_55_THREAD_REPAIR = "HELICOIL-55-THREAD-REPAIR"
+B2_PENDING_MEGAMENU_HELICOIL_NAV = "MEGAMENU-186-187-188"
 GATE_IR_MARKET_NAMING_SEO = "IR-MARKET-NAMING-SEO"
 
 OWNER_DECIDED_B2_GROUP_IDS = frozenset(
@@ -35,6 +37,7 @@ OWNER_DECIDED_B2_GROUP_IDS = frozenset(
         DECISION_ID_MACHINE_ACCESSORIES_163_164,
         DECISION_ID_TX_OWNER_SCOPE_157_160,
         DECISION_ID_MIXED_CHUCKS_116_118,
+        DECISION_ID_HELICOIL_55_THREAD_REPAIR,
     }
 )
 
@@ -54,6 +57,7 @@ JOURNAL_ENTRY_SPECS: tuple[tuple[str, str, str], ...] = (
     ),
     ("OWNER-ARCH-DECISION-007", DECISION_ID_TX_OWNER_SCOPE_157_160, "STRUCTURAL_ARCHITECTURE_APPROVAL"),
     ("OWNER-ARCH-DECISION-008", DECISION_ID_MIXED_CHUCKS_116_118, "CONDITIONAL_STRUCTURAL_APPROVAL"),
+    ("OWNER-ARCH-DECISION-009", DECISION_ID_HELICOIL_55_THREAD_REPAIR, "STRUCTURAL_ARCHITECTURE_APPROVAL"),
 )
 
 LEGACY_CATEGORY_154_ID = "154"
@@ -94,6 +98,22 @@ MIXED_CHUCK_STAGING_CODES = (
     "KZ.CAT.STAGING_TWO_JAW_MIXED_118",
 )
 WORKHOLDING_COMMERCE_ROOT_CODE = "KZ.CAT.BUYER_WORKHOLDING"
+
+LEGACY_CATEGORY_55_ID = "55"
+HELICOIL_LIVE_PRODUCT_COUNT = 29
+THREAD_REPAIR_SCIENTIFIC_DOMAIN = "KZ.DOM.THREAD_REPAIR"
+HELICOIL_COMMERCE_IDENTITY_CODE = "KZ.CAT.THREAD_REPAIR_HELICOIL_KITS"
+THREAD_REPAIR_COMMERCE_ROOT_CODE = "KZ.CAT.BUYER_THREAD_REPAIR"
+DEPRECATED_HELICOIL_HISTORIC_CATEGORY_IDS = ("186", "187", "188")
+DEPRECATED_HELICOIL_HISTORIC_CODES = (
+    "KZ.CAT.DEPRECATED_HELICOIL_L1_SPRING_INSERT_ROOT",
+    "KZ.CAT.DEPRECATED_HELICOIL_L1_TAP_RANGE_ROOT",
+    "KZ.CAT.DEPRECATED_HELICOIL_L1_INSTALL_TOOL_ROOT",
+)
+B2_SENSITIVE_CATEGORY_DOSSIER = (
+    "audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/"
+    "E-SENSITIVE-CATEGORY-DOSSIER.csv"
+)
 
 OWNER_STATEMENT_FA = (
     "«به‌عنوان مالک، هفت ریشهٔ معماری پیشنهادی را به‌صورت مشروط می‌پذیرم، "
@@ -186,6 +206,10 @@ class JournalPaths:
     @property
     def decision_md_mixed_chucks_116_118(self) -> Path:
         return self.root / "11-DECISION-MIXED-CHUCKS-116-118-2026-10-18.md"
+
+    @property
+    def decision_md_helicoil_55(self) -> Path:
+        return self.root / "12-DECISION-HELICOIL-55-THREAD-REPAIR-2026-10-18.md"
 
     @property
     def pending_groups_csv(self) -> Path:
@@ -425,6 +449,38 @@ def build_journal_entry_008() -> dict[str, str]:
             "STAGING/HOLD until validated migration prerequisites; per-product evidence "
             "and destination review; do not delete category 118 for zero cohort; no generic "
             f"mixed catch-all under {WORKHOLDING_COMMERCE_ROOT_CODE}. Structural approval only."
+        ),
+    }
+
+
+def build_journal_entry_009() -> dict[str, str]:
+    historic_ids = "|".join(DEPRECATED_HELICOIL_HISTORIC_CATEGORY_IDS)
+    return {
+        "journal_entry_id": "OWNER-ARCH-DECISION-009",
+        "decision_id": DECISION_ID_HELICOIL_55_THREAD_REPAIR,
+        "decision_date": "2026-10-18",
+        "decision_type": "STRUCTURAL_ARCHITECTURE_APPROVAL",
+        "b2_decision_group_id": DECISION_ID_HELICOIL_55_THREAD_REPAIR,
+        "owner_statement_fa": (
+            "«دسته ۵۵ (هلی‌کویل) را تحت دامنه THREAD_REPAIR و "
+            "KZ.CAT.THREAD_REPAIR_HELICOIL_KITS می‌پذیرم؛ ۲۹ محصول از دوسیه B2؛ "
+            "جداسازی از CUTTING؛ لینک زمینه‌ای از قلاویز بدون تخصیص دستهٔ تکراری؛ "
+            f"۱۸۶/۱۸۷/۱۸۸ فقط سابقه؛ {B2_PENDING_MEGAMENU_HELICOIL_NAV} جداست.»"
+        ),
+        "owner_architecture_decision_status": "STRUCTURAL_ACCEPTED",
+        "linked_prerequisite_gate_ids": GATE_IR_MARKET_NAMING_SEO,
+        "category_apply_authorization": "NO",
+        "product_reassignment_authorization": "NO",
+        "seo_deployment_authorization": "NO",
+        "production_mutation_authorization": "NO",
+        "b2_review_snapshot_preserved": "YES",
+        "notes_en": (
+            f"Category {LEGACY_CATEGORY_55_ID} under {THREAD_REPAIR_SCIENTIFIC_DOMAIN} with "
+            f"{HELICOIL_COMMERCE_IDENTITY_CODE} ({THREAD_REPAIR_COMMERCE_ROOT_CODE}); "
+            f"preserve {HELICOIL_LIVE_PRODUCT_COUNT} live product IDs per immutable "
+            f"{B2_SENSITIVE_CATEGORY_DOSSIER}; separate from CUTTING; contextual tapping links "
+            f"without duplicate assignments; historic {historic_ids} deprecated, do not recreate; "
+            f"{B2_PENDING_MEGAMENU_HELICOIL_NAV} remains separate pending decision."
         ),
     }
 
@@ -840,6 +896,53 @@ def build_decision_markdown_mixed_chucks_116_118() -> str:
     )
 
 
+def build_decision_markdown_helicoil_55() -> str:
+    historic = " · ".join(f"**{cid}**" for cid in DEPRECATED_HELICOIL_HISTORIC_CATEGORY_IDS)
+    dep_codes = "\n".join(f"- `{code}`" for code in DEPRECATED_HELICOIL_HISTORIC_CODES)
+    return "\n".join(
+        [
+            "# Owner Architecture Decision — HELICOIL-55-THREAD-REPAIR",
+            "",
+            "| Field | Value |",
+            "|-------|-------|",
+            "| **Journal entry** | `OWNER-ARCH-DECISION-009` |",
+            "| **DECISION_ID** | `HELICOIL-55-THREAD-REPAIR` |",
+            "| **DECISION_DATE** | 2026-10-18 |",
+            "| **DECISION_TYPE** | `STRUCTURAL_ARCHITECTURE_APPROVAL` |",
+            f"| **Legacy category** | `{LEGACY_CATEGORY_55_ID}` — Helicoil |",
+            f"| **Scientific domain** | `{THREAD_REPAIR_SCIENTIFIC_DOMAIN}` |",
+            f"| **Proposed commerce identity** | `{HELICOIL_COMMERCE_IDENTITY_CODE}` under `{THREAD_REPAIR_COMMERCE_ROOT_CODE}` |",
+            f"| **Live product IDs** | {HELICOIL_LIVE_PRODUCT_COUNT} (immutable B2 sensitive dossier) |",
+            f"| **Evidence** | `{B2_SENSITIVE_CATEGORY_DOSSIER}` |",
+            "| **B2 link** | group `HELICOIL-55-THREAD-REPAIR` |",
+            "| **Gate** | `IR-MARKET-NAMING-SEO` (`PENDING_OWNER_REVIEW`) |",
+            "",
+            "## Approved (structural)",
+            "",
+            f"- Place category **{LEGACY_CATEGORY_55_ID}** under independent **THREAD_REPAIR** domain architecture.",
+            f"- Adopt proposed commerce identity `{HELICOIL_COMMERCE_IDENTITY_CODE}`.",
+            f"- Preserve all **{HELICOIL_LIVE_PRODUCT_COUNT}** exact live product IDs from the frozen B2 dossier.",
+            "- Keep Helicoil structurally **separate from CUTTING**.",
+            "- Allow contextual navigation links from relevant tapping pages **without** duplicate category assignments.",
+            f"- Preserve historic categories {historic} as deprecated records; **do not recreate** them.",
+            "",
+            "Deprecated historic target codes (do not recreate):",
+            dep_codes,
+            "",
+            "## Explicitly NOT approved",
+            "",
+            "- Final display labels, SEO titles, URL, slug, redirects, or megamenu deployment.",
+            "- Product reassignment or production mutation.",
+            f"- **`{B2_PENDING_MEGAMENU_HELICOIL_NAV}`** — separate pending Owner decision.",
+            "",
+            "## B2 snapshot policy",
+            "",
+            "Frozen B2 register still shows `PENDING` for `HELICOIL-55-THREAD-REPAIR`; "
+            "this journal entry is authoritative.",
+        ]
+    )
+
+
 def _validate_journal_entry(row: dict[str, str], errors: list[str]) -> None:
     for auth_field in (
         "category_apply_authorization",
@@ -924,6 +1027,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
     paths.decision_md_mixed_chucks_116_118.write_text(
         build_decision_markdown_mixed_chucks_116_118(), encoding="utf-8"
     )
+    paths.decision_md_helicoil_55.write_text(build_decision_markdown_helicoil_55(), encoding="utf-8")
 
     with paths.journal_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=JOURNAL_CSV_COLUMNS)
@@ -936,6 +1040,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         writer.writerow(build_journal_entry_006())
         writer.writerow(build_journal_entry_007())
         writer.writerow(build_journal_entry_008())
+        writer.writerow(build_journal_entry_009())
 
     pending = build_pending_b2_groups()
     with paths.pending_groups_csv.open("w", encoding="utf-8", newline="") as handle:
@@ -983,6 +1088,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         "09-DECISION-MACHINE-ACCESSORIES-163-164-2026-10-18.md",
         "10-DECISION-TX-OWNER-SCOPE-157-160-2026-10-18.md",
         "11-DECISION-MIXED-CHUCKS-116-118-2026-10-18.md",
+        "12-DECISION-HELICOIL-55-THREAD-REPAIR-2026-10-18.md",
         "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv",
         "README.md",
         "J-VALIDATION-CLOSEOUT-REPORT.md",
@@ -1002,5 +1108,6 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
             build_journal_entry_006(),
             build_journal_entry_007(),
             build_journal_entry_008(),
+            build_journal_entry_009(),
         ],
     }
