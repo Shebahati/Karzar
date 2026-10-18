@@ -34,6 +34,7 @@ REGISTER = (
     / "01-EXACT-111-OPEN-EVIDENCE-ACTION-REGISTER.csv"
 )
 BLADEKAT_GROOVING_IDS = ("3090", "3091", "3093", "3095", "3096", "3097", "3098", "3099", "3101")
+P1A_GROZ_IDS = tuple(str(pid) for pid in range(3221, 3235))
 
 
 class TxOwner001Evidence111RecoveryTests(unittest.TestCase):
@@ -94,7 +95,9 @@ class TxOwner001Evidence111RecoveryTests(unittest.TestCase):
         self.assertEqual(recon["documentary_exit_count_in_journals"], 151)
         self.assertEqual(recon["pr499_unique_product_ids"], 262)
         self.assertEqual(recon["owner_journal_unique_product_ids"], 262)
+        self.assertEqual(recon["pr499_unique_product_ids"], recon["owner_journal_unique_product_ids"])
         self.assertEqual(recon["apply_authorization_rows"], 0)
+        self.assertTrue(recon["all_owner_decisions_unchanged_REQUEST_MORE_EVIDENCE"])
 
     def test_physical_manifest_matches_matrix(self):
         with (PKG / "01-EVIDENCE-RECOVERY-MATRIX-111.csv").open(encoding="utf-8", newline="") as handle:
@@ -117,6 +120,20 @@ class TxOwner001Evidence111RecoveryTests(unittest.TestCase):
                     row["http_transport_status"],
                     "TRANSPORT_PROBE_SKIPPED_REPRODUCIBLE_BUILD",
                 )
+
+    def test_p1a_groz_chagan_source_ids_linked(self):
+        with (PKG / "01-EVIDENCE-RECOVERY-MATRIX-111.csv").open(encoding="utf-8", newline="") as handle:
+            by_id = {r["product_id"]: r for r in csv.DictReader(handle)}
+        with (PKG / "02-SOURCE-REGISTER.csv").open(encoding="utf-8", newline="") as handle:
+            sources = {r["source_id"]: r for r in csv.DictReader(handle)}
+        for pid in P1A_GROZ_IDS:
+            row = by_id[pid]
+            self.assertTrue(row["traceable_source_ids"], f"missing traceable_source_ids for {pid}")
+            self.assertEqual(row["partial_or_family_evidence"], "YES")
+            for sid in row["traceable_source_ids"].split("|"):
+                self.assertIn(sid, sources)
+                self.assertIn(pid, sources[sid]["related_product_ids"].split(","))
+                self.assertEqual(sources[sid]["supports_exact_karzar_sku"], "NO")
 
     def test_matrix_source_traceability(self):
         with (PKG / "01-EVIDENCE-RECOVERY-MATRIX-111.csv").open(encoding="utf-8", newline="") as handle:
@@ -193,8 +210,29 @@ class TxOwner001Evidence111RecoveryTests(unittest.TestCase):
 
         with mock.patch.object(mod, "OWNER_PKG", fake_pkg):
             with self.assertRaises(RuntimeError) as ctx:
-                fail_closed_reconciliation(register_rows, matrix, physical, identity)
+                fail_closed_reconciliation(register_rows, matrix, physical, identity, catalog=None)
             self.assertIn("RECONCILIATION_FAILED", str(ctx.exception))
+
+    def test_fail_closed_partial_without_source_raises(self):
+        from catalog_target.tx_owner_001_evidence_111_recovery import (
+            build_physical_manifest,
+            build_prior_index,
+            build_recovery_matrix,
+            load_action_register,
+        )
+
+        register_rows = load_action_register()
+        register_ids = {int(r["product_id"]) for r in register_rows}
+        catalog = build_source_catalog(register_rows)
+        prior_index = build_prior_index(register_ids)
+        matrix = build_recovery_matrix(register_rows, prior_index, catalog)
+        matrix[0]["partial_or_family_evidence"] = "YES"
+        matrix[0]["traceable_source_ids"] = ""
+        physical = build_physical_manifest(register_rows, matrix)
+        identity = verify_action_register_identity()
+        with self.assertRaises(RuntimeError) as ctx:
+            fail_closed_reconciliation(register_rows, matrix, physical, identity, catalog)
+        self.assertIn("partial_evidence_without_source", str(ctx.exception))
 
     def test_classify_recovery_negative_tier_not_exact(self):
         catalog = build_source_catalog(

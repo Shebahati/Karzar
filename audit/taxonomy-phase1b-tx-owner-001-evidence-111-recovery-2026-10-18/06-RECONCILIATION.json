@@ -30,15 +30,15 @@
     "P1_M7_SUFFIX_VARIANT_6": 6
   },
   "evidence_recovery_status_counts": {
-    "REMOTE_RESEARCH_UNRESOLVED": 56,
-    "PARTIAL_OR_FAMILY_LEVEL_EVIDENCE": 27,
+    "REMOTE_RESEARCH_UNRESOLVED": 55,
+    "PARTIAL_OR_FAMILY_LEVEL_EVIDENCE": 28,
     "CONFLICTING_EVIDENCE_DOCUMENTED": 27,
     "EXACT_OEM_MODEL_DOCUMENTARY": 1
   },
   "physical_stock_required_count": 111,
   "exact_oem_documentary_yes_count": 1,
-  "partial_family_yes_count": 49,
-  "remote_unresolved_count": 56,
+  "partial_family_yes_count": 50,
+  "remote_unresolved_count": 55,
   "conflicting_evidence_count": 27,
   "all_owner_decisions_unchanged_REQUEST_MORE_EVIDENCE": true,
   "zero_mutation": {

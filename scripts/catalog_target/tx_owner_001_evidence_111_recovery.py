@@ -131,6 +131,33 @@ PRIOR_MATRIX_PATHS: tuple[tuple[str, Path], ...] = (
     ),
 )
 
+P1A_SOURCE_REGISTER = (
+    ROOT
+    / "audit"
+    / "taxonomy-phase1b-tx-owner-001-p1a-groz-chagan-2026-10-18"
+    / "03-P1A-SOURCE-REGISTER.csv"
+)
+P1A_PRODUCT_EVIDENCE = (
+    ROOT
+    / "audit"
+    / "taxonomy-phase1b-tx-owner-001-p1a-groz-chagan-2026-10-18"
+    / "02-P1A-16-PRODUCT-TECHNICAL-EVIDENCE.csv"
+)
+WAVE_A_SOURCE_REGISTER = (
+    ROOT
+    / "audit"
+    / "taxonomy-phase1b-tx-owner-001-p1-wave-a-23-oem-2026-10-18"
+    / "02-BOUNDED-OEM-SOURCE-REGISTER.csv"
+)
+
+# Wave-A bounded register uses shorthand Groz source_ids; canonical URLs/claims live in P1A register.
+WAVE_A_TO_P1A_SOURCE_ID: dict[str, str] = {
+    "GROZ-HACKSAWS": "GROZ-HACKSAW-HANDBOOK",
+    "GROZ-HPL": "GROZ-HOLLOW-PUNCH",
+    "GROZ-PUNCHES": "GROZ-PUNCH-LIST",
+    "GROZ-STAMPS": "GROZ-HANDBOOK",
+}
+
 SUPPLEMENTAL_GROZ_SOURCES: list[dict[str, str]] = [
     {
         "source_id": "GROZ-OEM-LATHE-TOOLS-CATEGORY",
@@ -351,6 +378,22 @@ def provenance_class_for_source(src: dict[str, str]) -> str:
     return "GENERAL_MARKET_APPLICATION_COMPARATOR"
 
 
+def normalize_source_id(source_id: str) -> str:
+    sid = source_id.strip()
+    return WAVE_A_TO_P1A_SOURCE_ID.get(sid, sid)
+
+
+def link_product_to_source(catalog: SourceCatalog, product_id: int, source_id: str) -> None:
+    sid = normalize_source_id(source_id)
+    if not sid or sid not in catalog.by_id:
+        return
+    if sid not in catalog.by_product[product_id]:
+        catalog.by_product[product_id].append(sid)
+    ids = {x for x in catalog.by_id[sid]["related_product_ids"].split(",") if x}
+    ids.add(str(product_id))
+    catalog.by_id[sid]["related_product_ids"] = ",".join(sorted(ids))
+
+
 def model_concordance_for_match_type(match_type: str) -> str:
     u = match_type.upper()
     if "NEAR_MODEL" in u:
@@ -391,6 +434,7 @@ class SourceCatalog:
             "evidence_origin": origin,
             "related_product_ids": ",".join(str(p) for p in pids),
             "prior_verification_status": src.get("verification_status", ""),
+            "supports_exact_karzar_sku": src.get("supports_exact_karzar_sku", ""),
             "notes": (src.get("supported_claim", src.get("notes", "")) or "")[:400],
         }
         if sid in self.by_id:
@@ -417,6 +461,52 @@ def build_source_catalog(register_rows: list[dict[str, str]]) -> SourceCatalog:
         catalog.add(src, "PRIOR_AUDIT_PACKAGE_REINDEX")
     for src in SUPPLEMENTAL_GROZ_SOURCES:
         catalog.add(src, "SUPPLEMENTAL_OEM_CATEGORY_PASS")
+
+    if not P1A_SOURCE_REGISTER.is_file():
+        raise RuntimeError(f"BLOCKED: missing P1A source register {P1A_SOURCE_REGISTER}")
+    with P1A_SOURCE_REGISTER.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            catalog.add(
+                {
+                    "source_id": row["source_id"],
+                    "source_url": row["source_url"],
+                    "manufacturer": "Groz Tools (OEM)",
+                    "model_identity": row.get("claim_limit", ""),
+                    "evidence_match_type": row.get("source_type", ""),
+                    "supported_claim": row.get("claim_limit", ""),
+                    "supports_exact_karzar_sku": row.get("supports_exact_karzar_sku", "NO"),
+                    "verification_status": "PRIOR_P1A_SOURCE_REGISTER_2026-10-18",
+                },
+                "PRIOR_AUDIT_PACKAGE_REINDEX",
+            )
+
+    if WAVE_A_SOURCE_REGISTER.is_file():
+        with WAVE_A_SOURCE_REGISTER.open(encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle):
+                sid = row.get("source_id", "").strip()
+                if sid.startswith("GROZ-"):
+                    continue
+                catalog.add(
+                    {
+                        "source_id": sid,
+                        "source_url": row.get("url", ""),
+                        "manufacturer": "Mighty Seven (M7)" if sid.startswith("M7-") else "",
+                        "model_identity": row.get("claim_limit", ""),
+                        "evidence_match_type": row.get("evidence_scope", ""),
+                        "supported_claim": row.get("claim_limit", ""),
+                        "supports_exact_karzar_sku": "NO",
+                        "verification_status": "PRIOR_WAVE_A_REGISTER_2026-10-18",
+                    },
+                    "PRIOR_AUDIT_PACKAGE_REINDEX",
+                )
+
+    if P1A_PRODUCT_EVIDENCE.is_file():
+        with P1A_PRODUCT_EVIDENCE.open(encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle):
+                pid_raw = row.get("product_id", "").strip()
+                if not pid_raw.isdigit() or int(pid_raw) not in register_ids:
+                    continue
+                link_product_to_source(catalog, int(pid_raw), row.get("source_id", ""))
 
     wave_b_reg = (
         ROOT
@@ -482,18 +572,10 @@ def build_source_catalog(register_rows: list[dict[str, str]]) -> SourceCatalog:
                     continue
                 pid = int(pid_raw)
                 for key in ("source_id", "oem_source_id"):
-                    sid = row.get(key, "").strip()
-                    if sid and sid in catalog.by_id:
-                        if sid not in catalog.by_product[pid]:
-                            catalog.by_product[pid].append(sid)
-                        ids = set(catalog.by_id[sid]["related_product_ids"].split(","))
-                        ids.add(str(pid))
-                        catalog.by_id[sid]["related_product_ids"] = ",".join(sorted(x for x in ids if x))
+                    link_product_to_source(catalog, pid, row.get(key, ""))
                 blob = row.get("oem_source_ids", "")
                 for sid in (s.strip() for s in blob.split("|") if s.strip()):
-                    if sid in catalog.by_id:
-                        if sid not in catalog.by_product[pid]:
-                            catalog.by_product[pid].append(sid)
+                    link_product_to_source(catalog, pid, sid)
 
     return catalog
 
@@ -598,6 +680,16 @@ def classify_recovery(
     if exact_oem and conflict:
         exact_oem = False
 
+    if partial and not source_ids:
+        partial = False
+        if not exact_oem and not conflict:
+            unresolved_remote = True
+            recovery_status_preflight = "REMOTE_RESEARCH_UNRESOLVED"
+        else:
+            recovery_status_preflight = ""
+    else:
+        recovery_status_preflight = ""
+
     if exact_oem:
         recovery_status = "EXACT_OEM_MODEL_DOCUMENTARY"
     elif partial and conflict:
@@ -606,7 +698,7 @@ def classify_recovery(
         recovery_status = "PARTIAL_OR_FAMILY_LEVEL_EVIDENCE"
     elif conflict:
         recovery_status = "CONFLICTING_EVIDENCE_DOCUMENTED"
-    elif unresolved_remote:
+    elif unresolved_remote or recovery_status_preflight == "REMOTE_RESEARCH_UNRESOLVED":
         recovery_status = "REMOTE_RESEARCH_UNRESOLVED"
     else:
         recovery_status = "REMOTE_RESEARCH_UNRESOLVED"
@@ -758,6 +850,7 @@ def fail_closed_reconciliation(
     matrix: list[dict[str, str]],
     physical: list[dict[str, str]],
     register_identity: dict[str, str],
+    catalog: SourceCatalog | None = None,
 ) -> dict[str, Any]:
     errors: list[str] = []
 
@@ -803,8 +896,16 @@ def fail_closed_reconciliation(
                     errors.append(f"unexpected_owner_decision pid={pid} decision={od}")
 
     reg_ids = {int(r["product_id"]) for r in register_rows}
-    if len(journal_pids) != 262 or len(set(journal_pids)) != 262:
-        errors.append(f"journal_row_integrity expected=262_unique got={len(journal_pids)} unique={len(set(journal_pids))}")
+    pr499_id_set = set(pr499_ids)
+    journal_id_set = set(journal_pids)
+    if len(journal_pids) != 262 or len(journal_id_set) != 262:
+        errors.append(f"journal_row_integrity expected=262_unique got={len(journal_pids)} unique={len(journal_id_set)}")
+    if pr499_id_set != journal_id_set:
+        errors.append(
+            f"pr499_journal_product_id_set_mismatch "
+            f"only_pr499={sorted(pr499_id_set - journal_id_set)[:5]} "
+            f"only_journal={sorted(journal_id_set - pr499_id_set)[:5]}"
+        )
     if set(evidence_requests) != reg_ids:
         errors.append("journal_evidence_request_set_mismatch_register")
     if exits != 151:
@@ -821,6 +922,32 @@ def fail_closed_reconciliation(
 
     if any(r.get("apply_authorization") != "NO" for r in matrix):
         errors.append("matrix_apply_authorization_not_all_no")
+    if any(r.get("production_mutation") != "NO" for r in matrix):
+        errors.append("matrix_production_mutation_not_all_no")
+    if any(r.get("owner_decision_unchanged") != "REQUEST_MORE_EVIDENCE" for r in matrix):
+        errors.append("matrix_owner_decision_not_all_REQUEST_MORE_EVIDENCE")
+    if any((r.get("new_owner_disposition") or "").strip() for r in matrix):
+        errors.append("matrix_new_owner_disposition_must_be_blank")
+
+    physical_pids = [r["product_id"] for r in physical]
+    if len(physical_pids) != len(set(physical_pids)):
+        errors.append("physical_manifest_duplicate_product_id")
+
+    if catalog is not None:
+        for row in matrix:
+            pid = row["product_id"]
+            trace = [s for s in row.get("traceable_source_ids", "").split("|") if s]
+            if row.get("partial_or_family_evidence") == "YES" and not trace:
+                errors.append(f"partial_evidence_without_source product_id={pid}")
+            if row.get("exact_oem_documentary_recovered") == "YES" and not trace:
+                errors.append(f"exact_oem_without_source product_id={pid}")
+            for sid in trace:
+                if sid not in catalog.by_id:
+                    errors.append(f"matrix_references_unknown_source product_id={pid} source_id={sid}")
+                    continue
+                related = {x for x in catalog.by_id[sid]["related_product_ids"].split(",") if x}
+                if pid not in related:
+                    errors.append(f"source_product_backlink_missing product_id={pid} source_id={sid}")
 
     if errors:
         raise RuntimeError("RECONCILIATION_FAILED: " + "; ".join(errors))

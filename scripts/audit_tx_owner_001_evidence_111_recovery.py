@@ -147,7 +147,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     write_csv(out_dir / "05-SEVEN-DOMAIN-TECHNICAL-BOUNDARY-ASSESSMENT.csv", list(boundary[0].keys()), boundary)
 
-    recon = fail_closed_reconciliation(register_rows, matrix, physical, register_identity)
+    recon = fail_closed_reconciliation(register_rows, matrix, physical, register_identity, catalog)
     (out_dir / "04-OWNER-REVIEW-MEMO.md").write_text(
         owner_review_memo(matrix, recon, sources),
         encoding="utf-8",
