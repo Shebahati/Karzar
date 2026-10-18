@@ -2445,3 +2445,14 @@ documents:
       Exact-identity media research for products 1944 and 3639;
       image binaries and live price/availability APPLY remain unverified.
 
+
+  - id: INSIZE-TWO-PRODUCT-OWNER-PRICING-APPLY-PLAN-20261018
+    path: audit/insize-two-product-media-2026-10-18/OWNER_PRICE_SCOPED_APPLY.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: fix/admin-discount-ui-oct18
+    notes: >-
+      Two ID owner-confirmed price targets, media/production/Hesabfa preflight
+      and rollback gates; no actual production APPLY authorization.
