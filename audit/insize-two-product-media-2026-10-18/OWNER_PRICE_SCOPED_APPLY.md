@@ -203,3 +203,35 @@ particularly updated_at behavior and any other side effects. Do not
 assume trigger names prove safety. Once definitions and current CI are
 reviewed, produce a separate rollback-journaled APPLY package with
 explicit operator opt-in, exactly these two IDs, no Hesabfa calls.
+
+## Verified live trigger bodies and guarded APPLY candidate
+
+Owner executed a separate READ ONLY trigger-body check for the two enabled
+triggers. Both `trg_products_updated_at` and
+`trg_product_images_updated_at` are BEFORE UPDATE and invoke
+`public.set_updated_at()`, whose entire body is:
+`BEGIN NEW.updated_at = NOW(); RETURN NEW; END;`. Transaction ended in
+`ROLLBACK`; no other behavior is present in the returned definition.
+
+Created an offline operator bundle
+`karzar_insize_guarded_apply_20261018.zip`, SHA-256
+`b778cd8a71c120539a41fdb01658a3100c173c7267feff22a7e569dfbb026661`.
+It contains approved two heroes; existing read-only preflight; a single
+`SERIALIZABLE` guarded transaction (locked IDs, expected stale baseline
+timestamps/brand/SKU/manufacturer/category/prices/zero image rows, approved
+brand=3 and prices, two local image rows, five product-change-log rows, two
+admin-audit rows), pre/post snapshot reports, a journaled drift-guarded
+rollback restoring previous prices and unlinked images, and README. The
+operator entry points are default fail-closed: `run_apply.sh` does not
+write unless explicitly invoked with `--apply` **and** an exact typed
+confirmation. Shell syntax, embedded media SHA-256, SQL file hashes and ZIP
+CRC passed offline checks. **No live SQL APPLY has been executed or
+runtime-verified.** Ordinary ProductService path (which can invoke
+Hesabfa) is not called; no Hesabfa table or network call occurs in this
+script. After staged file verification, product/image/audit writes belong
+to one DB transaction. Staged unused media may remain if pre-commit SQL
+fails; they are not automatically inserted into the product gallery.
+
+Fresh preflight, current PR CI and explicit operator decision remain
+necessary before any actual APPLY. PR #529 remains Draft as of preparation;
+do not infer successful deployment/merge or product publication.
