@@ -31,7 +31,7 @@ def main() -> int:
     parser.add_argument("--base-sha", default=PR533_MERGE_SHA)
     args = parser.parse_args()
     head = git_sha("HEAD")
-    payload = generate_b2_package(args.out_dir, base_git_sha=args.base_sha, generator_run_git_sha=head)
+    generate_b2_package(args.out_dir, base_git_sha=args.base_sha, generator_run_git_sha=head)
     print(json.dumps({"status": "READY_FOR_OWNER_REVIEW", "head": head, "base": args.base_sha}, indent=2))
     return 0
 

@@ -12,17 +12,11 @@ from typing import Any
 
 from catalog_target.taxonomy_phase1b_baseline import (
     PHASE0B_ANCHOR,
-    REMOVED_L1_HELICOIL_ROOT_IDS,
-    TARGET_DOMAINS,
     TX_OWNER_SCOPE_CATEGORY_IDS,
-    is_live_product,
     write_csv,
     write_sha256sums,
 )
-from catalog_target.taxonomy_route_b_semantics import (
-    BUYER_COMMERCE_L1,
-    HISTORICAL_DEPRECATED_CODES,
-)
+from catalog_target.taxonomy_route_b_semantics import HISTORICAL_DEPRECATED_CODES
 from catalog_target.taxonomy_route_b_validation import validate_route_b_package
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,10 +34,6 @@ PR533_MERGE_SHA = "8be4a5807a2eeb25da26c802e74bb9b0fc301916"
 SENSITIVE_CATEGORY_IDS = frozenset({116, 117, 118, 154, 155, 156, 157, 158, 159, 160, 163, 164})
 HELICOIL_CATEGORY_ID = 55
 INDUSTRIAL_OIL_CATEGORY_ID = 156
-ACCESSORIES_L1_ID = 154
-
-DOMAIN_FA = {d["code"]: d.get("fa", d["en"]) for d in TARGET_DOMAINS}
-
 
 @dataclass(frozen=True)
 class B2Inputs:
@@ -169,7 +159,6 @@ def recalculate_invariants(inputs: B2Inputs) -> dict[str, Any]:
     inherited = [r for r in tree if r.get("source_current_category_id", "").strip()]
     selectable = [r for r in tree if r.get("commerce_is_selectable") == "YES"]
     products = [r for r in inputs.product_map if r["product_id"].isdigit()]
-    pmap_ids = {int(r["product_id"]) for r in products}
     product_level_required = [r for r in products if r.get("mapping_mode") == "PRODUCT_LEVEL_REQUIRED"]
     decomp = [
         r
@@ -284,7 +273,7 @@ def build_tree_disposition(inputs: B2Inputs) -> list[dict[str, str]]:
     return rows
 
 
-def build_grouped_owner_decisions(inputs: B2Inputs) -> list[dict[str, str]]:
+def build_grouped_owner_decisions(_inputs: B2Inputs) -> list[dict[str, str]]:
     groups = [
         (
             "ARCH-7-L1-ROOTS",

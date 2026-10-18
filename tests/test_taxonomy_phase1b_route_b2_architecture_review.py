@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import sys
 import tempfile
 import unittest
@@ -14,12 +13,12 @@ sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.taxonomy_route_b2_architecture_review import (  # noqa: E402
     PR533_MERGE_SHA,
+    build_architecture_review_matrix,
+    build_product_impact,
     generate_b2_package,
     load_b2_inputs,
     recalculate_invariants,
     validate_b2_package,
-    build_architecture_review_matrix,
-    build_product_impact,
 )
 
 
