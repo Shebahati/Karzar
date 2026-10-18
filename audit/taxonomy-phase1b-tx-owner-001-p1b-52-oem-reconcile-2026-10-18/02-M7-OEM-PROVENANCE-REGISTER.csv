@@ -1,0 +1,25 @@
+source_id,oem_url,evidence_type,bounded_supported_claim
+M7-PAGE-NE0405,https://www.mighty-seven.com/product/109,EXACT_OEM_MODEL_PRODUCT_PAGE,NE-0405-KIT Air Ratchet Wrench; kit internals and physical Karzar item not attested
+M7-PAGE-QB48111,https://www.mighty-seven.com/product/260,EXACT_OEM_MODEL_PRODUCT_PAGE,QB-48111 Air Jitterbug Sander 100x110mm; not CLAMPS_VICES
+M7-PAGE-QE933,https://www.mighty-seven.com/product/316,EXACT_OEM_MODEL_PRODUCT_PAGE,QE-933 reversible keyless 3/8 inch drill; manufacturer page describes 90-degree geometry
+M7-PAGE-QE935,https://www.mighty-seven.com/product/317,EXACT_OEM_MODEL_PRODUCT_PAGE,QE-935 straight key-chuck 3/8 inch drill; reversible not established
+M7-PAGE-SC415P,https://www.mighty-seven.com/product/2838,EXACT_OEM_MODEL_PRODUCT_PAGE,SC-415P chisel set; 175mm round-shank chisel set; actual package uninspected
+M7-PAGE-SN1288,https://www.mighty-seven.com/product/432,EXACT_OEM_MODEL_PRODUCT_PAGE,SN-1288 Air Needle Scaler 12 needles; metal rust/cleaning application not automatic domain membership
+M7-PAGE-SX1618,https://www.mighty-seven.com/product/3464,EXACT_OEM_MODEL_PRODUCT_PAGE,SX-1618 Air Cleaning Gun Kit; 1 pressure washer gun 1 snow gun 1 sponge
+M7-PAGE-SX2101,https://www.mighty-seven.com/product/568,EXACT_OEM_MODEL_PRODUCT_PAGE,SX-2101 Air Twister Gun using detergent; not simply high-pressure water spray gun
+M7-PAGE-QA611,https://www.mighty-seven.com/product/165,OEM_GROUPED_VARIANT_PRODUCT_PAGE,QA-611 A/B jointly stated; exact A stock requires proof
+M7-PAGE-QA633Q,https://www.mighty-seven.com/product/167,OEM_GROUPED_VARIANT_PRODUCT_PAGE,QA-633Q A/B jointly stated; QA633QA mapping and A-unit require confirmation
+M7-PAGE-QA511,https://www.mighty-seven.com/product/184,NEAR_MODEL_PRODUCT_PAGE,QA-511 engraving pen only; QA511A suffix not established
+M7-PAGE-QA101,https://www.mighty-seven.com/product/147,OEM_GROUPED_VARIANT_PRODUCT_PAGE,QA-101 A/B; generic Karzar QA101 does not select A or B
+M7-PAGE-QD291N,https://www.mighty-seven.com/product/284,NEAR_MODEL_PRODUCT_PAGE,QD-291N Air Saw Set explicitly; QD291 is not automatically the same set
+M7-IDX-RATCHET,https://www.mighty-seven.com/product_list/3,OEM_MODEL_INDEX,NE series listed individually; NE-4901 impact ratchet subtype
+M7-IDX-RIVET,https://www.mighty-seven.com/product_list/20,OEM_MODEL_INDEX,PA-9048 riveter adapter; PB-1305/1308/1310/1312 and PB-2402/PB-2601 tools; PB-9006P/PB-9010P adapters
+M7-IDX-CUT,https://www.mighty-seven.com/product_list/15,OEM_MODEL_INDEX,QD-291N and QG-102 / QG-202 model classification
+M7-IDX-DRILL,https://www.mighty-seven.com/product_list/9,OEM_MODEL_INDEX,QE models including QE-324/333/343/433/633/831/933/935/936; model token is not physical stock
+M7-IDX-SANDER,https://www.mighty-seven.com/product_list/10,OEM_MODEL_INDEX,QP-123 model listed but QP-317X has X; QP317 no exact equivalence
+M7-IDX-NAILER,https://www.mighty-seven.com/product_list/21,OEM_MODEL_INDEX,SJ-1650T/SJ-1830F/SJ-1850F/SJ-CN65 and SU-8016/SU-9040; punctuation normalization unverified for physical stock
+M7-IDX-NEEDLE,https://www.mighty-seven.com/product_list/19,OEM_MODEL_INDEX,SN-1288 model listed
+M7-IDX-OTHER,https://www.mighty-seven.com/product_list/52,OEM_MODEL_INDEX,SC-415P chisel set SO-10T lubrication kit; category not a single product proof
+M7-IDX-AUTO,https://www.mighty-seven.com/other_category/3,OEM_APPLICATION_INDEX,SK-1010 SK-1131 SR-2001-KIT shown; application filter alone is not domain approval
+M7-IDX-CLEAN,https://www.mighty-seven.com/product_list/26,OEM_MODEL_INDEX,SX-1618 and SX-2101 distinct cleaning classes
+M7-IDX-WELD,https://www.mighty-seven.com/other_category/5,OEM_APPLICATION_INDEX,QA-611 A/B QA-633Q A/B and QP-317X among many welding tools; welding-work filter not Karzar domain membership
