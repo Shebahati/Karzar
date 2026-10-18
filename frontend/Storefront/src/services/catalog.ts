@@ -166,6 +166,13 @@ export const catalogService = {
     return data.data ?? [];
   },
 
+  /** Auth-independent, DB-backed ordered selection shared by admin and storefront. */
+  async getHomeBestsellers(): Promise<{ product_ids: number[]; revision: number; published_at: string | null }> {
+    if (env.USE_MOCK) return { product_ids: [], revision: 0, published_at: null };
+    const { data } = await apiClient.get<{ product_ids: number[]; revision: number; published_at: string | null }>("/home/bestsellers");
+    return data;
+  },
+
   async listHeroSlides(): Promise<HeroSlide[]> {
     if (env.USE_MOCK) return (await getMockApi()).listHeroSlides();
     const { data } = await apiClient.get<{ data: HeroSlide[] }>("/hero-slides/");
