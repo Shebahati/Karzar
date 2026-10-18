@@ -15,10 +15,8 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.tx_owner_001_evidence_111_recovery import (  # noqa: E402
-    ACTION_REGISTER,
     CANONICAL_ACTION_REGISTER_GIT_BLOB_SHA1,
     PriorSlice,
-    build_recovery_matrix,
     build_source_catalog,
     classify_recovery,
     classify_tier_semantics,
