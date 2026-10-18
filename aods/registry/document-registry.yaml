@@ -1076,6 +1076,24 @@ documents:
     notes: >
       Persian Owner summary for 11-product evidence gap review; not approvals.
 
+  - id: TAXONOMY-TX-OWNER-001-P0-INDUSTRIAL-BOUNDARY-20261017
+    path: audit/taxonomy-phase1b-tx-owner-001-p0-industrial-boundary-2026-10-17/FINAL_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      TX-OWNER-001 P0 industrial boundary research for 19 SKUs; evidence only.
+
+  - id: TAXONOMY-TX-OWNER-001-P0-INDUSTRIAL-BOUNDARY-SUMMARY-FA-20261017
+    path: audit/taxonomy-phase1b-tx-owner-001-p0-industrial-boundary-2026-10-17/00-OWNER-SUMMARY-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Persian Owner summary for P0 boundary review; not approvals.
+
   - id: TAXONOMY-TX-OWNER-001-LOW-CONFIDENCE-RISK-TRIAGE-20261017
     path: audit/taxonomy-phase1b-tx-owner-001-low-confidence-risk-triage-2026-10-17/00-OWNER-TRIAGE-SUMMARY-FA.md
     class: EVIDENCE
