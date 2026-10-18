@@ -1,0 +1,56 @@
+{
+  "authorization_layers": [
+    "historical_census_evidence",
+    "b1_b2_architecture_recommendations",
+    "owner_architecture_decisions_journal",
+    "pending_market_naming_seo_gate",
+    "pending_product_level_evidence",
+    "future_execution_authorization"
+  ],
+  "owner_decisions_do_not_imply_execution": true,
+  "gates": [
+    {
+      "gate_id": "IR-MARKET-NAMING-SEO",
+      "status": "PENDING_OWNER_REVIEW",
+      "blocks_structural_architecture_freeze": false,
+      "blocks_naming_seo_freeze": true
+    },
+    {
+      "gate_id": "PRODUCT-LEVEL-EVIDENCE-AND-MAPPING",
+      "status": "PENDING",
+      "record_count": 718,
+      "blocks_execution": true
+    },
+    {
+      "gate_id": "TX-OWNER-001-EVIDENCE-QUEUE",
+      "status": "OPEN",
+      "request_more_evidence_count": 111,
+      "blocks_execution": true
+    },
+    {
+      "gate_id": "TX-OWNER-001-DOCUMENTARY-EXIT",
+      "status": "DOCUMENTARY_ONLY",
+      "approve_catalog_exit_count": 151,
+      "apply_authorized": false
+    },
+    {
+      "gate_id": "MEGAMENU-NAV-IMPLEMENTATION",
+      "status": "PENDING_EXECUTION_DESIGN",
+      "journal_entry": "OWNER-ARCH-DECISION-010",
+      "blocks_execution_release": true,
+      "blocks_structural_architecture_freeze": false
+    },
+    {
+      "gate_id": "CATEGORY-APPLY",
+      "status": "NO"
+    },
+    {
+      "gate_id": "SEO-DEPLOYMENT",
+      "status": "NO"
+    },
+    {
+      "gate_id": "PRODUCTION-MUTATION",
+      "status": "NO"
+    }
+  ]
+}

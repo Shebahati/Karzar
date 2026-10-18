@@ -1,0 +1,74 @@
+{
+  "closeout_status": "TEN_OF_TEN_OWNER_DECISIONS_RECORDED",
+  "b2_merge_sha": "25a2497c11b6a740fa606292af1e791d41335ba9",
+  "decision_count": 10,
+  "decisions": [
+    {
+      "journal_entry_id": "OWNER-ARCH-DECISION-001",
+      "decision_id": "ARCH-7-L1-ROOTS",
+      "decision_type": "CONDITIONAL_ARCHITECTURE_ACCEPTANCE"
+    },
+    {
+      "journal_entry_id": "OWNER-ARCH-DECISION-002",
+      "decision_id": "METROLOGY-L2-FAMILIES",
+      "decision_type": "STRUCTURAL_ARCHITECTURE_APPROVAL"
+    },
+    {
+      "journal_entry_id": "OWNER-ARCH-DECISION-003",
+      "decision_id": "ACCESSORIES-154-DECOMPOSE",
+      "decision_type": "CONDITIONAL_STRUCTURAL_APPROVAL"
+    },
+    {
+      "journal_entry_id": "OWNER-ARCH-DECISION-004",
+      "decision_id": "FLUIDS-155-FACET-NAV",
+      "decision_type": "STRUCTURAL_ARCHITECTURE_APPROVAL"
+    },
+    {
+      "journal_entry_id": "OWNER-ARCH-DECISION-005",
+      "decision_id": "FLUIDS-156-PUBLICATION",
+      "decision_type": "CONDITIONAL_STRUCTURAL_APPROVAL"
+    },
+    {
+      "journal_entry_id": "OWNER-ARCH-DECISION-006",
+      "decision_id": "MACHINE-ACCESSORIES-163-164",
+      "decision_type": "CONDITIONAL_STRUCTURAL_APPROVAL"
+    },
+    {
+      "journal_entry_id": "OWNER-ARCH-DECISION-007",
+      "decision_id": "TX-OWNER-SCOPE-157-160",
+      "decision_type": "STRUCTURAL_ARCHITECTURE_APPROVAL"
+    },
+    {
+      "journal_entry_id": "OWNER-ARCH-DECISION-008",
+      "decision_id": "MIXED-CHUCKS-116-118",
+      "decision_type": "CONDITIONAL_STRUCTURAL_APPROVAL"
+    },
+    {
+      "journal_entry_id": "OWNER-ARCH-DECISION-009",
+      "decision_id": "HELICOIL-55-THREAD-REPAIR",
+      "decision_type": "STRUCTURAL_ARCHITECTURE_APPROVAL"
+    },
+    {
+      "journal_entry_id": "OWNER-ARCH-DECISION-010",
+      "decision_id": "MEGAMENU-186-187-188",
+      "decision_type": "EXECUTION_DESIGN_DIRECTION_APPROVAL"
+    }
+  ],
+  "baseline_invariants": {
+    "live_product_rows": 6536,
+    "product_level_required": 718,
+    "tx_owner_approve_catalog_exit_documentary": 151,
+    "tx_owner_request_more_evidence_open": 111,
+    "protected_oil_product_ids_category_156": 27,
+    "helicoil_live_product_ids_category_55": 29,
+    "approved_executable_target_codes": 0,
+    "hold_category_ids_count": 11
+  },
+  "safety": {
+    "DESIGN_ONLY": "YES",
+    "CATEGORY_APPLY": "NO",
+    "PRODUCT_REASSIGNMENT": "NO",
+    "SEO_DEPLOYMENT": "NO",
+    "PRODUCTION_MUTATION": "NO"
+  }
+}
