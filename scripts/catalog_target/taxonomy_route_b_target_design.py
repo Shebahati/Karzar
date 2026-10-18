@@ -1,84 +1,66 @@
-"""Phase 1B Route B — exhaustive Current → Target taxonomy design (design-only, no APPLY)."""
+"""Phase 1B Route B — target taxonomy design (design-only, fail-closed validation)."""
 
 from __future__ import annotations
 
 import csv
-import hashlib
 import json
 import re
-from collections import Counter, defaultdict
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from catalog_target.taxonomy_phase1b_baseline import (
-    CCT1_ALLOWED,
-    MAX_CATEGORY_DEPTH,
-    MIN_PRODUCT_CATEGORY_DEPTH,
-    MIXED_SEMANTIC_PARENT_MARKERS,
     PHASE0B_ANCHOR,
-    REMOVED_L1_HELICOIL_ROOT_IDS,
     TARGET_DOMAINS,
     TX_OWNER_SCOPE_CATEGORY_IDS,
     CategoryRow,
     compare_category_ids_phase0b,
     global_product_counts,
-    helicoil_token_present,
     is_live_product,
     is_tx_owner_scope_category,
     mixed_semantic_parent,
     product_type_summary_for_category,
-    sha256_file,
     write_csv,
     write_sha256sums,
 )
+from catalog_target.taxonomy_route_b_semantics import (
+    BUYER_COMMERCE_L1,
+    HISTORICAL_DEPRECATED_CODES,
+    METROLOGY_FAMILY,
+    METROLOGY_FAMILY_META,
+    MIXED_STAGING_CODES,
+    OWNER_DEPRECATED_CODES,
+    TRANSITIONAL_HUB_CODES,
+    buyer_l1_for_domain,
+    commerce_parent_for,
+    load_category_semantics,
+    l1_ancestor,
+    registry_code_for_category,
+    scientific_domain_for,
+)
+from catalog_target.taxonomy_route_b_validation import validate_route_b_package
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE_DIR = ROOT / "audit/taxonomy-phase1b-baseline-2026-10-15"
+OWNER_PKG = ROOT / "audit/taxonomy-phase1b-tx-owner-001-owner-decision-package"
 TX_OWNER_REVIEW = ROOT / "audit/taxonomy-phase1b-tx-owner-001-review/01-262-PRODUCT-SEMANTIC-REVIEW.csv"
+EVIDENCE_111_REGISTER = (
+    ROOT
+    / "audit/taxonomy-phase1b-tx-owner-001-evidence-111-action-2026-10-18"
+    / "01-EXACT-111-OPEN-EVIDENCE-ACTION-REGISTER.csv"
+)
 EVIDENCE_RECON = (
     ROOT
     / "audit/taxonomy-phase1b-tx-owner-001-evidence-111-recovery-2026-10-18/06-RECONCILIATION.json"
 )
-
-DOMAIN_CODES = frozenset(d["code"] for d in TARGET_DOMAINS)
-DOMAIN_ROOT_CAT: dict[str, str] = {
-    "KZ.DOM.METROLOGY": "KZ.CAT.DOM_METROLOGY",
-    "KZ.DOM.CUTTING": "KZ.CAT.DOM_CUTTING",
-    "KZ.DOM.TOOLHOLDING": "KZ.CAT.DOM_TOOLHOLDING",
-    "KZ.DOM.WORKHOLDING": "KZ.CAT.DOM_WORKHOLDING",
-    "KZ.DOM.MACHINES": "KZ.CAT.DOM_MACHINES",
-    "KZ.DOM.THREAD_REPAIR": "KZ.CAT.DOM_THREAD_REPAIR",
-    "KZ.DOM.FLUIDS": "KZ.CAT.DOM_FLUIDS",
-}
-
-# Current live L1 category_id → engineering Domain (None = decompose per child).
-L1_DOMAIN_MAP: dict[int, str] = {
-    1: "KZ.DOM.TOOLHOLDING",
-    2: "KZ.DOM.CUTTING",
-    4: "KZ.DOM.CUTTING",
-    5: "KZ.DOM.CUTTING",
-    6: "KZ.DOM.CUTTING",
-    8: "KZ.DOM.WORKHOLDING",
-    9: "KZ.DOM.MACHINES",
-    56: "KZ.DOM.METROLOGY",
-    81: "KZ.DOM.METROLOGY",
-    87: "KZ.DOM.METROLOGY",
-    165: "KZ.DOM.CUTTING",
-}
 
 MIXED_SEMANTIC_CATEGORY_IDS = frozenset({116, 117, 118, 154, 155, 156, 157, 158, 159, 160, 163, 164})
 HELICOIL_CATEGORY_ID = 55
 INDUSTRIAL_OIL_CATEGORY_ID = 156
 ACCESSORIES_L1_ID = 154
 
-DEPRECATED_HISTORICAL_CODES: dict[int, str] = {
-    186: "KZ.CAT.DEPRECATED_HELICOIL_L1_REMOVED",
-    187: "KZ.CAT.DEPRECATED_HELICOIL_L1_REMOVED",
-    188: "KZ.CAT.DEPRECATED_HELICOIL_L1_REMOVED",
-}
-
-MANIFEST_FIELDS: list[str] = [
+MANIFEST_FIELDS = [
     "current_category_id",
     "current_name",
     "current_slug",
@@ -89,14 +71,16 @@ MANIFEST_FIELDS: list[str] = [
     "engineering_semantic_interpretation",
     "cct1_result",
     "category_migration_action",
-    "target_domain_code",
-    "target_domain_name_en",
-    "target_category_code",
-    "target_parent_code",
-    "target_tree_depth",
+    "scientific_domain_code",
+    "scientific_domain_name_en",
+    "identity_status",
+    "published_kz_cat_code",
+    "staging_registry_code",
+    "commerce_parent_code",
+    "commerce_tree_depth",
     "target_name_fa",
     "target_name_en",
-    "target_is_selectable",
+    "commerce_is_selectable",
     "product_type_relationship",
     "product_decomposition_required",
     "decision_class",
@@ -104,20 +88,25 @@ MANIFEST_FIELDS: list[str] = [
     "evidence_sources",
     "owner_steward_review_required",
     "migration_dependency",
-    "seo_redirect_consequence",
+    "seo_redirect_proposal",
     "notes",
 ]
 
-PRODUCT_MAP_FIELDS: list[str] = [
+PRODUCT_MAP_FIELDS = [
     "product_id",
     "sku",
     "current_category_id",
     "current_category_path",
     "mapping_mode",
-    "proposed_target_category_code",
-    "proposed_target_domain_code",
+    "suggested_scientific_domain_code",
+    "target_category_candidate_code",
+    "approved_target_category_code",
+    "mapping_authorization",
     "tx_owner_cohort",
-    "tx_owner_journal_disposition",
+    "owner_authoritative_decision",
+    "owner_decision_batch",
+    "historical_pr499_proposal",
+    "apply_authorization",
     "owner_review_required",
     "evidence_class",
     "notes",
@@ -130,7 +119,8 @@ class RouteBInputs:
     products: list[dict[str, str]]
     by_id: dict[int, CategoryRow]
     parent_of: dict[int, int | None]
-    tx_owner_review: dict[int, dict[str, str]]
+    owner_journal: dict[int, dict[str, str]]
+    pr499_review: dict[int, dict[str, str]]
     evidence_recon: dict[str, Any]
 
 
@@ -171,12 +161,30 @@ def load_baseline_categories() -> list[CategoryRow]:
 
 
 def load_baseline_products() -> list[dict[str, str]]:
-    path = BASELINE_DIR / "02-PRODUCT-CATEGORY-CENSUS.csv"
-    with path.open(encoding="utf-8", newline="") as handle:
+    with (BASELINE_DIR / "02-PRODUCT-CATEGORY-CENSUS.csv").open(encoding="utf-8", newline="") as handle:
         return list(csv.DictReader(handle))
 
 
-def load_tx_owner_review() -> dict[int, dict[str, str]]:
+def load_owner_authorization_journals() -> dict[int, dict[str, str]]:
+    out: dict[int, dict[str, str]] = {}
+    for path in sorted(OWNER_PKG.glob("OWNER-AUTHORIZATION-BATCH-*-2026-10-1*.csv")):
+        match = re.search(r"BATCH-(\d+)", path.name)
+        batch = match.group(1) if match else ""
+        with path.open(encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle):
+                pid = int(row["product_id"])
+                out[pid] = {
+                    "owner_decision": row.get("owner_decision", row.get("owner_response", "")).strip(),
+                    "owner_decision_batch": batch,
+                    "historical_pr499_proposal": row.get("historical_pr499_proposal", "").strip(),
+                    "apply_authorization": row.get("apply_authorization", "NO").strip(),
+                    "authorization_status": row.get("authorization_status", "").strip(),
+                    "source_journal": str(path.relative_to(ROOT)),
+                }
+    return out
+
+
+def load_pr499_review() -> dict[int, dict[str, str]]:
     out: dict[int, dict[str, str]] = {}
     if not TX_OWNER_REVIEW.is_file():
         return out
@@ -192,68 +200,8 @@ def load_evidence_recon() -> dict[str, Any]:
     return json.loads(EVIDENCE_RECON.read_text(encoding="utf-8"))
 
 
-def l1_ancestor(category_id: int, parent_of: dict[int, int | None]) -> int:
-    cur = category_id
-    seen: set[int] = set()
-    while cur in parent_of and parent_of[cur] is not None:
-        if cur in seen:
-            break
-        seen.add(cur)
-        cur = parent_of[cur]  # type: ignore[assignment]
-    return cur
-
-
-def slug_token(slug: str) -> str:
-    token = re.sub(r"[^A-Z0-9]+", "_", slug.upper().replace("-", "_"))
-    token = re.sub(r"_+", "_", token).strip("_")
-    return token[:56] or "UNNAMED"
-
-
-def en_name_from_slug(slug: str) -> str:
-    return slug.replace("-", " ").replace("_", " ").title()
-
-
-def domain_for_row(row: CategoryRow, parent_of: dict[int, int | None]) -> str | None:
-    if row.category_id == HELICOIL_CATEGORY_ID:
-        return "KZ.DOM.THREAD_REPAIR"
-    if row.category_id in {155, 156} or row.parent_id in {155, 156}:
-        return "KZ.DOM.FLUIDS"
-    if is_tx_owner_scope_category(row.category_id) or row.parent_id in TX_OWNER_SCOPE_CATEGORY_IDS:
-        return None
-    if row.category_id == ACCESSORIES_L1_ID or (row.parent_id == ACCESSORIES_L1_ID and row.category_id not in {155, 156}):
-        if row.category_id in TX_OWNER_SCOPE_CATEGORY_IDS or row.parent_id in {157, 159}:
-            return None
-    l1 = l1_ancestor(row.category_id, parent_of)
-    if l1 == ACCESSORIES_L1_ID:
-        if row.category_id in {155, 156}:
-            return "KZ.DOM.FLUIDS"
-        return None
-    return L1_DOMAIN_MAP.get(l1)
-
-
-def engineering_interpretation(row: CategoryRow, domain: str | None) -> str:
-    if row.category_id == HELICOIL_CATEGORY_ID:
-        return (
-            "Thread repair / wire thread insert trade vocabulary (Helicoil); "
-            "not generic indexable cutting insert semantics."
-        )
-    if row.category_id == INDUSTRIAL_OIL_CATEGORY_ID:
-        return "Metalworking industrial lubricant SKUs (protected cohort; Fluids domain)."
-    if is_tx_owner_scope_category(row.category_id):
-        return "TX-OWNER-001 Workshop/Hand/Woodworking scope — Owner-approved catalog exit cohort."
-    if row.category_id == ACCESSORIES_L1_ID:
-        return "Mixed-semantics industrial accessories parent; decompose by descendant meaning."
-    if row.category_id in MIXED_SEMANTIC_CATEGORY_IDS:
-        return "Mixed-semantics commerce parent; product-level meaning required."
-    if domain:
-        return f"Buyer-facing hub under {domain} aligned with preserved production path."
-    return "Requires decomposition or Owner evidence before domain assignment."
-
-
 def cct1_for_row(row: CategoryRow, domain: str | None) -> str:
     if is_tx_owner_scope_category(row.category_id):
-        return "DEPRECATE_REMOVE"
-    if row.category_id in {157, 158, 159, 160}:
         return "DEPRECATE_REMOVE"
     if row.category_id == ACCESSORIES_L1_ID:
         return "NOT_ENOUGH_EVIDENCE"
@@ -263,12 +211,8 @@ def cct1_for_row(row: CategoryRow, domain: str | None) -> str:
         if row.category_id == INDUSTRIAL_OIL_CATEGORY_ID:
             return "KEEP_AS_CATEGORY"
         return "NOT_ENOUGH_EVIDENCE"
-    if row.depth == 1 and row.descendant_live == 0:
-        return "DEPRECATE_REMOVE"
-    if row.depth == 1 and not row.is_selectable:
-        return "KEEP_AS_CATEGORY"
-    if row.descendant_live == 0 and row.direct_live == 0:
-        return "KEEP_AS_CATEGORY"
+    if row.depth == 1:
+        return "KEEP_AS_CATEGORY" if row.descendant_live else "DEPRECATE_REMOVE"
     return "KEEP_AS_CATEGORY"
 
 
@@ -279,126 +223,42 @@ def migration_action(row: CategoryRow, cct1: str) -> str:
         return "DECOMPOSE_HUB"
     if row.category_id in MIXED_SEMANTIC_CATEGORY_IDS - {156}:
         return "DECOMPOSE_OR_EVIDENCE_GATED"
-    if row.depth == 1 and row.category_id not in {154}:
+    if row.depth == 1:
         return "RETIRE_LEGACY_L1_HUB"
     return "RETAIN_REHOME"
 
 
-def decision_class(row: CategoryRow, cct1: str) -> str:
-    if is_tx_owner_scope_category(row.category_id) or row.category_id in {157, 158, 159, 160}:
+def decision_class(row: CategoryRow) -> str:
+    if is_tx_owner_scope_category(row.category_id):
         return "OWNER_APPROVED"
     if row.category_id in MIXED_SEMANTIC_CATEGORY_IDS or row.category_id == ACCESSORIES_L1_ID:
-        if row.category_id == INDUSTRIAL_OIL_CATEGORY_ID:
-            return "PROPOSED"
-        return "EVIDENCE_GATED"
-    if row.category_id == HELICOIL_CATEGORY_ID:
-        return "PROPOSED"
+        return "EVIDENCE_GATED" if row.category_id != INDUSTRIAL_OIL_CATEGORY_ID else "PROPOSED"
     return "PROPOSED"
 
 
-def product_disposition_note(row: CategoryRow) -> str:
-    if is_tx_owner_scope_category(row.category_id) or row.category_id in {158, 160}:
-        return "CATALOG_EXIT"
-    if row.category_id == INDUSTRIAL_OIL_CATEGORY_ID:
-        return "RETAIN_REHOME"
-    if row.category_id in {116, 117, 118, 164}:
-        return "PRODUCT_LEVEL_REVIEW"
-    return "CATEGORY_LEVEL_HYPOTHESIS"
-
-
-def assign_target_codes(rows: list[CategoryRow]) -> dict[int, str]:
-    used: set[str] = set(DOMAIN_ROOT_CAT.values())
-    mapping: dict[int, str] = {}
-    parent_of = {r.category_id: r.parent_id for r in rows}
-    for row in sorted(rows, key=lambda r: r.category_id):
-        domain = domain_for_row(row, parent_of)
-        if cct1_for_row(row, domain) == "DEPRECATE_REMOVE" and is_tx_owner_scope_category(row.category_id):
-            code = f"KZ.CAT.DEPRECATED_TX_OWNER_{row.category_id}"
-        elif row.category_id in DEPRECATED_HISTORICAL_CODES:
-            code = DEPRECATED_HISTORICAL_CODES[row.category_id]
-        elif domain:
-            dom_short = domain.replace("KZ.DOM.", "")
-            code = f"KZ.CAT.{dom_short}_{slug_token(row.slug)}"
-        else:
-            code = f"KZ.CAT.UNRESOLVED_{row.category_id}"
-        base = code
-        n = 2
-        while code in used:
-            code = f"{base}_{n}"
-            n += 1
-        used.add(code)
-        mapping[row.category_id] = code
-    return mapping
-
-
-def target_parent_code(
-    row: CategoryRow,
-    code_by_id: dict[int, str],
-    parent_of: dict[int, int | None],
-) -> str:
-    if cct1_for_row(row, domain_for_row(row, parent_of)) == "DEPRECATE_REMOVE":
-        return ""
-    if row.category_id == ACCESSORIES_L1_ID:
-        return ""
-    domain = domain_for_row(row, parent_of)
-    if domain is None:
-        return ""
-    if row.depth <= 1:
-        return ""
-    if row.depth == 2:
-        return DOMAIN_ROOT_CAT[domain]
-    pid = row.parent_id
-    if pid is None:
-        return DOMAIN_ROOT_CAT[domain]
-    if pid == ACCESSORIES_L1_ID and row.category_id in {155, 156}:
-        return DOMAIN_ROOT_CAT["KZ.DOM.FLUIDS"]
-    if pid in code_by_id:
-        return code_by_id[pid]
-    return DOMAIN_ROOT_CAT[domain]
-
-
-def target_depth(row: CategoryRow, parent_of: dict[int, int | None]) -> int:
-    if row.depth == 1:
-        return 1
-    if row.depth == 2:
-        return 2
-    return 3
-
-
 def build_manifest(inputs: RouteBInputs) -> list[dict[str, str]]:
-    parent_of = {r.category_id: r.parent_id for r in inputs.category_rows}
-    code_by_id = assign_target_codes(inputs.category_rows)
+    semantics = load_category_semantics()
     domain_name = {d["code"]: d["en"] for d in TARGET_DOMAINS}
     manifest: list[dict[str, str]] = []
     for row in sorted(inputs.category_rows, key=lambda r: r.category_id):
-        domain = domain_for_row(row, parent_of)
+        domain = scientific_domain_for(row, inputs.parent_of)
+        sem = semantics[row.category_id]
         cct1 = cct1_for_row(row, domain)
         action = migration_action(row, cct1)
-        dclass = decision_class(row, cct1)
-        tcode = code_by_id[row.category_id]
-        tparent = target_parent_code(row, code_by_id, parent_of)
-        tdepth = target_depth(row, parent_of)
-        selectable = "YES" if row.is_selectable and cct1 != "DEPRECATE_REMOVE" else "NO"
-        if row.category_id in {154, 155, 163}:
-            selectable = "NO"
-        pt_summary = product_type_summary_for_category(inputs.products, row.category_id)
-        decomp = "YES" if row.category_id in MIXED_SEMANTIC_CATEGORY_IDS or row.category_id == ACCESSORIES_L1_ID else "NO"
-        owner_review = "YES" if dclass in {"EVIDENCE_GATED", "OWNER_APPROVED"} or row.category_id in MIXED_SEMANTIC_CATEGORY_IDS else "NO"
-        seo = "REDIRECT_REVIEW"
-        if cct1 == "DEPRECATE_REMOVE":
-            seo = "DEPRECATE_HUB_410_OR_STAGED_REDIRECT"
-        elif action == "RETAIN_REHOME":
-            seo = "SLUG_STABLE_PREFERRED"
-        mig_dep = "PHASE1B_OWNER_REVIEW"
-        if row.category_id == INDUSTRIAL_OIL_CATEGORY_ID:
-            mig_dep = "NONE_PROTECTED_FLUIDS_COHORT"
-        elif is_tx_owner_scope_category(row.category_id):
-            mig_dep = "TX_OWNER_001_EXIT_EXECUTION_GATE"
-        evidence = "PRESERVED_CENSUS_2026-10-15"
-        if row.category_id in MIXED_SEMANTIC_CATEGORY_IDS:
-            evidence += ";MIXED_SEMANTIC_COHORT"
-        if row.category_id == HELICOIL_CATEGORY_ID:
-            evidence += ";HELICOIL_THREAD_REPAIR_COHORT"
+        reg_code, identity_status = registry_code_for_category(row)
+        published = sem.kz_cat_code if identity_status == "PUBLISHED_PROPOSED" else ""
+        staging = reg_code if identity_status != "PUBLISHED_PROPOSED" else ""
+        parent_code, depth = commerce_parent_for(row, inputs.parent_of, semantics)
+        selectable = "YES" if sem.publish_in_commerce_tree and row.is_selectable else "NO"
+        seo = "UNCHANGED_PATH"
+        if identity_status.startswith("DEPRECATED"):
+            seo = "PROPOSED_410_OR_DEFER"
+        elif action == "RETIRE_LEGACY_L1_HUB":
+            seo = "PROPOSED_301_TO_CHILDREN"
+        elif identity_status == "PUBLISHED_PROPOSED" and parent_code:
+            seo = "PROPOSED_301_IF_SLUG_CHANGE"
+        elif row.category_id in MIXED_SEMANTIC_CATEGORY_IDS:
+            seo = "DEFER_PRODUCT_LEVEL"
         manifest.append(
             {
                 "current_category_id": str(row.category_id),
@@ -408,121 +268,169 @@ def build_manifest(inputs: RouteBInputs) -> list[dict[str, str]]:
                 "current_depth": str(row.depth),
                 "direct_product_count": str(row.direct_live),
                 "descendant_product_count": str(row.descendant_live),
-                "engineering_semantic_interpretation": engineering_interpretation(row, domain),
+                "engineering_semantic_interpretation": sem.design_note or sem.name_en,
                 "cct1_result": cct1,
                 "category_migration_action": action,
-                "target_domain_code": domain or "",
-                "target_domain_name_en": domain_name.get(domain or "", ""),
-                "target_category_code": tcode,
-                "target_parent_code": tparent,
-                "target_tree_depth": str(tdepth),
+                "scientific_domain_code": domain or "",
+                "scientific_domain_name_en": domain_name.get(domain or "", ""),
+                "identity_status": identity_status,
+                "published_kz_cat_code": published,
+                "staging_registry_code": staging,
+                "commerce_parent_code": parent_code,
+                "commerce_tree_depth": str(depth) if depth else "",
                 "target_name_fa": row.name,
-                "target_name_en": en_name_from_slug(row.slug),
-                "target_is_selectable": selectable,
-                "product_type_relationship": pt_summary or "PT_ASSIGNMENT_GAP",
-                "product_decomposition_required": decomp,
-                "decision_class": dclass,
-                "confidence": "MEDIUM" if dclass == "PROPOSED" else "LOW",
-                "evidence_sources": evidence,
-                "owner_steward_review_required": owner_review,
-                "migration_dependency": mig_dep,
-                "seo_redirect_consequence": seo,
-                "notes": product_disposition_note(row),
+                "target_name_en": sem.name_en,
+                "commerce_is_selectable": selectable,
+                "product_type_relationship": product_type_summary_for_category(inputs.products, row.category_id)
+                or "PT_ASSIGNMENT_GAP",
+                "product_decomposition_required": "YES"
+                if row.category_id in MIXED_SEMANTIC_CATEGORY_IDS or row.category_id == ACCESSORIES_L1_ID
+                else "NO",
+                "decision_class": decision_class(row),
+                "confidence": "MEDIUM",
+                "evidence_sources": "PRESERVED_CENSUS_2026-10-15;route_b_semantics_v2",
+                "owner_steward_review_required": "YES"
+                if row.category_id in MIXED_SEMANTIC_CATEGORY_IDS or is_tx_owner_scope_category(row.category_id)
+                else "NO",
+                "migration_dependency": "TX_OWNER_001_EXIT_EXECUTION_GATE"
+                if is_tx_owner_scope_category(row.category_id)
+                else "PHASE1B_OWNER_REVIEW",
+                "seo_redirect_proposal": seo,
+                "notes": sem.design_note,
             }
         )
     return manifest
 
 
-def build_target_tree(manifest: list[dict[str, str]]) -> list[dict[str, str]]:
-    rows: list[dict[str, str]] = []
-    for dom in TARGET_DOMAINS:
-        code = DOMAIN_ROOT_CAT[dom["code"]]
-        rows.append(
-            {
-                "target_category_code": code,
-                "target_parent_code": "",
-                "target_tree_depth": "1",
-                "target_domain_code": dom["code"],
-                "target_name_en": dom["en"],
-                "target_name_fa": "",
-                "target_is_selectable": "NO",
-                "node_kind": "DOMAIN_COMMERCE_ROOT",
-            }
-        )
-    for row in manifest:
-        if row["cct1_result"] == "DEPRECATE_REMOVE" and row["decision_class"] == "OWNER_APPROVED":
+def build_commerce_tree(
+    inputs: RouteBInputs,
+    manifest_by_id: dict[int, dict[str, str]],
+) -> list[dict[str, str]]:
+    semantics = load_category_semantics()
+    nodes: dict[str, dict[str, str]] = {}
+
+    for code, (domain, en, fa) in BUYER_COMMERCE_L1.items():
+        nodes[code] = {
+            "commerce_category_code": code,
+            "parent_commerce_code": "",
+            "commerce_depth": "1",
+            "scientific_domain_code": domain,
+            "name_en": en,
+            "name_fa": fa,
+            "commerce_is_selectable": "NO",
+            "node_kind": "BUYER_COMMERCE_L1",
+            "source_current_category_id": "",
+        }
+
+    for fam_code, (domain, en, fa) in METROLOGY_FAMILY_META.items():
+        buyer = buyer_l1_for_domain(domain)
+        nodes[fam_code] = {
+            "commerce_category_code": fam_code,
+            "parent_commerce_code": buyer or "",
+            "commerce_depth": "2",
+            "scientific_domain_code": domain,
+            "name_en": en,
+            "name_fa": fa,
+            "commerce_is_selectable": "NO",
+            "node_kind": "BUYER_COMMERCE_L2_FAMILY",
+            "source_current_category_id": "",
+        }
+
+    for row in inputs.category_rows:
+        sem = semantics[row.category_id]
+        if not sem.publish_in_commerce_tree or not sem.kz_cat_code:
             continue
-        if not row["target_domain_code"]:
-            continue
-        rows.append(
-            {
-                "target_category_code": row["target_category_code"],
-                "target_parent_code": row["target_parent_code"],
-                "target_tree_depth": row["target_tree_depth"],
-                "target_domain_code": row["target_domain_code"],
-                "target_name_en": row["target_name_en"],
-                "target_name_fa": row["target_name_fa"],
-                "target_is_selectable": row["target_is_selectable"],
-                "node_kind": "PROPOSED_COMMERCE_NODE",
-                "source_current_category_id": row["current_category_id"],
-            }
-        )
-    return rows
+        man = manifest_by_id[row.category_id]
+        parent, depth = commerce_parent_for(row, inputs.parent_of, semantics)
+        nodes[sem.kz_cat_code] = {
+            "commerce_category_code": sem.kz_cat_code,
+            "parent_commerce_code": parent,
+            "commerce_depth": str(depth),
+            "scientific_domain_code": man["scientific_domain_code"],
+            "name_en": sem.name_en,
+            "name_fa": row.name,
+            "commerce_is_selectable": man["commerce_is_selectable"],
+            "node_kind": "BUYER_COMMERCE_PUBLISHABLE",
+            "source_current_category_id": str(row.category_id),
+        }
+
+    return sorted(nodes.values(), key=lambda r: r["commerce_category_code"])
 
 
-def build_historical_reconciliation(
-    category_ids: set[int],
-) -> dict[str, Any]:
+def build_historical_reconciliation(category_ids: set[int]) -> dict[str, Any]:
     report = compare_category_ids_phase0b(repo_root=ROOT, current_category_ids=category_ids)
-    historical_rows: list[dict[str, str]] = []
-    phase0b_ids = set(report.get("removed_category_ids", [])) | category_ids
-    for cid in sorted(phase0b_ids):
+    rows: list[dict[str, str]] = []
+    all_ids = category_ids | set(HISTORICAL_DEPRECATED_CODES)
+    for cid in sorted(all_ids):
         if cid in category_ids:
             status = "CURRENT_LIVE"
-        elif cid in REMOVED_L1_HELICOIL_ROOT_IDS:
+        elif cid in HISTORICAL_DEPRECATED_CODES:
             status = "REMOVED_EMPTY_HELICOIL_L1_ROOT"
         else:
-            status = "REMOVED_OR_NEVER_LIVE"
-        historical_rows.append(
+            status = "UNKNOWN"
+        rows.append(
             {
                 "category_id": str(cid),
                 "reconciliation_status": status,
-                "deprecated_target_code": DEPRECATED_HISTORICAL_CODES.get(cid, ""),
+                "deprecated_registry_code": HISTORICAL_DEPRECATED_CODES.get(cid, ""),
                 "product_deletion_inferred": "NO",
             }
         )
-    report["historical_reconciliation_rows"] = historical_rows
-    report["expected_removed_helicoil_roots"] = sorted(REMOVED_L1_HELICOIL_ROOT_IDS)
+    report["historical_reconciliation_rows"] = rows
     return report
+
+
+def products_by_category(products: list[dict[str, str]]) -> dict[int, list[int]]:
+    out: dict[int, list[int]] = defaultdict(list)
+    for p in products:
+        if not is_live_product(p):
+            continue
+        cid = int(p.get("category_id") or 0)
+        out[cid].append(int(p["product_id"]))
+    return out
 
 
 def build_product_mapping(
     inputs: RouteBInputs,
     manifest_by_id: dict[int, dict[str, str]],
 ) -> list[dict[str, str]]:
-    open_evidence = inputs.evidence_recon.get("open_evidence_request_count", 111)
-    documentary_exit = inputs.evidence_recon.get("documentary_exit_count_in_journals", 151)
     rows: list[dict[str, str]] = []
+    mixed_ids = MIXED_SEMANTIC_CATEGORY_IDS | {ACCESSORIES_L1_ID}
     for prod in inputs.products:
         if not is_live_product(prod):
             continue
         pid = int(prod["product_id"])
         cid = int(prod.get("category_id") or 0)
-        review = inputs.tx_owner_review.get(pid, {})
-        in_tx = pid in inputs.tx_owner_review
         man = manifest_by_id.get(cid, {})
+        journal = inputs.owner_journal.get(pid, {})
+        pr499 = inputs.pr499_review.get(pid, {})
+        in_tx = pid in inputs.owner_journal
+
         mode = "CATEGORY_HOMOGENEOUS_HYPOTHESIS"
-        notes: list[str] = []
-        if cid in MIXED_SEMANTIC_CATEGORY_IDS or cid == ACCESSORIES_L1_ID:
+        mapping_auth = "DESIGN_CANDIDATE_ONLY"
+        candidate = ""
+        approved = ""
+        owner_review = "NO"
+        suggested_domain = man.get("scientific_domain_code", "")
+
+        if cid in mixed_ids:
             mode = "PRODUCT_LEVEL_REQUIRED"
+            mapping_auth = "BLOCKED_PENDING_DECOMPOSITION"
+            owner_review = "YES"
         if in_tx:
             mode = "TX_OWNER_001_FROZEN"
-            notes.append("No rehome authorization from Route B")
-        if is_tx_owner_scope_category(cid):
-            notes.append("Owner-approved CATALOG_EXIT design only")
-        target_code = man.get("target_category_code", "")
-        if mode == "TX_OWNER_001_FROZEN":
-            target_code = ""
+            od = journal.get("owner_decision", "")
+            if od == "REQUEST_MORE_EVIDENCE":
+                mapping_auth = "BLOCKED_EVIDENCE_PENDING"
+            elif od == "APPROVE_CATALOG_EXIT":
+                mapping_auth = "BLOCKED_DOCUMENTARY_EXIT_NO_APPLY"
+            suggested_domain = ""
+            candidate = ""
+        elif man.get("identity_status") == "PUBLISHED_PROPOSED" and cid not in mixed_ids:
+            candidate = man.get("published_kz_cat_code", "")
+            if man.get("product_decomposition_required") == "NO":
+                mode = "CATEGORY_LEVEL_CANDIDATE"
+
         rows.append(
             {
                 "product_id": str(pid),
@@ -530,193 +438,221 @@ def build_product_mapping(
                 "current_category_id": str(cid),
                 "current_category_path": prod.get("category_full_path") or "",
                 "mapping_mode": mode,
-                "proposed_target_category_code": target_code,
-                "proposed_target_domain_code": man.get("target_domain_code", ""),
+                "suggested_scientific_domain_code": suggested_domain,
+                "target_category_candidate_code": candidate,
+                "approved_target_category_code": approved,
+                "mapping_authorization": mapping_auth,
                 "tx_owner_cohort": "YES" if in_tx else "NO",
-                "tx_owner_journal_disposition": review.get("proposed_disposition", ""),
-                "owner_review_required": review.get("owner_review_required", "NO") if in_tx else "NO",
+                "owner_authoritative_decision": journal.get("owner_decision", ""),
+                "owner_decision_batch": journal.get("owner_decision_batch", ""),
+                "historical_pr499_proposal": pr499.get("proposed_disposition", "")
+                or journal.get("historical_pr499_proposal", ""),
+                "apply_authorization": journal.get("apply_authorization", "NO"),
+                "owner_review_required": owner_review,
                 "evidence_class": "PRODUCTION_CENSUS",
-                "notes": " | ".join(notes),
+                "notes": "No execution authorization from Route B",
             }
         )
-    rows.append(
-        {
-            "product_id": "_SUMMARY_",
-            "sku": "",
-            "current_category_id": "",
-            "current_category_path": "",
-            "mapping_mode": "INTEGRITY",
-            "proposed_target_category_code": "",
-            "proposed_target_domain_code": "",
-            "tx_owner_cohort": str(sum(1 for r in rows if r["tx_owner_cohort"] == "YES")),
-            "tx_owner_journal_disposition": f"documentary_exit={documentary_exit};open_evidence={open_evidence}",
-            "owner_review_required": "",
-            "evidence_class": "TX_OWNER_001_RECON",
-            "notes": "Counts exclude summary row",
-        }
-    )
+    return rows
+
+
+def build_mixed_decomposition(
+    inputs: RouteBInputs,
+    manifest_by_id: dict[int, dict[str, str]],
+    by_cat_products: dict[int, list[int]],
+) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for cid in sorted(MIXED_SEMANTIC_CATEGORY_IDS | {ACCESSORIES_L1_ID}):
+        row = inputs.by_id[cid]
+        man = manifest_by_id[cid]
+        pids = sorted(by_cat_products.get(cid, []))
+        homogeneous = "NO"
+        protected = "NO"
+        destination = ""
+        if cid == INDUSTRIAL_OIL_CATEGORY_ID:
+            homogeneous = "YES"
+            protected = "YES_PROTECTED_27"
+            destination = man.get("published_kz_cat_code", "")
+        elif cid in TX_OWNER_SCOPE_CATEGORY_IDS or cid in {158, 160}:
+            destination = "CATALOG_EXIT_OWNER_APPROVED_DESIGN_ONLY"
+        elif cid in {116, 117, 118, 164}:
+            destination = "STAGING_PRODUCT_REVIEW"
+        rows.append(
+            {
+                "category_id": str(cid),
+                "category_name": row.name,
+                "structural_decision": man.get("category_migration_action", ""),
+                "cct1_result": man.get("cct1_result", ""),
+                "homogeneous_assortment": homogeneous,
+                "protected_cohort": protected,
+                "live_product_count": str(len(pids)),
+                "product_ids_requiring_review": "|".join(str(x) for x in pids) if pids else "",
+                "proposed_destination_concept": destination,
+                "blanket_removal_blocked": "YES",
+            }
+        )
     return rows
 
 
 def build_identity_registry(manifest: list[dict[str, str]]) -> list[dict[str, str]]:
     reg: list[dict[str, str]] = []
-    for dom in TARGET_DOMAINS:
-        reg.append(
-            {
-                "code": DOMAIN_ROOT_CAT[dom["code"]],
-                "entity": "commerce_category",
-                "status": "PROPOSED",
-                "deprecation_semantic": "NONE",
-                "maps_from_current_category_id": "",
-            }
-        )
-    for cid, code in DEPRECATED_HISTORICAL_CODES.items():
+    for code, (domain, en, _fa) in BUYER_COMMERCE_L1.items():
         reg.append(
             {
                 "code": code,
                 "entity": "commerce_category",
-                "status": "DEPRECATED_HISTORICAL",
-                "deprecation_semantic": "REMOVED_EMPTY_L1_NO_PRODUCTS",
-                "maps_from_current_category_id": str(cid),
+                "status": "PROPOSED_BUYER_L1",
+                "scientific_domain_code": domain,
+                "maps_from_current_category_id": "",
+                "name_en": en,
+            }
+        )
+    for fam, (domain, en, _fa) in METROLOGY_FAMILY_META.items():
+        reg.append(
+            {
+                "code": fam,
+                "entity": "commerce_category",
+                "status": "PROPOSED_BUYER_L2_FAMILY",
+                "scientific_domain_code": domain,
+                "maps_from_current_category_id": "",
+                "name_en": en,
             }
         )
     for row in manifest:
-        reg.append(
-            {
-                "code": row["target_category_code"],
-                "entity": "commerce_category",
-                "status": "DEPRECATED" if row["cct1_result"] == "DEPRECATE_REMOVE" else "PROPOSED",
-                "deprecation_semantic": row["category_migration_action"],
-                "maps_from_current_category_id": row["current_category_id"],
-            }
-        )
+        for field, status in (
+            ("published_kz_cat_code", "PROPOSED_PUBLISHED"),
+            ("staging_registry_code", "STAGING_OR_DEPRECATED"),
+        ):
+            code = row.get(field, "")
+            if not code:
+                continue
+            reg.append(
+                {
+                    "code": code,
+                    "entity": "commerce_category",
+                    "status": status if field == "published_kz_cat_code" else row["identity_status"],
+                    "scientific_domain_code": row.get("scientific_domain_code", ""),
+                    "maps_from_current_category_id": row["current_category_id"],
+                    "name_en": row.get("target_name_en", ""),
+                }
+            )
     return reg
 
 
-def build_mixed_decomposition_matrix(
+def build_unresolved_register(
     inputs: RouteBInputs,
-    manifest_by_id: dict[int, dict[str, str]],
+    by_cat_products: dict[int, list[int]],
 ) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
-    for cid in sorted(MIXED_SEMANTIC_CATEGORY_IDS):
-        row = inputs.by_id.get(cid)
-        if not row:
+    for cid in sorted(MIXED_SEMANTIC_CATEGORY_IDS | {ACCESSORIES_L1_ID}):
+        if cid == INDUSTRIAL_OIL_CATEGORY_ID:
             continue
-        man = manifest_by_id.get(cid, {})
+        row = inputs.by_id[cid]
         rows.append(
             {
+                "register_key": f"category:{cid}",
                 "category_id": str(cid),
-                "category_name": row.name,
-                "full_path": row.full_path,
-                "direct_live_products": str(row.direct_live),
-                "descendant_live_products": str(row.descendant_live),
-                "decomposition_strategy": man.get("category_migration_action", ""),
-                "cct1_result": man.get("cct1_result", ""),
-                "product_level_review_required": man.get("product_decomposition_required", ""),
-                "protected_cohort": "YES" if cid == INDUSTRIAL_OIL_CATEGORY_ID else "NO",
-                "owner_scope": "YES" if is_tx_owner_scope_category(cid) else "NO",
+                "product_id": "",
+                "issue": "MIXED_OR_STRUCTURAL_DECOMPOSITION",
+                "required_action": "STEWARD_PRODUCT_LEVEL_REVIEW",
+                "canonical_evidence_register": str(EVIDENCE_111_REGISTER.relative_to(ROOT)),
+            }
+        )
+    if EVIDENCE_111_REGISTER.is_file():
+        with EVIDENCE_111_REGISTER.open(encoding="utf-8", newline="") as handle:
+            for erow in csv.DictReader(handle):
+                pid = erow["product_id"]
+                rows.append(
+                    {
+                        "register_key": f"product:{pid}",
+                        "category_id": "",
+                        "product_id": pid,
+                        "issue": "TX_OWNER_REQUEST_MORE_EVIDENCE",
+                        "required_action": erow.get("evidence_required_specific_to_this_SKU", "")[:240],
+                        "canonical_evidence_register": str(EVIDENCE_111_REGISTER.relative_to(ROOT)),
+                    }
+                )
+    return rows
+
+
+def build_seo_impact(manifest: list[dict[str, str]], commerce_tree: list[dict[str, str]]) -> list[dict[str, str]]:
+    tree_by_source = {r["source_current_category_id"]: r for r in commerce_tree if r.get("source_current_category_id")}
+    rows: list[dict[str, str]] = []
+    for row in manifest:
+        cid = row["current_category_id"]
+        published = tree_by_source.get(cid)
+        rows.append(
+            {
+                "current_category_id": cid,
+                "current_slug": row["current_slug"],
+                "current_path": row["current_full_path"],
+                "identity_status": row["identity_status"],
+                "proposed_commerce_code": published["commerce_category_code"] if published else "",
+                "proposed_url_slug": "defer" if not published else "review_on_apply",
+                "redirect_proposal": row["seo_redirect_proposal"],
+                "indexable_hub": "NO" if row["commerce_is_selectable"] == "NO" else "REVIEW",
+                "megamenu_note": "helicoil_nav_186_187_188" if cid == "55" else "",
+            }
+        )
+    for hid, code in HISTORICAL_DEPRECATED_CODES.items():
+        rows.append(
+            {
+                "current_category_id": str(hid),
+                "current_slug": f"removed-historical-{hid}",
+                "current_path": "REMOVED_FROM_LIVE_TREE",
+                "identity_status": "DEPRECATED_HISTORICAL",
+                "proposed_commerce_code": code,
+                "proposed_url_slug": "n/a",
+                "redirect_proposal": "NO_UNRELATED_REDIRECT;megamenu_dangling_ref",
+                "indexable_hub": "NO",
+                "megamenu_note": "update_helicoil_nav_group_or_retire",
             }
         )
     return rows
 
 
-def build_unresolved_register(manifest: list[dict[str, str]]) -> list[dict[str, str]]:
-    out: list[dict[str, str]] = []
-    for row in manifest:
-        if row["decision_class"] == "EVIDENCE_GATED" or row["cct1_result"] == "NOT_ENOUGH_EVIDENCE":
-            out.append(
-                {
-                    "current_category_id": row["current_category_id"],
-                    "current_name": row["current_name"],
-                    "issue": "MIXED_OR_ACCESSORY_DECOMPOSITION",
-                    "required_action": "PRODUCT_LEVEL_STEWARD_REVIEW",
-                    "blocking_migration": "YES",
-                }
-            )
-    out.append(
-        {
-            "current_category_id": "TX_OWNER_001",
-            "current_name": "262 SKU review cohort",
-            "issue": "111_OPEN_EVIDENCE_REQUESTS",
-            "required_action": "OWNER_EVIDENCE_COMPLETION_BEFORE_REHOME",
-            "blocking_migration": "YES",
-        }
+def build_owner_memo_fa(stats: dict[str, Any], pinned_input_sha: str) -> str:
+    return "\n".join(
+        [
+            "# یادداشت اجرایی مالک — فاز ۱ب مسیر B (نسخه اصلاحی)",
+            "",
+            "## وضعیت",
+            "**READY_FOR_OWNER_REVIEW** — پذیرش طراحی ≠ مجوز APPLY یا تغییر Production.",
+            "",
+            "## تفکیک لایه‌ها",
+            "- **دامنه علمی (`KZ.DOM.*`):** هفت دامنه منجمد؛ بدون دامنه ابزار دستی/کارگاهی.",
+            "- **درخت خریدار (`KZ.CAT.*`):** ریشه‌های تجاری L1 پیشنهادی + خانواده‌های L2 (اندازه‌گیری) + برگ‌های قابل انتخاب.",
+            "- **مانیفست ۱۳۵ ردیف:** نگاشت تاریخی Current → Target با وضعیت هویت (منتشرشده / staging / منسوخ).",
+            "",
+            f"## ورودی پین‌شده (census immutable)",
+            f"`{pinned_input_sha}`",
+            "",
+            "## شمارش درخت پیشنهادی (واقعی)",
+            f"- گره‌های commerce در `C-TARGET-TAXONOMY-TREE.csv`: **{stats['commerce_tree_nodes']}**",
+            f"- ریشه‌های L1 خریدار: **{stats['buyer_l1_roots']}**",
+            f"- منتشرشده در commerce: **{stats['publishable_leaves']}**",
+            f"- منسوخ / staging / بازنشسته: **{stats['non_publishable_manifest']}**",
+            "",
+            "## TX-OWNER-001",
+            "- ۱۵۱ `APPROVE_CATALOG_EXIT` (سندی؛ بدون APPLY)",
+            "- ۱۱۱ `REQUEST_MORE_EVIDENCE` (ثبت ۱۱۱-ID)",
+            "- ۰ APPLY",
+            "",
+            "## دسته‌های حساس",
+            "- **۱۵۴:** تجزیه ساختاری؛ بدون حذف دسته‌ای.",
+            "- **۱۵۶:** ۲۷ روغن صنعتی محافظت‌شده → Fluids.",
+            "- **۵۵ / هلی‌کویل:** Thread Repair؛ ریشه‌های ۱۸۶/۱۸۷/۱۸۸ منسوخ مجزا.",
+            "",
+        ]
     )
-    return out
 
 
-def validate_package(
+def generate_route_b_package(
+    out_dir: Path,
     *,
-    manifest: list[dict[str, str]],
-    target_tree: list[dict[str, str]],
-    product_rows: list[dict[str, str]],
-    inputs: RouteBInputs,
-    reconciliation: dict[str, Any],
+    pinned_input_git_sha: str,
+    generator_run_git_sha: str,
 ) -> dict[str, Any]:
-    errors: list[str] = []
-    current_ids = {int(r["current_category_id"]) for r in manifest}
-    if len(current_ids) != 135:
-        errors.append(f"expected 135 categories got {len(current_ids)}")
-    if len(manifest) != 135:
-        errors.append("manifest row count != 135")
-    manifest_codes = [r["target_category_code"] for r in manifest]
-    if len(manifest_codes) != len(set(manifest_codes)):
-        errors.append("duplicate KZ.CAT codes in manifest")
-    tree_codes = [r["target_category_code"] for r in target_tree]
-    if len(tree_codes) != len(set(tree_codes)):
-        errors.append("duplicate KZ.CAT codes in target tree")
-    domains = {r["target_domain_code"] for r in manifest if r["target_domain_code"]}
-    if not domains.issubset(DOMAIN_CODES):
-        errors.append("unknown target domain codes")
-    if "KZ.DOM.WORKSHOP" in domains or any("WORKSHOP" in c for c in manifest_codes):
-        errors.append("forbidden workshop domain/catch-all")
-    depths = [int(r["target_tree_depth"]) for r in target_tree if r.get("target_tree_depth")]
-    if max(depths, default=0) > MAX_CATEGORY_DEPTH:
-        errors.append("target tree exceeds max depth")
-    live_products = [p for p in inputs.products if is_live_product(p)]
-    if len(live_products) != PHASE0B_ANCHOR["live_products"]:
-        errors.append("live product census mismatch")
-    oil_row = next((r for r in manifest if int(r["current_category_id"]) == INDUSTRIAL_OIL_CATEGORY_ID), None)
-    if not oil_row or oil_row["target_domain_code"] != "KZ.DOM.FLUIDS":
-        errors.append("category 156 fluids protection failed")
-    if int(oil_row["direct_product_count"]) != 27:
-        errors.append("category 156 must retain 27 products")
-    tx_count = sum(1 for r in product_rows if r.get("tx_owner_cohort") == "YES" and r["product_id"] != "_SUMMARY_")
-    if tx_count != 262:
-        errors.append(f"tx_owner cohort expected 262 got {tx_count}")
-    recon = inputs.evidence_recon
-    if recon:
-        if recon.get("open_evidence_request_count") != 111:
-            errors.append("TX-OWNER open evidence count drift")
-        if recon.get("documentary_exit_count_in_journals") != 151:
-            errors.append("TX-OWNER documentary exit count drift")
-    removed = set(reconciliation.get("removed_category_ids", []))
-    if not REMOVED_L1_HELICOIL_ROOT_IDS.issubset(removed):
-        errors.append("helicoil root reconciliation incomplete")
-    for row in manifest:
-        if row["cct1_result"] not in CCT1_ALLOWED:
-            errors.append(f"invalid cct1 {row['current_category_id']}")
-    if len(MIXED_SEMANTIC_CATEGORY_IDS) != 12:
-        errors.append("mixed semantic cohort size drift")
-    domain_roots_in_tree = sum(1 for r in target_tree if r.get("node_kind") == "DOMAIN_COMMERCE_ROOT")
-    if domain_roots_in_tree != 7:
-        errors.append("seven domain roots required in target tree")
-    # Parent cycle check on proposed tree
-    parent_map = {r["target_category_code"]: r.get("target_parent_code") or "" for r in target_tree}
-    for code in parent_map:
-        seen: set[str] = set()
-        cur = code
-        while parent_map.get(cur):
-            if cur in seen:
-                errors.append(f"cycle at {code}")
-                break
-            seen.add(cur)
-            cur = parent_map[cur]
-    status = "PASS" if not errors else "FAIL"
-    return {"status": status, "errors": errors, "checks_run": True}
-
-
-def generate_route_b_package(out_dir: Path, *, base_git_sha: str, head_git_sha: str) -> dict[str, Any]:
     out_dir.mkdir(parents=True, exist_ok=True)
     category_rows = load_baseline_categories()
     products = load_baseline_products()
@@ -727,87 +663,90 @@ def generate_route_b_package(out_dir: Path, *, base_git_sha: str, head_git_sha: 
         products=products,
         by_id=by_id,
         parent_of=parent_of,
-        tx_owner_review=load_tx_owner_review(),
+        owner_journal=load_owner_authorization_journals(),
+        pr499_review=load_pr499_review(),
         evidence_recon=load_evidence_recon(),
     )
     manifest = build_manifest(inputs)
     manifest_by_id = {int(r["current_category_id"]): r for r in manifest}
-    target_tree = build_target_tree(manifest)
+    commerce_tree = build_commerce_tree(inputs, manifest_by_id)
     reconciliation = build_historical_reconciliation(set(by_id))
+    by_cat = products_by_category(products)
+    oil_ids = set(by_cat.get(INDUSTRIAL_OIL_CATEGORY_ID, []))
     product_map = build_product_mapping(inputs, manifest_by_id)
+    mixed = build_mixed_decomposition(inputs, manifest_by_id, by_cat)
     identity_reg = build_identity_registry(manifest)
-    unresolved = build_unresolved_register(manifest)
+    unresolved = build_unresolved_register(inputs, by_cat)
+    seo_rows = build_seo_impact(manifest, commerce_tree)
 
     write_csv(out_dir / "A-135-CURRENT-TARGET-MANIFEST.csv", MANIFEST_FIELDS, manifest)
     write_csv(
         out_dir / "B-HISTORICAL-138-TO-135-RECONCILIATION.csv",
-        ["category_id", "reconciliation_status", "deprecated_target_code", "product_deletion_inferred"],
+        ["category_id", "reconciliation_status", "deprecated_registry_code", "product_deletion_inferred"],
         reconciliation["historical_reconciliation_rows"],
     )
     write_csv(
         out_dir / "C-TARGET-TAXONOMY-TREE.csv",
         [
-            "target_category_code",
-            "target_parent_code",
-            "target_tree_depth",
-            "target_domain_code",
-            "target_name_en",
-            "target_name_fa",
-            "target_is_selectable",
+            "commerce_category_code",
+            "parent_commerce_code",
+            "commerce_depth",
+            "scientific_domain_code",
+            "name_en",
+            "name_fa",
+            "commerce_is_selectable",
             "node_kind",
             "source_current_category_id",
         ],
-        target_tree,
+        commerce_tree,
     )
     write_csv(out_dir / "D-PRODUCT-MAPPING-READINESS.csv", PRODUCT_MAP_FIELDS, product_map)
-    mixed_matrix = build_mixed_decomposition_matrix(inputs, manifest_by_id)
     write_csv(
         out_dir / "D2-MIXED-CATEGORY-DECOMPOSITION-MATRIX.csv",
         [
             "category_id",
             "category_name",
-            "full_path",
-            "direct_live_products",
-            "descendant_live_products",
-            "decomposition_strategy",
+            "structural_decision",
             "cct1_result",
-            "product_level_review_required",
+            "homogeneous_assortment",
             "protected_cohort",
-            "owner_scope",
+            "live_product_count",
+            "product_ids_requiring_review",
+            "proposed_destination_concept",
+            "blanket_removal_blocked",
         ],
-        mixed_matrix,
+        mixed,
     )
     write_csv(
         out_dir / "E-TARGET-IDENTITY-REGISTRY.csv",
-        ["code", "entity", "status", "deprecation_semantic", "maps_from_current_category_id"],
+        ["code", "entity", "status", "scientific_domain_code", "maps_from_current_category_id", "name_en"],
         identity_reg,
     )
-
-    seo_path = BASELINE_DIR / "09-SEO-MEGAMENU-IMPACT-BASELINE.csv"
-    seo_notes = {
-        "helicoil_dangling_roots": sorted(REMOVED_L1_HELICOIL_ROOT_IDS),
-        "megamenu_action": "Retarget helicoil nav group to live category 55 or retire; no unrelated redirects",
-        "owner_scope_redirects": "Do not redirect Workshop/Hand/Woodworking hubs to industrial catch-alls",
-    }
-    megamenu_baseline = BASELINE_DIR / "11-MEGAMENU-REFERENTIAL-IMPACT.json"
-    dep_summary = BASELINE_DIR / "08-NUMERIC-DEPENDENCY-SCAN-SUMMARY.json"
-    (out_dir / "F-SEO-MEGAMENU-IMPORT-IMPACT.json").write_text(
+    write_csv(
+        out_dir / "F-SEO-MEGAMENU-IMPORT-IMPACT.csv",
+        [
+            "current_category_id",
+            "current_slug",
+            "current_path",
+            "identity_status",
+            "proposed_commerce_code",
+            "proposed_url_slug",
+            "redirect_proposal",
+            "indexable_hub",
+            "megamenu_note",
+        ],
+        seo_rows,
+    )
+    dep_summary_path = BASELINE_DIR / "08-NUMERIC-DEPENDENCY-SCAN-SUMMARY.json"
+    dep_csv_path = BASELINE_DIR / "08-NUMERIC-CATEGORY-ID-DEPENDENCIES.csv"
+    dep_summary = json.loads(dep_summary_path.read_text(encoding="utf-8")) if dep_summary_path.is_file() else {}
+    (out_dir / "F2-IMPORTER-NUMERIC-DEPENDENCY-PROPOSAL.json").write_text(
         json.dumps(
             {
-                "baseline_seo_csv": str(seo_path.relative_to(ROOT)),
-                "baseline_megamenu_json": str(megamenu_baseline.relative_to(ROOT)),
-                "numeric_dependency_summary": json.loads(dep_summary.read_text(encoding="utf-8"))
-                if dep_summary.is_file()
-                else {},
-                "importer_remap_design": {
-                    "wave": "Phase 1B design",
-                    "semantic_key": "KZ.CAT.*",
-                    "runtime_key": "categories.id (internal only)",
-                    "mapping_table": "E-TARGET-IDENTITY-REGISTRY.csv",
-                    "forbid": "bare integer category_id as import semantic key (governance)",
-                },
-                "proposed_redirect_policy": seo_notes,
-                "manifest_redirect_fields": dict(Counter(r["seo_redirect_consequence"] for r in manifest)),
+                "scan_summary_path": str(dep_summary_path.relative_to(ROOT)),
+                "dependencies_csv": str(dep_csv_path.relative_to(ROOT)),
+                "deduped_hits": dep_summary.get("deduped_hit_count"),
+                "remap_design": "semantic KZ.CAT.* → runtime categories.id via E-TARGET-IDENTITY-REGISTRY.csv",
             },
             indent=2,
             ensure_ascii=False,
@@ -816,47 +755,59 @@ def generate_route_b_package(out_dir: Path, *, base_git_sha: str, head_git_sha: 
     )
     write_csv(
         out_dir / "G-UNRESOLVED-DECISION-REGISTER.csv",
-        ["current_category_id", "current_name", "issue", "required_action", "blocking_migration"],
+        [
+            "register_key",
+            "category_id",
+            "product_id",
+            "issue",
+            "required_action",
+            "canonical_evidence_register",
+        ],
         unresolved,
     )
 
-    fa_lines = [
-        "# یادداشت اجرایی مالک — فاز ۱ب مسیر B",
-        "",
-        "## وضعیت",
-        "READY_FOR_OWNER_REVIEW — طراحی فقط؛ بدون APPLY.",
-        "",
-        f"## پایه و هدف Git",
-        f"- BASE: `{base_git_sha}`",
-        f"- HEAD: `{head_git_sha}`",
-        "",
-        "## خلاصه درخت",
-        "- هفت دامنه هدف (بدون ابزار دستی/کارگاهی).",
-        "- ۱۳۵ دسته فعلی با مانیفست یک‌به‌یک.",
-        "- دسته ۱۵۶ (۲۷ روغن صنعتی) تحت سیالات فلزکاری.",
-        "- هلی‌کویل (۵۵) تحت تعمیر رزوه؛ ریشه‌های ۱۸۶/۱۸۷/۱۸۸ حذف تاریخی بدون حذف محصول.",
-        "- محدوده TX-OWNER-001 (۱۵۷–۱۶۰): خروج از کاتالوگ — تصمیم مالک، بدون اجرا.",
-        "",
-        "## شمارش",
-        f"- محصولات زنده: {PHASE0B_ANCHOR['live_products']}",
-        f"- کدهای هدف پیشنهادی: {len({r['target_category_code'] for r in manifest})}",
-        "",
-    ]
-    (out_dir / "H-OWNER-EXECUTIVE-MEMO-FA.md").write_text("\n".join(fa_lines), encoding="utf-8")
-
-    validation = validate_package(
-        manifest=manifest,
-        target_tree=target_tree,
-        product_rows=product_map,
-        inputs=inputs,
-        reconciliation=reconciliation,
+    publishable = sum(1 for r in manifest if r["identity_status"] == "PUBLISHED_PROPOSED")
+    stats = {
+        "commerce_tree_nodes": len(commerce_tree),
+        "buyer_l1_roots": len(BUYER_COMMERCE_L1),
+        "publishable_leaves": sum(1 for r in commerce_tree if r["commerce_is_selectable"] == "YES"),
+        "non_publishable_manifest": 135 - publishable,
+    }
+    (out_dir / "H-OWNER-EXECUTIVE-MEMO-FA.md").write_text(
+        build_owner_memo_fa(stats, pinned_input_git_sha),
+        encoding="utf-8",
     )
+
+    validation = validate_route_b_package(
+        manifest=manifest,
+        commerce_tree=commerce_tree,
+        product_rows=product_map,
+        identity_registry=identity_reg,
+        owner_journal=inputs.owner_journal,
+        reconciliation=reconciliation,
+        oil_product_ids=oil_ids,
+        inputs_products=products,
+    )
+    product_summary = {
+        "live_product_count": len([p for p in products if is_live_product(p)]),
+        "product_mapping_rows": len(product_map),
+        "tx_owner_cohort": sum(1 for r in product_map if r["tx_owner_cohort"] == "YES"),
+        "owner_exit_documentary": sum(
+            1 for r in product_map if r.get("owner_authoritative_decision") == "APPROVE_CATALOG_EXIT"
+        ),
+        "owner_evidence_pending": sum(
+            1 for r in product_map if r.get("owner_authoritative_decision") == "REQUEST_MORE_EVIDENCE"
+        ),
+        "category_156_oil_product_ids": sorted(oil_ids),
+    }
     recon_payload = {
-        "base_git_sha": base_git_sha,
-        "head_git_sha": head_git_sha,
+        "pinned_input_git_sha": pinned_input_git_sha,
+        "generator_run_git_sha": generator_run_git_sha,
+        "pr532_merge_base_sha": "0d04e794712206e1421a596e28993002d05e338c",
         "category_manifest_rows": len(manifest),
-        "target_tree_nodes": len(target_tree),
-        "product_mapping_rows": len([r for r in product_map if r["product_id"] != "_SUMMARY_"]),
+        "commerce_tree_nodes": len(commerce_tree),
+        "tree_stats": stats,
+        "product_summary": product_summary,
         "global_product_counts": global_product_counts(products),
         "historical_reconciliation": reconciliation,
         "validation": validation,
@@ -872,6 +823,31 @@ def generate_route_b_package(out_dir: Path, *, base_git_sha: str, head_git_sha: 
         encoding="utf-8",
     )
 
+    closeout = [
+        "# Phase 1B Route B — validation closeout",
+        "",
+        f"Validation: **{validation['status']}**",
+        "",
+        "```json",
+        json.dumps(validation, indent=2),
+        "```",
+    ]
+    (out_dir / "J-VALIDATION-CLOSEOUT-REPORT.md").write_text("\n".join(closeout), encoding="utf-8")
+    (out_dir / "README.md").write_text(
+        "\n".join(
+            [
+                "# Phase 1B Route B — Target Taxonomy Design",
+                "",
+                "Design-only. Regenerate:",
+                "",
+                "```bash",
+                "python3 scripts/audit_taxonomy_phase1b_route_b_target_design.py",
+                "```",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
     artifact_names = [
         "A-135-CURRENT-TARGET-MANIFEST.csv",
         "B-HISTORICAL-138-TO-135-RECONCILIATION.csv",
@@ -879,33 +855,14 @@ def generate_route_b_package(out_dir: Path, *, base_git_sha: str, head_git_sha: 
         "D-PRODUCT-MAPPING-READINESS.csv",
         "D2-MIXED-CATEGORY-DECOMPOSITION-MATRIX.csv",
         "E-TARGET-IDENTITY-REGISTRY.csv",
-        "F-SEO-MEGAMENU-IMPORT-IMPACT.json",
+        "F-SEO-MEGAMENU-IMPORT-IMPACT.csv",
+        "F2-IMPORTER-NUMERIC-DEPENDENCY-PROPOSAL.json",
         "G-UNRESOLVED-DECISION-REGISTER.csv",
         "H-OWNER-EXECUTIVE-MEMO-FA.md",
         "I-RECONCILIATION-REPORT.json",
-        "FINAL_REPORT.md",
+        "J-VALIDATION-CLOSEOUT-REPORT.md",
         "README.md",
     ]
-    readme = [
-        "# Phase 1B Route B — Target Taxonomy Design",
-        "",
-        "Design-only package. Regenerate:",
-        "",
-        "```bash",
-        "python3 scripts/audit_taxonomy_phase1b_route_b_target_design.py",
-        "```",
-        "",
-        f"Baseline census: `{BASELINE_DIR.relative_to(ROOT)}` (immutable).",
-    ]
-    (out_dir / "README.md").write_text("\n".join(readme), encoding="utf-8")
-    final = [
-        "# Phase 1B Route B — FINAL REPORT",
-        "",
-        f"Validation: **{validation['status']}**",
-        "",
-        json.dumps(validation, indent=2),
-    ]
-    (out_dir / "FINAL_REPORT.md").write_text("\n".join(final), encoding="utf-8")
     write_sha256sums(out_dir, artifact_names)
     if validation["status"] != "PASS":
         raise RuntimeError("ROUTE_B_VALIDATION_FAILED: " + "; ".join(validation["errors"]))

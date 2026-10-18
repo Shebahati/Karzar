@@ -1,9 +1,51 @@
 {
-  "base_git_sha": "0d04e794712206e1421a596e28993002d05e338c",
-  "head_git_sha": "46b64f61a10c45b8cd053220d15e705406510bfa",
+  "pinned_input_git_sha": "0d04e794712206e1421a596e28993002d05e338c",
+  "generator_run_git_sha": "0006cdf05be4b87f767d1c7ba73b5c587b112071",
+  "pr532_merge_base_sha": "0d04e794712206e1421a596e28993002d05e338c",
   "category_manifest_rows": 135,
-  "target_tree_nodes": 137,
-  "product_mapping_rows": 6536,
+  "commerce_tree_nodes": 123,
+  "tree_stats": {
+    "commerce_tree_nodes": 123,
+    "buyer_l1_roots": 7,
+    "publishable_leaves": 105,
+    "non_publishable_manifest": 22
+  },
+  "product_summary": {
+    "live_product_count": 6536,
+    "product_mapping_rows": 6536,
+    "tx_owner_cohort": 262,
+    "owner_exit_documentary": 151,
+    "owner_evidence_pending": 111,
+    "category_156_oil_product_ids": [
+      2664,
+      2665,
+      2668,
+      2669,
+      2670,
+      2671,
+      2672,
+      2673,
+      2674,
+      2675,
+      2676,
+      2677,
+      2678,
+      2679,
+      2680,
+      2681,
+      2682,
+      2683,
+      2684,
+      2685,
+      2686,
+      2687,
+      3245,
+      3246,
+      6578,
+      6579,
+      6580
+    ]
+  },
   "global_product_counts": {
     "live": 6536,
     "active": 1585,
@@ -73,836 +115,831 @@
       {
         "category_id": "1",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "2",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "4",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "5",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "6",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "8",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "9",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "12",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "13",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "14",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "15",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "16",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "17",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "18",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "19",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "20",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "21",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "22",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "23",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "24",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "25",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "26",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "27",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "28",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "29",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "30",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "31",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "32",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "35",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "36",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "37",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "38",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "39",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "40",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "41",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "42",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "43",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "44",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "45",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "46",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "47",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "48",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "49",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "50",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "51",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "52",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "53",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "54",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "55",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "56",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "57",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "58",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "59",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "60",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "61",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "62",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "63",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "64",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "65",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "66",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "67",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "68",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "69",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "70",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "71",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "72",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "73",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "74",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "75",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "76",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "77",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "78",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "79",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "80",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "81",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "82",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "83",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "84",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "85",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "86",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "87",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "88",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "89",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "90",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "91",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "92",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "93",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "94",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "95",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "96",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "97",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "98",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "99",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "100",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "101",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "102",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "103",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "104",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "105",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "106",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "107",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "108",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "109",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "110",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "111",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "112",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "113",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "114",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "115",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "116",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "117",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "118",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "119",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "120",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "121",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "122",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "123",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "124",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "125",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "154",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "155",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "156",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "157",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "158",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "159",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "160",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "161",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "162",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "163",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "164",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "165",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "166",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "168",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "170",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "172",
         "reconciliation_status": "CURRENT_LIVE",
-        "deprecated_target_code": "",
+        "deprecated_registry_code": "",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "186",
         "reconciliation_status": "REMOVED_EMPTY_HELICOIL_L1_ROOT",
-        "deprecated_target_code": "KZ.CAT.DEPRECATED_HELICOIL_L1_REMOVED",
+        "deprecated_registry_code": "KZ.CAT.DEPRECATED_HELICOIL_L1_SPRING_INSERT_ROOT",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "187",
         "reconciliation_status": "REMOVED_EMPTY_HELICOIL_L1_ROOT",
-        "deprecated_target_code": "KZ.CAT.DEPRECATED_HELICOIL_L1_REMOVED",
+        "deprecated_registry_code": "KZ.CAT.DEPRECATED_HELICOIL_L1_TAP_RANGE_ROOT",
         "product_deletion_inferred": "NO"
       },
       {
         "category_id": "188",
         "reconciliation_status": "REMOVED_EMPTY_HELICOIL_L1_ROOT",
-        "deprecated_target_code": "KZ.CAT.DEPRECATED_HELICOIL_L1_REMOVED",
+        "deprecated_registry_code": "KZ.CAT.DEPRECATED_HELICOIL_L1_INSTALL_TOOL_ROOT",
         "product_deletion_inferred": "NO"
       }
-    ],
-    "expected_removed_helicoil_roots": [
-      186,
-      187,
-      188
     ]
   },
   "validation": {

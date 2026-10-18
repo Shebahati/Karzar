@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import csv
 import json
 import subprocess
@@ -14,15 +15,17 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
+from catalog_target.taxonomy_phase1b_baseline import PHASE0B_ANCHOR  # noqa: E402
+from catalog_target.taxonomy_route_b_semantics import HISTORICAL_DEPRECATED_CODES  # noqa: E402
 from catalog_target.taxonomy_route_b_target_design import (  # noqa: E402
-    DOMAIN_CODES,
     INDUSTRIAL_OIL_CATEGORY_ID,
     MIXED_SEMANTIC_CATEGORY_IDS,
-    REMOVED_L1_HELICOIL_ROOT_IDS,
     generate_route_b_package,
     load_baseline_categories,
+    load_baseline_products,
+    load_owner_authorization_journals,
 )
-from catalog_target.taxonomy_phase1b_baseline import PHASE0B_ANCHOR  # noqa: E402
+from catalog_target.taxonomy_route_b_validation import validate_route_b_package  # noqa: E402
 
 PACKAGE_DIR = ROOT / "audit/taxonomy-phase1b-route-b-target-design-2026-10-18"
 
@@ -31,38 +34,88 @@ class RouteBTargetDesignTests(unittest.TestCase):
     def test_generate_package_passes_validation(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp)
-            payload = generate_route_b_package(out, base_git_sha="base", head_git_sha="head")
+            payload = generate_route_b_package(
+                out,
+                pinned_input_git_sha="pin",
+                generator_run_git_sha="run",
+            )
             self.assertEqual(payload["validation"]["status"], "PASS")
-            manifest = list(csv.DictReader((out / "A-135-CURRENT-TARGET-MANIFEST.csv").open()))
+            with (out / "A-135-CURRENT-TARGET-MANIFEST.csv").open(encoding="utf-8", newline="") as handle:
+                manifest = list(csv.DictReader(handle))
             self.assertEqual(len(manifest), 135)
-            self.assertEqual(len({r["current_category_id"] for r in manifest}), 135)
 
-    def test_preserved_package_when_present(self):
-        if not (PACKAGE_DIR / "I-RECONCILIATION-REPORT.json").is_file():
-            self.skipTest("committed package not generated yet")
-        report = json.loads((PACKAGE_DIR / "I-RECONCILIATION-REPORT.json").read_text())
-        self.assertEqual(report["validation"]["status"], "PASS")
-        self.assertEqual(report["category_manifest_rows"], 135)
+    def test_owner_journal_not_pr499_substitution(self):
+        journal = load_owner_authorization_journals()
+        self.assertEqual(len(journal), 262)
+        exits = sum(1 for r in journal.values() if r["owner_decision"] == "APPROVE_CATALOG_EXIT")
+        evidence = sum(1 for r in journal.values() if r["owner_decision"] == "REQUEST_MORE_EVIDENCE")
+        self.assertEqual(exits, 151)
+        self.assertEqual(evidence, 111)
 
-    def test_helicoil_and_oils(self):
-        rows = load_baseline_categories()
-        by_id = {r.category_id: r for r in rows}
-        self.assertEqual(by_id[55].direct_live, 29)
-        self.assertEqual(by_id[INDUSTRIAL_OIL_CATEGORY_ID].direct_live, 27)
-
-    def test_historical_reconciliation_helicoil_roots(self):
+    def test_product_map_uses_owner_decision_column(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp)
-            generate_route_b_package(out, base_git_sha="b", head_git_sha="h")
+            generate_route_b_package(out, pinned_input_git_sha="p", generator_run_git_sha="r")
+            with (out / "D-PRODUCT-MAPPING-READINESS.csv").open(encoding="utf-8", newline="") as handle:
+                rows = list(csv.DictReader(handle))
+            tx = [r for r in rows if r["tx_owner_cohort"] == "YES"]
+            self.assertEqual(len(tx), 262)
+            for row in tx:
+                self.assertIn(row["owner_authoritative_decision"], ("APPROVE_CATALOG_EXIT", "REQUEST_MORE_EVIDENCE"))
+                self.assertEqual(row["approved_target_category_code"], "")
+                self.assertNotEqual(row["mapping_authorization"], "APPROVED_FOR_APPLY")
+
+    def test_validation_fails_on_duplicate_registry_code(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            generate_route_b_package(out, pinned_input_git_sha="p", generator_run_git_sha="r")
             recon = json.loads((out / "I-RECONCILIATION-REPORT.json").read_text())
-            removed = set(recon["historical_reconciliation"]["removed_category_ids"])
-            self.assertTrue(REMOVED_L1_HELICOIL_ROOT_IDS.issubset(removed))
+            with (out / "A-135-CURRENT-TARGET-MANIFEST.csv").open(encoding="utf-8", newline="") as handle:
+                manifest = list(csv.DictReader(handle))
+            with (out / "C-TARGET-TAXONOMY-TREE.csv").open(encoding="utf-8", newline="") as handle:
+                tree = list(csv.DictReader(handle))
+            with (out / "D-PRODUCT-MAPPING-READINESS.csv").open(encoding="utf-8", newline="") as handle:
+                products = list(csv.DictReader(handle))
+            with (out / "E-TARGET-IDENTITY-REGISTRY.csv").open(encoding="utf-8", newline="") as handle:
+                registry = list(csv.DictReader(handle))
+            registry.append(copy.deepcopy(registry[0]))
+            journal = load_owner_authorization_journals()
+            bad = validate_route_b_package(
+                manifest=manifest,
+                commerce_tree=tree,
+                product_rows=products,
+                identity_registry=registry,
+                owner_journal=journal,
+                reconciliation=recon["historical_reconciliation"],
+                oil_product_ids=set(recon["product_summary"]["category_156_oil_product_ids"]),
+                inputs_products=load_baseline_products(),
+            )
+            self.assertEqual(bad["status"], "FAIL")
 
-    def test_mixed_semantic_cohort_size(self):
-        self.assertEqual(len(MIXED_SEMANTIC_CATEGORY_IDS), 12)
+    def test_historical_helicoil_deprecated_codes_unique(self):
+        self.assertEqual(len(set(HISTORICAL_DEPRECATED_CODES.values())), 3)
 
-    def test_seven_domains_only(self):
-        self.assertEqual(len(DOMAIN_CODES), 7)
+    def test_commerce_tree_has_single_root_tier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            generate_route_b_package(out, pinned_input_git_sha="p", generator_run_git_sha="r")
+            with (out / "C-TARGET-TAXONOMY-TREE.csv").open(encoding="utf-8", newline="") as handle:
+                tree = list(csv.DictReader(handle))
+            roots = [r for r in tree if not r.get("parent_commerce_code")]
+            self.assertEqual(len(roots), 7)
+            legacy_l1_in_tree = [
+                r for r in tree if r.get("source_current_category_id") in {"1", "2", "56", "154", "155"}
+            ]
+            self.assertEqual(legacy_l1_in_tree, [])
+
+    def test_no_summary_row_in_product_csv(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            generate_route_b_package(out, pinned_input_git_sha="p", generator_run_git_sha="r")
+            with (out / "D-PRODUCT-MAPPING-READINESS.csv").open(encoding="utf-8", newline="") as handle:
+                rows = list(csv.DictReader(handle))
+            self.assertTrue(all(r["product_id"].isdigit() for r in rows))
+            self.assertEqual(len(rows), PHASE0B_ANCHOR["live_products"])
 
     def test_audit_script_regression(self):
         proc = subprocess.run(
@@ -73,12 +126,19 @@ class RouteBTargetDesignTests(unittest.TestCase):
         )
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
 
-    def test_live_product_count_anchor(self):
-        path = ROOT / "audit/taxonomy-phase1b-baseline-2026-10-15/02-PRODUCT-CATEGORY-CENSUS.csv"
-        with path.open(encoding="utf-8", newline="") as handle:
-            products = list(csv.DictReader(handle))
-        live = sum(1 for p in products if not (p.get("deleted_at") or "").strip())
-        self.assertEqual(live, PHASE0B_ANCHOR["live_products"])
+    def test_preserved_package_when_present(self):
+        if not (PACKAGE_DIR / "I-RECONCILIATION-REPORT.json").is_file():
+            self.skipTest("package not committed")
+        report = json.loads((PACKAGE_DIR / "I-RECONCILIATION-REPORT.json").read_text())
+        self.assertEqual(report["validation"]["status"], "PASS")
+
+    def test_mixed_semantic_cohort_size(self):
+        self.assertEqual(len(MIXED_SEMANTIC_CATEGORY_IDS), 12)
+
+    def test_category_156_oil_count(self):
+        rows = load_baseline_categories()
+        by_id = {r.category_id: r for r in rows}
+        self.assertEqual(by_id[INDUSTRIAL_OIL_CATEGORY_ID].direct_live, 27)
 
 
 if __name__ == "__main__":

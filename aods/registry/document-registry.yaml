@@ -1089,6 +1089,25 @@ documents:
       seven-domain tree, KZ.CAT registry, product-mapping readiness, SEO/megamenu
       impact, unresolved register, deterministic regeneration; no APPLY.
 
+  - id: TAXONOMY-PHASE1B-ROUTE-B-README-20261018
+    path: audit/taxonomy-phase1b-route-b-target-design-2026-10-18/README.md
+    class: EVIDENCE
+    rank: 7
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Route B package README and regeneration entrypoint; design-only scope.
+
+  - id: TAXONOMY-PHASE1B-ROUTE-B-CLOSEOUT-20261018
+    path: audit/taxonomy-phase1b-route-b-target-design-2026-10-18/J-VALIDATION-CLOSEOUT-REPORT.md
+    class: EVIDENCE
+    rank: 7
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Route B validation closeout report (fail-closed gate output); not a live
+      operational final report.
+
   - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-011-20261018
     path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-011-2026-10-18.md
     class: DECISION
