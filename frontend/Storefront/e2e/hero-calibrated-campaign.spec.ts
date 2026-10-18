@@ -64,6 +64,16 @@ async function activeHero(page: Page) {
 async function expectSlide(page: Page, index: number, compact: boolean) {
   const slide = SLIDES[index]!;
   const hero = await activeHero(page);
+  if (compact) {
+    const copy = hero.locator('[data-testid="campaign-hero-copy-stack"]');
+    const rightInset = await copy.evaluate((el) => {
+      const parent = el.parentElement!;
+      const parentBox = parent.getBoundingClientRect();
+      const childBox = el.getBoundingClientRect();
+      return parentBox.right - childBox.right;
+    });
+    expect(rightInset, "compact copy must have a physical right safe margin").toBeGreaterThanOrEqual(19);
+  }
   await expect(hero.getByRole("heading", { name: slide.title })).toBeVisible();
   await expect(hero.getByRole("link", { name: slide.cta })).toBeVisible();
   if ("secondary" in slide && slide.secondary) {

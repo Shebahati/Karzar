@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import {
+  CAMPAIGN_COMPACT_COPY_STYLE,
   CAMPAIGN_DESKTOP_COPY_MAX_WIDTH,
   CAMPAIGN_DESKTOP_HEADER_CLEARANCE,
   CAMPAIGN_DESKTOP_SAFE_PADDING_X,
@@ -170,6 +171,7 @@ export function CampaignHeroSlide({
             "relative z-10 flex shrink-0 flex-col bg-[#121212]",
             media.compactCopyClass,
           )}
+          style={CAMPAIGN_COMPACT_COPY_STYLE}
         >
           <HeroCopyStack
             slide={slide}

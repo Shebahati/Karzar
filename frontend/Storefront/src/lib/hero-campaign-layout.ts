@@ -61,8 +61,15 @@ export const CAMPAIGN_DESKTOP_ART_HEIGHT_PX = 2160;
 export const CAMPAIGN_COMPACT_ART_WIDTH_PX = 2880;
 export const CAMPAIGN_COMPACT_ART_HEIGHT_PX = 2160;
 
-const DEFAULT_COMPACT_COPY =
-  "relative w-full px-[clamp(1.25rem,5vw,1.5rem)] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pt-3";
+// Keep the shared padding as inline style: Tailwind's content globs currently omit
+// src/lib, so arbitrary utilities authored only here were absent from production CSS.
+export const CAMPAIGN_COMPACT_COPY_STYLE = {
+  paddingInline: CAMPAIGN_COMPACT_SAFE_PADDING_X,
+  paddingTop: "0.75rem",
+  paddingBottom: "max(1.5rem, env(safe-area-inset-bottom, 0px))",
+} as const;
+
+const DEFAULT_COMPACT_COPY = "relative w-full";
 
 function desktopVerticalNudgeFor(def: HeroCampaignSlideDef): number {
   switch (def.linkedOrbKey) {
