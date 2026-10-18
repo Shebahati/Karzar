@@ -211,7 +211,7 @@ test("all five calibrated hero CTA links resolve without category-hub 404", asyn
     for (const label of labels) {
       const link = region.getByRole("link", { name: label }).first();
       await expect(link).toBeVisible();
-      await expect.poll(() => link.getAttribute("href")).toMatch(/^\\/catalog\\?/);
+      await expect.poll(async () => (await link.getAttribute("href"))?.startsWith("/catalog?")).toBe(true);
       const href = await link.getAttribute("href");
       expect(href).not.toBeNull();
       const response = await page.request.get(href!);
