@@ -103,3 +103,14 @@ class OtpCode(Base):
         server_default="login",
     )
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class HomeBestsellerSelection(Base):
+    """Owner-authored ordered homepage product selection, never inferred from newest."""
+    __tablename__ = "home_bestseller_selections"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    product_ids: Mapped[list[int]] = mapped_column(JSONB, nullable=False, default=list)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    actor_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
