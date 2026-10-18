@@ -1,0 +1,5 @@
+source_id,source_url,source_type,supports_exact_karzar_sku,claim_limit
+GROZ-HANDBOOK,https://groz-tools.com/media/magebees/flipbook/Hand_Tool_Catalogue_low_res_with_cover.pdf,OFFICIAL_MANUFACTURER_CATALOGUE,NO,"Groz manufacturer lists punches and stamps plus manual saw families; article mapping for Karzar internal SKUs not proven."
+GROZ-HACKSAW-HANDBOOK,https://groz-tools.com/media/magebees/flipbook/Hand_Tool_Catalogue_low_res_with_cover.pdf,OFFICIAL_MANUFACTURER_CATEGORY,NO,"Hacksaw, junior, fret, coping and piercing families; no verified mapping to 4414 / 4417 / 4419 / 4421."
+GROZ-HOLLOW-PUNCH,https://groz-tools.com/punches-and-chisels-hpl-5.html,OFFICIAL_MANUFACTURER_FAMILY,NO,"HPL punches for gasket, rubber, leather and other softer media; the selected article on the page is not assumed to match either Karzar stock item."
+GROZ-PUNCH-LIST,https://groz-tools.com/hand-tools/punches-chisels.html,OFFICIAL_MANUFACTURER_CATEGORY,NO,"Groz CP-HD, CP-HDST, PP-HD, sets, ACP and HPL family references; type/model hypotheses only."
