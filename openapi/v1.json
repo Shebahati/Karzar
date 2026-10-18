@@ -25140,7 +25140,7 @@
           "product_ids": {
             "items": {
               "type": "integer",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0.0
             },
             "type": "array",
             "maxItems": 24,
