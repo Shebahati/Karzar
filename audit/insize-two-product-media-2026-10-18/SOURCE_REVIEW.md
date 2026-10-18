@@ -25,3 +25,17 @@ Owner confirmed both products are physically available on 2026-10-18. This is a 
 2. Obtain supplier/manufacturer reuse permission for commercial storefront use; merchant gallery photos are not presumed freely licensed.
 3. Use a real hero product image and accurate alt text per exact product. Avoid AI-generated products and wrong variants.
 4. Read-only production product/image/price/stock preflight must confirm IDs, current values and source applicability; image upload and 15% price updates require distinct authorized, auditable production APPLY. No live actions in this PR.
+
+## 2026-10-18 visual source cross-check
+- Rendered page 1 of the manufacturer's 3203 PDF. It lists 3203-1506A in the table, but the two case photos on that page are *explicitly labelled* 3203-1004A and 3203-3006A. Neither image is evidence for 3203-1506A; never crop either as the hero for product 1944.
+- The Cutwel 3203-1506A page has a contradictory generic attribute ("Number of Measuring Heads: 4") even though the exact SKU is a **six-piece micrometer kit**. Its primary media candidate remains unapproved pending direct visual identity check.
+- Official manufacturer 2824 page distinguishes analog 2824-S3 from 2824-S160 and digital 2724-S3. Product 3639 hero must show the **three-piece 18–160 mm analog kit**.
+- Official and reseller photography is copyright-protected absent license. Preferred acquisition: have the owner photograph the actual two stocked boxes/kits, or obtain original image assets plus written storefront-use permission directly from the authorized INSIZE supplier.
+
+## Current release gates (2026-10-18)
+- PR #529 at `fc9e4893b723fd26aaff0fca98d5faead3ed690e`: Frontend CI (including admin-panel typecheck/lint/tests), Backend CI, CI Workflow Lint, Collaborator Scope Gate all SUCCESS. Frontend storefront and storefront-e2e were classifier-skipped; do not misrepresent them as executed.
+- Images: candidate source pages found; no authenticated binary asset ingested yet, no license verified. Gate: BLOCKED.
+- Stock: owner confirms available for both on 2026-10-18, no numeric count represented. Gate: OWNER_CONFIRMED.
+- Prices: no current, approved pre-discount price for either product as of this review. Historic 36,724,800 (1944) and 53,400,000 (3639) toman are NOT current approval; do not calculate/apply production sale prices from them. 3639's historic original_price=10 must be explicitly inspected and corrected from approved data. Gate: BLOCKED.
+- Production: no direct live DB/VPS access in this workflow. Need operator READ-ONLY snapshot for these IDs (ID, exact SKU, is_active, is_available, deleted_at, base_price, original_price, image count/URLs, updated_at and public storefront response). Gate: PENDING.
+- No merge, deploy, image upload, price write, availability flip, SKU rename or Hesabfa side effect until the remaining gates pass and scoped APPLY/rollback is approved.
