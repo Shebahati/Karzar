@@ -1186,6 +1186,16 @@ documents:
       Owner Architecture Decision 005 — conditional structural approval for category
       156 under FLUIDS; 27 protected SKUs; architecture only — publication/APPLY NO.
 
+  - id: TAXONOMY-PHASE1B-OWNER-ARCH-DECISION-006-20261018
+    path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/09-DECISION-MACHINE-ACCESSORIES-163-164-2026-10-18.md
+    class: DECISION
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner Architecture Decision 006 — conditional decomposition of categories
+      163/164; 80 PRODUCT_LEVEL_REQUIRED blocked; MACHINES specialized leaves only.
+
   - id: TAXONOMY-PHASE1B-OWNER-ARCH-JOURNAL-README-20261018
     path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/README.md
     class: EVIDENCE

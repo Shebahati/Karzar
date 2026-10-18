@@ -20,6 +20,7 @@ DECISION_ID_METROLOGY_L2 = "METROLOGY-L2-FAMILIES"
 DECISION_ID_ACCESSORIES_154 = "ACCESSORIES-154-DECOMPOSE"
 DECISION_ID_FLUIDS_155 = "FLUIDS-155-FACET-NAV"
 DECISION_ID_FLUIDS_156_PUBLICATION = "FLUIDS-156-PUBLICATION"
+DECISION_ID_MACHINE_ACCESSORIES_163_164 = "MACHINE-ACCESSORIES-163-164"
 GATE_IR_MARKET_NAMING_SEO = "IR-MARKET-NAMING-SEO"
 
 OWNER_DECIDED_B2_GROUP_IDS = frozenset(
@@ -29,6 +30,7 @@ OWNER_DECIDED_B2_GROUP_IDS = frozenset(
         DECISION_ID_ACCESSORIES_154,
         DECISION_ID_FLUIDS_155,
         DECISION_ID_FLUIDS_156_PUBLICATION,
+        DECISION_ID_MACHINE_ACCESSORIES_163_164,
     }
 )
 
@@ -41,6 +43,11 @@ JOURNAL_ENTRY_SPECS: tuple[tuple[str, str, str], ...] = (
     ("OWNER-ARCH-DECISION-003", DECISION_ID_ACCESSORIES_154, "CONDITIONAL_STRUCTURAL_APPROVAL"),
     ("OWNER-ARCH-DECISION-004", DECISION_ID_FLUIDS_155, "STRUCTURAL_ARCHITECTURE_APPROVAL"),
     ("OWNER-ARCH-DECISION-005", DECISION_ID_FLUIDS_156_PUBLICATION, "CONDITIONAL_STRUCTURAL_APPROVAL"),
+    (
+        "OWNER-ARCH-DECISION-006",
+        DECISION_ID_MACHINE_ACCESSORIES_163_164,
+        "CONDITIONAL_STRUCTURAL_APPROVAL",
+    ),
 )
 
 LEGACY_CATEGORY_154_ID = "154"
@@ -53,6 +60,12 @@ LEGACY_CATEGORY_156_PROTECTED_PRODUCT_COUNT = 27
 LEGACY_CATEGORY_155_FACET_CODE = "KZ.CAT.TRANSITIONAL_LUBRICANTS_FACET_155"
 FLUIDS_INDUSTRIAL_OIL_CODE = "KZ.CAT.FLUIDS_INDUSTRIAL_OIL"
 FLUIDS_COMMERCE_ROOT_CODE = "KZ.CAT.BUYER_FLUIDS"
+
+LEGACY_CATEGORY_163_ID = "163"
+LEGACY_CATEGORY_164_ID = "164"
+LEGACY_CATEGORY_164_PRODUCT_COUNT = 80
+LEGACY_CATEGORY_163_STAGING_CODE = "KZ.CAT.TRANSITIONAL_MACHINE_ACCESSORIES_HUB_163"
+MACHINES_COMMERCE_ROOT_CODE = "KZ.CAT.BUYER_MACHINES"
 
 OWNER_STATEMENT_FA = (
     "«به‌عنوان مالک، هفت ریشهٔ معماری پیشنهادی را به‌صورت مشروط می‌پذیرم، "
@@ -133,6 +146,10 @@ class JournalPaths:
     @property
     def decision_md_fluids_156(self) -> Path:
         return self.root / "08-DECISION-FLUIDS-156-PUBLICATION-2026-10-18.md"
+
+    @property
+    def decision_md_machine_accessories_163_164(self) -> Path:
+        return self.root / "09-DECISION-MACHINE-ACCESSORIES-163-164-2026-10-18.md"
 
     @property
     def pending_groups_csv(self) -> Path:
@@ -274,6 +291,36 @@ def build_journal_entry_005() -> dict[str, str]:
             "separation from legacy 155; cohort protected from blanket removal/reassignment. "
             "B2 group name says PUBLICATION but Owner approves architecture ONLY — "
             "runtime publication, naming/SEO/URL, APPLY, and deploy remain NO."
+        ),
+    }
+
+
+def build_journal_entry_006() -> dict[str, str]:
+    return {
+        "journal_entry_id": "OWNER-ARCH-DECISION-006",
+        "decision_id": DECISION_ID_MACHINE_ACCESSORIES_163_164,
+        "decision_date": "2026-10-18",
+        "decision_type": "CONDITIONAL_STRUCTURAL_APPROVAL",
+        "b2_decision_group_id": DECISION_ID_MACHINE_ACCESSORIES_163_164,
+        "owner_statement_fa": (
+            "«تجزیهٔ ساختاری کنترل‌شدهٔ دسته‌های ۱۶۳ و ۱۶۴ را تأیید می‌کنم: "
+            "۱۶۳ انتقالی؛ ۸۰ محصول ۱۶۴؛ مقصد برگ تخصصی در MACHINES بر اساس مدرک فنی؛ "
+            "بدون دستهٔ عمومی جایگزین؛ PRODUCT_LEVEL_REQUIRED هنوز مسدود.»"
+        ),
+        "owner_architecture_decision_status": "CONDITIONAL_STRUCTURAL_ACCEPTED",
+        "linked_prerequisite_gate_ids": GATE_IR_MARKET_NAMING_SEO,
+        "category_apply_authorization": "NO",
+        "product_reassignment_authorization": "NO",
+        "seo_deployment_authorization": "NO",
+        "production_mutation_authorization": "NO",
+        "b2_review_snapshot_preserved": "YES",
+        "notes_en": (
+            f"Controlled decomposition of categories {LEGACY_CATEGORY_163_ID} and "
+            f"{LEGACY_CATEGORY_164_ID}; keep {LEGACY_CATEGORY_163_ID} TRANSITIONAL "
+            f"({LEGACY_CATEGORY_163_STAGING_CODE}); preserve all "
+            f"{LEGACY_CATEGORY_164_PRODUCT_COUNT} products under {LEGACY_CATEGORY_164_ID}; "
+            f"specialized leaves under {MACHINES_COMMERCE_ROOT_CODE} from per-product evidence; "
+            "no generic catch-all substitute; 80 PRODUCT_LEVEL_REQUIRED records blocked."
         ),
     }
 
@@ -543,6 +590,49 @@ def build_decision_markdown_fluids_156() -> str:
     )
 
 
+def build_decision_markdown_machine_accessories_163_164() -> str:
+    return "\n".join(
+        [
+            "# Owner Architecture Decision — MACHINE-ACCESSORIES-163-164",
+            "",
+            "| Field | Value |",
+            "|-------|-------|",
+            "| **Journal entry** | `OWNER-ARCH-DECISION-006` |",
+            "| **DECISION_ID** | `MACHINE-ACCESSORIES-163-164` |",
+            "| **DECISION_DATE** | 2026-10-18 |",
+            "| **DECISION_TYPE** | `CONDITIONAL_STRUCTURAL_APPROVAL` |",
+            f"| **Legacy categories** | `{LEGACY_CATEGORY_163_ID}` (hub) · `{LEGACY_CATEGORY_164_ID}` (tapping accessories) |",
+            f"| **Staging hub** | `{LEGACY_CATEGORY_163_STAGING_CODE}` |",
+            f"| **Category 164 products** | {LEGACY_CATEGORY_164_PRODUCT_COUNT} (PRODUCT_LEVEL_REQUIRED — execution blocked) |",
+            f"| **MACHINES root** | `{MACHINES_COMMERCE_ROOT_CODE}` |",
+            "| **B2 link** | group `MACHINE-ACCESSORIES-163-164` |",
+            "| **Gate** | `IR-MARKET-NAMING-SEO` (mandatory) |",
+            "",
+            "## Approved direction",
+            "",
+            f"- Keep category **{LEGACY_CATEGORY_163_ID}** as **TRANSITIONAL** during migration planning.",
+            f"- Preserve all **{LEGACY_CATEGORY_164_PRODUCT_COUNT}** existing products under category **{LEGACY_CATEGORY_164_ID}**.",
+            "- Require exact per-product technical evidence before determining final destination.",
+            f"- Design specialized destination leaves within the **MACHINES** architecture (`{MACHINES_COMMERCE_ROOT_CODE}`), based on actual product identity.",
+            "- Do **not** create another generic catch-all category as a substitute for decomposition.",
+            "",
+            "## Execution block",
+            "",
+            f"- The **{LEGACY_CATEGORY_164_PRODUCT_COUNT}** `PRODUCT_LEVEL_REQUIRED` records remain blocked from execution.",
+            "",
+            "## Explicitly NOT approved",
+            "",
+            "- `CATEGORY_APPLY`, product reassignment, SEO deploy, production mutation.",
+            "- Approval of other pending B2 decision groups.",
+            "",
+            "## B2 snapshot policy",
+            "",
+            "Frozen B2 register still shows `PENDING` for `MACHINE-ACCESSORIES-163-164`; "
+            "this journal entry is authoritative.",
+        ]
+    )
+
+
 def _validate_journal_entry(row: dict[str, str], errors: list[str]) -> None:
     for auth_field in (
         "category_apply_authorization",
@@ -618,6 +708,9 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
     )
     paths.decision_md_fluids_155.write_text(build_decision_markdown_fluids_155(), encoding="utf-8")
     paths.decision_md_fluids_156.write_text(build_decision_markdown_fluids_156(), encoding="utf-8")
+    paths.decision_md_machine_accessories_163_164.write_text(
+        build_decision_markdown_machine_accessories_163_164(), encoding="utf-8"
+    )
 
     with paths.journal_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=JOURNAL_CSV_COLUMNS)
@@ -627,6 +720,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         writer.writerow(build_journal_entry_003())
         writer.writerow(build_journal_entry_004())
         writer.writerow(build_journal_entry_005())
+        writer.writerow(build_journal_entry_006())
 
     pending = build_pending_b2_groups()
     with paths.pending_groups_csv.open("w", encoding="utf-8", newline="") as handle:
@@ -671,6 +765,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         "06-DECISION-ACCESSORIES-154-DECOMPOSE-2026-10-18.md",
         "07-DECISION-FLUIDS-155-FACET-NAV-2026-10-18.md",
         "08-DECISION-FLUIDS-156-PUBLICATION-2026-10-18.md",
+        "09-DECISION-MACHINE-ACCESSORIES-163-164-2026-10-18.md",
         "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv",
         "README.md",
         "J-VALIDATION-CLOSEOUT-REPORT.md",
@@ -687,5 +782,6 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
             build_journal_entry_003(),
             build_journal_entry_004(),
             build_journal_entry_005(),
+            build_journal_entry_006(),
         ],
     }
