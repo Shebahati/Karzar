@@ -2433,3 +2433,15 @@ documents:
     branch: audit/catalog-258-insize-final-commercial-source
     notes: >
       Rollback plan + manifest pointers for INSIZE commercial reconcile (#258).
+
+  - id: INSIZE-TWO-PRODUCT-MEDIA-SOURCE-REVIEW-20261018
+    path: audit/insize-two-product-media-2026-10-18/SOURCE_REVIEW.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: fix/admin-discount-ui-oct18
+    notes: >-
+      Exact-identity media research for products 1944 and 3639;
+      image binaries and live price/availability APPLY remain unverified.
+
