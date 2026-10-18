@@ -21,6 +21,7 @@ DECISION_ID_ACCESSORIES_154 = "ACCESSORIES-154-DECOMPOSE"
 DECISION_ID_FLUIDS_155 = "FLUIDS-155-FACET-NAV"
 DECISION_ID_FLUIDS_156_PUBLICATION = "FLUIDS-156-PUBLICATION"
 DECISION_ID_MACHINE_ACCESSORIES_163_164 = "MACHINE-ACCESSORIES-163-164"
+DECISION_ID_TX_OWNER_SCOPE_157_160 = "TX-OWNER-SCOPE-157-160"
 GATE_IR_MARKET_NAMING_SEO = "IR-MARKET-NAMING-SEO"
 
 OWNER_DECIDED_B2_GROUP_IDS = frozenset(
@@ -31,6 +32,7 @@ OWNER_DECIDED_B2_GROUP_IDS = frozenset(
         DECISION_ID_FLUIDS_155,
         DECISION_ID_FLUIDS_156_PUBLICATION,
         DECISION_ID_MACHINE_ACCESSORIES_163_164,
+        DECISION_ID_TX_OWNER_SCOPE_157_160,
     }
 )
 
@@ -48,6 +50,7 @@ JOURNAL_ENTRY_SPECS: tuple[tuple[str, str, str], ...] = (
         DECISION_ID_MACHINE_ACCESSORIES_163_164,
         "CONDITIONAL_STRUCTURAL_APPROVAL",
     ),
+    ("OWNER-ARCH-DECISION-007", DECISION_ID_TX_OWNER_SCOPE_157_160, "STRUCTURAL_ARCHITECTURE_APPROVAL"),
 )
 
 LEGACY_CATEGORY_154_ID = "154"
@@ -66,6 +69,18 @@ LEGACY_CATEGORY_164_ID = "164"
 LEGACY_CATEGORY_164_PRODUCT_COUNT = 80
 LEGACY_CATEGORY_163_STAGING_CODE = "KZ.CAT.TRANSITIONAL_MACHINE_ACCESSORIES_HUB_163"
 MACHINES_COMMERCE_ROOT_CODE = "KZ.CAT.BUYER_MACHINES"
+
+TX_OWNER_001_PACKAGE_DIR = "audit/taxonomy-phase1b-tx-owner-001-owner-decision-package"
+TX_OWNER_SCOPE_CATEGORY_IDS = ("157", "158", "159", "160")
+TX_OWNER_001_COHORT_PRODUCT_COUNT = 262
+TX_OWNER_001_APPROVE_CATALOG_EXIT_COUNT = 151
+TX_OWNER_001_REQUEST_MORE_EVIDENCE_COUNT = 111
+TX_OWNER_DEPRECATED_TARGET_CODES = (
+    "KZ.CAT.DEPRECATED_TX_OWNER_HAND_TOOLS_157",
+    "KZ.CAT.DEPRECATED_TX_OWNER_HAND_TOOLS_158",
+    "KZ.CAT.DEPRECATED_TX_OWNER_WOODWORKING_159",
+    "KZ.CAT.DEPRECATED_TX_OWNER_WOODWORKING_160",
+)
 
 OWNER_STATEMENT_FA = (
     "«به‌عنوان مالک، هفت ریشهٔ معماری پیشنهادی را به‌صورت مشروط می‌پذیرم، "
@@ -150,6 +165,10 @@ class JournalPaths:
     @property
     def decision_md_machine_accessories_163_164(self) -> Path:
         return self.root / "09-DECISION-MACHINE-ACCESSORIES-163-164-2026-10-18.md"
+
+    @property
+    def decision_md_tx_owner_scope_157_160(self) -> Path:
+        return self.root / "10-DECISION-TX-OWNER-SCOPE-157-160-2026-10-18.md"
 
     @property
     def pending_groups_csv(self) -> Path:
@@ -321,6 +340,38 @@ def build_journal_entry_006() -> dict[str, str]:
             f"{LEGACY_CATEGORY_164_PRODUCT_COUNT} products under {LEGACY_CATEGORY_164_ID}; "
             f"specialized leaves under {MACHINES_COMMERCE_ROOT_CODE} from per-product evidence; "
             "no generic catch-all substitute; 80 PRODUCT_LEVEL_REQUIRED records blocked."
+        ),
+    }
+
+
+def build_journal_entry_007() -> dict[str, str]:
+    scope_ids = "|".join(TX_OWNER_SCOPE_CATEGORY_IDS)
+    return {
+        "journal_entry_id": "OWNER-ARCH-DECISION-007",
+        "decision_id": DECISION_ID_TX_OWNER_SCOPE_157_160,
+        "decision_date": "2026-10-18",
+        "decision_type": "STRUCTURAL_ARCHITECTURE_APPROVAL",
+        "b2_decision_group_id": DECISION_ID_TX_OWNER_SCOPE_157_160,
+        "owner_statement_fa": (
+            "«دسته‌های ۱۵۷–۱۶۰ را از معماری هفت‌ریشهٔ تخصصی خارج می‌کنم؛ "
+            "DEPRECATED فقط در طراحی هدف؛ TX-OWNER-001 (۱۵۱ خروج سندی، ۱۱۱ مدرک باز، "
+            "۲۶۲ محصول) بدون تغییر؛ بدون حذف دسته‌ای، تخصیص خودکار یا APPLY.»"
+        ),
+        "owner_architecture_decision_status": "STRUCTURAL_ACCEPTED",
+        "linked_prerequisite_gate_ids": GATE_IR_MARKET_NAMING_SEO,
+        "category_apply_authorization": "NO",
+        "product_reassignment_authorization": "NO",
+        "seo_deployment_authorization": "NO",
+        "production_mutation_authorization": "NO",
+        "b2_review_snapshot_preserved": "YES",
+        "notes_en": (
+            f"Exclude legacy categories {scope_ids} from future seven-root commerce; "
+            "DEPRECATED in target design only. Preserve immutable TX-OWNER-001 journals: "
+            f"{TX_OWNER_001_APPROVE_CATALOG_EXIT_COUNT} APPROVE_CATALOG_EXIT (documentary, not APPLY); "
+            f"{TX_OWNER_001_REQUEST_MORE_EVIDENCE_COUNT} REQUEST_MORE_EVIDENCE (open); "
+            f"{TX_OWNER_001_COHORT_PRODUCT_COUNT} product IDs total. No blanket deletion, "
+            "auto retirement, reassignment, redirect, or 410; production requires separate "
+            "per-product evidence and Owner execution authorization."
         ),
     }
 
@@ -633,6 +684,59 @@ def build_decision_markdown_machine_accessories_163_164() -> str:
     )
 
 
+def build_decision_markdown_tx_owner_scope_157_160() -> str:
+    cat_list = " · ".join(f"**{cid}**" for cid in TX_OWNER_SCOPE_CATEGORY_IDS)
+    codes = "\n".join(f"- `{code}`" for code in TX_OWNER_DEPRECATED_TARGET_CODES)
+    return "\n".join(
+        [
+            "# Owner Architecture Decision — TX-OWNER-SCOPE-157-160",
+            "",
+            "| Field | Value |",
+            "|-------|-------|",
+            "| **Journal entry** | `OWNER-ARCH-DECISION-007` |",
+            "| **DECISION_ID** | `TX-OWNER-SCOPE-157-160` |",
+            "| **DECISION_DATE** | 2026-10-18 |",
+            "| **DECISION_TYPE** | `STRUCTURAL_ARCHITECTURE_APPROVAL` |",
+            f"| **Legacy categories** | {cat_list} (hand tools / woodworking) |",
+            f"| **TX-OWNER-001 cohort** | {TX_OWNER_001_COHORT_PRODUCT_COUNT} product IDs |",
+            "| **B2 link** | group `TX-OWNER-SCOPE-157-160` |",
+            "| **Gate** | `IR-MARKET-NAMING-SEO` (`PENDING_OWNER_REVIEW`) |",
+            "",
+            "## Approved structural direction",
+            "",
+            "- Exclude categories **157, 158, 159, 160** from the future seven-root specialized commerce architecture.",
+            "- Record these identities as **DEPRECATED** in **target design only** (not production mutation).",
+            "Target design codes:",
+            codes,
+            "",
+            "## TX-OWNER-001 preservation (immutable prior journals)",
+            "",
+            f"- **`{TX_OWNER_001_PACKAGE_DIR}/`** — do not modify prior Owner authorization batches.",
+            f"- **{TX_OWNER_001_APPROVE_CATALOG_EXIT_COUNT}** `APPROVE_CATALOG_EXIT` — documentary authorization only, **not** APPLY.",
+            f"- **{TX_OWNER_001_REQUEST_MORE_EVIDENCE_COUNT}** `REQUEST_MORE_EVIDENCE` — still open and protected.",
+            f"- **Total scope:** exactly **{TX_OWNER_001_COHORT_PRODUCT_COUNT}** product IDs.",
+            "- Do **not** change any individual product authorization.",
+            "",
+            "## Explicitly NOT approved",
+            "",
+            "- Blanket deletion, automatic category retirement, product deletion.",
+            "- Product reassignment, redirect deployment, or HTTP 410.",
+            "- `CATEGORY_APPLY`, SEO deploy, production deployment.",
+            "- Approval of other pending B2 decision groups.",
+            "",
+            "## Future production",
+            "",
+            "Any production action requires separate exact-product evidence, prerequisite validation, "
+            "and explicit Owner execution authorization.",
+            "",
+            "## B2 snapshot policy",
+            "",
+            "Frozen B2 register still shows `PENDING` for `TX-OWNER-SCOPE-157-160`; "
+            "this journal entry is authoritative.",
+        ]
+    )
+
+
 def _validate_journal_entry(row: dict[str, str], errors: list[str]) -> None:
     for auth_field in (
         "category_apply_authorization",
@@ -711,6 +815,9 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
     paths.decision_md_machine_accessories_163_164.write_text(
         build_decision_markdown_machine_accessories_163_164(), encoding="utf-8"
     )
+    paths.decision_md_tx_owner_scope_157_160.write_text(
+        build_decision_markdown_tx_owner_scope_157_160(), encoding="utf-8"
+    )
 
     with paths.journal_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=JOURNAL_CSV_COLUMNS)
@@ -721,6 +828,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         writer.writerow(build_journal_entry_004())
         writer.writerow(build_journal_entry_005())
         writer.writerow(build_journal_entry_006())
+        writer.writerow(build_journal_entry_007())
 
     pending = build_pending_b2_groups()
     with paths.pending_groups_csv.open("w", encoding="utf-8", newline="") as handle:
@@ -766,6 +874,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         "07-DECISION-FLUIDS-155-FACET-NAV-2026-10-18.md",
         "08-DECISION-FLUIDS-156-PUBLICATION-2026-10-18.md",
         "09-DECISION-MACHINE-ACCESSORIES-163-164-2026-10-18.md",
+        "10-DECISION-TX-OWNER-SCOPE-157-160-2026-10-18.md",
         "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv",
         "README.md",
         "J-VALIDATION-CLOSEOUT-REPORT.md",
@@ -783,5 +892,6 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
             build_journal_entry_004(),
             build_journal_entry_005(),
             build_journal_entry_006(),
+            build_journal_entry_007(),
         ],
     }

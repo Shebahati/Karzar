@@ -1196,6 +1196,16 @@ documents:
       Owner Architecture Decision 006 — conditional decomposition of categories
       163/164; 80 PRODUCT_LEVEL_REQUIRED blocked; MACHINES specialized leaves only.
 
+  - id: TAXONOMY-PHASE1B-OWNER-ARCH-DECISION-007-20261018
+    path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/10-DECISION-TX-OWNER-SCOPE-157-160-2026-10-18.md
+    class: DECISION
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner Architecture Decision 007 — exclude categories 157–160 from seven-root
+      commerce; DEPRECATED target design only; TX-OWNER-001 151/111/262 preserved.
+
   - id: TAXONOMY-PHASE1B-OWNER-ARCH-JOURNAL-README-20261018
     path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/README.md
     class: EVIDENCE
