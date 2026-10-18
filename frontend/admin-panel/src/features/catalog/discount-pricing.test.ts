@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 import { calculateProductDiscount } from "./discount-pricing";
 
 describe("calculateProductDiscount", () => {
-  it("takes 15% off an undiscounted approved price", () => {
-    expect(calculateProductDiscount("36724800", "", "15")).toEqual({
-      basePrice: "31216080.00",
-      originalPrice: "36724800.00",
+  it.each([
+    ["3203-1506", "47100000", "40035000.00"],
+    ["S3-2824", "53400000", "45390000.00"],
+  ])("calculates the owner-approved 15%% for %s", (_sku, original, expected) => {
+    expect(calculateProductDiscount(original, "", "15")).toEqual({
+      basePrice: expected,
+      originalPrice: `${original}.00`,
     });
   });
 
