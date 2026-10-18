@@ -1067,6 +1067,17 @@ documents:
       One-to-one action register for 111 open Owner evidence requests from
       Batches 001 through 011; four parallel waves and no new decisions or APPLY.
 
+  - id: TAXONOMY-TX-OWNER-001-EVIDENCE-111-RECOVERY-20261018
+    path: audit/taxonomy-phase1b-tx-owner-001-evidence-111-recovery-2026-10-18/04-OWNER-REVIEW-MEMO.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Remote-first evidence recovery for all 111 open Owner requests: matrix,
+      source register with live retrieval status, physical collection manifest,
+      seven-domain boundary assessment, reconciliation; no APPLY or mutation.
+
   - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-011-20261018
     path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-011-2026-10-18.md
     class: DECISION

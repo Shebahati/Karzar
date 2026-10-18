@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "canonical_action_register_git_blob_sha1": "bb723a79314314edc080c80c79616f3478e94082",
+  "canonical_action_register_raw_sha256": "da51a45ad4a7c6f34ed52a94ad169c7e2a1bc5dee0051d8afca20ef2811d2953",
+  "register_identity_attestation": "MATCH_CANONICAL_GIT_BLOB",
+  "frozen_262_review_blob_note": "e0d1dd1b0ab80b1a4b7b92c8a2ddbe43dca36cc3",
+  "pr499_row_count": 262,
+  "pr499_unique_product_ids": 262,
+  "owner_journal_csv_count": 11,
+  "owner_journal_unique_product_ids": 262,
+  "open_evidence_request_count": 111,
+  "documentary_exit_count_in_journals": 151,
+  "apply_authorization_rows": 0,
+  "wave_counts": {
+    "W4_SPECIAL_27": 27,
+    "W1_BLADEKAT_34": 34,
+    "W3_P2_19": 19,
+    "W2_P1_31": 31
+  },
+  "workstream_counts": {
+    "EARLY_TECH_BOUNDARY_8": 8,
+    "BLADEKAT_WOOD_METAL_34": 34,
+    "EARLY_M7_MODEL_SUFFIX_2": 2,
+    "M7_MODEL_UNIT_DOMAIN_9": 9,
+    "WOOD_BLADE_CHISEL_4": 4,
+    "CP_GRAT_EXACT_ARTICLE_4": 4,
+    "P2_SPECIAL_IDENTITY_DOMAIN_19": 19,
+    "P1_GROZ_CHAGAN_EXACT_16": 16,
+    "P1_M7_EXACT_PAGE_9": 9,
+    "P1_M7_SUFFIX_VARIANT_6": 6
+  },
+  "evidence_recovery_status_counts": {
+    "REMOTE_RESEARCH_UNRESOLVED": 55,
+    "PARTIAL_OR_FAMILY_LEVEL_EVIDENCE": 28,
+    "CONFLICTING_EVIDENCE_DOCUMENTED": 27,
+    "EXACT_OEM_MODEL_DOCUMENTARY": 1
+  },
+  "physical_stock_required_count": 111,
+  "exact_oem_documentary_yes_count": 1,
+  "partial_family_yes_count": 50,
+  "remote_unresolved_count": 55,
+  "conflicting_evidence_count": 27,
+  "all_owner_decisions_unchanged_REQUEST_MORE_EVIDENCE": true,
+  "zero_mutation": {
+    "PRODUCTION_MUTATION": "NO",
+    "CATALOG_APPLY": "NO",
+    "OWNER_BATCH_JOURNALS_MUTATED": "NO",
+    "PRODUCT_TITLE_CATEGORY_MANIFEST": "NO"
+  }
+}
