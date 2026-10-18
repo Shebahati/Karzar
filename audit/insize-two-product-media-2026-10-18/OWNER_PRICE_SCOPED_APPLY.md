@@ -180,3 +180,26 @@ price/brand transaction. Do not invoke `ProductService.update_product_with_valid
 it invokes `ensure_product_in_hesabfa` after committing the product.
 All writes need saved before-image, changed-row cardinality checks, and a
 post-commit rollback journal; no broad catalog mutation/rename/deploy.
+
+## Owner-run bundled preflight — 2026-10-18T11:58:19.353529Z
+
+The owner executed `karzar_insize_release_preflight_20261018.zip` on
+Ubuntu; reported both hero SHA-256 checks PASS; host
+`srv5944957438`, DB volume `karzar_postgres_data`,
+API upload volume `karzar_karzar_uploads`, DB `karzar_staging`,
+`transaction_read_only=on`. Both target product rows returned
+`DATA_SNAPSHOT_MATCH_MEDIA_AND_AUTH_PENDING`, image_count=0 and
+exact frozen `updated_at` values. `brands.id=3` matches INSIZE;
+session ended `ROLLBACK`. Report path on owner laptop:
+`~/karzar_insize_release_preflight_20261018T115817Z.txt`.
+No VPS file transfer or live mutation was performed.
+
+Two enabled, noninternal triggers were observed:
+`products.trg_products_updated_at` and
+`product_images.trg_product_images_updated_at`. Before authoring or
+allowing a transactional APPLY, examine their **live** definitions using
+`pg_get_triggerdef` and `pg_get_functiondef` under READ ONLY,
+particularly updated_at behavior and any other side effects. Do not
+assume trigger names prove safety. Once definitions and current CI are
+reviewed, produce a separate rollback-journaled APPLY package with
+explicit operator opt-in, exactly these two IDs, no Hesabfa calls.
