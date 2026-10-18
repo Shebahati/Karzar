@@ -2456,3 +2456,14 @@ documents:
     notes: >-
       Two ID owner-confirmed price targets, media/production/Hesabfa preflight
       and rollback gates; no actual production APPLY authorization.
+
+  - id: INSIZE-TWO-PRODUCT-READONLY-PREFLIGHT-20261018
+    path: scripts/catalog_target/insize_two_product_readonly_preflight_20261018.sql
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: fix/admin-discount-ui-oct18
+    notes: >-
+      Parameter-free strict two-product DB read-only identity, price and image
+      query. Operator execution pending; no production mutation.
