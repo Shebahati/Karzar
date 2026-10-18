@@ -83,3 +83,36 @@ commercial-use rights.
   uploaded to repository/server).
 
 This review does not authorize database APPLY, deployment, or account sync.
+
+## Final second-source uploaded image review — 2026-10-18 (supersedes prior ID 1944 media hold)
+
+Owner uploaded `insize-1944.tar.gz`, containing two working exact-SKU
+Rubutek files. Both decode successfully and passed image-integrity
+inspection:
+- `photo1.png`: 750x750 RGBA (fully opaque), SHA-256
+  `20a113b88fc75833ced2a98f0617099565864e98bfcb69ec25350562e63a744f`.
+  Actual pixel inspection reveals **six micrometers** in the open green kit.
+  This is visually consistent with the owner's six-piece 0–150 mm kit.
+  Source: https://www.rubutek.com/image/cache/catalog/product-07/3203-1506A-750x750.png
+- `photo2.jpg`: 750x750 JPEG, SHA-256
+  `802650d6f859d19856b23ce87fd85c1b4d7abed3d3858db8640462578bc5edb7`.
+  A source reference table identifies `3203-1506A`, 0–150 mm, with
+  components 3203-25A/50A/75A/100A/125A/150A; **not** selected as public hero.
+
+Prepared production-ready media locally, without upscaling or object alteration:
+- ID 1944 `1944_3203-1506A_hero.webp` 750x750, SHA-256
+  `a459bd11a045aeb430944d59015ec401fa481a0162a2cad31724c3d4099f33bd`;
+  thumbnail 480x480 SHA-256
+  `318ff65f95a1906ba71afabe01a8c26b8cb3bd77fd44ccb5dc18bec407199609`.
+- ID 3639 `3639_S3-2824_hero.webp` 1600x1600, SHA-256
+  `db18cd1a9b181bcd70297ca574f96afc37af7598a698c13100c71aff425479fc`;
+  thumbnail 640x640 SHA-256
+  `ff087c4fe9a0663807fe3d4c530ec3a1586d5c1fb3e44d1c33d9df5a9a4af7d9`.
+
+The two-product local archive `karzar_insize_media_final_20261018.zip` passed
+archive CRC and SHA-256 verification (archive SHA-256
+`52394c679c3af6a4deebc7ac9b2b5598dbbdecfc68872ff18e9831e9468abf35`);
+it includes only selected hero/thumb assets, original ID 1944 source, exact-SKU
+reference table, README and JSON provenance manifest. The **rejected four-piece
+Cutwel image is NOT in this archive**. Owner attested commercial-use rights.
+**MEDIA_READY_LOCAL_BOTH / PRODUCTION_IMAGE_UPLOAD=NO / DB_MUTATION=NO**.
