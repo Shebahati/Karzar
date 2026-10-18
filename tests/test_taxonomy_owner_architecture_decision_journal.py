@@ -16,6 +16,7 @@ from catalog_target.taxonomy_owner_architecture_decision_journal import (  # noq
     B2_PENDING_GROUP_COUNT,
     DECISION_ID_ACCESSORIES_154,
     DECISION_ID_ARCH_7_L1,
+    DECISION_ID_FLUIDS_155,
     DECISION_ID_METROLOGY_L2,
     JOURNAL_ENTRY_SPECS,
     JournalPaths,
@@ -37,7 +38,12 @@ class OwnerArchitectureDecisionJournalTests(unittest.TestCase):
         b2 = ROOT / "audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18"
         with (b2 / "C-GROUPED-OWNER-DECISION-REGISTER.csv").open(encoding="utf-8") as handle:
             rows = list(csv.DictReader(handle))
-        for gid in (DECISION_ID_ARCH_7_L1, DECISION_ID_METROLOGY_L2, DECISION_ID_ACCESSORIES_154):
+        for gid in (
+            DECISION_ID_ARCH_7_L1,
+            DECISION_ID_METROLOGY_L2,
+            DECISION_ID_ACCESSORIES_154,
+            DECISION_ID_FLUIDS_155,
+        ):
             row = next(r for r in rows if r["decision_group_id"] == gid)
             self.assertEqual(row["owner_architecture_decision_status"], "PENDING")
 

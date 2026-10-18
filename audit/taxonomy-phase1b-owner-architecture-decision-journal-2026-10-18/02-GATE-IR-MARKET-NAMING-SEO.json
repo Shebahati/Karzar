@@ -16,11 +16,13 @@
   "linked_decision_journal_entries": [
     "OWNER-ARCH-DECISION-001",
     "OWNER-ARCH-DECISION-002",
-    "OWNER-ARCH-DECISION-003"
+    "OWNER-ARCH-DECISION-003",
+    "OWNER-ARCH-DECISION-004"
   ],
   "linked_b2_decision_groups": [
     "ACCESSORIES-154-DECOMPOSE",
     "ARCH-7-L1-ROOTS",
+    "FLUIDS-155-FACET-NAV",
     "METROLOGY-L2-FAMILIES"
   ]
 }

@@ -18,10 +18,16 @@ PR534_MERGE_SHA = "25a2497c11b6a740fa606292af1e791d41335ba9"
 DECISION_ID_ARCH_7_L1 = "ARCH-7-L1-ROOTS"
 DECISION_ID_METROLOGY_L2 = "METROLOGY-L2-FAMILIES"
 DECISION_ID_ACCESSORIES_154 = "ACCESSORIES-154-DECOMPOSE"
+DECISION_ID_FLUIDS_155 = "FLUIDS-155-FACET-NAV"
 GATE_IR_MARKET_NAMING_SEO = "IR-MARKET-NAMING-SEO"
 
 OWNER_DECIDED_B2_GROUP_IDS = frozenset(
-    {DECISION_ID_ARCH_7_L1, DECISION_ID_METROLOGY_L2, DECISION_ID_ACCESSORIES_154}
+    {
+        DECISION_ID_ARCH_7_L1,
+        DECISION_ID_METROLOGY_L2,
+        DECISION_ID_ACCESSORIES_154,
+        DECISION_ID_FLUIDS_155,
+    }
 )
 
 B2_TOTAL_DECISION_GROUPS = 10
@@ -31,11 +37,20 @@ JOURNAL_ENTRY_SPECS: tuple[tuple[str, str, str], ...] = (
     ("OWNER-ARCH-DECISION-001", DECISION_ID_ARCH_7_L1, "CONDITIONAL_ARCHITECTURE_ACCEPTANCE"),
     ("OWNER-ARCH-DECISION-002", DECISION_ID_METROLOGY_L2, "STRUCTURAL_ARCHITECTURE_APPROVAL"),
     ("OWNER-ARCH-DECISION-003", DECISION_ID_ACCESSORIES_154, "CONDITIONAL_STRUCTURAL_APPROVAL"),
+    ("OWNER-ARCH-DECISION-004", DECISION_ID_FLUIDS_155, "STRUCTURAL_ARCHITECTURE_APPROVAL"),
 )
 
 LEGACY_CATEGORY_154_ID = "154"
 LEGACY_CATEGORY_154_DESCENDANT_PRODUCT_COUNT = 289
 LEGACY_CATEGORY_154_STAGING_CODE = "KZ.CAT.TRANSITIONAL_INDUSTRIAL_ACCESSORIES_HUB_154"
+
+LEGACY_CATEGORY_155_ID = "155"
+LEGACY_CATEGORY_156_ID = "156"
+LEGACY_CATEGORY_156_PROTECTED_PRODUCT_COUNT = 27
+LEGACY_CATEGORY_155_FACET_CODE = "KZ.CAT.TRANSITIONAL_LUBRICANTS_FACET_155"
+FLUIDS_INDUSTRIAL_OIL_CODE = "KZ.CAT.FLUIDS_INDUSTRIAL_OIL"
+FLUIDS_COMMERCE_ROOT_CODE = "KZ.CAT.BUYER_FLUIDS"
+B2_PENDING_FLUIDS_156_PUBLICATION = "FLUIDS-156-PUBLICATION"
 
 OWNER_STATEMENT_FA = (
     "«به‌عنوان مالک، هفت ریشهٔ معماری پیشنهادی را به‌صورت مشروط می‌پذیرم، "
@@ -108,6 +123,10 @@ class JournalPaths:
     @property
     def decision_md_accessories_154(self) -> Path:
         return self.root / "06-DECISION-ACCESSORIES-154-DECOMPOSE-2026-10-18.md"
+
+    @property
+    def decision_md_fluids_155(self) -> Path:
+        return self.root / "07-DECISION-FLUIDS-155-FACET-NAV-2026-10-18.md"
 
     @property
     def pending_groups_csv(self) -> Path:
@@ -189,6 +208,36 @@ def build_journal_entry_003() -> dict[str, str]:
             f"preserve {LEGACY_CATEGORY_154_STAGING_CODE} as TRANSITIONAL; protect oils "
             "cohort; retire legacy nav only after validated migration, SEO review, and "
             "separate Owner execution approval."
+        ),
+    }
+
+
+def build_journal_entry_004() -> dict[str, str]:
+    return {
+        "journal_entry_id": "OWNER-ARCH-DECISION-004",
+        "decision_id": DECISION_ID_FLUIDS_155,
+        "decision_date": "2026-10-18",
+        "decision_type": "STRUCTURAL_ARCHITECTURE_APPROVAL",
+        "b2_decision_group_id": DECISION_ID_FLUIDS_155,
+        "owner_statement_fa": (
+            "«خروج دسته ۱۵۵ از ناوبری خریدار مستقل را تأیید می‌کنم: روغن‌های صنعتی "
+            "تحت ریشه FLUIDS؛ ۱۵۶ برگ تخصصی؛ ۲۷ محصول محافظت‌شده؛ هویت عددی تا اجرای "
+            "جداگانه؛ انتشار ۱۵۶ هنوز تصمیم جداست.»"
+        ),
+        "owner_architecture_decision_status": "STRUCTURAL_ACCEPTED",
+        "linked_prerequisite_gate_ids": GATE_IR_MARKET_NAMING_SEO,
+        "category_apply_authorization": "NO",
+        "product_reassignment_authorization": "NO",
+        "seo_deployment_authorization": "NO",
+        "production_mutation_authorization": "NO",
+        "b2_review_snapshot_preserved": "YES",
+        "notes_en": (
+            f"Retire legacy category {LEGACY_CATEGORY_155_ID} as independent buyer-facing "
+            f"commerce node; oils under {FLUIDS_COMMERCE_ROOT_CODE}; "
+            f"{LEGACY_CATEGORY_156_ID} remains proposed leaf {FLUIDS_INDUSTRIAL_OIL_CODE} "
+            f"({LEGACY_CATEGORY_156_PROTECTED_PRODUCT_COUNT} protected product IDs); "
+            f"preserve numeric {LEGACY_CATEGORY_155_ID} for importer compatibility; "
+            f"{B2_PENDING_FLUIDS_156_PUBLICATION} not implied approved."
         ),
     }
 
@@ -380,6 +429,44 @@ def build_decision_markdown_accessories_154() -> str:
     )
 
 
+def build_decision_markdown_fluids_155() -> str:
+    return "\n".join(
+        [
+            "# Owner Architecture Decision — FLUIDS-155-FACET-NAV",
+            "",
+            "| Field | Value |",
+            "|-------|-------|",
+            "| **Journal entry** | `OWNER-ARCH-DECISION-004` |",
+            "| **DECISION_ID** | `FLUIDS-155-FACET-NAV` |",
+            "| **DECISION_DATE** | 2026-10-18 |",
+            "| **DECISION_TYPE** | `STRUCTURAL_ARCHITECTURE_APPROVAL` |",
+            f"| **Legacy category 155** | Lubricants facet — `{LEGACY_CATEGORY_155_FACET_CODE}` |",
+            f"| **Proposed leaf 156** | `{FLUIDS_INDUSTRIAL_OIL_CODE}` under `{FLUIDS_COMMERCE_ROOT_CODE}` |",
+            f"| **Protected product IDs** | {LEGACY_CATEGORY_156_PROTECTED_PRODUCT_COUNT} (category {LEGACY_CATEGORY_156_ID} cohort) |",
+            "| **B2 link** | group `FLUIDS-155-FACET-NAV` |",
+            "| **Gate** | `IR-MARKET-NAMING-SEO` (`PENDING_OWNER_REVIEW`) |",
+            "",
+            "## Approved structural direction",
+            "",
+            f"- Industrial oils belong under the **FLUIDS** commerce root (`{FLUIDS_COMMERCE_ROOT_CODE}`).",
+            f"- Category **{LEGACY_CATEGORY_156_ID}** remains the proposed specialized industrial-oil leaf (`{FLUIDS_INDUSTRIAL_OIL_CODE}`).",
+            f"- Preserve all **{LEGACY_CATEGORY_156_PROTECTED_PRODUCT_COUNT}** protected product IDs.",
+            f"- Category **{LEGACY_CATEGORY_155_ID}** must **not** become an independently selectable commerce landing page in the target design.",
+            f"- Preserve existing numeric category **{LEGACY_CATEGORY_155_ID}** identity and importer compatibility until separate Owner execution approval.",
+            "",
+            "## Explicitly NOT approved / not implied",
+            "",
+            f"- **`{B2_PENDING_FLUIDS_156_PUBLICATION}`** — publication of category 156 is a separate pending Owner decision.",
+            "- Display names, SEO titles, H1, URLs, slugs (`IR-MARKET-NAMING-SEO`).",
+            "- Production mutation, product reassignment, redirects, `CATEGORY_APPLY`.",
+            "",
+            "## B2 snapshot policy",
+            "",
+            "Frozen B2 register still shows `PENDING` for `FLUIDS-155-FACET-NAV`; this journal entry is authoritative.",
+        ]
+    )
+
+
 def _validate_journal_entry(row: dict[str, str], errors: list[str]) -> None:
     for auth_field in (
         "category_apply_authorization",
@@ -453,6 +540,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
     paths.decision_md_accessories_154.write_text(
         build_decision_markdown_accessories_154(), encoding="utf-8"
     )
+    paths.decision_md_fluids_155.write_text(build_decision_markdown_fluids_155(), encoding="utf-8")
 
     with paths.journal_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=JOURNAL_CSV_COLUMNS)
@@ -460,6 +548,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         writer.writerow(build_journal_entry_001())
         writer.writerow(build_journal_entry_002())
         writer.writerow(build_journal_entry_003())
+        writer.writerow(build_journal_entry_004())
 
     pending = build_pending_b2_groups()
     with paths.pending_groups_csv.open("w", encoding="utf-8", newline="") as handle:
@@ -502,6 +591,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         "03-DECISION-ARCH-7-L1-ROOTS-2026-10-18.md",
         "05-DECISION-METROLOGY-L2-FAMILIES-2026-10-18.md",
         "06-DECISION-ACCESSORIES-154-DECOMPOSE-2026-10-18.md",
+        "07-DECISION-FLUIDS-155-FACET-NAV-2026-10-18.md",
         "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv",
         "README.md",
         "J-VALIDATION-CLOSEOUT-REPORT.md",
@@ -516,5 +606,6 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
             build_journal_entry_001(),
             build_journal_entry_002(),
             build_journal_entry_003(),
+            build_journal_entry_004(),
         ],
     }

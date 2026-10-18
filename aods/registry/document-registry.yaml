@@ -1166,6 +1166,16 @@ documents:
       Owner Architecture Decision 003 — conditional structural approval for
       category 154 decomposition; 289 descendant SKUs; no APPLY/reassignment.
 
+  - id: TAXONOMY-PHASE1B-OWNER-ARCH-DECISION-004-20261018
+    path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/07-DECISION-FLUIDS-155-FACET-NAV-2026-10-18.md
+    class: DECISION
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner Architecture Decision 004 — retire category 155 as buyer-facing commerce
+      node; FLUIDS root; 156 leaf; 27 protected SKUs; FLUIDS-156-PUBLICATION not implied.
+
   - id: TAXONOMY-PHASE1B-OWNER-ARCH-JOURNAL-README-20261018
     path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/README.md
     class: EVIDENCE
