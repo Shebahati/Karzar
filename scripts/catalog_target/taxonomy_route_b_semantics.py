@@ -157,49 +157,67 @@ def commerce_parent_for(
     row: CategoryRow,
     parent_of: dict[int, int | None],
     semantics: dict[int, CategorySemantic],
-) -> tuple[str, int]:
-    """Return (parent_code, depth) for publishable commerce nodes only."""
+) -> str:
+    """Return parent commerce code for publishable nodes (depth derived from graph)."""
     sem = semantics[row.category_id]
     if not sem.publish_in_commerce_tree or not sem.kz_cat_code:
-        return "", 0
+        return ""
     domain = scientific_domain_for(row, parent_of)
     buyer_l1 = buyer_l1_for_domain(domain)
     if not buyer_l1:
-        return "", 0
+        return ""
 
     l1 = l1_ancestor(row.category_id, parent_of)
     pid = row.parent_id
 
-    # Thread repair leaf under dedicated buyer L1 (not Cutting L1).
     if row.category_id == 55:
-        return buyer_l1, 2
+        return buyer_l1
 
-    # Fluids: industrial oil leaf directly under buyer L1.
     if row.category_id == 156:
-        return buyer_l1, 2
+        return buyer_l1
 
-    # Metrology: family hub at depth 2, leaves at depth 3.
+    # Metrology publishable leaves always hang under the L2 family hub (never legacy L1).
     if l1 in METROLOGY_FAMILY and row.category_id != l1:
         family = METROLOGY_FAMILY[l1]
-        if pid == l1:
-            return family, 2
         if pid is not None and semantics.get(pid) and semantics[pid].publish_in_commerce_tree:
-            return semantics[pid].kz_cat_code, 3
-        return family, 2
+            return semantics[pid].kz_cat_code
+        return family
 
-    # Depth-2 family hubs under buyer L1.
     if row.category_id in {12, 18, 21, 24, 28, 98, 114, 161}:
-        return buyer_l1, 2
+        return buyer_l1
 
-    # Depth-3 leaves under published family hubs.
     if pid is not None and semantics.get(pid) and semantics[pid].publish_in_commerce_tree:
-        return semantics[pid].kz_cat_code, 3
+        return semantics[pid].kz_cat_code
 
-    # Depth-2 selectable leaves directly under buyer L1 (cutting, machines, workholding).
     if row.depth == 2:
-        return buyer_l1, 2
+        return buyer_l1
 
-    return buyer_l1, 2
+    return buyer_l1
+
+
+def assign_commerce_depths(
+    rows: list[dict[str, str]],
+    *,
+    code_key: str = "commerce_category_code",
+    parent_key: str = "parent_commerce_code",
+    depth_key: str = "commerce_depth",
+) -> dict[str, int]:
+    """Set depth from parent graph: roots=1, child=parent+1. Returns code→depth map."""
+    parents = {r[code_key]: (r.get(parent_key) or "").strip() for r in rows}
+    depth_cache: dict[str, int] = {}
+
+    def depth_of(code: str) -> int:
+        if code in depth_cache:
+            return depth_cache[code]
+        parent = parents.get(code, "")
+        d = 1 if not parent else depth_of(parent) + 1
+        depth_cache[code] = d
+        return d
+
+    for row in rows:
+        d = depth_of(row[code_key])
+        row[depth_key] = str(d)
+    return depth_cache
 
 
 def registry_code_for_category(row: CategoryRow) -> tuple[str, str]:

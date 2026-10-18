@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections import Counter
+from collections import Counter, defaultdict
 from typing import Any
 
 from catalog_target.taxonomy_phase1b_baseline import (
@@ -110,8 +110,12 @@ def validate_route_b_package(
     tree_codes = {r["commerce_category_code"] for r in commerce_tree}
     if len(tree_codes) != len(commerce_tree):
         errors.append("commerce_tree_duplicate_codes")
-    parents = {r["commerce_category_code"]: r.get("parent_commerce_code") or "" for r in commerce_tree}
-    all_codes = set(parents) | set(parents.values())
+    parents = {r["commerce_category_code"]: (r.get("parent_commerce_code") or "").strip() for r in commerce_tree}
+    depth_by_code = {r["commerce_category_code"]: int(r["commerce_depth"]) for r in commerce_tree}
+    children_of: dict[str, list[str]] = defaultdict(list)
+    for code, parent in parents.items():
+        if parent:
+            children_of[parent].append(code)
     for code, parent in parents.items():
         if parent and parent not in tree_codes:
             errors.append(f"commerce_tree_missing_parent child={code} parent={parent}")
@@ -125,19 +129,63 @@ def validate_route_b_package(
             seen.add(cur)
             cur = parents[cur]
 
-    depths = [int(r["commerce_depth"]) for r in commerce_tree]
+    depths = list(depth_by_code.values())
     if max(depths, default=0) > MAX_CATEGORY_DEPTH:
         errors.append("commerce_tree_depth_exceeded")
     if min(depths, default=1) < 1:
         errors.append("commerce_tree_invalid_depth")
 
-    buyer_roots = {c for c, (_d, _e, _f) in BUYER_COMMERCE_L1.items()}
+    buyer_roots = set(BUYER_COMMERCE_L1)
     roots = [c for c, p in parents.items() if not p]
-    if not roots:
-        errors.append("commerce_tree_no_roots")
-    for r in roots:
-        if r not in buyer_roots and not r.startswith("KZ.CAT.METROLOGY_FAMILY_"):
-            errors.append(f"unexpected_commerce_root {r}")
+    if len(roots) != 7:
+        errors.append(f"commerce_tree_root_count expected=7 got={len(roots)}")
+    if set(roots) != buyer_roots:
+        errors.append(f"commerce_tree_roots_mismatch got={sorted(roots)}")
+    for root in roots:
+        if depth_by_code.get(root) != 1:
+            errors.append(f"commerce_root_not_depth_1 code={root}")
+
+    for code, parent in parents.items():
+        if not parent:
+            continue
+        child_d = depth_by_code[code]
+        parent_d = depth_by_code[parent]
+        if child_d != parent_d + 1:
+            errors.append(f"commerce_depth_not_parent_plus_one child={code} got={child_d} parent={parent_d}")
+
+    reachable: set[str] = set()
+    stack = list(roots)
+    while stack:
+        node = stack.pop()
+        if node in reachable:
+            continue
+        reachable.add(node)
+        stack.extend(children_of.get(node, []))
+    if reachable != tree_codes:
+        errors.append(
+            f"commerce_tree_unreachable_nodes count={len(tree_codes - reachable)}"
+        )
+
+    for row in commerce_tree:
+        code = row["commerce_category_code"]
+        depth = depth_by_code[code]
+        if row.get("commerce_is_selectable") == "YES":
+            if depth not in (2, 3):
+                errors.append(f"selectable_not_depth_2_or_3 code={code} depth={depth}")
+            if children_of.get(code):
+                errors.append(f"selectable_not_leaf code={code}")
+
+    for row in manifest:
+        if row.get("identity_status") != "PUBLISHED_PROPOSED":
+            continue
+        code = row.get("published_kz_cat_code") or ""
+        if not code:
+            continue
+        if code not in depth_by_code:
+            errors.append(f"manifest_published_code_missing_from_tree id={row['current_category_id']}")
+            continue
+        if row.get("commerce_tree_depth") != str(depth_by_code[code]):
+            errors.append(f"manifest_depth_mismatch_tree id={row['current_category_id']}")
 
     retire_in_tree = [
         r["commerce_category_code"]
