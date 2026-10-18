@@ -1057,6 +1057,16 @@ documents:
       Evidence-only Owner decision options for 13 exact-OEM-reference M7 products
       and two unresolved Groz families. No Batch 006 or Owner approval, no APPLY.
 
+  - id: TAXONOMY-TX-OWNER-001-P1-WAVE-B-37-OEM-20261018
+    path: audit/taxonomy-phase1b-tx-owner-001-p1-wave-b-37-oem-pages-2026-10-18/00-OWNER-WAVE-B-SUMMARY-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Exact 37 P1 Wave B M7 manufacturer model/source reconciliation,
+      bounded page retrieval tiers, no Owner decision or APPLY.
+
   - id: TAXONOMY-TX-OWNER-001-P1-WAVE-A-23-OEM-20261018
     path: audit/taxonomy-phase1b-tx-owner-001-p1-wave-a-23-oem-2026-10-18/00-OWNER-SUMMARY-FA.md
     class: EVIDENCE
