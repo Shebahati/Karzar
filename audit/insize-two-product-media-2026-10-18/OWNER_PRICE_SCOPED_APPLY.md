@@ -140,3 +140,7 @@ Hesabfa effects from a proposed write path. Remaining production blockers:
 separately approved exact two-ID brand repair; valid original authorized
 images for both real kits; reviewed no-Hesabfa-write mutation path,
 before-images and rollback; owner APPLY decision after fresh recheck.
+
+## Owner commercial-image-rights attestation — 2026-10-18
+
+Owner explicitly confirmed commercial-use rights for the selected online product photography. **Rights gate: OWNER_ATTESTED**, not an independent legal/license review. Byte acquisition, actual visual SKU/kit inspection, image checksum/dimensions, and upload to Karzar remain incomplete. No additional rights request is needed solely due to prior caution; do not mark undownloaded remote pictures as materialized site assets. A self-contained offline local downloader for exact SKU source links was prepared for operator handoff when the agent download environment failed DNS; no VPS/product mutation and no hotlinking have occurred.
