@@ -89,3 +89,27 @@ both image arrays are empty and 3639 has no sale price. No price/image/brand
 mutation authorized by this snapshot. Need read-only brand existence, category
 and product_change_logs inspection, and separate owner approval before any
 identity-critical brand repair. **Do not silently relax identity preflight**.
+
+## Follow-up product-change-log verification (read only)
+
+Live `brands.id=3` exists: `INSIZE | اینسایز`. Product categories
+`1944 -> 58 / انواع میکرومتر`, `3639 -> 63 / گیج داخل سیلندر`.
+
+The two brand-clearing events are explicitly logged as `product_update`:
+- ID 1944: `brand_id 3 -> NULL`, 2026-10-10T14:58:46.600658Z
+- ID 3639: `brand_id 3 -> NULL`, 2026-10-18T09:18:13.567359Z
+
+Other recorded misuse of `original_price`: ID 1944 `NULL -> 10 -> 15
+-> NULL -> 47100000`; ID 3639 `NULL -> 10`. ID 3639 historical
+`base_price NULL -> 53400000` was in 2026-10-06 logs, but live
+`base_price=NULL`; the mechanism/time of the later clear is not proven
+by the returned last-30 rows.
+
+PR #529 now fixes the admin edit mapper to **omit** blank `brand_id`
+instead of sending destructive explicit NULL, with regression tests.
+The existing brand loss is still outstanding; a future exact two-ID
+identity-repair authorization must add `brand_id=3` to the narrowly
+allowed field set after fresh CAS preflight and canonical audit-log proof.
+The previous field whitelist excluding brand is superseded **only for
+that separate proposal**, not a grant of live APPLY. Do not infer the
+specific human actor from `reason=product_update`.
