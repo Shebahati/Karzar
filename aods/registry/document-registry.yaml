@@ -1047,6 +1047,17 @@ documents:
     notes: >
       SKU-specific Owner decision options for Groz special cases; not approvals.
 
+  - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-005-20261018
+    path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-005-2026-10-18.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner requests additional evidence for exactly P0 Product IDs 3008,
+      3009, 5227 and 5301. No exit, industrial exception, rehome,
+      title edit, APPLY, Production or Hesabfa mutation authorized.
+
   - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-004-20261017
     path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-004-2026-10-17.md
     class: EVIDENCE
