@@ -117,3 +117,26 @@ specific human actor from `reason=product_update`.
 ## Second read-only follow-up gate
 
 The SQL report now includes an exact 2026-10-18T10:40:12Z before-image drift check for both IDs, brand-master and brand-change-log verification, target price preview, and recent admin audit metadata. Its success state is `DATA_SNAPSHOT_MATCH_MEDIA_AND_AUTH_PENDING`, **not** APPLY permission. Any `STOP_*` result needs fresh investigation. The original `identity_gate` still intentionally reports `STOP_IDENTITY_MISMATCH` until the separate brand repair is authorized and applied. Execute only from a fresh `git show` extract, never use an older local /tmp file and never switch the data plane.
+
+## Operator follow-up read-only evidence — 2026-10-18T11:14:51.890475Z
+
+Executed the revised two-ID SQL against the independently verified live
+`karzar_staging` database through `lathe_postgres`.
+`transaction_read_only=on`; `ROLLBACK`; `PIPELINE_EXIT_STATUS=0`.
+
+The original brand-identity gate remains at
+`STOP_IDENTITY_MISMATCH` for both rows **by design** because live
+`brand_id=NULL`. The separate, brand-repair-aware before-image gate
+returned exactly **two**
+`DATA_SNAPSHOT_MATCH_MEDIA_AND_AUTH_PENDING` values (IDs 1944, 3639).
+Observed `updated_at`, prices, flags, category, SKU, manufacturer code,
+empty images and brand were unchanged from the 10:40:12Z snapshot.
+`admin_audit_logs` query returned zero rows for these IDs; that does not
+invalidate the verified `product_change_logs` entries or identify the actor.
+
+This proves state stability, **not** readiness to publish, authorization
+to change brand or pricing, image suitability/license, or absence of
+Hesabfa effects from a proposed write path. Remaining production blockers:
+separately approved exact two-ID brand repair; valid original authorized
+images for both real kits; reviewed no-Hesabfa-write mutation path,
+before-images and rollback; owner APPLY decision after fresh recheck.
