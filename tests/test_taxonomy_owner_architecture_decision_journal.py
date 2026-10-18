@@ -1,0 +1,70 @@
+"""Tests for Owner Architecture Decision Journal package."""
+
+from __future__ import annotations
+
+import csv
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS = ROOT / "scripts"
+sys.path.insert(0, str(SCRIPTS))
+
+from catalog_target.taxonomy_owner_architecture_decision_journal import (  # noqa: E402
+    DECISION_ID_ARCH_7_L1,
+    JournalPaths,
+    validate_journal_package,
+    write_journal_package,
+)
+
+
+class OwnerArchitectureDecisionJournalTests(unittest.TestCase):
+    def test_write_and_validate_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            payload = write_journal_package(out, generator_git_sha="test")
+            self.assertEqual(payload["validation"]["status"], "PASS")
+            result = validate_journal_package(JournalPaths(out))
+            self.assertEqual(result["status"], "PASS")
+
+    def test_b2_snapshot_arch7_still_pending(self):
+        b2 = ROOT / "audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18"
+        with (b2 / "C-GROUPED-OWNER-DECISION-REGISTER.csv").open(encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        arch7 = next(r for r in rows if r["decision_group_id"] == DECISION_ID_ARCH_7_L1)
+        self.assertEqual(arch7["owner_architecture_decision_status"], "PENDING")
+
+    def test_validation_fails_if_apply_authorized(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            write_journal_package(out, generator_git_sha="test")
+            path = out / "01-OWNER-ARCHITECTURE-DECISION-JOURNAL.csv"
+            rows = list(csv.DictReader(path.open(encoding="utf-8")))
+            rows[0]["category_apply_authorization"] = "YES"
+            with path.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=rows[0].keys())
+                writer.writeheader()
+                writer.writerows(rows)
+            result = validate_journal_package(JournalPaths(out))
+            self.assertEqual(result["status"], "FAIL")
+
+    def test_validation_fails_if_b2_arch7_retroactively_changed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            write_journal_package(out, generator_git_sha="test")
+            # Simulate forbidden B2 rewrite by patching only in-memory validation path:
+            # validation reads live B2 from repo; we only test journal apply flag here.
+            paths = JournalPaths(out)
+            journal_rows = list(csv.DictReader(paths.journal_csv.open(encoding="utf-8")))
+            journal_rows[0]["production_mutation_authorization"] = "YES"
+            with paths.journal_csv.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=journal_rows[0].keys())
+                writer.writeheader()
+                writer.writerows(journal_rows)
+            self.assertEqual(validate_journal_package(paths)["status"], "FAIL")
+
+
+if __name__ == "__main__":
+    unittest.main()

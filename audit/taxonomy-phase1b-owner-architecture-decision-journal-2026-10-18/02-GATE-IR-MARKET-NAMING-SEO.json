@@ -1,0 +1,18 @@
+{
+  "gate_id": "IR-MARKET-NAMING-SEO",
+  "status": "PENDING_OWNER_REVIEW",
+  "blocks_naming_and_seo_freeze": true,
+  "blocks_category_apply": true,
+  "blocks_seo_deployment": true,
+  "required_evidence": [
+    "Karzar Search Console query/page evidence where available",
+    "Iranian-market terminology and competitor taxonomy research",
+    "Search intent and keyword candidates for L1 and key descendants",
+    "Proposed L1 display labels and SEO titles (FA/EN)",
+    "Descendant landing-page naming implications",
+    "URL/SEO preservation and migration risk assessment",
+    "Explicit Owner approval before naming and SEO freeze"
+  ],
+  "linked_decision_journal_entry": "OWNER-ARCH-DECISION-001",
+  "linked_b2_decision_group": "ARCH-7-L1-ROOTS"
+}
