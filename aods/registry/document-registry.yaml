@@ -1176,6 +1176,16 @@ documents:
       Owner Architecture Decision 004 — retire category 155 as buyer-facing commerce
       node; FLUIDS root; 156 leaf; 27 protected SKUs; FLUIDS-156-PUBLICATION not implied.
 
+  - id: TAXONOMY-PHASE1B-OWNER-ARCH-DECISION-005-20261018
+    path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/08-DECISION-FLUIDS-156-PUBLICATION-2026-10-18.md
+    class: DECISION
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner Architecture Decision 005 — conditional structural approval for category
+      156 under FLUIDS; 27 protected SKUs; architecture only — publication/APPLY NO.
+
   - id: TAXONOMY-PHASE1B-OWNER-ARCH-JOURNAL-README-20261018
     path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/README.md
     class: EVIDENCE

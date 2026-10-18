@@ -4,12 +4,13 @@
   "frozen_b2_review_dir": "audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18",
   "frozen_b2_register_sha256": "0668dc71cd73069892e1ed0bc3cdec999f9ed64af8d098a4759a7051fe08b97b",
   "frozen_b2_reconciliation_sha256": "1b44242fe069228ae54e99163b132abe07227c3ffe062a349aab7d4fd9718e58",
-  "generator_run_git_sha": "1c1a7693b34c079e1b00a31cdca8d3637d67a11f",
-  "journal_entry_count": 4,
+  "generator_run_git_sha": "d3da0358b811f302d283eda2e654de0666ea7209",
+  "journal_entry_count": 5,
   "owner_decided_b2_groups": [
     "ACCESSORIES-154-DECOMPOSE",
     "ARCH-7-L1-ROOTS",
     "FLUIDS-155-FACET-NAV",
+    "FLUIDS-156-PUBLICATION",
     "METROLOGY-L2-FAMILIES"
   ],
   "interpretation": "This journal records Owner architecture decisions. It does not mutate the frozen B2 review CSV statuses. Conditional acceptance is not APPLY, deploy, or SEO authorization.",
