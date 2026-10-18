@@ -1047,6 +1047,16 @@ documents:
     notes: >
       SKU-specific Owner decision options for Groz special cases; not approvals.
 
+  - id: TAXONOMY-TX-OWNER-001-P0-REMAINING-15-OPTIONS-20261018
+    path: audit/taxonomy-phase1b-tx-owner-001-p0-remaining-15-owner-options-2026-10-18/00-OWNER-OPTIONS-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Evidence-only Owner decision options for 13 exact-OEM-reference M7 products
+      and two unresolved Groz families. No Batch 006 or Owner approval, no APPLY.
+
   - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-005-20261018
     path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-005-2026-10-18.md
     class: EVIDENCE
