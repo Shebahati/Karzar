@@ -38,4 +38,4 @@ Merged B2 remains an immutable historical review artifact. `C-GROUPED-OWNER-DECI
 
 ## Other B2 groups
 
-Nine decision groups remain `PENDING` — see `04-B2-REMAINING-PENDING-DECISION-GROUPS.csv`.
+Remaining B2 groups — see `04-B2-REMAINING-PENDING-DECISION-GROUPS.csv`.

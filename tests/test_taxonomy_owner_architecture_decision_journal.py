@@ -13,7 +13,9 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.taxonomy_owner_architecture_decision_journal import (  # noqa: E402
+    B2_PENDING_GROUP_COUNT,
     DECISION_ID_ARCH_7_L1,
+    DECISION_ID_METROLOGY_L2,
     JournalPaths,
     validate_journal_package,
     write_journal_package,
@@ -29,12 +31,24 @@ class OwnerArchitectureDecisionJournalTests(unittest.TestCase):
             result = validate_journal_package(JournalPaths(out))
             self.assertEqual(result["status"], "PASS")
 
-    def test_b2_snapshot_arch7_still_pending(self):
+    def test_b2_snapshot_decided_groups_still_pending(self):
         b2 = ROOT / "audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18"
         with (b2 / "C-GROUPED-OWNER-DECISION-REGISTER.csv").open(encoding="utf-8") as handle:
             rows = list(csv.DictReader(handle))
-        arch7 = next(r for r in rows if r["decision_group_id"] == DECISION_ID_ARCH_7_L1)
-        self.assertEqual(arch7["owner_architecture_decision_status"], "PENDING")
+        for gid in (DECISION_ID_ARCH_7_L1, DECISION_ID_METROLOGY_L2):
+            row = next(r for r in rows if r["decision_group_id"] == gid)
+            self.assertEqual(row["owner_architecture_decision_status"], "PENDING")
+
+    def test_pending_b2_group_count(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            write_journal_package(out, generator_git_sha="test")
+            pending = list(
+                csv.DictReader(
+                    (out / "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv").open(encoding="utf-8")
+                )
+            )
+            self.assertEqual(len(pending), B2_PENDING_GROUP_COUNT)
 
     def test_validation_fails_if_apply_authorized(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -1146,6 +1146,16 @@ documents:
       Append-only Owner Architecture Decision 001 (ARCH-7-L1-ROOTS conditional
       acceptance); IR-MARKET-NAMING-SEO gate; no APPLY/SEO/deploy.
 
+  - id: TAXONOMY-PHASE1B-OWNER-ARCH-DECISION-002-20261018
+    path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/05-DECISION-METROLOGY-L2-FAMILIES-2026-10-18.md
+    class: DECISION
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner Architecture Decision 002 — three Metrology L2 families structural
+      approval; naming gated; B2 snapshot unchanged.
+
   - id: TAXONOMY-PHASE1B-OWNER-ARCH-JOURNAL-README-20261018
     path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/README.md
     class: EVIDENCE

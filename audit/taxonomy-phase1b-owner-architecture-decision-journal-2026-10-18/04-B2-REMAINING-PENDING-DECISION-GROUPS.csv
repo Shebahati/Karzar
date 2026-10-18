@@ -1,10 +1,9 @@
 decision_group_id,owner_architecture_decision_status,source_artifact,note
-METROLOGY-L2-FAMILIES,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; not superseded by OWNER-ARCH-DECISION-001
-ACCESSORIES-154-DECOMPOSE,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; not superseded by OWNER-ARCH-DECISION-001
-FLUIDS-155-FACET-NAV,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; not superseded by OWNER-ARCH-DECISION-001
-FLUIDS-156-PUBLICATION,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; not superseded by OWNER-ARCH-DECISION-001
-MACHINE-ACCESSORIES-163-164,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; not superseded by OWNER-ARCH-DECISION-001
-TX-OWNER-SCOPE-157-160,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; not superseded by OWNER-ARCH-DECISION-001
-MIXED-CHUCKS-116-118,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; not superseded by OWNER-ARCH-DECISION-001
-HELICOIL-55-THREAD-REPAIR,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; not superseded by OWNER-ARCH-DECISION-001
-MEGAMENU-186-187-188,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; not superseded by OWNER-ARCH-DECISION-001
+ACCESSORIES-154-DECOMPOSE,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; Owner record in journal when decided
+FLUIDS-155-FACET-NAV,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; Owner record in journal when decided
+FLUIDS-156-PUBLICATION,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; Owner record in journal when decided
+MACHINE-ACCESSORIES-163-164,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; Owner record in journal when decided
+TX-OWNER-SCOPE-157-160,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; Owner record in journal when decided
+MIXED-CHUCKS-116-118,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; Owner record in journal when decided
+HELICOIL-55-THREAD-REPAIR,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; Owner record in journal when decided
+MEGAMENU-186-187-188,PENDING,audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv,Unchanged B2 historical snapshot; Owner record in journal when decided

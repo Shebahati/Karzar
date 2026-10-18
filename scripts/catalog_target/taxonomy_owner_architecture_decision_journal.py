@@ -16,7 +16,12 @@ B2_DIR = ROOT / "audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18"
 PR534_MERGE_SHA = "25a2497c11b6a740fa606292af1e791d41335ba9"
 
 DECISION_ID_ARCH_7_L1 = "ARCH-7-L1-ROOTS"
+DECISION_ID_METROLOGY_L2 = "METROLOGY-L2-FAMILIES"
 GATE_IR_MARKET_NAMING_SEO = "IR-MARKET-NAMING-SEO"
+
+OWNER_DECIDED_B2_GROUP_IDS = frozenset({DECISION_ID_ARCH_7_L1, DECISION_ID_METROLOGY_L2})
+
+B2_PENDING_GROUP_COUNT = 10 - len(OWNER_DECIDED_B2_GROUP_IDS)
 
 OWNER_STATEMENT_FA = (
     "«به‌عنوان مالک، هفت ریشهٔ معماری پیشنهادی را به‌صورت مشروط می‌پذیرم، "
@@ -24,6 +29,15 @@ OWNER_STATEMENT_FA = (
     "تحقیق نام‌گذاری بازار ایران را به‌عنوان یک گیت مستقل ثبت کنیم؛ "
     "هیچ APPLY یا Deploy مجاز نیست.»"
 )
+
+OWNER_STATEMENT_METROLOGY_L2_FA = "«با همین سه تا موافقم.»"
+
+METROLOGY_L2_FAMILY_CODES = (
+    "KZ.CAT.METROLOGY_FAMILY_PRECISION",
+    "KZ.CAT.METROLOGY_FAMILY_CNC",
+    "KZ.CAT.METROLOGY_FAMILY_LABORATORY",
+)
+METROLOGY_L2_PARENT_CODE = "KZ.CAT.BUYER_METROLOGY"
 
 SEVEN_L1_COMMERCE_CODES = (
     "KZ.CAT.BUYER_CUTTING_TOOLS",
@@ -70,8 +84,12 @@ class JournalPaths:
         return self.root / "02-GATE-IR-MARKET-NAMING-SEO.json"
 
     @property
-    def decision_md(self) -> Path:
+    def decision_md_arch7(self) -> Path:
         return self.root / "03-DECISION-ARCH-7-L1-ROOTS-2026-10-18.md"
+
+    @property
+    def decision_md_metrology_l2(self) -> Path:
+        return self.root / "05-DECISION-METROLOGY-L2-FAMILIES-2026-10-18.md"
 
     @property
     def pending_groups_csv(self) -> Path:
@@ -105,6 +123,29 @@ def build_journal_entry_001() -> dict[str, str]:
     }
 
 
+def build_journal_entry_002() -> dict[str, str]:
+    return {
+        "journal_entry_id": "OWNER-ARCH-DECISION-002",
+        "decision_id": DECISION_ID_METROLOGY_L2,
+        "decision_date": "2026-10-18",
+        "decision_type": "STRUCTURAL_ARCHITECTURE_APPROVAL",
+        "b2_decision_group_id": DECISION_ID_METROLOGY_L2,
+        "owner_statement_fa": OWNER_STATEMENT_METROLOGY_L2_FA,
+        "owner_architecture_decision_status": "STRUCTURAL_ACCEPTED",
+        "linked_prerequisite_gate_ids": GATE_IR_MARKET_NAMING_SEO,
+        "category_apply_authorization": "NO",
+        "product_reassignment_authorization": "NO",
+        "seo_deployment_authorization": "NO",
+        "production_mutation_authorization": "NO",
+        "b2_review_snapshot_preserved": "YES",
+        "notes_en": (
+            "Three Metrology L2 families approved with B1 KZ.CAT.* identities under "
+            "BUYER_METROLOGY; display/SEO/URL naming gated by IR-MARKET-NAMING-SEO; "
+            "no product-level mapping approval."
+        ),
+    }
+
+
 def build_gate_ir_market_naming_seo() -> dict[str, Any]:
     return {
         "gate_id": GATE_IR_MARKET_NAMING_SEO,
@@ -121,8 +162,11 @@ def build_gate_ir_market_naming_seo() -> dict[str, Any]:
             "URL/SEO preservation and migration risk assessment",
             "Explicit Owner approval before naming and SEO freeze",
         ],
-        "linked_decision_journal_entry": "OWNER-ARCH-DECISION-001",
-        "linked_b2_decision_group": DECISION_ID_ARCH_7_L1,
+        "linked_decision_journal_entries": [
+            "OWNER-ARCH-DECISION-001",
+            "OWNER-ARCH-DECISION-002",
+        ],
+        "linked_b2_decision_groups": sorted(OWNER_DECIDED_B2_GROUP_IDS),
     }
 
 
@@ -131,14 +175,14 @@ def build_pending_b2_groups() -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     for row in register:
         gid = row["decision_group_id"]
-        if gid == DECISION_ID_ARCH_7_L1:
+        if gid in OWNER_DECIDED_B2_GROUP_IDS:
             continue
         rows.append(
             {
                 "decision_group_id": gid,
                 "owner_architecture_decision_status": "PENDING",
                 "source_artifact": "audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/C-GROUPED-OWNER-DECISION-REGISTER.csv",
-                "note": "Unchanged B2 historical snapshot; not superseded by OWNER-ARCH-DECISION-001",
+                "note": "Unchanged B2 historical snapshot; Owner record in journal when decided",
             }
         )
     return rows
@@ -154,6 +198,8 @@ def build_identity(generator_git_sha: str) -> dict[str, Any]:
         "frozen_b2_register_sha256": sha256_file(b2_register),
         "frozen_b2_reconciliation_sha256": sha256_file(b2_recon),
         "generator_run_git_sha": generator_git_sha,
+        "journal_entry_count": 2,
+        "owner_decided_b2_groups": sorted(OWNER_DECIDED_B2_GROUP_IDS),
         "interpretation": (
             "This journal records Owner architecture decisions. It does not mutate the "
             "frozen B2 review CSV statuses. Conditional acceptance is not APPLY, deploy, "
@@ -169,7 +215,7 @@ def build_identity(generator_git_sha: str) -> dict[str, Any]:
     }
 
 
-def build_decision_markdown() -> str:
+def build_decision_markdown_arch7() -> str:
     l1_list = "\n".join(f"- `{code}`" for code in SEVEN_L1_COMMERCE_CODES)
     return "\n".join(
         [
@@ -209,9 +255,59 @@ def build_decision_markdown() -> str:
             "",
             "## Other B2 groups",
             "",
-            "Nine decision groups remain `PENDING` — see `04-B2-REMAINING-PENDING-DECISION-GROUPS.csv`.",
+            "Remaining B2 groups — see `04-B2-REMAINING-PENDING-DECISION-GROUPS.csv`.",
         ]
     )
+
+
+def build_decision_markdown_metrology_l2() -> str:
+    families = "\n".join(
+        f"- `{code}` (parent `{METROLOGY_L2_PARENT_CODE}`)" for code in METROLOGY_L2_FAMILY_CODES
+    )
+    return "\n".join(
+        [
+            "# Owner Architecture Decision — METROLOGY-L2-FAMILIES",
+            "",
+            "| Field | Value |",
+            "|-------|-------|",
+            "| **Journal entry** | `OWNER-ARCH-DECISION-002` |",
+            "| **DECISION_ID** | `METROLOGY-L2-FAMILIES` |",
+            "| **DECISION_DATE** | 2026-10-18 |",
+            "| **DECISION_TYPE** | `STRUCTURAL_ARCHITECTURE_APPROVAL` |",
+            "| **B2 link** | `audit/taxonomy-phase1b-route-b2-architecture-review-2026-10-18/` → group `METROLOGY-L2-FAMILIES` |",
+            "| **Naming gate** | `IR-MARKET-NAMING-SEO` (display/SEO/URL not approved) |",
+            "",
+            "## Owner statement (FA)",
+            "",
+            OWNER_STATEMENT_METROLOGY_L2_FA,
+            "",
+            "## Approved scope (structural)",
+            "",
+            "Exactly three L2 families under the Metrology commerce root, preserving B1 identities:",
+            families,
+            "",
+            "## Explicitly NOT approved",
+            "",
+            "- Final display names, SEO titles, H1, URLs, slugs (IR-MARKET-NAMING-SEO).",
+            "- Product-level category mapping or reassignment.",
+            "- `CATEGORY_APPLY`, production deploy, SEO deploy.",
+            "",
+            "## B2 snapshot policy",
+            "",
+            "Frozen B2 register still shows `PENDING` for `METROLOGY-L2-FAMILIES`; this journal entry is authoritative.",
+        ]
+    )
+
+
+def _validate_journal_entry(row: dict[str, str], errors: list[str]) -> None:
+    for auth_field in (
+        "category_apply_authorization",
+        "product_reassignment_authorization",
+        "seo_deployment_authorization",
+        "production_mutation_authorization",
+    ):
+        if row.get(auth_field) != "NO":
+            errors.append(f"{row.get('journal_entry_id')}_{auth_field}_not_no")
 
 
 def validate_journal_package(paths: JournalPaths) -> dict[str, Any]:
@@ -221,33 +317,34 @@ def validate_journal_package(paths: JournalPaths) -> dict[str, Any]:
         return {"status": "FAIL", "errors": errors}
 
     rows = _read_csv(paths.journal_csv)
-    if len(rows) != 1:
-        errors.append("journal_must_have_single_entry_v001")
+    if len(rows) != 2:
+        errors.append("journal_must_have_two_entries_v002")
 
-    entry = rows[0] if rows else {}
-    if entry.get("decision_id") != DECISION_ID_ARCH_7_L1:
-        errors.append("decision_id_mismatch")
-    if entry.get("decision_type") != "CONDITIONAL_ARCHITECTURE_ACCEPTANCE":
-        errors.append("decision_type_mismatch")
-    for auth_field in (
-        "category_apply_authorization",
-        "product_reassignment_authorization",
-        "seo_deployment_authorization",
-        "production_mutation_authorization",
-    ):
-        if entry.get(auth_field) != "NO":
-            errors.append(f"{auth_field}_not_no")
+    by_id = {r["journal_entry_id"]: r for r in rows}
+    e1 = by_id.get("OWNER-ARCH-DECISION-001")
+    e2 = by_id.get("OWNER-ARCH-DECISION-002")
+    if not e1 or e1.get("decision_id") != DECISION_ID_ARCH_7_L1:
+        errors.append("decision_001_mismatch")
+    if not e2 or e2.get("decision_id") != DECISION_ID_METROLOGY_L2:
+        errors.append("decision_002_mismatch")
+    if e1 and e1.get("decision_type") != "CONDITIONAL_ARCHITECTURE_ACCEPTANCE":
+        errors.append("decision_001_type_mismatch")
+    if e2 and e2.get("decision_type") != "STRUCTURAL_ARCHITECTURE_APPROVAL":
+        errors.append("decision_002_type_mismatch")
+    for row in rows:
+        _validate_journal_entry(row, errors)
 
     b2_rows = _read_csv(B2_DIR / "C-GROUPED-OWNER-DECISION-REGISTER.csv")
-    arch7 = next((r for r in b2_rows if r["decision_group_id"] == DECISION_ID_ARCH_7_L1), None)
-    if not arch7:
-        errors.append("b2_missing_arch7_group")
-    elif arch7.get("owner_architecture_decision_status") != "PENDING":
-        errors.append("b2_arch7_snapshot_must_remain_pending")
+    for gid in OWNER_DECIDED_B2_GROUP_IDS:
+        b2_row = next((r for r in b2_rows if r["decision_group_id"] == gid), None)
+        if not b2_row:
+            errors.append(f"b2_missing_{gid}")
+        elif b2_row.get("owner_architecture_decision_status") != "PENDING":
+            errors.append(f"b2_{gid}_snapshot_must_remain_pending")
 
     pending = _read_csv(paths.pending_groups_csv) if paths.pending_groups_csv.is_file() else []
-    if len(pending) != 9:
-        errors.append(f"pending_groups_count_{len(pending)}_not_9")
+    if len(pending) != B2_PENDING_GROUP_COUNT:
+        errors.append(f"pending_groups_count_{len(pending)}_not_{B2_PENDING_GROUP_COUNT}")
 
     gate = json.loads(paths.gate_json.read_text(encoding="utf-8"))
     if gate.get("status") != "PENDING_OWNER_REVIEW":
@@ -274,12 +371,14 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         json.dumps(build_gate_ir_market_naming_seo(), indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
-    paths.decision_md.write_text(build_decision_markdown(), encoding="utf-8")
+    paths.decision_md_arch7.write_text(build_decision_markdown_arch7(), encoding="utf-8")
+    paths.decision_md_metrology_l2.write_text(build_decision_markdown_metrology_l2(), encoding="utf-8")
 
     with paths.journal_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=JOURNAL_CSV_COLUMNS)
         writer.writeheader()
         writer.writerow(build_journal_entry_001())
+        writer.writerow(build_journal_entry_002())
 
     pending = build_pending_b2_groups()
     with paths.pending_groups_csv.open("w", encoding="utf-8", newline="") as handle:
@@ -320,6 +419,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         "01-OWNER-ARCHITECTURE-DECISION-JOURNAL.csv",
         "02-GATE-IR-MARKET-NAMING-SEO.json",
         "03-DECISION-ARCH-7-L1-ROOTS-2026-10-18.md",
+        "05-DECISION-METROLOGY-L2-FAMILIES-2026-10-18.md",
         "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv",
         "README.md",
         "J-VALIDATION-CLOSEOUT-REPORT.md",
@@ -328,4 +428,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
 
     if validation["status"] != "PASS":
         raise RuntimeError("JOURNAL_VALIDATION_FAILED: " + "; ".join(validation["errors"]))
-    return {"validation": validation, "journal_entry": build_journal_entry_001()}
+    return {
+        "validation": validation,
+        "journal_entries": [build_journal_entry_001(), build_journal_entry_002()],
+    }

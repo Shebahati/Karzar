@@ -13,6 +13,12 @@
     "URL/SEO preservation and migration risk assessment",
     "Explicit Owner approval before naming and SEO freeze"
   ],
-  "linked_decision_journal_entry": "OWNER-ARCH-DECISION-001",
-  "linked_b2_decision_group": "ARCH-7-L1-ROOTS"
+  "linked_decision_journal_entries": [
+    "OWNER-ARCH-DECISION-001",
+    "OWNER-ARCH-DECISION-002"
+  ],
+  "linked_b2_decision_groups": [
+    "ARCH-7-L1-ROOTS",
+    "METROLOGY-L2-FAMILIES"
+  ]
 }
