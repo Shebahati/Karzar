@@ -1226,6 +1226,25 @@ documents:
       Owner Architecture Decision 009 — Helicoil category 55 under THREAD_REPAIR;
       KZ.CAT.THREAD_REPAIR_HELICOIL_KITS; 29 SKUs; megamenu group still pending.
 
+  - id: TAXONOMY-PHASE1B-OWNER-ARCH-DECISION-010-20261018
+    path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/13-DECISION-MEGAMENU-186-187-188-2026-10-18.md
+    class: DECISION
+    rank: 4
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Owner Architecture Decision 010 — megamenu design direction for deprecated 186–188;
+      execution release dependency; nav deploy not authorized.
+
+  - id: TAXONOMY-PHASE1B-OWNER-ARCH-CLOSEOUT-20261018
+    path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/K-OWNER-ARCHITECTURE-CLOSEOUT-REPORT.md
+    class: EVIDENCE
+    rank: 5
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Ten-of-ten Owner architecture decision closeout; gates and invariants; DESIGN_ONLY.
+
   - id: TAXONOMY-PHASE1B-OWNER-ARCH-JOURNAL-README-20261018
     path: audit/taxonomy-phase1b-owner-architecture-decision-journal-2026-10-18/README.md
     class: EVIDENCE

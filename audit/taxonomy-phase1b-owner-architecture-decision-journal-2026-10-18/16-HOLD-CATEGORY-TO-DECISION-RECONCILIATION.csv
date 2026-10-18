@@ -1,0 +1,12 @@
+hold_category_id,decision_group_id,b2_snapshot_owner_status,journal_entry_id,journal_authoritative,note
+116,MIXED-CHUCKS-116-118,PENDING,OWNER-ARCH-DECISION-008,YES,B2 HOLD map unchanged; Owner record in journal
+117,MIXED-CHUCKS-116-118,PENDING,OWNER-ARCH-DECISION-008,YES,B2 HOLD map unchanged; Owner record in journal
+118,MIXED-CHUCKS-116-118,PENDING,OWNER-ARCH-DECISION-008,YES,B2 HOLD map unchanged; Owner record in journal
+154,ACCESSORIES-154-DECOMPOSE,PENDING,OWNER-ARCH-DECISION-003,YES,B2 HOLD map unchanged; Owner record in journal
+155,FLUIDS-155-FACET-NAV,PENDING,OWNER-ARCH-DECISION-004,YES,B2 HOLD map unchanged; Owner record in journal
+157,TX-OWNER-SCOPE-157-160,PENDING,OWNER-ARCH-DECISION-007,YES,B2 HOLD map unchanged; Owner record in journal
+158,TX-OWNER-SCOPE-157-160,PENDING,OWNER-ARCH-DECISION-007,YES,B2 HOLD map unchanged; Owner record in journal
+159,TX-OWNER-SCOPE-157-160,PENDING,OWNER-ARCH-DECISION-007,YES,B2 HOLD map unchanged; Owner record in journal
+160,TX-OWNER-SCOPE-157-160,PENDING,OWNER-ARCH-DECISION-007,YES,B2 HOLD map unchanged; Owner record in journal
+163,MACHINE-ACCESSORIES-163-164,PENDING,OWNER-ARCH-DECISION-006,YES,B2 HOLD map unchanged; Owner record in journal
+164,MACHINE-ACCESSORIES-163-164,PENDING,OWNER-ARCH-DECISION-006,YES,B2 HOLD map unchanged; Owner record in journal

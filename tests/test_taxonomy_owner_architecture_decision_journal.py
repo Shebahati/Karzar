@@ -14,12 +14,14 @@ sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.taxonomy_owner_architecture_decision_journal import (  # noqa: E402
     B2_PENDING_GROUP_COUNT,
+    B2_TOTAL_DECISION_GROUPS,
     DECISION_ID_ACCESSORIES_154,
     DECISION_ID_ARCH_7_L1,
     DECISION_ID_FLUIDS_155,
     DECISION_ID_FLUIDS_156_PUBLICATION,
     DECISION_ID_HELICOIL_55_THREAD_REPAIR,
     DECISION_ID_MACHINE_ACCESSORIES_163_164,
+    DECISION_ID_MEGAMENU_186_187_188,
     DECISION_ID_METROLOGY_L2,
     DECISION_ID_MIXED_CHUCKS_116_118,
     DECISION_ID_TX_OWNER_SCOPE_157_160,
@@ -53,6 +55,7 @@ class OwnerArchitectureDecisionJournalTests(unittest.TestCase):
             DECISION_ID_TX_OWNER_SCOPE_157_160,
             DECISION_ID_MIXED_CHUCKS_116_118,
             DECISION_ID_HELICOIL_55_THREAD_REPAIR,
+            DECISION_ID_MEGAMENU_186_187_188,
         ):
             row = next(r for r in rows if r["decision_group_id"] == gid)
             self.assertEqual(row["owner_architecture_decision_status"], "PENDING")
@@ -88,6 +91,22 @@ class OwnerArchitectureDecisionJournalTests(unittest.TestCase):
                 writer.writerows(rows)
             result = validate_journal_package(JournalPaths(out))
             self.assertEqual(result["status"], "FAIL")
+
+    def test_ten_decision_closeout_package(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            write_journal_package(out, generator_git_sha="test")
+            self.assertEqual(len(JOURNAL_ENTRY_SPECS), B2_TOTAL_DECISION_GROUPS)
+            self.assertTrue((out / "K-OWNER-ARCHITECTURE-CLOSEOUT-REPORT.md").is_file())
+            self.assertTrue((out / "14-EFFECTIVE-DECISION-STATE-SUMMARY.json").is_file())
+            pending = list(
+                csv.DictReader(
+                    (out / "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv").open(encoding="utf-8")
+                )
+            )
+            self.assertEqual(len(pending), 0)
+            hold = list(csv.DictReader((out / "16-HOLD-CATEGORY-TO-DECISION-RECONCILIATION.csv").open()))
+            self.assertEqual(len(hold), 11)
 
     def test_validation_fails_if_b2_arch7_retroactively_changed(self):
         with tempfile.TemporaryDirectory() as tmp:

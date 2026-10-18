@@ -24,7 +24,8 @@ DECISION_ID_MACHINE_ACCESSORIES_163_164 = "MACHINE-ACCESSORIES-163-164"
 DECISION_ID_TX_OWNER_SCOPE_157_160 = "TX-OWNER-SCOPE-157-160"
 DECISION_ID_MIXED_CHUCKS_116_118 = "MIXED-CHUCKS-116-118"
 DECISION_ID_HELICOIL_55_THREAD_REPAIR = "HELICOIL-55-THREAD-REPAIR"
-B2_PENDING_MEGAMENU_HELICOIL_NAV = "MEGAMENU-186-187-188"
+DECISION_ID_MEGAMENU_186_187_188 = "MEGAMENU-186-187-188"
+B2_PENDING_MEGAMENU_HELICOIL_NAV = DECISION_ID_MEGAMENU_186_187_188
 GATE_IR_MARKET_NAMING_SEO = "IR-MARKET-NAMING-SEO"
 
 OWNER_DECIDED_B2_GROUP_IDS = frozenset(
@@ -38,10 +39,14 @@ OWNER_DECIDED_B2_GROUP_IDS = frozenset(
         DECISION_ID_TX_OWNER_SCOPE_157_160,
         DECISION_ID_MIXED_CHUCKS_116_118,
         DECISION_ID_HELICOIL_55_THREAD_REPAIR,
+        DECISION_ID_MEGAMENU_186_187_188,
     }
 )
 
 B2_TOTAL_DECISION_GROUPS = 10
+BASELINE_LIVE_PRODUCT_ROWS = 6536
+BASELINE_PRODUCT_LEVEL_REQUIRED = 718
+BASELINE_APPROVED_EXECUTABLE_TARGET_CODES = 0
 B2_PENDING_GROUP_COUNT = B2_TOTAL_DECISION_GROUPS - len(OWNER_DECIDED_B2_GROUP_IDS)
 
 JOURNAL_ENTRY_SPECS: tuple[tuple[str, str, str], ...] = (
@@ -58,6 +63,7 @@ JOURNAL_ENTRY_SPECS: tuple[tuple[str, str, str], ...] = (
     ("OWNER-ARCH-DECISION-007", DECISION_ID_TX_OWNER_SCOPE_157_160, "STRUCTURAL_ARCHITECTURE_APPROVAL"),
     ("OWNER-ARCH-DECISION-008", DECISION_ID_MIXED_CHUCKS_116_118, "CONDITIONAL_STRUCTURAL_APPROVAL"),
     ("OWNER-ARCH-DECISION-009", DECISION_ID_HELICOIL_55_THREAD_REPAIR, "STRUCTURAL_ARCHITECTURE_APPROVAL"),
+    ("OWNER-ARCH-DECISION-010", DECISION_ID_MEGAMENU_186_187_188, "EXECUTION_DESIGN_DIRECTION_APPROVAL"),
 )
 
 LEGACY_CATEGORY_154_ID = "154"
@@ -210,6 +216,26 @@ class JournalPaths:
     @property
     def decision_md_helicoil_55(self) -> Path:
         return self.root / "12-DECISION-HELICOIL-55-THREAD-REPAIR-2026-10-18.md"
+
+    @property
+    def decision_md_megamenu_186_187_188(self) -> Path:
+        return self.root / "13-DECISION-MEGAMENU-186-187-188-2026-10-18.md"
+
+    @property
+    def effective_state_json(self) -> Path:
+        return self.root / "14-EFFECTIVE-DECISION-STATE-SUMMARY.json"
+
+    @property
+    def execution_gates_json(self) -> Path:
+        return self.root / "15-EXECUTION-GATES-REGISTER.json"
+
+    @property
+    def hold_reconciliation_csv(self) -> Path:
+        return self.root / "16-HOLD-CATEGORY-TO-DECISION-RECONCILIATION.csv"
+
+    @property
+    def owner_closeout_md(self) -> Path:
+        return self.root / "K-OWNER-ARCHITECTURE-CLOSEOUT-REPORT.md"
 
     @property
     def pending_groups_csv(self) -> Path:
@@ -485,7 +511,39 @@ def build_journal_entry_009() -> dict[str, str]:
     }
 
 
+def build_journal_entry_010() -> dict[str, str]:
+    historic = "|".join(DEPRECATED_HELICOIL_HISTORIC_CATEGORY_IDS)
+    return {
+        "journal_entry_id": "OWNER-ARCH-DECISION-010",
+        "decision_id": DECISION_ID_MEGAMENU_186_187_188,
+        "decision_date": "2026-10-18",
+        "decision_type": "EXECUTION_DESIGN_DIRECTION_APPROVAL",
+        "b2_decision_group_id": DECISION_ID_MEGAMENU_186_187_188,
+        "owner_statement_fa": (
+            "«جهت طراحی حذف ارجاع مگامنو به ۱۸۶/۱۸۷/۱۸۸ را تأیید می‌کنم؛ "
+            f"جایگزینی بر اساس دسته ۵۵ و {HELICOIL_COMMERCE_IDENTITY_CODE}؛ "
+            "بدون بازسازی ریشه‌های تاریخی؛ پیاده‌سازی ناوبری و URL در فاز اجرا.»"
+        ),
+        "owner_architecture_decision_status": "EXECUTION_DESIGN_ACCEPTED",
+        "linked_prerequisite_gate_ids": GATE_IR_MARKET_NAMING_SEO,
+        "category_apply_authorization": "NO",
+        "product_reassignment_authorization": "NO",
+        "seo_deployment_authorization": "NO",
+        "production_mutation_authorization": "NO",
+        "b2_review_snapshot_preserved": "YES",
+        "notes_en": (
+            f"Design direction to eliminate megamenu refs to removed categories {historic}; "
+            f"replacement navigation basis: category {LEGACY_CATEGORY_55_ID} / "
+            f"{HELICOIL_COMMERCE_IDENTITY_CODE} subject to final validation; do not recreate "
+            "historical roots; nav implementation and URL/redirect treatment deferred to execution "
+            "design. Tier D: EXECUTION RELEASE dependency — does NOT block structural architecture "
+            "freeze. No megamenu deploy or SEO deployment authorized."
+        ),
+    }
+
+
 def build_gate_ir_market_naming_seo() -> dict[str, Any]:
+    metrology_l2 = ", ".join(METROLOGY_L2_FAMILY_CODES)
     return {
         "gate_id": GATE_IR_MARKET_NAMING_SEO,
         "status": "PENDING_OWNER_REVIEW",
@@ -493,14 +551,17 @@ def build_gate_ir_market_naming_seo() -> dict[str, Any]:
         "blocks_category_apply": True,
         "blocks_seo_deployment": True,
         "required_evidence": [
-            "Karzar Search Console query/page evidence where available",
-            "Iranian-market terminology and competitor taxonomy research",
-            "Search intent and keyword candidates for L1 and key descendants",
-            "Proposed L1 display labels and SEO titles (FA/EN)",
-            "Descendant landing-page naming implications",
-            "URL/SEO preservation and migration risk assessment",
-            "Explicit Owner approval before naming and SEO freeze",
+            "Iranian-market terminology and search intent",
+            "Karzar Search Console evidence where accessible",
+            "Competitor taxonomy and keyword research",
+            "All seven L1 display names (FA/EN proposals — not final until Owner freeze)",
+            f"Three Metrology L2 display names ({metrology_l2})",
+            "Impacted descendant landing pages",
+            "Proposed SEO titles and H1",
+            "URL preservation, slug changes, canonical and redirect implications",
+            "Explicit separate Owner approval before naming/SEO freeze",
         ],
+        "provisional_b1_b2_labels_are_not_final": True,
         "linked_decision_journal_entries": [spec[0] for spec in JOURNAL_ENTRY_SPECS],
         "linked_b2_decision_groups": sorted(OWNER_DECIDED_B2_GROUP_IDS),
     }
@@ -524,6 +585,163 @@ def build_pending_b2_groups() -> list[dict[str, str]]:
     return rows
 
 
+def build_hold_category_reconciliation() -> list[dict[str, str]]:
+    hold_map = _read_csv(B2_DIR / "C2-HOLD-CATEGORY-TO-DECISION-GROUP-MAP.csv")
+    journal_by_group = {spec[1]: spec[0] for spec in JOURNAL_ENTRY_SPECS}
+    rows: list[dict[str, str]] = []
+    for row in hold_map:
+        gid = row["decision_group_id"]
+        rows.append(
+            {
+                "hold_category_id": row["hold_category_id"],
+                "decision_group_id": gid,
+                "b2_snapshot_owner_status": row["owner_architecture_decision_status"],
+                "journal_entry_id": journal_by_group.get(gid, ""),
+                "journal_authoritative": "YES",
+                "note": "B2 HOLD map unchanged; Owner record in journal",
+            }
+        )
+    return rows
+
+
+def build_execution_gates_register() -> dict[str, Any]:
+    return {
+        "authorization_layers": [
+            "historical_census_evidence",
+            "b1_b2_architecture_recommendations",
+            "owner_architecture_decisions_journal",
+            "pending_market_naming_seo_gate",
+            "pending_product_level_evidence",
+            "future_execution_authorization",
+        ],
+        "owner_decisions_do_not_imply_execution": True,
+        "gates": [
+            {
+                "gate_id": GATE_IR_MARKET_NAMING_SEO,
+                "status": "PENDING_OWNER_REVIEW",
+                "blocks_structural_architecture_freeze": False,
+                "blocks_naming_seo_freeze": True,
+            },
+            {
+                "gate_id": "PRODUCT-LEVEL-EVIDENCE-AND-MAPPING",
+                "status": "PENDING",
+                "record_count": BASELINE_PRODUCT_LEVEL_REQUIRED,
+                "blocks_execution": True,
+            },
+            {
+                "gate_id": "TX-OWNER-001-EVIDENCE-QUEUE",
+                "status": "OPEN",
+                "request_more_evidence_count": TX_OWNER_001_REQUEST_MORE_EVIDENCE_COUNT,
+                "blocks_execution": True,
+            },
+            {
+                "gate_id": "TX-OWNER-001-DOCUMENTARY-EXIT",
+                "status": "DOCUMENTARY_ONLY",
+                "approve_catalog_exit_count": TX_OWNER_001_APPROVE_CATALOG_EXIT_COUNT,
+                "apply_authorized": False,
+            },
+            {
+                "gate_id": "MEGAMENU-NAV-IMPLEMENTATION",
+                "status": "PENDING_EXECUTION_DESIGN",
+                "journal_entry": "OWNER-ARCH-DECISION-010",
+                "blocks_execution_release": True,
+                "blocks_structural_architecture_freeze": False,
+            },
+            {
+                "gate_id": "CATEGORY-APPLY",
+                "status": "NO",
+            },
+            {
+                "gate_id": "SEO-DEPLOYMENT",
+                "status": "NO",
+            },
+            {
+                "gate_id": "PRODUCTION-MUTATION",
+                "status": "NO",
+            },
+        ],
+    }
+
+
+def build_effective_decision_state_summary() -> dict[str, Any]:
+    return {
+        "closeout_status": "TEN_OF_TEN_OWNER_DECISIONS_RECORDED",
+        "b2_merge_sha": PR534_MERGE_SHA,
+        "decision_count": len(JOURNAL_ENTRY_SPECS),
+        "decisions": [
+            {
+                "journal_entry_id": spec[0],
+                "decision_id": spec[1],
+                "decision_type": spec[2],
+            }
+            for spec in JOURNAL_ENTRY_SPECS
+        ],
+        "baseline_invariants": {
+            "live_product_rows": BASELINE_LIVE_PRODUCT_ROWS,
+            "product_level_required": BASELINE_PRODUCT_LEVEL_REQUIRED,
+            "tx_owner_approve_catalog_exit_documentary": TX_OWNER_001_APPROVE_CATALOG_EXIT_COUNT,
+            "tx_owner_request_more_evidence_open": TX_OWNER_001_REQUEST_MORE_EVIDENCE_COUNT,
+            "protected_oil_product_ids_category_156": LEGACY_CATEGORY_156_PROTECTED_PRODUCT_COUNT,
+            "helicoil_live_product_ids_category_55": HELICOIL_LIVE_PRODUCT_COUNT,
+            "approved_executable_target_codes": BASELINE_APPROVED_EXECUTABLE_TARGET_CODES,
+            "hold_category_ids_count": 11,
+        },
+        "safety": {
+            "DESIGN_ONLY": "YES",
+            "CATEGORY_APPLY": "NO",
+            "PRODUCT_REASSIGNMENT": "NO",
+            "SEO_DEPLOYMENT": "NO",
+            "PRODUCTION_MUTATION": "NO",
+        },
+    }
+
+
+def build_owner_architecture_closeout_report(validation: dict[str, Any]) -> str:
+    decision_table = "\n".join(
+        f"| {spec[0]} | `{spec[1]}` | `{spec[2]}` |"
+        for spec in JOURNAL_ENTRY_SPECS
+    )
+    return "\n".join(
+        [
+            "# Owner Architecture Decision Closeout (10/10)",
+            "",
+            f"**Validation:** `{validation['status']}`",
+            "",
+            f"B2 merge reference: `{PR534_MERGE_SHA}` (PR #534)",
+            "",
+            "## Ten Owner decisions (journal authoritative)",
+            "",
+            "| Journal entry | DECISION_ID | Type |",
+            "|---------------|-------------|------|",
+            decision_table,
+            "",
+            "## Closeout checks",
+            "",
+            "- Ten distinct B2 decision groups recorded in journal (B2 CSV remains historical PENDING).",
+            "- Decision 001: conditional acceptance; naming/SEO/URL/APPLY excluded.",
+            "- Decision 005: structural only — runtime publication NOT authorized.",
+            "- Decision 010: execution design direction — blocks execution release, not architecture freeze.",
+            f"- {BASELINE_LIVE_PRODUCT_ROWS} live product baseline preserved (B2 reconciliation).",
+            f"- {BASELINE_PRODUCT_LEVEL_REQUIRED} PRODUCT_LEVEL_REQUIRED preserved.",
+            f"- TX-OWNER-001: {TX_OWNER_001_APPROVE_CATALOG_EXIT_COUNT} documentary exit / "
+            f"{TX_OWNER_001_REQUEST_MORE_EVIDENCE_COUNT} evidence pending.",
+            f"- Protected cohorts: {LEGACY_CATEGORY_156_PROTECTED_PRODUCT_COUNT} oils / "
+            f"{HELICOIL_LIVE_PRODUCT_COUNT} Helicoil.",
+            f"- Executable target codes: {BASELINE_APPROVED_EXECUTABLE_TARGET_CODES}.",
+            "- Eleven HOLD category IDs traceable via `16-HOLD-CATEGORY-TO-DECISION-RECONCILIATION.csv`.",
+            "",
+            "## Remaining open gates",
+            "",
+            "See `15-EXECUTION-GATES-REGISTER.json` and `02-GATE-IR-MARKET-NAMING-SEO.json`.",
+            "",
+            "## Authorization separation",
+            "",
+            "Owner architecture approval does **not** authorize catalog APPLY, product reassignment, "
+            "SEO deploy, or production mutation.",
+        ]
+    )
+
+
 def build_identity(generator_git_sha: str) -> dict[str, Any]:
     b2_register = B2_DIR / "C-GROUPED-OWNER-DECISION-REGISTER.csv"
     b2_recon = B2_DIR / "I-B2-RECONCILIATION-REPORT.json"
@@ -536,6 +754,7 @@ def build_identity(generator_git_sha: str) -> dict[str, Any]:
         "generator_run_git_sha": generator_git_sha,
         "journal_entry_count": len(JOURNAL_ENTRY_SPECS),
         "owner_decided_b2_groups": sorted(OWNER_DECIDED_B2_GROUP_IDS),
+        "owner_decision_closeout": "TEN_OF_TEN_COMPLETE",
         "interpretation": (
             "This journal records Owner architecture decisions. It does not mutate the "
             "frozen B2 review CSV statuses. Conditional acceptance is not APPLY, deploy, "
@@ -943,6 +1162,94 @@ def build_decision_markdown_helicoil_55() -> str:
     )
 
 
+def build_decision_markdown_megamenu_186_187_188() -> str:
+    historic = " · ".join(f"**{cid}**" for cid in DEPRECATED_HELICOIL_HISTORIC_CATEGORY_IDS)
+    return "\n".join(
+        [
+            "# Owner Architecture Decision — MEGAMENU-186-187-188",
+            "",
+            "| Field | Value |",
+            "|-------|-------|",
+            "| **Journal entry** | `OWNER-ARCH-DECISION-010` |",
+            "| **DECISION_ID** | `MEGAMENU-186-187-188` |",
+            "| **DECISION_DATE** | 2026-10-18 |",
+            "| **DECISION_TYPE** | `EXECUTION_DESIGN_DIRECTION_APPROVAL` |",
+            f"| **Removed nav targets** | {historic} (deprecated — do not recreate) |",
+            f"| **Replacement basis** | Category **{LEGACY_CATEGORY_55_ID}** / `{HELICOIL_COMMERCE_IDENTITY_CODE}` |",
+            "| **B2 tier** | D — execution release dependency |",
+            "| **Gate** | `IR-MARKET-NAMING-SEO` (`PENDING_OWNER_REVIEW`) |",
+            "",
+            "## Approved design direction",
+            "",
+            "- Eliminate legacy megamenu references to removed category IDs **186, 187, 188**.",
+            f"- Use valid category **{LEGACY_CATEGORY_55_ID}** and proposed semantic commerce identity "
+            f"`{HELICOIL_COMMERCE_IDENTITY_CODE}` as the basis for replacement navigation (subject to final validation).",
+            "- Do **not** recreate historical Helicoil L1 roots.",
+            "- Determine actual navigation implementation and per-URL/redirect treatment in later execution design.",
+            "",
+            "## Architecture vs execution",
+            "",
+            "- This decision is an **EXECUTION RELEASE** dependency.",
+            "- It does **not** block freezing the **structural** architecture (Decisions 001–009).",
+            "",
+            "## Explicitly NOT approved",
+            "",
+            "- Megamenu deployment, SEO deploy, redirects, or production mutation.",
+            "- Product reassignment or duplicate CUTTING category assignments.",
+            "",
+            "## B2 snapshot policy",
+            "",
+            "Frozen B2 register still shows `PENDING` for `MEGAMENU-186-187-188`; "
+            "this journal entry is authoritative for design direction only.",
+        ]
+    )
+
+
+def _validate_closeout_invariants(errors: list[str], journal_rows: list[dict[str, str]]) -> None:
+    decision_ids = [r["decision_id"] for r in journal_rows]
+    if len(decision_ids) != len(set(decision_ids)):
+        errors.append("duplicate_decision_ids")
+    if len(decision_ids) != B2_TOTAL_DECISION_GROUPS:
+        errors.append(f"decision_id_count_{len(decision_ids)}_not_{B2_TOTAL_DECISION_GROUPS}")
+
+    arch7 = next(r for r in journal_rows if r["decision_id"] == DECISION_ID_ARCH_7_L1)
+    if arch7.get("decision_type") != "CONDITIONAL_ARCHITECTURE_ACCEPTANCE":
+        errors.append("decision_001_not_conditional")
+
+    fluids156 = next(r for r in journal_rows if r["decision_id"] == DECISION_ID_FLUIDS_156_PUBLICATION)
+    notes = fluids156.get("notes_en", "")
+    if "publication" not in notes.lower() or "architecture only" not in notes.lower():
+        if "not implied" not in notes.lower() and "runtime publication" not in notes.lower():
+            errors.append("decision_005_publication_guard_missing")
+    if fluids156.get("category_apply_authorization") != "NO":
+        errors.append("decision_005_apply_not_no")
+
+    megamenu = next((r for r in journal_rows if r["decision_id"] == DECISION_ID_MEGAMENU_186_187_188), None)
+    if not megamenu:
+        errors.append("missing_decision_010")
+    elif "EXECUTION" not in megamenu.get("notes_en", ""):
+        errors.append("decision_010_execution_scope_missing")
+
+    recon = json.loads((B2_DIR / "I-B2-RECONCILIATION-REPORT.json").read_text(encoding="utf-8"))
+    inv = recon.get("invariants_recalculated", {})
+    if inv.get("live_product_rows") != BASELINE_LIVE_PRODUCT_ROWS:
+        errors.append("baseline_live_product_rows_mismatch")
+    if inv.get("product_level_decomposition_required") != BASELINE_PRODUCT_LEVEL_REQUIRED:
+        errors.append("baseline_plr_mismatch")
+    if inv.get("approved_executable_target_codes") != BASELINE_APPROVED_EXECUTABLE_TARGET_CODES:
+        errors.append("executable_targets_not_zero")
+    if inv.get("owner_journal_exits") != TX_OWNER_001_APPROVE_CATALOG_EXIT_COUNT:
+        errors.append("tx_owner_exit_count_mismatch")
+    if inv.get("owner_journal_evidence") != TX_OWNER_001_REQUEST_MORE_EVIDENCE_COUNT:
+        errors.append("tx_owner_evidence_count_mismatch")
+    if inv.get("category_156_product_rows") != LEGACY_CATEGORY_156_PROTECTED_PRODUCT_COUNT:
+        errors.append("oil_27_mismatch")
+
+    hold_rows = _read_csv(B2_DIR / "C2-HOLD-CATEGORY-TO-DECISION-GROUP-MAP.csv")
+    if len(hold_rows) != 11:
+        errors.append(f"hold_category_count_{len(hold_rows)}_not_11")
+
+
 def _validate_journal_entry(row: dict[str, str], errors: list[str]) -> None:
     for auth_field in (
         "category_apply_authorization",
@@ -973,6 +1280,8 @@ def validate_journal_package(paths: JournalPaths) -> dict[str, Any]:
             errors.append(f"{journal_id}_type_mismatch")
     for row in rows:
         _validate_journal_entry(row, errors)
+
+    _validate_closeout_invariants(errors, rows)
 
     b2_rows = _read_csv(B2_DIR / "C-GROUPED-OWNER-DECISION-REGISTER.csv")
     for gid in OWNER_DECIDED_B2_GROUP_IDS:
@@ -1028,6 +1337,9 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         build_decision_markdown_mixed_chucks_116_118(), encoding="utf-8"
     )
     paths.decision_md_helicoil_55.write_text(build_decision_markdown_helicoil_55(), encoding="utf-8")
+    paths.decision_md_megamenu_186_187_188.write_text(
+        build_decision_markdown_megamenu_186_187_188(), encoding="utf-8"
+    )
 
     with paths.journal_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=JOURNAL_CSV_COLUMNS)
@@ -1041,6 +1353,7 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         writer.writerow(build_journal_entry_007())
         writer.writerow(build_journal_entry_008())
         writer.writerow(build_journal_entry_009())
+        writer.writerow(build_journal_entry_010())
 
     pending = build_pending_b2_groups()
     with paths.pending_groups_csv.open("w", encoding="utf-8", newline="") as handle:
@@ -1066,6 +1379,30 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
     )
     (out_dir / "README.md").write_text(readme, encoding="utf-8")
 
+    paths.effective_state_json.write_text(
+        json.dumps(build_effective_decision_state_summary(), indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    paths.execution_gates_json.write_text(
+        json.dumps(build_execution_gates_register(), indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    hold_rows = build_hold_category_reconciliation()
+    with paths.hold_reconciliation_csv.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=[
+                "hold_category_id",
+                "decision_group_id",
+                "b2_snapshot_owner_status",
+                "journal_entry_id",
+                "journal_authoritative",
+                "note",
+            ],
+        )
+        writer.writeheader()
+        writer.writerows(hold_rows)
+
     validation = validate_journal_package(paths)
     closeout = [
         "# Owner Architecture Decision Journal — validation closeout",
@@ -1075,6 +1412,9 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         json.dumps(validation, indent=2),
     ]
     (out_dir / "J-VALIDATION-CLOSEOUT-REPORT.md").write_text("\n".join(closeout), encoding="utf-8")
+    paths.owner_closeout_md.write_text(
+        build_owner_architecture_closeout_report(validation), encoding="utf-8"
+    )
 
     artifacts = [
         "00-JOURNAL-IDENTITY.json",
@@ -1089,9 +1429,14 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
         "10-DECISION-TX-OWNER-SCOPE-157-160-2026-10-18.md",
         "11-DECISION-MIXED-CHUCKS-116-118-2026-10-18.md",
         "12-DECISION-HELICOIL-55-THREAD-REPAIR-2026-10-18.md",
+        "13-DECISION-MEGAMENU-186-187-188-2026-10-18.md",
+        "14-EFFECTIVE-DECISION-STATE-SUMMARY.json",
+        "15-EXECUTION-GATES-REGISTER.json",
+        "16-HOLD-CATEGORY-TO-DECISION-RECONCILIATION.csv",
         "04-B2-REMAINING-PENDING-DECISION-GROUPS.csv",
         "README.md",
         "J-VALIDATION-CLOSEOUT-REPORT.md",
+        "K-OWNER-ARCHITECTURE-CLOSEOUT-REPORT.md",
     ]
     write_sha256sums(out_dir, artifacts)
 
@@ -1109,5 +1454,6 @@ def write_journal_package(out_dir: Path, *, generator_git_sha: str) -> dict[str,
             build_journal_entry_007(),
             build_journal_entry_008(),
             build_journal_entry_009(),
+            build_journal_entry_010(),
         ],
     }
