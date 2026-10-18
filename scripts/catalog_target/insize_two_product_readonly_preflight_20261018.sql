@@ -77,4 +77,71 @@ SELECT
 FROM products
 WHERE id IN (1944, 3639);
 
+-- Follow-up on verified 2026-10-18 10:40:12Z snapshot:
+-- A candidate pre-APPLY *data* gate, not APPLY, not media or rights clearance.
+-- Fixed expected values intentionally go stale when anyone changes either row.
+WITH expected (
+  id, sku, manufacturer_code, category_id, current_brand_id,
+  current_base_price, current_original_price, current_updated_at,
+  approved_brand_id, approved_base_price, approved_original_price
+) AS (
+  VALUES
+    (1944, '3203-1506'::text, '3203-1506'::text, 58, NULL::integer,
+     47100000.00::numeric, 47100000.00::numeric,
+     '2026-10-18 09:20:42.106058+00'::timestamptz,
+     3, 40035000.00::numeric, 47100000.00::numeric),
+    (3639, 'S3-2824'::text, NULL::text, 63, NULL::integer,
+     NULL::numeric, 10.00::numeric,
+     '2026-10-18 09:18:13.567359+00'::timestamptz,
+     3, 45390000.00::numeric, 53400000.00::numeric)
+)
+SELECT
+  e.id AS product_id,
+  e.sku AS expected_sku,
+  p.updated_at AS observed_updated_at,
+  e.current_updated_at AS expected_updated_at,
+  p.brand_id AS observed_brand_id,
+  p.base_price AS observed_base_price,
+  p.original_price AS observed_original_price,
+  e.approved_brand_id AS proposed_brand_id,
+  e.approved_base_price AS proposed_base_price,
+  e.approved_original_price AS proposed_original_price,
+  CASE
+    WHEN p.id IS NULL THEN 'STOP_MISSING_PRODUCT'
+    WHEN p.sku IS DISTINCT FROM e.sku
+      OR p.manufacturer_code IS DISTINCT FROM e.manufacturer_code
+      OR p.category_id IS DISTINCT FROM e.category_id
+      OR p.brand_id IS DISTINCT FROM e.current_brand_id
+      OR p.deleted_at IS NOT NULL THEN 'STOP_IDENTITY_DRIFT'
+    WHEN NOT EXISTS (
+      SELECT 1 FROM brands b
+      WHERE b.id = e.approved_brand_id AND b.name ILIKE 'INSIZE%'
+    ) THEN 'STOP_BRAND_MASTER'
+    WHEN NOT EXISTS (
+      SELECT 1 FROM product_change_logs l
+      WHERE l.product_id = e.id AND l.field_name = 'brand_id'
+        AND l.old_value = '3' AND l.new_value IS NULL
+        AND l.reason = 'product_update'
+    ) THEN 'STOP_BRAND_PROVENANCE'
+    WHEN p.updated_at IS DISTINCT FROM e.current_updated_at
+      OR p.base_price IS DISTINCT FROM e.current_base_price
+      OR p.original_price IS DISTINCT FROM e.current_original_price
+      OR p.is_active IS DISTINCT FROM TRUE
+      OR p.is_available IS DISTINCT FROM TRUE THEN 'STOP_STATE_OR_PRICE_DRIFT'
+    WHEN EXISTS (
+      SELECT 1 FROM product_images pi WHERE pi.product_id = e.id
+    ) THEN 'STOP_IMAGE_STATE_CHANGED'
+    ELSE 'DATA_SNAPSHOT_MATCH_MEDIA_AND_AUTH_PENDING'
+  END AS candidate_data_gate
+FROM expected e
+LEFT JOIN products p ON p.id = e.id
+ORDER BY e.id;
+
+-- Audit metadata only; no actor identity, personal details or JSON payloads.
+SELECT id, action, entity_type, entity_id, created_at
+FROM admin_audit_logs
+WHERE entity_id IN ('1944', '3639')
+ORDER BY created_at DESC, id DESC
+LIMIT 20;
+
 ROLLBACK;
