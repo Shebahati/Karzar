@@ -1057,6 +1057,16 @@ documents:
       Evidence-only Owner decision options for 13 exact-OEM-reference M7 products
       and two unresolved Groz families. No Batch 006 or Owner approval, no APPLY.
 
+  - id: TAXONOMY-TX-OWNER-001-P1B-52-OEM-RECONCILE-20261018
+    path: audit/taxonomy-phase1b-tx-owner-001-p1b-52-oem-reconcile-2026-10-18/00-OWNER-RESEARCH-SUMMARY-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Fifty-two exact-SKU M7 OEM evidence-tier reconciliation; official model
+      pages versus index/variant/near reference, no Owner decision or APPLY.
+
   - id: TAXONOMY-TX-OWNER-001-P1B-M7-52-20261018
     path: audit/taxonomy-phase1b-tx-owner-001-p1b-m7-52-2026-10-18/00-OWNER-SUMMARY-FA.md
     class: EVIDENCE
