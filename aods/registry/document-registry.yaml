@@ -1057,6 +1057,16 @@ documents:
       Evidence-only Owner decision options for 13 exact-OEM-reference M7 products
       and two unresolved Groz families. No Batch 006 or Owner approval, no APPLY.
 
+  - id: TAXONOMY-TX-OWNER-001-P1A-GROZ-CHAGAN-20261018
+    path: audit/taxonomy-phase1b-tx-owner-001-p1a-groz-chagan-2026-10-18/00-OWNER-SUMMARY-FA.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: >
+      Evidence-only 68 P1 partition and 16 SKU-specific Groz/Chagan
+      family-reference investigation. No new Owner decisions or APPLY.
+
   - id: TAXONOMY-TX-OWNER-001-OWNER-BATCH-006-20261018
     path: audit/taxonomy-phase1b-tx-owner-001-owner-decision-package/OWNER-AUTHORIZATION-BATCH-006-2026-10-18.md
     class: EVIDENCE
