@@ -1,9 +1,8 @@
 """Owner-curated bestsellers: permission, order, optimistic locking and availability."""
 
 import pytest
-from fastapi.testclient import TestClient
-
 from app.main import app
+from fastapi.testclient import TestClient
 
 pytestmark = pytest.mark.usefixtures("override_database")
 client = TestClient(app)

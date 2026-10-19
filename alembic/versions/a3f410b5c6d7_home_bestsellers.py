@@ -1,7 +1,7 @@
 """Create durable ordered homepage bestseller selection (empty until owner publishes).
 
 Revision ID: a3f410b5c6d7
-Revises: z1a2b3c4d5e6
+Revises: c1d2e3f4a5b6 + u6v7w8x9y0z1 (existing parallel Alembic heads)
 """
 from collections.abc import Sequence
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ from sqlalchemy.dialects import postgresql
 from alembic import op
 
 revision: str = "a3f410b5c6d7"
-down_revision: str | None = "z1a2b3c4d5e6"
+down_revision: tuple[str, str] = ("c1d2e3f4a5b6", "u6v7w8x9y0z1")
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
