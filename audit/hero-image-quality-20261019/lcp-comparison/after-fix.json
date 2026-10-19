@@ -1,0 +1,269 @@
+{
+  "label": "after-fix",
+  "runs": 5,
+  "dpr": 2,
+  "viewport": "1920x1080@2",
+  "cache": "fresh browser context per run (no HTTP cache reuse across runs)",
+  "medianLcpMs": 1700,
+  "lcpMsPerRun": [
+    1820,
+    1652,
+    1700,
+    1664,
+    1716
+  ],
+  "lcpMsMin": 1652,
+  "lcpMsMax": 1820,
+  "medianHeroRequestCount": 1,
+  "heroRequestCounts": [
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "lcpIsHeroImagePerRun": [
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "runsDetail": [
+    {
+      "heroResponses": [
+        {
+          "url": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+          "status": 200
+        }
+      ],
+      "lcpEntries": [
+        {
+          "startTime": 1820,
+          "renderTime": 1820,
+          "loadTime": 0,
+          "size": 88976,
+          "url": "",
+          "id": "",
+          "tagName": "H1",
+          "src": null,
+          "testId": "campaign-hero-copy-stack"
+        }
+      ],
+      "lcpLast": {
+        "startTime": 1820,
+        "renderTime": 1820,
+        "loadTime": 0,
+        "size": 88976,
+        "url": "",
+        "id": "",
+        "tagName": "H1",
+        "src": null,
+        "testId": "campaign-hero-copy-stack"
+      },
+      "lcpRelativeMs": 1820,
+      "lcpElement": {
+        "tagName": "H1",
+        "testId": "campaign-hero-copy-stack",
+        "url": "",
+        "src": null,
+        "size": 88976
+      },
+      "heroImgSrc": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+      "heroNaturalWidth": 3840,
+      "dpr": 2,
+      "lcpIsHeroImage": false,
+      "lcpTransferSize": null,
+      "imageRequestCount": 1,
+      "navigationStart": 0
+    },
+    {
+      "heroResponses": [
+        {
+          "url": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+          "status": 200
+        }
+      ],
+      "lcpEntries": [
+        {
+          "startTime": 1652,
+          "renderTime": 1652,
+          "loadTime": 0,
+          "size": 88976,
+          "url": "",
+          "id": "",
+          "tagName": "H1",
+          "src": null,
+          "testId": "campaign-hero-copy-stack"
+        }
+      ],
+      "lcpLast": {
+        "startTime": 1652,
+        "renderTime": 1652,
+        "loadTime": 0,
+        "size": 88976,
+        "url": "",
+        "id": "",
+        "tagName": "H1",
+        "src": null,
+        "testId": "campaign-hero-copy-stack"
+      },
+      "lcpRelativeMs": 1652,
+      "lcpElement": {
+        "tagName": "H1",
+        "testId": "campaign-hero-copy-stack",
+        "url": "",
+        "src": null,
+        "size": 88976
+      },
+      "heroImgSrc": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+      "heroNaturalWidth": 3840,
+      "dpr": 2,
+      "lcpIsHeroImage": false,
+      "lcpTransferSize": null,
+      "imageRequestCount": 1,
+      "navigationStart": 0
+    },
+    {
+      "heroResponses": [
+        {
+          "url": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+          "status": 200
+        }
+      ],
+      "lcpEntries": [
+        {
+          "startTime": 1700,
+          "renderTime": 1700,
+          "loadTime": 0,
+          "size": 88976,
+          "url": "",
+          "id": "",
+          "tagName": "H1",
+          "src": null,
+          "testId": "campaign-hero-copy-stack"
+        }
+      ],
+      "lcpLast": {
+        "startTime": 1700,
+        "renderTime": 1700,
+        "loadTime": 0,
+        "size": 88976,
+        "url": "",
+        "id": "",
+        "tagName": "H1",
+        "src": null,
+        "testId": "campaign-hero-copy-stack"
+      },
+      "lcpRelativeMs": 1700,
+      "lcpElement": {
+        "tagName": "H1",
+        "testId": "campaign-hero-copy-stack",
+        "url": "",
+        "src": null,
+        "size": 88976
+      },
+      "heroImgSrc": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+      "heroNaturalWidth": 3840,
+      "dpr": 2,
+      "lcpIsHeroImage": false,
+      "lcpTransferSize": null,
+      "imageRequestCount": 1,
+      "navigationStart": 0
+    },
+    {
+      "heroResponses": [
+        {
+          "url": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+          "status": 200
+        }
+      ],
+      "lcpEntries": [
+        {
+          "startTime": 1664,
+          "renderTime": 1664,
+          "loadTime": 0,
+          "size": 88976,
+          "url": "",
+          "id": "",
+          "tagName": "H1",
+          "src": null,
+          "testId": "campaign-hero-copy-stack"
+        }
+      ],
+      "lcpLast": {
+        "startTime": 1664,
+        "renderTime": 1664,
+        "loadTime": 0,
+        "size": 88976,
+        "url": "",
+        "id": "",
+        "tagName": "H1",
+        "src": null,
+        "testId": "campaign-hero-copy-stack"
+      },
+      "lcpRelativeMs": 1664,
+      "lcpElement": {
+        "tagName": "H1",
+        "testId": "campaign-hero-copy-stack",
+        "url": "",
+        "src": null,
+        "size": 88976
+      },
+      "heroImgSrc": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+      "heroNaturalWidth": 3840,
+      "dpr": 2,
+      "lcpIsHeroImage": false,
+      "lcpTransferSize": null,
+      "imageRequestCount": 1,
+      "navigationStart": 0
+    },
+    {
+      "heroResponses": [
+        {
+          "url": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+          "status": 200
+        }
+      ],
+      "lcpEntries": [
+        {
+          "startTime": 1716,
+          "renderTime": 1716,
+          "loadTime": 0,
+          "size": 88976,
+          "url": "",
+          "id": "",
+          "tagName": "H1",
+          "src": null,
+          "testId": "campaign-hero-copy-stack"
+        }
+      ],
+      "lcpLast": {
+        "startTime": 1716,
+        "renderTime": 1716,
+        "loadTime": 0,
+        "size": 88976,
+        "url": "",
+        "id": "",
+        "tagName": "H1",
+        "src": null,
+        "testId": "campaign-hero-copy-stack"
+      },
+      "lcpRelativeMs": 1716,
+      "lcpElement": {
+        "tagName": "H1",
+        "testId": "campaign-hero-copy-stack",
+        "url": "",
+        "src": null,
+        "size": 88976
+      },
+      "heroImgSrc": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+      "heroNaturalWidth": 3840,
+      "dpr": 2,
+      "lcpIsHeroImage": false,
+      "lcpTransferSize": null,
+      "imageRequestCount": 1,
+      "navigationStart": 0
+    }
+  ]
+}

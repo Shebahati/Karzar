@@ -1,4 +1,12 @@
 {
+  "slideId": "H02",
+  "slideIndex": 1,
+  "slideTitle": "ابزار اندازه‌گیری",
+  "expectedDesktop": "H02-measuring-tools-desktop-16x9.webp",
+  "expectedMobile": "H02-measuring-tools-mobile-4x3.webp",
+  "expectedAsset": "H02-measuring-tools-desktop-16x9.webp",
+  "viewport": "1440x900@2",
+  "splashAbsent": true,
   "compact": false,
   "currentSrc": "http://127.0.0.1:3000/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2Fcalibrated-20261018%2FH02-measuring-tools-desktop-16x9.webp&w=1920&q=90",
   "naturalWidth": 1440,
@@ -10,5 +18,19 @@
   "objectPosition": "0% 62%",
   "mobileMedia": "(max-width: 1023px)",
   "loading": "lazy",
-  "fetchPriority": "auto"
+  "fetchPriority": "auto",
+  "lcpLast": {
+    "startTime": 1780,
+    "renderTime": 1780,
+    "loadTime": 0,
+    "size": 67932,
+    "url": "",
+    "id": "",
+    "tagName": "H1",
+    "src": null,
+    "testId": "campaign-hero-copy-stack"
+  },
+  "lcpTransferSize": null,
+  "lcpIsHeroImage": false,
+  "heroCurrentSrcAtCapture": "http://127.0.0.1:3000/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2Fcalibrated-20261018%2FH02-measuring-tools-desktop-16x9.webp&w=1920&q=90"
 }

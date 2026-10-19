@@ -1,112 +1,97 @@
 /**
- * Forensic hero image delivery audit — production build only.
+ * Forensic hero capture — requires production server on :3000 (see scripts/hero-quality-browser-audit.mjs).
+ * CI uses hero-calibrated-campaign.spec.ts; this spec validates slide identity when HERO_AUDIT_CAPTURE=1.
  */
-import { test, expect } from "@playwright/test";
-import { writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { expect, test } from "@playwright/test";
 
-const OUT = join(process.cwd(), "../../audit/hero-image-quality-20261019/browser-capture");
-const VIEWPORTS: { w: number; h: number; dpr: number; label: string }[] = [
-  { w: 320, h: 720, dpr: 2, label: "320x720@2" },
-  { w: 390, h: 844, dpr: 2, label: "390x844@2" },
-  { w: 390, h: 844, dpr: 3, label: "390x844@3" },
-  { w: 430, h: 932, dpr: 3, label: "430x932@3" },
-  { w: 768, h: 1024, dpr: 2, label: "768x1024@2" },
-  { w: 1023, h: 900, dpr: 1, label: "1023x900@1" },
-  { w: 1023, h: 900, dpr: 2, label: "1023x900@2" },
-  { w: 1024, h: 768, dpr: 1, label: "1024x768@1" },
-  { w: 1024, h: 768, dpr: 2, label: "1024x768@2" },
-  { w: 1366, h: 768, dpr: 1, label: "1366x768@1" },
-  { w: 1366, h: 768, dpr: 2, label: "1366x768@2" },
-  { w: 1440, h: 900, dpr: 1, label: "1440x900@1" },
-  { w: 1440, h: 900, dpr: 2, label: "1440x900@2" },
-  { w: 1920, h: 1080, dpr: 1, label: "1920x1080@1" },
-  { w: 1920, h: 1080, dpr: 2, label: "1920x1080@2" },
-  { w: 2560, h: 1440, dpr: 2, label: "2560x1440@2" },
+const SLIDES = [
+  { id: "H01", title: "تخفیف‌های ویژه‌ی کارزار", desktop: "H01-special-offers-desktop-16x9.webp", mobile: "H01-special-offers-mobile-4x3.webp" },
+  { id: "H02", title: "ابزار اندازه‌گیری", desktop: "H02-measuring-tools-desktop-16x9.webp", mobile: "H02-measuring-tools-mobile-4x3.webp" },
+  { id: "H03", title: "اینسرت و ابزارهای اینسرتی", desktop: "H03-inserts-turning-tools-desktop-16x9.webp", mobile: "H03-inserts-turning-tools-mobile-4x3.webp" },
+  { id: "H04", title: "فرز انگشتی", desktop: "H04-end-mills-desktop-16x9.webp", mobile: "H04-end-mills-mobile-4x3.webp" },
+  { id: "H05", title: "دستگاه‌های صنعتی", desktop: "H05-industrial-machines-desktop-16x9.webp", mobile: "H05-industrial-machines-mobile-4x3.webp" },
 ];
-const HERO_LABELS = ["H01", "H02", "H03", "H04", "H05"];
 
-async function waitForHeroImage(page: import("@playwright/test").Page) {
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-  await page.waitForSelector('[data-testid="campaign-hero-fullbleed"], [data-testid="campaign-hero-compact"]', { timeout: 30_000 });
-  await page.waitForFunction(() => {
-    const img = document.querySelector<HTMLImageElement>(
-      '[data-testid="campaign-hero-fullbleed"] img, [data-testid="campaign-hero-compact-media"] img',
-    );
-    return img && img.complete && img.naturalWidth > 0;
-  });
+const VIEWPORTS = [
+  { width: 390, height: 844, dpr: 3, label: "390x844@3", compact: true },
+  { width: 1023, height: 900, dpr: 2, label: "1023x900@2", compact: true },
+  { width: 1024, height: 768, dpr: 2, label: "1024x768@2", compact: false },
+  { width: 1440, height: 900, dpr: 2, label: "1440x900@2", compact: false },
+  { width: 1920, height: 1080, dpr: 2, label: "1920x1080@2", compact: false },
+];
+
+const SPLASH_STORAGE_KEY = "karzar-splash-seen";
+
+async function waitSplashDismissed(page: import("@playwright/test").Page) {
+  await expect
+    .poll(
+      async () =>
+        page.evaluate((key) => {
+          try {
+            if (sessionStorage.getItem(key) !== "1") return false;
+          } catch {
+            return false;
+          }
+          return (
+            document.querySelectorAll(".karzar-splash").length === 0 &&
+            document.querySelectorAll("style[data-karzar-splash-boot]").length === 0
+          );
+        }, SPLASH_STORAGE_KEY),
+      { timeout: 35_000 },
+    )
+    .toBe(true);
+}
+
+async function gotoHomeReady(page: import("@playwright/test").Page) {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/", { waitUntil: "domcontentloaded", timeout: 120_000 });
+  await expect(page.getByRole("region", { name: "هیرو کارزار" })).toBeVisible({ timeout: 30_000 });
+  await waitSplashDismissed(page);
+}
+
+async function expectSlide(page: import("@playwright/test").Page, index: number, compact: boolean) {
+  const slide = SLIDES[index]!;
+  const hero = page.getByRole("region", { name: "هیرو کارزار" });
+  await expect(hero.getByRole("heading", { name: slide.title, exact: true })).toBeVisible();
+  const expected = compact ? slide.mobile : slide.desktop;
+  const img = hero.locator("picture img").first();
+  await expect
+    .poll(async () => img.evaluate((n) => (n as HTMLImageElement).currentSrc), { timeout: 25_000 })
+    .toContain(expected);
+  await expect.poll(async () => img.evaluate((n) => {
+    const el = n as HTMLImageElement;
+    return el.complete && el.naturalWidth > 0;
+  }), { timeout: 25_000 }).toBe(true);
 }
 
 test.describe("hero image quality audit", () => {
-  test("capture delivery matrix and screenshots", async ({ page, browser }) => {
-    test.setTimeout(600_000);
-    const tag = process.env.HERO_AUDIT_TAG ?? "run";
-    const outDir = join(OUT, tag);
-    mkdirSync(outDir, { recursive: true });
-    const rows: Record<string, string | number | boolean | null>[] = [];
+  test.skip(!process.env.HERO_AUDIT_CAPTURE, "set HERO_AUDIT_CAPTURE=1 with next start on :3000");
 
-    for (const vp of VIEWPORTS) {
+  for (const vp of VIEWPORTS) {
+    test(`mandatory matrix ${vp.label}`, async ({ browser }) => {
+      test.setTimeout(300_000);
       const context = await browser.newContext({
-        viewport: { width: vp.w, height: vp.h },
+        viewport: { width: vp.width, height: vp.height },
         deviceScaleFactor: vp.dpr,
       });
-      const p = await context.newPage();
-      for (let heroIndex = 0; heroIndex < 5; heroIndex++) {
-        await waitForHeroImage(p);
-        if (heroIndex > 0) {
-          const next = p.locator('[aria-label="اسلاید بعدی"]').first();
-          if (await next.isVisible().catch(() => false)) {
-            await next.click();
-            await p.waitForTimeout(500);
-          }
+      const page = await context.newPage();
+      await gotoHomeReady(page);
+      for (let index = 0; index < SLIDES.length; index += 1) {
+        await expectSlide(page, index, vp.compact);
+        if (index < SLIDES.length - 1) {
+          const hero = page.getByRole("region", { name: "هیرو کارزار" });
+          const before = await hero.locator("picture img").first().evaluate((n) => (n as HTMLImageElement).currentSrc);
+          await hero.focus();
+          await page.keyboard.press("ArrowLeft");
+          await expect
+            .poll(async () => hero.locator("picture img").first().evaluate((n) => (n as HTMLImageElement).currentSrc), {
+              timeout: 20_000,
+            })
+            .not.toBe(before);
+          await expectSlide(page, index + 1, vp.compact);
         }
-        const metrics = await p.evaluate(() => {
-          const compact = !!document.querySelector('[data-testid="campaign-hero-compact"]');
-          const img = document.querySelector<HTMLImageElement>(
-            '[data-testid="campaign-hero-fullbleed"] img, [data-testid="campaign-hero-compact-media"] img',
-          );
-          if (!img) return null;
-          const cs = getComputedStyle(img);
-          const rect = img.getBoundingClientRect();
-          const picture = img.closest("picture");
-          const mobileSource = picture?.querySelector("source");
-          return {
-            compact,
-            currentSrc: img.currentSrc,
-            naturalWidth: img.naturalWidth,
-            naturalHeight: img.naturalHeight,
-            clientWidth: rect.width,
-            clientHeight: rect.height,
-            objectFit: cs.objectFit,
-            objectPosition: cs.objectPosition,
-            mobileMedia: mobileSource?.getAttribute("media") ?? null,
-            dpr: window.devicePixelRatio,
-          };
-        });
-        expect(metrics).not.toBeNull();
-        const m = metrics!;
-        const hero = HERO_LABELS[heroIndex];
-        await p.screenshot({ path: join(outDir, `${vp.label}_${hero}.png`) });
-        rows.push({
-          viewport: vp.label,
-          hero,
-          compact: m.compact,
-          devicePixelRatio: m.dpr,
-          currentSrc: m.currentSrc,
-          naturalWidth: m.naturalWidth,
-          naturalHeight: m.naturalHeight,
-          elementWidth: Math.round(m.clientWidth),
-          elementHeight: Math.round(m.clientHeight),
-          physicalPxDemandWidth: Math.round(m.clientWidth * m.dpr),
-          objectFit: m.objectFit,
-          objectPosition: m.objectPosition,
-          usesNextOptimizer: m.currentSrc.includes("/_next/image"),
-          directCalibratedWebp: m.currentSrc.includes("/calibrated-20261018/"),
-          mobileMediaQuery: m.mobileMedia,
-        });
       }
       await context.close();
-    }
-    writeFileSync(join(outDir, "delivery-matrix.json"), JSON.stringify(rows, null, 2));
-  });
+    });
+  }
 });

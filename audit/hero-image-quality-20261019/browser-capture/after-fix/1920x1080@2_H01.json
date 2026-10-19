@@ -1,4 +1,12 @@
 {
+  "slideId": "H01",
+  "slideIndex": 0,
+  "slideTitle": "تخفیف‌های ویژه‌ی کارزار",
+  "expectedDesktop": "H01-special-offers-desktop-16x9.webp",
+  "expectedMobile": "H01-special-offers-mobile-4x3.webp",
+  "expectedAsset": "H01-special-offers-desktop-16x9.webp",
+  "viewport": "1920x1080@2",
+  "splashAbsent": true,
   "compact": false,
   "currentSrc": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
   "naturalWidth": 3840,
@@ -10,5 +18,19 @@
   "objectPosition": "0% 58%",
   "mobileMedia": "(max-width: 1023px)",
   "loading": "eager",
-  "fetchPriority": "high"
+  "fetchPriority": "high",
+  "lcpLast": {
+    "startTime": 1696,
+    "renderTime": 1696,
+    "loadTime": 0,
+    "size": 88976,
+    "url": "",
+    "id": "",
+    "tagName": "H1",
+    "src": null,
+    "testId": "campaign-hero-copy-stack"
+  },
+  "lcpTransferSize": null,
+  "lcpIsHeroImage": false,
+  "heroCurrentSrcAtCapture": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp"
 }
