@@ -1,5 +1,7 @@
 """Regression: missing product images must not gate website publication."""
 
+from __future__ import annotations
+
 import asyncio
 from datetime import UTC, datetime
 
