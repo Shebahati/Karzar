@@ -932,6 +932,27 @@ documents:
       Owner-authorized INSIZE +12% base_price Category B APPLY evidence
       (2026-09-30); 487 priced rows; do not rerun.
 
+  - id: INSIZE-PRICE-110-AUDIT
+    path: audit/insize-price-110/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/issue-541-insize-price-110-apply-20261019
+    notes: >
+      Owner-authorized INSIZE +10% base_price Category B operator evidence
+      (2026-10-19); 206 priced rows; human APPLY handoff; do not rerun after APPLY.
+
+  - id: INSIZE-PRICE-110-HUMAN-HANDOFF
+    path: audit/insize-price-110/HUMAN_APPLY_HANDOFF.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/issue-541-insize-price-110-apply-20261019
+    notes: >
+      Human-controlled production APPLY steps for Issue #541; not agent-executable.
+
   - id: TAXONOMY-PHASE0B-AUDIT-20260927
     path: audit/taxonomy-phase0b/README.md
     class: EVIDENCE
