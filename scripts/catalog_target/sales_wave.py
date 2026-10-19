@@ -108,8 +108,6 @@ def row_in_insize_sales_wave_1(row: ManifestRow) -> tuple[bool, list[str]]:
         return False, ["has_review_reason"]
     if not row.commerce_ready:
         return False, ["not_commerce_ready"]
-    if not row.media_ready:
-        return False, ["not_media_ready"]
     if not row.public_sell_ready:
         return False, ["not_public_sell_ready"]
     if row.reconciliation_state not in {"KEEP", "UPDATE"}:
@@ -125,7 +123,6 @@ def row_in_insize_sales_wave_1(row: ManifestRow) -> tuple[bool, list[str]]:
             "status_available",
             "positive_proposed_price",
             "no_review_reason",
-            "media_ready",
             "commerce_ready",
             "public_sell_ready",
             f"state_{row.reconciliation_state}",

@@ -193,7 +193,6 @@ def reconcile(
             and price_class == "VALID_WORKBOOK_PRICE"
             and toman is not None
             and toman > 0
-            and img_ok
             and content_ok
             and product_active
             and bool(p.get("category_id"))
@@ -257,7 +256,9 @@ def reconcile(
     only_image = [
         r
         for r in valid_karzar_unit
-        if (not r["image_ready"]) and r["content_ready"] and r["is_active"]
+        if (not r["image_ready"])
+        and r["ready_for_sales_activation"]
+        and r["is_active"]
     ]
     only_content = [
         r
@@ -423,7 +424,8 @@ def _row_to_plan(
         content_ready=bool(r["content_ready"]),
         eligibility_reason=(
             "exact_match && وضعیت==موجود && VALID_WORKBOOK_PRICE && "
-            "image_ready && content_ready && active && category_ok && slug"
+            "content_ready && active && category_ok && slug "
+            "(image_ready diagnostic only)"
         ),
         expected_updated_at=str(r.get("updated_at") or "") or None,
         review_flags=list(r.get("review_flags") or []),

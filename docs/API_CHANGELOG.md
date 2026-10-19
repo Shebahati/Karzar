@@ -22,6 +22,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+### 2026-10-19 — Website publication no longer requires product images
+
+- Public catalog visibility (`storefront_public_product_filters`, PDP guards, category/brand counts, related products) uses **active + not soft-deleted** only. Missing or placeholder-only images do not hide products.
+- Removed `STOREFRONT_HIDE_IMAGELESS_PRODUCTS` (env var ignored via `extra=ignore`; cannot re-enable image gating).
+- Emalls adapters keep a **separate** export image rule via `app/services/emalls/eligibility.py` (see [`integrations/emalls/API-CONTRACT.md`](integrations/emalls/API-CONTRACT.md)).
+- Response shapes unchanged; storefront uses existing placeholder rendering for imageless PDP/cards.
+
 ### 2026-09-30 — Product naming preview + identity search (Phase 2B)
 
 - New admin endpoint: `GET /api/v1/products/{id}/naming-preview` — read-only Naming Standard preview (super-admin). Zero Product writes.
@@ -78,7 +85,7 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 - Request encodings: `application/json` and `application/x-www-form-urlencoded` (plus query-param merge) for WP plugin parity.
 - Auth: Emalls-supplied `token` validated against `emalls.ir` with exact message `the token is valid` (positive Redis/in-memory cache TTL 1h). Fail closed on validator outage without cache.
 - `NeedSession=true` after fresh remote validation; `NeedSession=false` on cache hit. Response `Version` / validator `version` use `EMALLS_COMPAT_VERSION` (default `1.3.0`).
-- Eligibility reuses `storefront_public_product_filters()` (active, not deleted, valid public image). Availability maps `product_is_available` → `instock`/`outofstock`. Prices pass through site TOMAN (`base_price` / `original_price`) with no ×10/÷10 conversion. Emalls `old_price` falls back to `base_price` when `original_price` is null (WooCommerce regular-price parity; adapter-only).
+- Eligibility uses `emalls_export_product_filters()` (active, not deleted, valid public image). Availability maps `product_is_available` → `instock`/`outofstock`. Prices pass through site TOMAN (`base_price` / `original_price`) with no ×10/÷10 conversion. Emalls `old_price` falls back to `base_price` when `original_price` is null (WooCommerce regular-price parity; adapter-only).
 - Does **not** change `GET /api/v1/products/` or storefront ProductSummary/Detail shapes.
 - Contract detail: [`integrations/emalls/API-CONTRACT.md`](integrations/emalls/API-CONTRACT.md).
 

@@ -101,37 +101,51 @@ def product_has_materialized_public_image(product: Product) -> bool:
     return product_image_materialized_on_disk(url)
 
 
-def product_has_storefront_public_image(product: Product) -> bool:
-    """URL/placeholder guard plus optional on-disk materialization in DEBUG/local."""
-    if not settings.STOREFRONT_HIDE_IMAGELESS_PRODUCTS:
+def product_passes_storefront_materialization_guard(product: Product) -> bool:
+    """Optional DEBUG/local guard: missing on-disk file for a claimed image only.
+
+    Imageless products always pass. This does not gate publication on having an image.
+    """
+    if not settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES:
         return True
-    if not product_has_valid_public_image(product):
-        return False
-    if settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES:
-        return product_has_materialized_public_image(product)
-    return True
+    url = get_first_valid_public_image_url(product)
+    if not url:
+        return True
+    return product_image_materialized_on_disk(url)
+
+
+def product_has_storefront_public_image(product: Product) -> bool:
+    """Backward-compatible alias for materialization guard (not image presence)."""
+    return product_passes_storefront_materialization_guard(product)
 
 
 def is_product_storefront_public(product: Product) -> bool:
     """True when a non-admin PDP read would expose this product row.
 
     Matches ``_guard_inactive_product`` for non-admin callers plus soft-delete:
-    active, not soft-deleted, and storefront-public image eligibility.
+    active, not soft-deleted. Product images are not part of publication eligibility.
     Knowledge publication gates MUST reuse this predicate (Prompt 02 / MKB-R8a).
     """
     if product.deleted_at is not None:
         return False
     if not product.is_active:
         return False
-    return product_has_storefront_public_image(product)
+    return product_passes_storefront_materialization_guard(product)
 
 
 def filter_storefront_public_products(products: list[Product]) -> list[Product]:
-    return [product for product in products if product_has_storefront_public_image(product)]
+    return [
+        product
+        for product in products
+        if product_passes_storefront_materialization_guard(product)
+    ]
 
 
 def public_image_exists_clause() -> ColumnElement[bool]:
-    """SQL EXISTS for products with a real (non-placeholder) image row."""
+    """SQL EXISTS for products with a real (non-placeholder) image row.
+
+    Used for marketplace/feed export eligibility — not storefront publication.
+    """
     return exists(
         select(ProductImage.id).where(
             ProductImage.product_id == Product.id,
@@ -157,10 +171,7 @@ def availability_rank_clause() -> ColumnElement[int]:
 
 def storefront_public_product_filters() -> list[ColumnElement[bool]]:
     """Filters applied to every public product list/detail guard."""
-    filters: list[ColumnElement[bool]] = [
+    return [
         Product.deleted_at.is_(None),
         Product.is_active.is_(True),
     ]
-    if settings.STOREFRONT_HIDE_IMAGELESS_PRODUCTS:
-        filters.append(public_image_exists_clause())
-    return filters

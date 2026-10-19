@@ -497,7 +497,6 @@ async def get_related_products(
         return []
 
     from app.crud import category as crud_category
-    from app.utils.public_catalog import public_image_exists_clause
     from app.utils.storefront_catalog import product_sort_clause
 
     categories = await crud_category.get_all_categories(db)
@@ -526,7 +525,6 @@ async def get_related_products(
                 Product.is_active.is_(True),
                 Product.id != product_id,
                 Product.category_id.in_(subtree_ids),
-                public_image_exists_clause(),
             )
         )
         .options(*_product_load_options())
@@ -534,10 +532,7 @@ async def get_related_products(
         .limit(limit)
     )
     result = await db.execute(stmt)
-    related = list(result.scalars().all())
-    from app.utils.public_catalog import filter_storefront_public_products
-
-    return filter_storefront_public_products(related)[:limit]
+    return list(result.scalars().all())[:limit]
 
 
 async def count_product_images(db: AsyncSession, product_id: int) -> int:

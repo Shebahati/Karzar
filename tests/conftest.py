@@ -292,14 +292,6 @@ def override_database(_test_schema):
             asyncio.run(test_engine.dispose())
 
 
-@pytest.fixture(autouse=True)
-def _disable_storefront_image_hiding_for_tests(monkeypatch):
-    """Legacy integration tests create products without images; production hides them."""
-    from app.core.config import settings as app_settings
-
-    monkeypatch.setattr(app_settings, "STOREFRONT_HIDE_IMAGELESS_PRODUCTS", False)
-
-
 @pytest.fixture
 def super_admin_headers(override_database):
     from app.core.security import create_access_token

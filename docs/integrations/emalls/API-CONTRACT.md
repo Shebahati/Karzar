@@ -139,12 +139,14 @@ Public + unavailable products **remain exported** as `outofstock` (they do not d
 
 ## 8. Visibility / export policy
 
-Exact predicate (SQL + settings): `storefront_public_product_filters()` from `app/utils/public_catalog.py`:
+Exact predicate: `emalls_export_product_filters()` from `app/services/emalls/eligibility.py` (website publication rules **plus** Emalls image requirement):
 
 1. `deleted_at IS NULL`
 2. `is_active = true`
-3. When `STOREFRONT_HIDE_IMAGELESS_PRODUCTS` (default true): at least one non-placeholder product image URL exists
+3. At least one non-placeholder product image URL exists (`public_image_exists_clause()`)
 4. When `STOREFRONT_REQUIRE_MATERIALIZED_IMAGES` (DEBUG default): primary public image must exist on local upload disk
+
+**Note:** Karzar website publication (PDP, catalog, counts) no longer requires product images (owner decision 2026-10-19). Emalls export still requires a valid public image per this contract.
 
 Ordering: `Product.id DESC` (stable pagination; no duplicates across adjacent pages under a static dataset).
 

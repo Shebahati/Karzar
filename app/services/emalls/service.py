@@ -25,9 +25,9 @@ from app.services.emalls.token_cache import (
     get_emalls_token_cache,
     token_cache_key,
 )
-from app.utils.public_catalog import (
-    filter_storefront_public_products,
-    storefront_public_product_filters,
+from app.services.emalls.eligibility import (
+    emalls_export_product_filters,
+    filter_emalls_export_products,
 )
 
 logger = get_logger(__name__)
@@ -78,8 +78,8 @@ async def _count_and_page(
     skip: int,
     limit: int,
 ) -> tuple[list[Product], int]:
-    """List storefront-public products ordered by Product.id DESC (stable pages)."""
-    filters = storefront_public_product_filters()
+    """List Emalls-export-eligible products ordered by Product.id DESC (stable pages)."""
+    filters = emalls_export_product_filters()
     where_clause = and_(*filters) if filters else True
     materialized = bool(settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES)
 
@@ -92,7 +92,7 @@ async def _count_and_page(
             .order_by(Product.id.desc())
         )
         candidates = list((await db.execute(all_stmt)).scalars().all())
-        eligible = filter_storefront_public_products(candidates)
+        eligible = filter_emalls_export_products(candidates)
         total = len(eligible)
         return eligible[skip : skip + limit], total
 

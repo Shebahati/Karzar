@@ -328,8 +328,6 @@ def load_and_validate_plan(
             raise ApplyAbort(f"not_public_sell_ready:{sku}")
         if str(raw["commerce_ready"]).strip().lower() != "true":
             raise ApplyAbort(f"not_commerce_ready:{sku}")
-        if str(raw["media_ready"]).strip().lower() != "true":
-            raise ApplyAbort(f"not_media_ready:{sku}")
         if str(raw["inventory_status"]).strip() != "موجود":
             raise ApplyAbort(f"inventory_not_available:{sku}:{raw.get('inventory_status')!r}")
 

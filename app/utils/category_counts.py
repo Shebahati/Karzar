@@ -6,9 +6,6 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.product import Category, Product
-from app.utils.public_catalog import public_image_exists_clause
-
-
 async def get_direct_product_counts(db: AsyncSession) -> dict[int, int]:
     stmt = (
         select(Product.category_id, func.count(Product.id))
@@ -16,7 +13,6 @@ async def get_direct_product_counts(db: AsyncSession) -> dict[int, int]:
             Product.deleted_at.is_(None),
             Product.is_active.is_(True),
             Product.category_id.isnot(None),
-            public_image_exists_clause(),
         )
         .group_by(Product.category_id)
     )
