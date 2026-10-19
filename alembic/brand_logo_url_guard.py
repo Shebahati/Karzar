@@ -10,7 +10,7 @@ from typing import Any
 
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy import inspect, text
+from sqlalchemy import inspect
 
 COLUMN_NAME = "logo_url"
 TABLE_NAME = "brands"
@@ -19,6 +19,10 @@ EXPECTED_LENGTH = 500
 
 class BrandLogoUrlSchemaError(RuntimeError):
     """Existing brands.logo_url is present but not equivalent to the migration contract."""
+
+
+class BrandLogoUrlDowngradeRefused(BrandLogoUrlSchemaError):
+    """Automatic u6 downgrade cannot prove the column was created by this revision."""
 
 
 @dataclass(frozen=True)
@@ -36,7 +40,6 @@ def _varchar_length(col_type: Any) -> int | None:
     length = getattr(col_type, "length", None)
     if length is not None:
         return int(length)
-    # PostgreSQL unbounded VARCHAR reports as VARCHAR() with length None — treat as incompatible.
     return None
 
 
@@ -80,13 +83,6 @@ def get_logo_url_column(bind) -> dict[str, Any] | None:
     return None
 
 
-def brands_have_non_null_logo_url(bind) -> bool:
-    result = bind.execute(
-        text(f"SELECT 1 FROM {TABLE_NAME} WHERE {COLUMN_NAME} IS NOT NULL LIMIT 1"),
-    )
-    return result.first() is not None
-
-
 def upgrade_brands_logo_url() -> None:
     bind = op.get_bind()
     existing = get_logo_url_column(bind)
@@ -104,6 +100,8 @@ def downgrade_brands_logo_url() -> None:
     existing = get_logo_url_column(bind)
     if existing is None:
         return
-    if brands_have_non_null_logo_url(bind):
-        return
-    op.drop_column(TABLE_NAME, COLUMN_NAME)
+    raise BrandLogoUrlDowngradeRefused(
+        f"u6 downgrade refused: {TABLE_NAME}.{COLUMN_NAME} is present and provenance "
+        "cannot be established (column may pre-date revision u6v7w8x9y0z1). "
+        "No automatic drop was performed.",
+    )

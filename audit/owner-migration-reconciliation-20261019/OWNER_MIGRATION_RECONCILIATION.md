@@ -19,7 +19,7 @@ Merge revision `a3f410b5c6d7` requires parents **`c1d2e3f4a5b6`** and **`u6v7w8x
 
 | Strategy | Fresh DB | Preserves live logos | Fail-closed on drift | History honesty | Rollback | Verdict |
 |----------|----------|----------------------|----------------------|-----------------|----------|---------|
-| **A. Guarded `u6` upgrade (same revision id)** | Adds column if missing | Yes — no-op + compatibility check | Yes | Revision id unchanged; body updated before `u6` ever stamped on live | Downgrade skips drop if any non-null `logo_url` | **Recommended** |
+| **A. Guarded `u6` upgrade (same revision id)** | Adds column if missing | Yes — no-op + compatibility check | Yes | Revision id unchanged; body updated before `u6` ever stamped on live | **`u6` downgrade refuses** if `logo_url` exists (provenance unknown) | **Recommended** |
 | **B. `alembic stamp u6` without upgrade** | N/A | Unchecked — incompatible column would pass | **No** | Falsifies that `u6` ran | Dangerous | **Reject** |
 | **C. New forward migration instead of fixing `u6`** | Requires rewiring `v7…` child + merge parents | Possible | Yes | Leaves broken `u6` for anyone upgrading linearly | Complex graph surgery | **Reject** (scope/risk) |
 | **D. Manual SQL + stamp** | N/A | Operator error risk | Weak | Off-book | Hard to audit | **Reject** |
@@ -49,14 +49,17 @@ Expected final `alembic_version`: **`a3f410b5c6d7`** (single head).
 |--------|--------|
 | Revert container image | App rollback; **schema stays at `a3f410`** if migration already ran |
 | `alembic downgrade a3f410b5c6d7` | Drops `home_bestseller_selection` only (if empty / owner accepts) |
-| `alembic downgrade u6v7w8x9y0z1` | Drops `logo_url` **only if no non-null values** — live with 25 logos → **no-op drop** |
+| `alembic downgrade u6v7w8x9y0z1` | **Fails closed** with `BrandLogoUrlDowngradeRefused` if `logo_url` exists (cannot prove `u6` created the column). No silent drop. Manual DBA only if rollback truly required. |
 
 ## Pre-release tests (automated)
 
 | Test module | What it proves |
 |-------------|----------------|
-| `tests/test_brand_logo_url_u6_migration.py` | Compatible / incompatible specs; add column when missing; preserve non-null on downgrade |
+| `tests/test_brand_logo_url_u6_migration.py` | Disposable DB `karzar_u6_mig_*` only; upgrade/downgrade guard behavior |
+| `tests/test_brand_logo_url_migration_integration.py` | Synthetic `c1` + drift → `head`; empty `home_bestseller_selection` |
 | `tests/test_knowledge_unit_dimensions_prompt150.py::test_alembic_head_is_single_descendant_of_s2` | Single head `a3f410b5c6d7`, merge parents |
+
+**Not replaced by CI:** restored-backup migration drill on a clone of live `karzar_staging` remains a **separate owner release gate**.
 
 ### Required before GO (owner / VPS)
 
