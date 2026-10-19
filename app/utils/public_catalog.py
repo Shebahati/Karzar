@@ -12,7 +12,7 @@ from app.db.models.product import Product, ProductImage
 
 # Known generic placeholders — never treat as a real public product image.
 # Keep SQL ILIKE tokens in sync with these patterns (see public_image_exists_clause).
-_PLACEHOLDER_ILIKE_TOKENS = (
+PLACEHOLDER_ILIKE_TOKENS: tuple[str, ...] = (
     "placeholder",
     "woocommerce-placeholder",
     "no-image",
@@ -101,44 +101,63 @@ def product_has_materialized_public_image(product: Product) -> bool:
     return product_image_materialized_on_disk(url)
 
 
-def product_has_storefront_public_image(product: Product) -> bool:
-    """URL/placeholder guard plus optional on-disk materialization in DEBUG/local."""
-    if not settings.STOREFRONT_HIDE_IMAGELESS_PRODUCTS:
+def product_passes_storefront_materialization_guard(product: Product) -> bool:
+    """Diagnostic only: on-disk file presence for claimed upload URLs (not publication)."""
+    if not settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES:
         return True
-    if not product_has_valid_public_image(product):
-        return False
-    if settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES:
-        return product_has_materialized_public_image(product)
-    return True
+    url = get_first_valid_public_image_url(product)
+    if not url:
+        return True
+    return product_image_materialized_on_disk(url)
+
+
+def product_has_storefront_public_image(product: Product) -> bool:
+    """Whether the product has a non-placeholder image URL (display/feed diagnostics)."""
+    return product_has_valid_public_image(product)
 
 
 def is_product_storefront_public(product: Product) -> bool:
     """True when a non-admin PDP read would expose this product row.
 
-    Matches ``_guard_inactive_product`` for non-admin callers plus soft-delete:
-    active, not soft-deleted, and storefront-public image eligibility.
-    Knowledge publication gates MUST reuse this predicate (Prompt 02 / MKB-R8a).
+    Website publication: active and not soft-deleted. Images and on-disk files are
+    never part of this predicate. Knowledge publication gates MUST reuse this
+    (Prompt 02 / MKB-R8a).
     """
     if product.deleted_at is not None:
         return False
     if not product.is_active:
         return False
-    return product_has_storefront_public_image(product)
+    return True
 
 
 def filter_storefront_public_products(products: list[Product]) -> list[Product]:
-    return [product for product in products if product_has_storefront_public_image(product)]
+    return [product for product in products if is_product_storefront_public(product)]
+
+
+def legacy_public_image_gate_sql_conditions(alias: str = "pi") -> str:
+    """SQL fragment for historical image-gated storefront counts (read-only metrics)."""
+    col = f"{alias}.image_url"
+    parts = [
+        f"{col} IS NOT NULL",
+        f"length(trim({col})) > 0",
+    ]
+    for token in PLACEHOLDER_ILIKE_TOKENS:
+        parts.append(f"{col} NOT ILIKE '%{token}%'")
+    return " AND ".join(parts)
 
 
 def public_image_exists_clause() -> ColumnElement[bool]:
-    """SQL EXISTS for products with a real (non-placeholder) image row."""
+    """SQL EXISTS for products with a real (non-placeholder) image row.
+
+    Used for marketplace/feed export eligibility — not storefront publication.
+    """
     return exists(
         select(ProductImage.id).where(
             ProductImage.product_id == Product.id,
             VALID_IMAGE_URL_EXPR,
             *[
                 ~ProductImage.image_url.ilike(f"%{token}%", escape="\\")
-                for token in _PLACEHOLDER_ILIKE_TOKENS
+                for token in PLACEHOLDER_ILIKE_TOKENS
             ],
         )
     )
@@ -157,10 +176,7 @@ def availability_rank_clause() -> ColumnElement[int]:
 
 def storefront_public_product_filters() -> list[ColumnElement[bool]]:
     """Filters applied to every public product list/detail guard."""
-    filters: list[ColumnElement[bool]] = [
+    return [
         Product.deleted_at.is_(None),
         Product.is_active.is_(True),
     ]
-    if settings.STOREFRONT_HIDE_IMAGELESS_PRODUCTS:
-        filters.append(public_image_exists_clause())
-    return filters

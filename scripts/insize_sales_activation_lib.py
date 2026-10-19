@@ -755,8 +755,6 @@ def revalidate_plan_against_db_row(
         raise PilotGateError(f"category_id drift for {plan.sku}")
     if str(getattr(product, "slug", "") or "") != str(plan.slug):
         raise PilotGateError(f"slug drift for {plan.sku}")
-    if not image_ready(image_count, primary_image_url):
-        raise PilotGateError(f"image/content readiness rejection (image): {plan.sku}")
     if not content_ready(
         name=getattr(product, "name", None),
         short_description=getattr(product, "short_description", None),

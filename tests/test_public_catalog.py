@@ -11,11 +11,12 @@ from app.services.order_workflow import (
 from app.utils.public_catalog import (
     get_first_valid_public_image_url,
     is_placeholder_image_url,
+    is_product_storefront_public,
     local_upload_relative_path,
     product_has_materialized_public_image,
-    product_has_storefront_public_image,
     product_has_valid_public_image,
     product_image_materialized_on_disk,
+    product_passes_storefront_materialization_guard,
 )
 from app.utils.storefront_catalog import product_sort_clause
 
@@ -68,7 +69,6 @@ def test_product_image_materialized_on_disk_unknown_host_is_trusted():
 def test_product_has_materialized_public_image_requires_file_when_enabled(
     monkeypatch, tmp_path
 ):
-    monkeypatch.setattr(settings, "STOREFRONT_HIDE_IMAGELESS_PRODUCTS", True)
     monkeypatch.setattr(settings, "STOREFRONT_REQUIRE_MATERIALIZED_IMAGES", True)
     upload_root = tmp_path / "uploads"
     (upload_root / "products" / "1").mkdir(parents=True)
@@ -85,7 +85,7 @@ def test_product_has_materialized_public_image_requires_file_when_enabled(
         )
     ]
     assert product_has_materialized_public_image(product) is True
-    assert product_has_storefront_public_image(product) is True
+    assert is_product_storefront_public(product) is True
 
     missing = Product(id=2, sku="T3", name="Missing", is_active=True, is_available=True)
     missing.images = [
@@ -96,7 +96,12 @@ def test_product_has_materialized_public_image_requires_file_when_enabled(
         )
     ]
     assert product_has_materialized_public_image(missing) is False
-    assert product_has_storefront_public_image(missing) is False
+    assert product_passes_storefront_materialization_guard(missing) is False
+    assert is_product_storefront_public(missing) is True
+
+    imageless = Product(id=4, sku="T5", name="NoImg", is_active=True, is_available=True)
+    imageless.images = []
+    assert is_product_storefront_public(imageless) is True
 
 
 def test_restoration_after_assigning_valid_image():

@@ -28,6 +28,9 @@ _ZWNJ_RE = re.compile(r"[\u200c\u200d\ufeff]")
 INSIZE_UNIQUE_SANITY_LOW = 800
 INSIZE_UNIQUE_SANITY_HIGH = 950
 
+# Bumped when commercial-eligibility semantics change (see owner decision 2026-10-19).
+PUBLIC_SELL_ELIGIBILITY_CONTRACT_VERSION = "2026-10-19-no-mandatory-image"
+
 
 def fold_token(value: str | None) -> str:
     """Folder/filename compare: drop ZWNJ/whitespace, unify Yeh/Kaf. Do not stem meaning."""
@@ -441,10 +444,10 @@ def public_sell_ready(
     *,
     target_member: bool,
     commerce_ready_flag: bool,
-    media_ready_flag: bool,
+    media_ready_flag: bool = False,
 ) -> bool:
-    """First public-sales gate: membership + commercial evidence + media."""
-    return bool(target_member and commerce_ready_flag and media_ready_flag)
+    """Website commercial gate: membership + commerce evidence (media is diagnostic only)."""
+    return bool(target_member and commerce_ready_flag)
 
 
 def parse_bool(value: Any) -> bool | None:

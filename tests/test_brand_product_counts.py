@@ -109,7 +109,7 @@ class TestCountProductsByBrandAggregate:
 
         asyncio.run(run())
 
-    def test_storefront_count_filters_active_and_public_image(self):
+    def test_storefront_count_filters_active_not_deleted_includes_imageless(self):
         async def run():
             async with TestingSessionLocal() as session:
                 empty, target, other = await self._seed(session)
@@ -127,8 +127,9 @@ class TestCountProductsByBrandAggregate:
                 aggregate = await crud_brand.count_products_by_brand(
                     session, storefront_public_only=True
                 )
-                assert aggregate == {target.id: 1, other.id: 1}
-                assert expected[target.id] == 1
+                # active + no_image (placeholder-only); excludes inactive and deleted
+                assert aggregate == {target.id: 2, other.id: 1}
+                assert expected[target.id] == 2
                 assert expected[other.id] == 1
 
         asyncio.run(run())

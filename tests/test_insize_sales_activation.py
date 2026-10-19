@@ -335,16 +335,29 @@ def test_inactive_product_rejection(sample_xlsx: Path):
         )
 
 
-def test_image_content_readiness_rejection(sample_xlsx: Path):
+def test_image_missing_does_not_block_revalidate(sample_xlsx: Path):
     cat = load_workbook_catalog(sample_xlsx)
-    with pytest.raises(PilotGateError, match="image"):
+    revalidate_plan_against_db_row(
+        _plan(),
+        product=_db_product(),
+        workbook_row=cat.by_code["9722-250"],
+        catalog=cat,
+        image_count=0,
+        primary_image_url="",
+    )
+
+
+def test_content_readiness_still_blocks_revalidate(sample_xlsx: Path):
+    cat = load_workbook_catalog(sample_xlsx)
+    product = _db_product(short_description="", description="")
+    with pytest.raises(PilotGateError, match="content"):
         revalidate_plan_against_db_row(
             _plan(),
-            product=_db_product(),
+            product=product,
             workbook_row=cat.by_code["9722-250"],
             catalog=cat,
-            image_count=0,
-            primary_image_url="",
+            image_count=1,
+            primary_image_url="/media/x.webp",
         )
 
 

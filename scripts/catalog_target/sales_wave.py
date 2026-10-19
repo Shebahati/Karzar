@@ -108,8 +108,6 @@ def row_in_insize_sales_wave_1(row: ManifestRow) -> tuple[bool, list[str]]:
         return False, ["has_review_reason"]
     if not row.commerce_ready:
         return False, ["not_commerce_ready"]
-    if not row.media_ready:
-        return False, ["not_media_ready"]
     if not row.public_sell_ready:
         return False, ["not_public_sell_ready"]
     if row.reconciliation_state not in {"KEEP", "UPDATE"}:
@@ -125,7 +123,6 @@ def row_in_insize_sales_wave_1(row: ManifestRow) -> tuple[bool, list[str]]:
             "status_available",
             "positive_proposed_price",
             "no_review_reason",
-            "media_ready",
             "commerce_ready",
             "public_sell_ready",
             f"state_{row.reconciliation_state}",
@@ -270,17 +267,18 @@ def build_sales_wave_artifacts(
     commerce = [r for r in insize if r.commerce_ready]
     media = [r for r in insize if r.media_ready]
     public = [r for r in insize if r.public_sell_ready]
-    excluded = [
+    media_gap_diagnostic = [
         {
             "sku": r.sku,
             "current_id": r.current_id,
             "reconciliation_state": r.reconciliation_state,
             "commerce_ready": "true",
+            "public_sell_ready": "true" if r.public_sell_ready else "false",
             "media_ready": "false",
-            "reason": "commerce_ready_but_not_media_ready",
+            "reason": "media_not_ready_diagnostic_only",
         }
         for r in insize
-        if r.commerce_ready and not r.media_ready
+        if r.public_sell_ready and not r.media_ready
     ]
 
     checksum = _sha256_file(snapshot_path)
@@ -314,7 +312,7 @@ def build_sales_wave_artifacts(
         "allowlist_active_changes": active_changes,
         "allowlist_price_changes": price_changes,
         "allowlist_availability_changes": avail_changes,
-        "excluded_commerce_ready_no_media": len(excluded),
+        "diagnostic_public_sell_ready_media_gap": len(media_gap_diagnostic),
         "baseline_sha": result.baseline_sha,
         "generated_at": result.generated_at,
         "snapshot_timestamp": snapshot_timestamp,
@@ -330,7 +328,7 @@ def build_sales_wave_artifacts(
         create_audit=create_audit,
         deactivate_audit=deactivate_audit,
         review_audit=review_audit,
-        excluded_commerce_no_media=excluded,
+        excluded_commerce_no_media=media_gap_diagnostic,
         summary=summary,
     )
 

@@ -41,6 +41,7 @@ from catalog_target.core import (
     match_brand_sku,
     media_ready,
     normalize_sku,
+    PUBLIC_SELL_ELIGIBILITY_CONTRACT_VERSION,
     public_sell_ready,
     suffix_near_miss,
 )
@@ -1095,8 +1096,13 @@ def write_outputs(result: ReconciliationResult, output_dir: Path) -> None:
         "examples": result.examples,
         "tooling": result.tooling_notes,
         "storefront": {
-            "STOREFRONT_HIDE_IMAGELESS_PRODUCTS": True,
-            "note": "target_member is independent of media_ready and commerce_ready.",
+            "publication_image_gate": "retired_2026-10-19",
+            "public_sell_eligibility_contract": PUBLIC_SELL_ELIGIBILITY_CONTRACT_VERSION,
+            "note": (
+                "Website publication uses active + not-deleted only; "
+                "media_ready remains diagnostic. "
+                "Emalls/feed image rules are separate."
+            ),
         },
         "authority_decisions": result.authority_decisions,
         "ast_families": result.ast_reports,

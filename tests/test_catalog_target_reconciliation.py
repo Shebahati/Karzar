@@ -829,18 +829,18 @@ class SourceAndInsizeTests(unittest.TestCase):
             self.assertFalse(ok)
             self.assertTrue(any("review" in r or "deleted" in r for r in reasons))
 
-    def test_public_sell_ready_requires_media(self):
+    def test_public_sell_ready_does_not_require_media(self):
         self.assertTrue(
             public_sell_ready(target_member=True, commerce_ready_flag=True, media_ready_flag=True)
         )
-        self.assertFalse(
+        self.assertTrue(
             public_sell_ready(target_member=True, commerce_ready_flag=True, media_ready_flag=False)
         )
         self.assertFalse(
             public_sell_ready(target_member=True, commerce_ready_flag=False, media_ready_flag=True)
         )
 
-    def test_commerce_ready_no_media_excluded_from_insize_sales_wave(self):
+    def test_commerce_ready_without_media_included_in_insize_sales_wave(self):
         row = ManifestRow(
             brand="INSIZE",
             sku="1108-25",
@@ -852,7 +852,7 @@ class SourceAndInsizeTests(unittest.TestCase):
             inventory_status="موجود",
             commerce_ready=True,
             media_ready=False,
-            public_sell_ready=False,
+            public_sell_ready=True,
             reconciliation_state="UPDATE",
             current_id="1",
             proposed_base_price="1000",
@@ -861,8 +861,8 @@ class SourceAndInsizeTests(unittest.TestCase):
             exact_distributor_match=True,
         )
         ok, reasons = row_in_insize_sales_wave_1(row)
-        self.assertFalse(ok)
-        self.assertIn("not_media_ready", reasons)
+        self.assertTrue(ok)
+        self.assertNotIn("not_media_ready", reasons)
 
     def test_review_excluded_from_insize_sales_wave(self):
         row = ManifestRow(

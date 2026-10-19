@@ -43,7 +43,6 @@ VALID_TOKEN = "emalls-test-token-not-a-secret"
 @pytest.fixture(autouse=True)
 def _emalls_test_defaults(monkeypatch):
     reset_emalls_token_cache_for_tests()
-    monkeypatch.setattr(settings, "STOREFRONT_HIDE_IMAGELESS_PRODUCTS", True)
     monkeypatch.setattr(settings, "STOREFRONT_REQUIRE_MATERIALIZED_IMAGES", False)
     monkeypatch.setattr(settings, "PUBLIC_ASSET_BASE", "https://cdn.karzartools.com")
     monkeypatch.setattr(settings, "EMALLS_PUBLIC_SITE_ORIGIN", "https://www.karzartools.com")
