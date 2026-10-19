@@ -15,7 +15,6 @@ import csv
 import hashlib
 import json
 import os
-import subprocess
 import sys
 import urllib.request
 from datetime import UTC, datetime
@@ -34,16 +33,15 @@ from app.domain.insize_price_110 import (  # noqa: E402
     build_manifest_row,
     build_real_apply_sql,
     build_rollback_sql,
+    discount_impact_row,
     parse_money,
     proposed_base_price,
 )
 from scripts.ops.phase2c_manufacturer_identity_apply_once import (  # noqa: E402
     _git_head,
-    _run_ssh,
     _run_ssh_psql,
     _run_ssh_psql_script,
     assert_evidence_writable,
-    canonical_json_bytes,
     collect_live_health,
     collect_runtime_identity,
     create_live_backup,
@@ -187,6 +185,96 @@ def build_manifest(raw_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return manifest
 
 
+def verify_frozen_manifest_against_live(
+    manifest: list[dict[str, Any]],
+    ssh_host: str,
+    *,
+    drift_sample_limit: int = 50,
+) -> dict[str, Any]:
+    """Fail-closed compare of frozen manifest vs live DB (read-only)."""
+    from scripts.ops.phase2c_manufacturer_identity_apply_once import fetch_live_targets
+
+    ids = [str(row["product_id"]) for row in manifest]
+    live = fetch_live_targets(ids, ssh_host=ssh_host)
+    drifts: list[dict[str, Any]] = []
+    discount_impacts: list[dict[str, Any]] = []
+
+    for row in manifest:
+        pid = str(row["product_id"])
+        sku = str(row.get("sku") or "").strip()
+        live_row = live.get(pid)
+        if live_row is None:
+            drifts.append({"product_id": pid, "sku": sku, "reason": "missing_live_row"})
+            continue
+        if live_row.get("deleted_at"):
+            drifts.append({"product_id": pid, "sku": sku, "reason": "soft_deleted"})
+        brand_id = int(live_row.get("brand_id") or 0)
+        if brand_id != EXPECTED_BRAND_ID:
+            drifts.append(
+                {
+                    "product_id": pid,
+                    "sku": sku,
+                    "reason": "brand_id_mismatch",
+                    "live_brand_id": brand_id,
+                }
+            )
+        if (live_row.get("sku") or "").strip() != sku:
+            drifts.append(
+                {
+                    "product_id": pid,
+                    "sku": sku,
+                    "reason": "sku_mismatch",
+                    "live_sku": live_row.get("sku"),
+                }
+            )
+        manifest_old = parse_money(str(row.get("old_base_price") or ""))
+        live_old = parse_money(live_row.get("base_price") or "")
+        if manifest_old is None or live_old is None:
+            drifts.append({"product_id": pid, "sku": sku, "reason": "unparseable_base_price"})
+            continue
+        if manifest_old != live_old:
+            drifts.append(
+                {
+                    "product_id": pid,
+                    "sku": sku,
+                    "reason": "base_price_drift",
+                    "manifest_old_base_price": str(manifest_old),
+                    "live_base_price": str(live_old),
+                }
+            )
+        expected_new = proposed_base_price(live_old)
+        manifest_new = parse_money(str(row.get("proposed_base_price") or ""))
+        if manifest_new != expected_new:
+            drifts.append(
+                {
+                    "product_id": pid,
+                    "sku": sku,
+                    "reason": "proposed_price_mismatch",
+                    "manifest_proposed": str(manifest_new),
+                    "expected_from_live": str(expected_new),
+                }
+            )
+        original = parse_money(live_row.get("original_price") or "")
+        impact = discount_impact_row(
+            old_base=live_old,
+            new_base=expected_new,
+            original_price=original,
+        )
+        if impact:
+            discount_impacts.append({"product_id": int(pid), "sku": sku, **impact})
+
+    return {
+        "ok": len(drifts) == 0,
+        "manifest_rows": len(manifest),
+        "live_rows_fetched": len(live),
+        "drift_count": len(drifts),
+        "drifts_sample": drifts[:drift_sample_limit],
+        "drifts_truncated": len(drifts) > drift_sample_limit,
+        "discount_display_changes": len(discount_impacts),
+        "discount_impacts_sample": discount_impacts[:30],
+    }
+
+
 def write_manifest_artifacts(
     out_dir: Path,
     manifest: list[dict[str, Any]],
@@ -312,7 +400,29 @@ def main() -> int:
         default=None,
         help="Apply using frozen manifest CSV (skip live re-snapshot)",
     )
+    parser.add_argument(
+        "--verify-frozen-manifest",
+        type=Path,
+        default=None,
+        help="Read-only drift check of frozen manifest CSV vs live DB; then exit",
+    )
     args = parser.parse_args()
+
+    if args.verify_frozen_manifest:
+        path = args.verify_frozen_manifest.resolve()
+        if not path.is_file():
+            print(f"FATAL: missing manifest {path}", file=sys.stderr)
+            return 2
+        with path.open(encoding="utf-8", newline="") as fh:
+            manifest = list(csv.DictReader(fh))
+        drift = verify_frozen_manifest_against_live(manifest, args.ssh_host)
+        drift["manifest_csv"] = str(path)
+        drift["manifest_csv_sha256"] = sha256_file(path)
+        drift["generated_at"] = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        out_path = AUDIT_OUT / "MANIFEST_DRIFT_REPORT.json"
+        write_json(out_path, drift)
+        print(json.dumps(drift, indent=2))
+        return 0 if drift["ok"] else 3
 
     out_dir = args.out_dir.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -334,6 +444,9 @@ def main() -> int:
     if counts["priced_insize"] == 0:
         errors.append("empty priced cohort")
 
+    discount_rows: list[Any] = []
+    drift_report: dict[str, Any] | None = None
+
     if args.manifest_csv:
         manifest_csv = args.manifest_csv.resolve()
         if not manifest_csv.is_file():
@@ -352,6 +465,13 @@ def main() -> int:
                 errors.append(
                     f"manifest rows {len(manifest)} != live priced census {counts['priced_insize']}"
                 )
+            drift_report = verify_frozen_manifest_against_live(manifest, ssh_host)
+            write_json(out_dir / f"MANIFEST_DRIFT_{stamp}.json", drift_report)
+            if not drift_report["ok"]:
+                errors.append(
+                    f"frozen manifest drift: {drift_report['drift_count']} row(s) — see MANIFEST_DRIFT_{stamp}.json"
+                )
+            discount_rows = list(drift_report.get("discount_impacts_sample", []))
     else:
         raw_rows = fetch_insize_cohort(ssh_host)
         if len(raw_rows) != counts["priced_insize"]:
@@ -360,7 +480,8 @@ def main() -> int:
             )
         manifest = build_manifest(raw_rows)
         manifest_info = write_manifest_artifacts(out_dir, manifest, stamp)
-    discount_rows = [r for r in manifest if r.get("discount_impact")]
+    if not args.manifest_csv:
+        discount_rows = [r for r in manifest if r.get("discount_impact")]
     write_json(out_dir / f"DISCOUNT_IMPACT_{stamp}.json", discount_rows)
 
     recovery_csv = out_dir / f"INSIZE_PRICE_110_RECOVERY_PREWRITE_{stamp}.csv"
@@ -384,7 +505,12 @@ def main() -> int:
         "IDEMPOTENCY": idem,
         "INSIZE_COUNTS": counts,
         "MANIFEST": manifest_info,
-        "DISCOUNT_IMPACT_COUNT": len(discount_rows),
+        "DISCOUNT_IMPACT_COUNT": (
+            drift_report.get("discount_display_changes", len(discount_rows))
+            if drift_report
+            else len(discount_rows)
+        ),
+        "MANIFEST_DRIFT": drift_report,
         "RECOVERY": {
             "recovery_csv": str(recovery_csv),
             "recovery_csv_sha256": sha256_file(recovery_csv),
@@ -459,7 +585,10 @@ def main() -> int:
         verify["price_exact_match"] == len(manifest)
         and verify["change_log_rows_with_reason"] == len(manifest)
         and verify["duplicate_mutations"] == 0
-        and idem["log_row_count"] == 0 or verify["change_log_rows_with_reason"] == len(manifest)
+        and (
+            idem["log_row_count"] == 0
+            or verify["change_log_rows_with_reason"] == len(manifest)
+        )
     )
     report["STATUS"] = "APPLIED" if all_ok else "PARTIALLY_VERIFIED"
     report["FINAL_LINE"] = "INSIZE_PRICE_110_APPLY_OK" if all_ok else "INSIZE_PRICE_110_VERIFY_INCOMPLETE"

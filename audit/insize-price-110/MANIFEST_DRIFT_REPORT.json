@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "manifest_rows": 206,
+  "live_rows_fetched": 206,
+  "drift_count": 0,
+  "drifts_sample": [],
+  "drifts_truncated": false,
+  "discount_display_changes": 0,
+  "discount_impacts_sample": [],
+  "manifest_csv": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_MANIFEST_20261019T122730Z.csv",
+  "manifest_csv_sha256": "edd614107db14d9ae96e6a5d5c2b04043f95c413e6902d45fc3de7d8228feee1",
+  "generated_at": "2026-10-19T13:07:24Z"
+}
