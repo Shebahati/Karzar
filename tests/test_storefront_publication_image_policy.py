@@ -4,7 +4,6 @@ import asyncio
 from datetime import UTC, datetime
 
 import pytest
-
 from app.core.config import settings
 from app.crud import brand as crud_brand
 from app.crud import product as crud_product
