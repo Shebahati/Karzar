@@ -12,7 +12,7 @@ from app.db.models.product import Product, ProductImage
 
 # Known generic placeholders — never treat as a real public product image.
 # Keep SQL ILIKE tokens in sync with these patterns (see public_image_exists_clause).
-_PLACEHOLDER_ILIKE_TOKENS = (
+PLACEHOLDER_ILIKE_TOKENS: tuple[str, ...] = (
     "placeholder",
     "woocommerce-placeholder",
     "no-image",
@@ -102,10 +102,7 @@ def product_has_materialized_public_image(product: Product) -> bool:
 
 
 def product_passes_storefront_materialization_guard(product: Product) -> bool:
-    """Optional DEBUG/local guard: missing on-disk file for a claimed image only.
-
-    Imageless products always pass. This does not gate publication on having an image.
-    """
+    """Diagnostic only: on-disk file presence for claimed upload URLs (not publication)."""
     if not settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES:
         return True
     url = get_first_valid_public_image_url(product)
@@ -115,30 +112,38 @@ def product_passes_storefront_materialization_guard(product: Product) -> bool:
 
 
 def product_has_storefront_public_image(product: Product) -> bool:
-    """Backward-compatible alias for materialization guard (not image presence)."""
-    return product_passes_storefront_materialization_guard(product)
+    """Whether the product has a non-placeholder image URL (display/feed diagnostics)."""
+    return product_has_valid_public_image(product)
 
 
 def is_product_storefront_public(product: Product) -> bool:
     """True when a non-admin PDP read would expose this product row.
 
-    Matches ``_guard_inactive_product`` for non-admin callers plus soft-delete:
-    active, not soft-deleted. Product images are not part of publication eligibility.
-    Knowledge publication gates MUST reuse this predicate (Prompt 02 / MKB-R8a).
+    Website publication: active and not soft-deleted. Images and on-disk files are
+    never part of this predicate. Knowledge publication gates MUST reuse this
+    (Prompt 02 / MKB-R8a).
     """
     if product.deleted_at is not None:
         return False
     if not product.is_active:
         return False
-    return product_passes_storefront_materialization_guard(product)
+    return True
 
 
 def filter_storefront_public_products(products: list[Product]) -> list[Product]:
-    return [
-        product
-        for product in products
-        if product_passes_storefront_materialization_guard(product)
+    return [product for product in products if is_product_storefront_public(product)]
+
+
+def legacy_public_image_gate_sql_conditions(alias: str = "pi") -> str:
+    """SQL fragment for historical image-gated storefront counts (read-only metrics)."""
+    col = f"{alias}.image_url"
+    parts = [
+        f"{col} IS NOT NULL",
+        f"length(trim({col})) > 0",
     ]
+    for token in PLACEHOLDER_ILIKE_TOKENS:
+        parts.append(f"{col} NOT ILIKE '%{token}%'")
+    return " AND ".join(parts)
 
 
 def public_image_exists_clause() -> ColumnElement[bool]:
@@ -152,7 +157,7 @@ def public_image_exists_clause() -> ColumnElement[bool]:
             VALID_IMAGE_URL_EXPR,
             *[
                 ~ProductImage.image_url.ilike(f"%{token}%", escape="\\")
-                for token in _PLACEHOLDER_ILIKE_TOKENS
+                for token in PLACEHOLDER_ILIKE_TOKENS
             ],
         )
     )

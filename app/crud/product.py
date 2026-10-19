@@ -9,17 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
-from app.core.config import settings
 from app.core.logging import get_logger
 from app.crud import category as crud_category
 from app.db.models.product import Brand, Product, ProductImage, StockUnitEnum
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.utils.catalog_identity_search import build_identity_search_filter
 from app.utils.jsonb_filters import build_specification_filters
-from app.utils.public_catalog import (
-    filter_storefront_public_products,
-    storefront_public_product_filters,
-)
+from app.utils.public_catalog import storefront_public_product_filters
 from app.utils.specifications import specifications_for_storage
 from app.utils.storefront_catalog import (
     on_sale_filter_clause,
@@ -261,47 +257,14 @@ async def get_products(
     count_result = await db.execute(count_query)
     total = count_result.scalar() or 0
 
-    materialized = storefront_public_only and settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES
-    if materialized:
-        count_stmt = (
-            select(Product)
-            .where(and_(*filters) if filters else True)
-            .options(*_product_load_options())
-        )
-        all_candidates = list((await db.execute(count_stmt)).scalars().all())
-        total = len(filter_storefront_public_products(all_candidates))
-
-    if materialized:
-        collected: list[Product] = []
-        offset = skip
-        batch_size = max(limit * 4, limit + 20)
-        sort_clauses = product_sort_clause(sort, dialect_name=db.get_bind().dialect.name)
-        while len(collected) < skip + limit:
-            batch_stmt = (
-                select(Product)
-                .where(and_(*filters) if filters else True)
-                .options(*_product_load_options())
-                .order_by(*sort_clauses)
-                .offset(offset)
-                .limit(batch_size)
-            )
-            batch = list((await db.execute(batch_stmt)).scalars().all())
-            if not batch:
-                break
-            collected.extend(filter_storefront_public_products(batch))
-            if len(batch) < batch_size:
-                break
-            offset += batch_size
-        products = collected[skip : skip + limit]
-    else:
-        query = (
-            query.options(*_product_load_options())
-            .order_by(*product_sort_clause(sort, dialect_name=db.get_bind().dialect.name))
-            .offset(skip)
-            .limit(limit)
-        )
-        result = await db.execute(query)
-        products = list(result.scalars().all())
+    query = (
+        query.options(*_product_load_options())
+        .order_by(*product_sort_clause(sort, dialect_name=db.get_bind().dialect.name))
+        .offset(skip)
+        .limit(limit)
+    )
+    result = await db.execute(query)
+    products = list(result.scalars().all())
 
     if product_ids:
         order_index = {product_id: index for index, product_id in enumerate(product_ids)}

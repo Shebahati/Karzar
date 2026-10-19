@@ -28,10 +28,8 @@ from app.schemas.emalls_pdf_feed import (
     EmallsPdfProduct,
 )
 from app.utils.product_presenter import absolutize_asset_url
-from app.utils.public_catalog import (
-    filter_storefront_public_products,
-    is_placeholder_image_url,
-)
+from app.services.emalls.eligibility import filter_emalls_export_products
+from app.utils.public_catalog import is_placeholder_image_url
 from app.utils.storefront_catalog import product_is_available
 
 logger = get_logger(__name__)
@@ -279,7 +277,7 @@ async def list_emalls_pdf_feed(
     )
     candidates = list((await db.execute(all_stmt)).scalars().all())
     if settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES:
-        candidates = list(filter_storefront_public_products(candidates))
+        candidates = list(filter_emalls_export_products(candidates))
 
     eligible = [product for product in candidates if product_satisfies_pdf_feed(product)]
     total = len(eligible)

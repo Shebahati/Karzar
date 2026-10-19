@@ -6,6 +6,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.product import Category, Product
+
+
 async def get_direct_product_counts(db: AsyncSession) -> dict[int, int]:
     stmt = (
         select(Product.category_id, func.count(Product.id))

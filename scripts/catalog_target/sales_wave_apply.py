@@ -378,9 +378,11 @@ def load_and_validate_plan(
                 expected_is_active=expected_active,
                 proposed_is_active=proposed_active,
                 is_active_change=active_change,
-                media_ready=True,
-                commerce_ready=True,
-                public_sell_ready=True,
+                media_ready=_parse_bool(raw.get("media_ready"), field_name="media_ready"),
+                commerce_ready=_parse_bool(raw.get("commerce_ready"), field_name="commerce_ready"),
+                public_sell_ready=_parse_bool(
+                    raw.get("public_sell_ready"), field_name="public_sell_ready"
+                ),
                 reconciliation_state=state,
                 inventory_status=str(raw["inventory_status"]).strip(),
                 inclusion_reasons=str(raw.get("inclusion_reasons") or ""),

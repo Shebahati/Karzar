@@ -2,7 +2,7 @@
 """Read-only storefront publication eligibility metrics (local DB only).
 
 Compares legacy image-gated counts vs current policy (active + not deleted).
-Does not write to any database.
+Does not write to any database. Credentials are read from env only (never printed).
 """
 
 from __future__ import annotations
@@ -10,58 +10,74 @@ from __future__ import annotations
 import json
 import os
 import sys
-
 from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Engine, URL
+
+from app.utils.public_catalog import legacy_public_image_gate_sql_conditions
 
 
-def _engine():
+def _require_env(name: str) -> str:
+    value = os.environ.get(name, "").strip()
+    if not value:
+        print(f"Set {name} for a read-only local snapshot.", file=sys.stderr)
+        raise SystemExit(2)
+    return value
+
+
+def _build_engine() -> Engine:
     user = os.environ.get("POSTGRES_USER", "postgres")
-    password = os.environ["POSTGRES_PASSWORD"]
+    password = _require_env("POSTGRES_PASSWORD")
     host = os.environ.get("POSTGRES_SERVER", "127.0.0.1")
-    port = os.environ.get("POSTGRES_PORT", "5432")
+    port = int(os.environ.get("POSTGRES_PORT", "5432"))
     db = os.environ.get("POSTGRES_DB", "karzar")
-    url = f"postgresql+psycopg://{user}:{password}@{host}:{port}/{db}"
-    return create_engine(url)
+    # Prefer URL.create so passwords with special characters are safe.
+    url = URL.create(
+        drivername="postgresql+psycopg",
+        username=user,
+        password=password,
+        host=host,
+        port=port,
+        database=db,
+    )
+    return create_engine(url, pool_pre_ping=True)
 
 
-LEGACY_IMAGE_GATE_SQL = """
-SELECT COUNT(*) FROM products p
-WHERE p.deleted_at IS NULL AND p.is_active IS TRUE
-  AND EXISTS (
-    SELECT 1 FROM product_images pi
-    WHERE pi.product_id = p.id
-      AND pi.image_url IS NOT NULL AND length(trim(pi.image_url)) > 0
-      AND pi.image_url NOT ILIKE '%placeholder%'
-      AND pi.image_url NOT ILIKE '%woocommerce-placeholder%'
-      AND pi.image_url NOT ILIKE '%no-image%'
-      AND pi.image_url NOT ILIKE '%no_image%'
-      AND pi.image_url NOT ILIKE '%karzar-editorial%'
-      AND pi.image_url NOT ILIKE '%/images/placeholders/%'
-  );
+def _legacy_exists_subquery() -> str:
+    img = legacy_public_image_gate_sql_conditions("pi")
+    return f"""
+    EXISTS (
+      SELECT 1 FROM product_images pi
+      WHERE pi.product_id = p.id AND {img}
+    )
 """
 
-CURRENT_POLICY_SQL = """
+
+def _scalar(conn, sql: str) -> int:
+    conn.execute(text("SET TRANSACTION READ ONLY"))
+    return int(conn.execute(text(sql)).scalar() or 0)
+
+
+def main() -> int:
+    try:
+        eng = _build_engine()
+    except SystemExit:
+        return 2
+    legacy_exists = _legacy_exists_subquery()
+    legacy_sql = f"""
+SELECT COUNT(*) FROM products p
+WHERE p.deleted_at IS NULL AND p.is_active IS TRUE
+  AND {legacy_exists};
+"""
+    current_sql = """
 SELECT COUNT(*) FROM products p
 WHERE p.deleted_at IS NULL AND p.is_active IS TRUE;
 """
-
-IMAGELESS_ACTIVE_SQL = """
+    imageless_sql = f"""
 SELECT COUNT(*) FROM products p
 WHERE p.deleted_at IS NULL AND p.is_active IS TRUE
-  AND NOT EXISTS (
-    SELECT 1 FROM product_images pi
-    WHERE pi.product_id = p.id
-      AND pi.image_url IS NOT NULL AND length(trim(pi.image_url)) > 0
-      AND pi.image_url NOT ILIKE '%placeholder%'
-      AND pi.image_url NOT ILIKE '%woocommerce-placeholder%'
-      AND pi.image_url NOT ILIKE '%no-image%'
-      AND pi.image_url NOT ILIKE '%no_image%'
-      AND pi.image_url NOT ILIKE '%karzar-editorial%'
-      AND pi.image_url NOT ILIKE '%/images/placeholders/%'
-  );
+  AND NOT ({legacy_exists});
 """
-
-INACTIVE_WITH_IMAGE_SQL = """
+    inactive_imaged_sql = """
 SELECT COUNT(*) FROM products p
 WHERE p.deleted_at IS NULL AND p.is_active IS FALSE
   AND EXISTS (
@@ -70,19 +86,14 @@ WHERE p.deleted_at IS NULL AND p.is_active IS FALSE
       AND pi.image_url IS NOT NULL AND length(trim(pi.image_url)) > 0
   );
 """
-
-
-def main() -> int:
-    if "POSTGRES_PASSWORD" not in os.environ:
-        print("Set POSTGRES_* env vars for a read-only local snapshot.", file=sys.stderr)
-        return 2
-    eng = _engine()
     with eng.connect() as conn:
-        legacy = int(conn.execute(text(LEGACY_IMAGE_GATE_SQL)).scalar() or 0)
-        current = int(conn.execute(text(CURRENT_POLICY_SQL)).scalar() or 0)
-        imageless_active = int(conn.execute(text(IMAGELESS_ACTIVE_SQL)).scalar() or 0)
-        inactive_imaged = int(conn.execute(text(INACTIVE_WITH_IMAGE_SQL)).scalar() or 0)
-    newly_visible = max(0, current - legacy)
+        with conn.begin():
+            legacy = _scalar(conn, legacy_sql)
+            current = _scalar(conn, current_sql)
+            imageless_active = _scalar(conn, imageless_sql)
+            inactive_imaged = _scalar(conn, inactive_imaged_sql)
+    newly_visible = current - legacy
+    identity_ok = current == legacy + newly_visible
     payload = {
         "policy": "2026-10-19-no-mandatory-image",
         "storefront_public_legacy_image_gate": legacy,
@@ -90,13 +101,14 @@ def main() -> int:
         "newly_visible_solely_due_to_image_policy": newly_visible,
         "active_without_valid_public_image": imageless_active,
         "still_hidden_inactive_despite_image": inactive_imaged,
+        "identity_check_current_equals_legacy_plus_newly_visible": identity_ok,
         "note": (
-            "newly_visible is active products that legacy image gate excluded; "
-            "inactive_imaged remain blocked by is_active."
+            "Legacy gate uses PLACEHOLDER_ILIKE_TOKENS from public_catalog; "
+            "current policy is active + not deleted only."
         ),
     }
     print(json.dumps(payload, indent=2))
-    return 0
+    return 0 if identity_ok else 1
 
 
 if __name__ == "__main__":

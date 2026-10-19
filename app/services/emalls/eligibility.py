@@ -5,9 +5,11 @@ from __future__ import annotations
 from sqlalchemy.sql.elements import ColumnElement
 
 from app.db.models.product import Product
+from app.core.config import settings
 from app.utils.public_catalog import (
     product_has_valid_public_image,
-    product_passes_storefront_materialization_guard,
+    product_image_materialized_on_disk,
+    get_first_valid_public_image_url,
     public_image_exists_clause,
     storefront_public_product_filters,
 )
@@ -27,7 +29,11 @@ def product_eligible_for_emalls_export(product: Product) -> bool:
         return False
     if not product_has_valid_public_image(product):
         return False
-    return product_passes_storefront_materialization_guard(product)
+    if settings.STOREFRONT_REQUIRE_MATERIALIZED_IMAGES:
+        url = get_first_valid_public_image_url(product)
+        if url and not product_image_materialized_on_disk(url):
+            return False
+    return True
 
 
 def filter_emalls_export_products(products: list[Product]) -> list[Product]:

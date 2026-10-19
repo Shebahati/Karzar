@@ -15,6 +15,10 @@ from app.core.logging import get_logger
 from app.db.models.product import Product
 from app.schemas.emalls import EmallsProductsResponse
 from app.services.emalls.client import EmallsClient, get_emalls_client
+from app.services.emalls.eligibility import (
+    emalls_export_product_filters,
+    filter_emalls_export_products,
+)
 from app.services.emalls.exceptions import (
     EmallsTokenInvalidError,
     EmallsValidationUnavailableError,
@@ -24,10 +28,6 @@ from app.services.emalls.token_cache import (
     EmallsTokenCache,
     get_emalls_token_cache,
     token_cache_key,
-)
-from app.services.emalls.eligibility import (
-    emalls_export_product_filters,
-    filter_emalls_export_products,
 )
 
 logger = get_logger(__name__)
