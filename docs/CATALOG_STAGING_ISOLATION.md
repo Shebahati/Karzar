@@ -54,13 +54,16 @@ Shared today: production VPS, PostgreSQL volume/DB, uploads volume, API serving 
 
 ## TARGET ARCHITECTURE
 
-Two distinct data planes:
+Four canonical data planes (machine identity via `KARZAR_DATA_PLANE`):
 
 | Plane | Purpose | Compose | DB name (default) | Uploads volume |
 | ----- | ------- | ------- | ----------------- | -------------- |
 | `live` | Public storefront / Category B | `docker-compose.yml` + `docker-compose.staging.yml` | `karzar_staging` (historic) | `karzar_uploads` |
-| `catalog_staging` | Catalog rehearsal only | `docker-compose.catalog-staging.yml` | `karzar_catalog_staging` | `catalog_staging_uploads` |
+| `staging` | Full **application** rehearsal (API, auth, checkout flows) | `docker-compose.app-staging.yml` (**250B primitive; not provisioned**) | `karzar_app_staging` | `karzar_app_staging_uploads` |
+| `catalog_staging` | Catalog/knowledge ingestion rehearsal only | `docker-compose.catalog-staging.yml` | `karzar_catalog_staging` | `catalog_staging_uploads` |
 | `development` | Local Category A | `docker-compose.yml` + `docker-compose.dev.yml` | local | local bind/volume |
+
+**Application `staging` and `catalog_staging` are not interchangeable.** Catalog APPLY importers remain gated to `catalog_staging` / `development` only; adding the `staging` plane does not authorize catalog seed/import into application staging.
 
 ### Database design (selected)
 

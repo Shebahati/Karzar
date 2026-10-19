@@ -5,10 +5,15 @@ identify which PostgreSQL database or uploads volume is being mutated.
 
 ``KARZAR_DATA_PLANE`` identifies the mutable data plane:
 
-- ``live`` — public VPS catalog (today: DB name ``karzar_staging`` on the
+- ``live`` — public commerce production (today: DB name ``karzar_staging`` on the
   production compose project; CR-011 / historic misnomer).
-- ``catalog_staging`` — isolated catalog rehearsal stack (separate DB + media).
+- ``staging`` — full **application** staging (API, storefront flows, auth, checkout
+  rehearsal) on an isolated DB/media stack — requires explicit
+  ``KARZAR_DATA_PLANE=staging`` (never inferred from unset plane).
+- ``catalog_staging`` — isolated **catalog/knowledge** ingestion rehearsal only.
 - ``development`` — local developer machine.
+
+Application ``staging`` and ``catalog_staging`` are not interchangeable.
 
 Threat class this module detects:
 
@@ -31,7 +36,8 @@ LIVE_DB_NAME_DENYLIST: frozenset[str] = frozenset(
 )
 
 CATALOG_STAGING_DB_NAME_DEFAULT = "karzar_catalog_staging"
-DATA_PLANE_VALUES = frozenset({"live", "catalog_staging", "development"})
+APP_STAGING_DB_NAME_DEFAULT = "karzar_app_staging"
+DATA_PLANE_VALUES = frozenset({"live", "staging", "catalog_staging", "development"})
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,6 +96,11 @@ def expected_catalog_staging_db(*, override: str | None = None) -> str:
     return value or CATALOG_STAGING_DB_NAME_DEFAULT
 
 
+def expected_app_staging_db(*, override: str | None = None) -> str:
+    value = (override or "").strip()
+    return value or APP_STAGING_DB_NAME_DEFAULT
+
+
 def validate_data_plane(
     *,
     app_env: str,
@@ -98,6 +109,7 @@ def validate_data_plane(
     postgres_server: str = "",
     media_plane: str | None = None,
     catalog_staging_db_name: str | None = None,
+    app_staging_db_name: str | None = None,
     extra_live_db_names: str | None = None,
 ) -> DataPlaneIdentity:
     """Validate plane vs database; raise ``ValueError`` on contradiction."""
@@ -114,19 +126,45 @@ def validate_data_plane(
 
     db_lower = db.lower()
     deny = live_db_denylist(extra=extra_live_db_names)
-    expected_staging_db = expected_catalog_staging_db(override=catalog_staging_db_name)
+    expected_catalog_db = expected_catalog_staging_db(override=catalog_staging_db_name)
+    expected_app_db = expected_app_staging_db(override=app_staging_db_name)
+
+    if plane == "staging":
+        if db_lower in deny:
+            raise ValueError(
+                "KARZAR_DATA_PLANE=staging cannot use a live database name "
+                f"({db!r}). Live denylist includes: {', '.join(sorted(deny))}. "
+                f"Use POSTGRES_DB={expected_app_db} on an isolated Postgres volume."
+            )
+        if db_lower == expected_catalog_db.lower():
+            raise ValueError(
+                "KARZAR_DATA_PLANE=staging cannot use the catalog-staging database "
+                f"({db!r}). Application staging and catalog staging are isolated planes. "
+                f"Use POSTGRES_DB={expected_app_db!r}."
+            )
+        if db_lower != expected_app_db.lower():
+            raise ValueError(
+                "KARZAR_DATA_PLANE=staging requires "
+                f"POSTGRES_DB={expected_app_db!r} (got {db!r}). "
+                "Refusing start to prevent accidental live or catalog-staging writes."
+            )
 
     if plane == "catalog_staging":
         if db_lower in deny:
             raise ValueError(
                 "KARZAR_DATA_PLANE=catalog_staging cannot use a live database name "
                 f"({db!r}). Live denylist includes: {', '.join(sorted(deny))}. "
-                f"Use POSTGRES_DB={expected_staging_db} on an isolated Postgres volume."
+                f"Use POSTGRES_DB={expected_catalog_db} on an isolated Postgres volume."
             )
-        if db_lower != expected_staging_db.lower():
+        if db_lower == expected_app_db.lower():
+            raise ValueError(
+                "KARZAR_DATA_PLANE=catalog_staging cannot use the application-staging "
+                f"database ({db!r}). Use POSTGRES_DB={expected_catalog_db!r}."
+            )
+        if db_lower != expected_catalog_db.lower():
             raise ValueError(
                 "KARZAR_DATA_PLANE=catalog_staging requires "
-                f"POSTGRES_DB={expected_staging_db!r} (got {db!r}). "
+                f"POSTGRES_DB={expected_catalog_db!r} (got {db!r}). "
                 "Refusing start to prevent accidental live catalog writes."
             )
 
@@ -140,6 +178,11 @@ def validate_data_plane(
         raise ValueError(
             "KARZAR_MEDIA_PLANE must be 'catalog_staging' when "
             f"KARZAR_DATA_PLANE=catalog_staging (got {media!r})"
+        )
+    if plane == "staging" and media != "staging":
+        raise ValueError(
+            "KARZAR_MEDIA_PLANE must be 'staging' when "
+            f"KARZAR_DATA_PLANE=staging (got {media!r})"
         )
 
     write_policy = _write_policy(plane)
@@ -155,6 +198,8 @@ def validate_data_plane(
 
 
 def _write_policy(plane: str) -> str:
+    if plane == "staging":
+        return "staging_writes_isolated"
     if plane == "catalog_staging":
         return "catalog_staging_writes_ok"
     if plane == "development":
@@ -171,6 +216,7 @@ def identity_from_mapping(env: Mapping[str, str]) -> DataPlaneIdentity:
         postgres_server=env.get("POSTGRES_SERVER", ""),
         media_plane=env.get("KARZAR_MEDIA_PLANE"),
         catalog_staging_db_name=env.get("KARZAR_CATALOG_STAGING_DB_NAME"),
+        app_staging_db_name=env.get("KARZAR_APP_STAGING_DB_NAME"),
         extra_live_db_names=env.get("KARZAR_LIVE_DB_DENYLIST"),
     )
 
@@ -249,15 +295,28 @@ def assert_db_sentinel_matches_plane(
                 f"{sentinel_plane!r}. Refusing write: declared / DB marker mismatch."
             )
         return
-    if declared != "catalog_staging":
-        # Live/development do not require the staging sentinel (ordinary importer).
+    if declared == "catalog_staging":
+        if sentinel != "catalog_staging":
+            raise ValueError(
+                "KARZAR_DATA_PLANE=catalog_staging but environment_identity.plane="
+                f"{sentinel_plane!r}. Refusing write: declared staging / actual DB "
+                "marker mismatch (CR-011 live mislabel class)."
+            )
         return
-    if sentinel != "catalog_staging":
-        raise ValueError(
-            "KARZAR_DATA_PLANE=catalog_staging but environment_identity.plane="
-            f"{sentinel_plane!r}. Refusing write: declared staging / actual DB "
-            "marker mismatch (CR-011 live mislabel class)."
-        )
+    if declared == "staging":
+        if sentinel is None:
+            raise ValueError(
+                "environment_identity.plane is missing/absent but "
+                "KARZAR_DATA_PLANE='staging' requires plane='staging'. "
+                "Run scripts/bootstrap_app_staging_identity.sh after migrations."
+            )
+        if sentinel != "staging":
+            raise ValueError(
+                "KARZAR_DATA_PLANE=staging but environment_identity.plane="
+                f"{sentinel_plane!r}. Refusing: application-staging sentinel mismatch."
+            )
+        return
+    # Live/development do not require catalog/application staging sentinels here.
 
 
 def assert_live_db_sentinel(*, sentinel_plane: str | None) -> None:
