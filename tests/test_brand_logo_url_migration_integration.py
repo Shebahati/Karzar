@@ -9,8 +9,8 @@ import uuid
 from pathlib import Path
 
 import pytest
-
 from app.services.alembic_revision_compat import get_alembic_script_directory
+
 from tests.conftest import USE_POSTGRES_TESTS
 from tests.migration_disposable_db import connect_disposable, disposable_migration_database
 
