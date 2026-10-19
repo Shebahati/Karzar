@@ -17,6 +17,7 @@ from app.utils.public_catalog import (
     product_passes_storefront_materialization_guard,
     storefront_public_product_filters,
 )
+
 from tests.conftest import TestingSessionLocal
 
 
