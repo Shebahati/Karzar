@@ -3,7 +3,10 @@
 import { Fragment, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { catalogService } from "@/services/catalog";
-import { isPubliclyAvailable } from "@/lib/public-product-availability";
+import {
+  buildCuratedBestsellerProducts,
+  shouldRenderCuratedBestsellersRail,
+} from "@/features/home/curated-bestsellers";
 import { Container } from "@/components/ui/container";
 import { Hero } from "@/components/home/hero";
 import { MobileCategorySection } from "@/components/home/mobile-category-section";
@@ -73,10 +76,10 @@ export function HomeView({
     enabled: selection.isSuccess && selectedIds.length > 0,
     staleTime: 30_000,
   });
-  const bestsellers = useMemo(() => {
-    const byId = new Map((curated.data ?? []).filter(isPubliclyAvailable).map(p => [p.id, p]));
-    return selectedIds.flatMap(id => { const p = byId.get(id); return p ? [p] : []; });
-  }, [selectedKey, curated.data]);
+  const bestsellers = useMemo(
+    () => buildCuratedBestsellerProducts(selectedIds, curated.data),
+    [selectedKey, curated.data],
+  );
   const yesterdayMostViewed = useMemo(
     () => rankYesterdayMostViewed(products ?? []),
     [products],
@@ -152,7 +155,15 @@ export function HomeView({
                   );
 
                 case "bestsellers":
-                  if (selection.isSuccess && (selectedIds.length === 0 || (!curated.isLoading && bestsellers.length === 0))) return null;
+                  if (
+                    !shouldRenderCuratedBestsellersRail({
+                      selectionLoaded: selection.isSuccess,
+                      selectedIds,
+                      productsLoading: curated.isLoading,
+                      visibleCount: bestsellers.length,
+                    })
+                  )
+                    return null;
                   return (
                     <section key={section.id}>
                       <SectionHeading

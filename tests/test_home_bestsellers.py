@@ -56,3 +56,95 @@ def test_publish_rejects_unavailable_and_unknown_products(super_admin_headers, v
     bad = client.put(URL, json={"product_ids": [id_], "expected_revision": 0}, headers=super_admin_headers)
     assert bad.status_code == 422
     assert client.get(URL).json()["revision"] == 0
+
+
+def test_publish_forbidden_for_authenticated_non_super_admin(
+    override_database, valid_product_data, monkeypatch,
+):
+    """Authenticated customers must not publish homepage bestsellers (403, no mutation)."""
+    from app.api.deps import get_current_super_admin
+    from app.core.config import settings
+    from app.core.security import create_access_token
+
+    from tests.conftest import ADMIN_PHONE, customer_auth_headers, override_super_admin
+
+    monkeypatch.setattr(settings, "OTP_DEV_ECHO", True)
+    app.dependency_overrides[get_current_super_admin] = override_super_admin
+    admin_headers = {"Authorization": f"Bearer {create_access_token(subject=ADMIN_PHONE)}"}
+    try:
+        created = client.post("/api/v1/products/", json=valid_product_data, headers=admin_headers)
+        assert created.status_code == 201
+        product_id = created.json()["id"]
+        published = client.put(
+            URL,
+            json={"product_ids": [product_id], "expected_revision": 0},
+            headers=admin_headers,
+        )
+        assert published.status_code == 200
+        before = client.get(URL).json()
+        assert before["product_ids"] == [product_id]
+        assert before["revision"] == 1
+    finally:
+        app.dependency_overrides.pop(get_current_super_admin, None)
+
+    customer = customer_auth_headers("09125556677")
+    denied = client.put(
+        URL,
+        json={"product_ids": [], "expected_revision": before["revision"]},
+        headers=customer,
+    )
+    assert denied.status_code == 403
+    after = client.get(URL).json()
+    assert after == before
+
+
+def test_integration_owner_publish_persists_and_public_read_matches(
+    super_admin_headers, valid_product_data,
+):
+    """Super-admin publish survives reload reads; public GET returns ordered IDs."""
+    ids = []
+    for j in range(3):
+        payload = {**valid_product_data, "sku": f"E2E-MERCH-{j}"}
+        created = client.post("/api/v1/products/", json=payload, headers=super_admin_headers)
+        assert created.status_code == 201, created.text
+        ids.append(created.json()["id"])
+    chosen = [ids[2], ids[0], ids[1]]
+    publish = client.put(
+        URL,
+        json={"product_ids": chosen, "expected_revision": 0},
+        headers=super_admin_headers,
+    )
+    assert publish.status_code == 200
+    assert publish.json()["product_ids"] == chosen
+
+    reload_admin_view = client.get(URL, headers=super_admin_headers)
+    assert reload_admin_view.status_code == 200
+    assert reload_admin_view.json()["product_ids"] == chosen
+
+    public = client.get(URL)
+    assert public.status_code == 200
+    assert public.json()["product_ids"] == chosen
+
+    listed = client.get(
+        "/api/v1/products/",
+        params={"ids": ",".join(str(i) for i in chosen), "in_stock": True, "limit": 10},
+    )
+    assert listed.status_code == 200
+    returned_ids = {item["id"] for item in listed.json()["data"]}
+    assert returned_ids == set(chosen)
+
+    unavailable_id = ids[0]
+    mark_unavailable = client.put(
+        f"/api/v1/products/{unavailable_id}",
+        json={"is_available": False},
+        headers=super_admin_headers,
+    )
+    assert mark_unavailable.status_code == 200
+    still_published = client.get(URL).json()
+    assert still_published["product_ids"] == chosen
+    reject_republish = client.put(
+        URL,
+        json={"product_ids": [unavailable_id], "expected_revision": still_published["revision"]},
+        headers=super_admin_headers,
+    )
+    assert reject_republish.status_code == 422
