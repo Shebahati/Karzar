@@ -1,6 +1,9 @@
 "use client";
 
 import { Fragment, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { catalogService } from "@/services/catalog";
+import { isPubliclyAvailable } from "@/lib/public-product-availability";
 import { Container } from "@/components/ui/container";
 import { Hero } from "@/components/home/hero";
 import { MobileCategorySection } from "@/components/home/mobile-category-section";
@@ -28,19 +31,6 @@ import { defaultHomeLayoutPack } from "@/types/home-layout";
 import type { Brand, CategoryTreeNode } from "@/types/category";
 import type { DesignedHeroPack } from "@/types/hero-design";
 import type { ProductSummary } from "@/types/product";
-
-function rankBestsellers(products: ProductSummary[]): ProductSummary[] {
-  return [...products]
-    .filter((p) => p.availability !== false)
-    .sort((a, b) => {
-      const score = (p: ProductSummary) =>
-        (p.discount_percent ?? 0) * 3 +
-        (p.stock_status === "موجود" || p.stock_status === "in_stock" || p.availability ? 8 : 0) +
-        (p.is_original ? 4 : 0);
-      return score(b) - score(a);
-    })
-    .slice(0, 12);
-}
 
 /** Client island for the home page — hydrated from RSC prefetch. */
 export function HomeView({
@@ -71,7 +61,23 @@ export function HomeView({
     ? categoryTreeQuery.data
     : initialCategoryTree;
 
-  const bestsellers = useMemo(() => rankBestsellers(products ?? []), [products]);
+  const selection = useQuery({
+    queryKey: ["home-bestsellers-published"],
+    queryFn: () => catalogService.getPublishedBestsellers(),
+    staleTime: 30_000,
+  });
+  const selectedIds = selection.data?.product_ids ?? [];
+  const selectedKey = selectedIds.join(",");
+  const curated = useQuery({
+    queryKey: ["home-bestsellers-products", selectedKey],
+    queryFn: () => catalogService.getProductsByIds(selectedIds),
+    enabled: selection.isSuccess && selectedIds.length > 0,
+    staleTime: 30_000,
+  });
+  const bestsellers = useMemo(() => {
+    const byId = new Map((curated.data ?? []).filter(isPubliclyAvailable).map(p => [p.id, p]));
+    return selectedIds.flatMap(id => { const p = byId.get(id); return p ? [p] : []; });
+  }, [selectedKey, curated.data]);
   const yesterdayMostViewed = useMemo(
     () => rankYesterdayMostViewed(products ?? []),
     [products],
@@ -147,15 +153,16 @@ export function HomeView({
                   );
 
                 case "bestsellers":
+                  if (selection.isSuccess && (selectedIds.length === 0 || (!curated.isLoading && bestsellers.length === 0))) return null;
                   return (
                     <section key={section.id}>
                       <SectionHeading
                         title="پرفروش‌ها"
-                        href="/catalog?sort=newest"
+                        href="/catalog"
                       />
                       <ProductCarousel
                         products={bestsellers}
-                        isLoading={catalog.isLoading}
+                        isLoading={selection.isLoading || (selectedIds.length > 0 && curated.isLoading)}
                         variant="featured"
                       />
                     </section>
