@@ -28,6 +28,7 @@ import {
 } from "@/features/home-layout/lib/publish-home-layout";
 import type { CategoryFlat } from "@/types/category";
 import { cn } from "@/lib/utils";
+import { HomeBestsellersEditor } from "./home-bestsellers-editor";
 
 function sectionLabel(section: HomeLayoutSection): string {
   if (section.type === "category_carousel") {
@@ -222,6 +223,8 @@ export function HomeLayoutEditor() {
           </Button>
         </div>
       </div>
+
+      <HomeBestsellersEditor />
 
       <Card className="border-transparent shadow-sm">
         <CardContent className="divide-y divide-gray-100 p-0">

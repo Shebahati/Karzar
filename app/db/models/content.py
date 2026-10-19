@@ -4,7 +4,17 @@ import enum
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -103,3 +113,13 @@ class OtpCode(Base):
         server_default="login",
     )
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class HomeBestsellerSelection(Base):
+    """Singleton published, manually ordered merchandising selection (not sales analytics)."""
+
+    __tablename__ = "home_bestseller_selection"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    product_ids: Mapped[list[int]] = mapped_column(JSONB, nullable=False, default=list)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
+    published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())

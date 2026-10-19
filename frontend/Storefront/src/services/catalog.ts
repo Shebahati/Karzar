@@ -152,12 +152,19 @@ export const catalogService = {
     return data;
   },
 
+  async getPublishedBestsellers(): Promise<{ product_ids: number[]; revision: number; published_at: string | null }> {
+    if (env.USE_MOCK) return { product_ids: [], revision: 0, published_at: null };
+    const { data } = await apiClient.get<{ product_ids: number[]; revision: number; published_at: string | null }>("/home-merchandising/bestsellers");
+    return data;
+  },
+
   async getProductsByIds(ids: number[]): Promise<ProductSummary[]> {
     if (!ids.length) return [];
     if (env.USE_MOCK) return (await getMockApi()).getProductsByIds(ids);
     const { data } = await apiClient.get<ProductListResponse>("/products/", {
       params: {
         ids: ids.join(","),
+        in_stock: true,
         // Default list limit is 100 — without this, long id lists truncate silently.
         limit: Math.min(Math.max(ids.length, 1), 1000),
         skip: 0,
