@@ -1,12 +1,12 @@
 {
   "STATUS": "REHEARSAL_OK",
-  "generated_at": "2026-10-19T12:28:00Z",
-  "stamp": "20261019T122754Z",
+  "generated_at": "2026-10-19T13:42:51Z",
+  "stamp": "20261019T134241Z",
   "formula": "new_base_price = quantize(old * 1.10, 0.01, ROUND_HALF_UP)",
   "change_reason": "INSIZE +10% owner-authorized price update 2026-10-19",
   "RUNTIME": {
     "identity": {
-      "collected_at_utc": "2026-10-19T12:27:56.953589+00:00",
+      "collected_at_utc": "2026-10-19T13:42:44.525274+00:00",
       "collector_hostname": "hp-g2-450",
       "vps_hostname": "srv5944957438",
       "deployed_git_sha": "UNKNOWN",
@@ -15,8 +15,31 @@
       "api_image": "karzar-app:staging",
       "postgres_db_name": "karzar_staging",
       "APP_ENV": "staging",
-      "alembic_current": "c1d2e3f4a5b6",
+      "alembic_current": "a3f410b5c6d7",
       "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0"
+    },
+    "identity_proof": {
+      "host_proof": "srv5944957438",
+      "container_proof": "lathe_postgres",
+      "volume_proof": "karzar_postgres_data",
+      "database_proof": "karzar_staging",
+      "database_user_proof": "karzar_staging",
+      "pg_system_identifier": "7664189378775347234",
+      "alembic_revision": "a3f410b5c6d7",
+      "transaction_read_only": "on",
+      "APP_ENV": "staging",
+      "karzar_data_plane": null,
+      "gates": {
+        "host_ok": true,
+        "container_ok": true,
+        "db_ok": true,
+        "user_ok": true,
+        "volume_ok": true,
+        "pg_system_identifier_ok": true,
+        "alembic_ok": true,
+        "transaction_read_only_on": true
+      },
+      "identity_errors": []
     },
     "health": {
       "api_readiness": "PASS",
@@ -32,6 +55,13 @@
       "redis_ping": "PONG",
       "database_select_1": "1",
       "all_pass": true
+    },
+    "cohort_membership": {
+      "ok": true,
+      "manifest_ids": 206,
+      "live_ids": 206,
+      "extra_in_live": [],
+      "missing_from_live": []
     }
   },
   "BRAND": {
@@ -54,20 +84,28 @@
     "unpriced_insize": 664
   },
   "MANIFEST": {
-    "csv_path": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_MANIFEST_20261019T122754Z.csv",
-    "json_path": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_MANIFEST_20261019T122754Z.json",
+    "csv_path": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_MANIFEST_20261019T122730Z.csv",
     "csv_sha256": "edd614107db14d9ae96e6a5d5c2b04043f95c413e6902d45fc3de7d8228feee1",
-    "json_sha256": "bd39c7aea68681275bf67f7beba0c9ab94b042adc467e200c0a4d514a0028f4a",
     "rows": 206
   },
   "DISCOUNT_IMPACT_COUNT": 0,
-  "RECOVERY": {
-    "recovery_csv": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_RECOVERY_PREWRITE_20261019T122754Z.csv",
-    "recovery_csv_sha256": "85cf2a1416eb33389d713f739c3bcb9ef63b7853c8de6514115712ecc464acc9",
-    "rollback_sql": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_ROLLBACK_20261019T122754Z.sql",
-    "rollback_sql_sha256": "055b4483026b4e21ae948068579f24dd939c228d3dfd4a2917b70642c9a6bd51"
+  "MANIFEST_DRIFT": {
+    "ok": true,
+    "manifest_rows": 206,
+    "live_rows_fetched": 206,
+    "drift_count": 0,
+    "drifts_sample": [],
+    "drifts_truncated": false,
+    "discount_display_changes": 0,
+    "discount_impacts_sample": []
   },
-  "git_sha": "4f8fc88704953cd1a9ed77de8345be057b5df550",
+  "RECOVERY": {
+    "recovery_csv": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_RECOVERY_PREWRITE_20261019T134241Z.csv",
+    "recovery_csv_sha256": "85cf2a1416eb33389d713f739c3bcb9ef63b7853c8de6514115712ecc464acc9",
+    "rollback_sql": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_ROLLBACK_20261019T134241Z.sql",
+    "rollback_sql_sha256": "85600d9800ba05cf63d2d104f1ce9b5077e8ea18a5e498102b44c61e6db31a57"
+  },
+  "git_sha": "a28ea66246828573edeee63060bc2240e2a76a1f",
   "REHEARSAL": {
     "status": "ROLLED_BACK",
     "output_tail": "BEGIN\n pg_advisory_xact_lock \n-----------------------\n \n(1 row)\n\nCREATE TABLE\nINSERT 0 206\nDO\nROLLBACK\n"

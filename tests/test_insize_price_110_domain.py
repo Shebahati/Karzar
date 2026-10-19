@@ -4,9 +4,17 @@ from decimal import Decimal
 
 from app.domain.insize_price_110 import (
     CHANGE_REASON,
+    EXPECTED_POST_APPLY_BASE_SUM,
     build_manifest_row,
+    build_rollback_sql,
+    classify_api_sample_result,
+    cohort_id_set_diff,
     discount_impact_row,
+    evaluate_api_verification,
+    evaluate_db_post_apply_verification,
     proposed_base_price,
+    resolve_post_commit_status,
+    validate_production_identity_gates,
 )
 
 
@@ -24,11 +32,32 @@ def test_discount_impact_when_new_meets_compare_at():
     impact = discount_impact_row(
         old_base=Decimal("900.00"),
         new_base=Decimal("990.00"),
-        original_price=Decimal("1000.00"),
+        original_price=Decimal("990.00"),
     )
     assert impact is not None
     assert impact["before"] == "discounted"
-    assert impact["after"] in {"no_discount_equal", "above_compare_at", "discounted"}
+    assert impact["after"] == "no_discount_equal"
+
+
+def test_discount_impact_unchanged_when_still_discounted():
+    assert (
+        discount_impact_row(
+            old_base=Decimal("900.00"),
+            new_base=Decimal("990.00"),
+            original_price=Decimal("1000.00"),
+        )
+        is None
+    )
+
+
+def test_discount_impact_boundary_above_compare_at():
+    impact = discount_impact_row(
+        old_base=Decimal("1000.00"),
+        new_base=Decimal("1100.00"),
+        original_price=Decimal("1000.00"),
+    )
+    assert impact is not None
+    assert impact["after"] == "above_compare_at"
 
 
 def test_build_manifest_row():
@@ -49,3 +78,120 @@ def test_build_manifest_row():
     )
     assert row["proposed_base_price"] == "110.00"
     assert row["discount_impact"] is None
+
+
+def test_cohort_id_set_diff():
+    diff = cohort_id_set_diff({1, 2, 3}, {2, 3, 4})
+    assert diff["extra_in_live"] == [4]
+    assert diff["missing_from_live"] == [1]
+
+
+def test_validate_production_identity_gates_rejects_bad_host():
+    proof = {
+        "host_proof": "wrong-host",
+        "database_proof": "karzar_staging",
+        "pg_system_identifier": "7664189378775347234",
+        "gates": {
+            "host_ok": False,
+            "container_ok": True,
+            "db_ok": True,
+            "user_ok": True,
+            "volume_ok": True,
+            "pg_system_identifier_ok": True,
+            "alembic_ok": True,
+            "transaction_read_only_on": True,
+        },
+    }
+    assert validate_production_identity_gates(proof)
+
+
+def test_build_real_apply_sql_enforces_full_cohort_gate():
+    from app.domain.insize_price_110 import build_real_apply_sql
+
+    rows = [
+        {
+            "product_id": 1,
+            "sku": "A",
+            "old_base_price": "100.00",
+            "proposed_base_price": "110.00",
+        }
+    ]
+    sql = build_real_apply_sql(rows, expected_rows=1, manifest_sha256="abc")
+    assert "cohort extra eligible products" in sql
+    assert "cohort census mismatch" in sql
+
+
+def test_db_post_apply_requires_formula_and_sum():
+    verify = {
+        "target_rows": 2,
+        "price_exact_match": 2,
+        "formula_matches": 1,
+        "change_log_rows_with_reason": 2,
+        "distinct_changed_product_ids": 2,
+        "duplicate_mutations": 0,
+        "sum_base_price_post": str(EXPECTED_POST_APPLY_BASE_SUM),
+    }
+    result = evaluate_db_post_apply_verification(
+        verify,
+        expected_rows=2,
+        expected_sum=EXPECTED_POST_APPLY_BASE_SUM,
+    )
+    assert result["db_verification_ok"] is False
+
+
+def test_api_verification_fails_when_all_http_fail():
+    samples = [
+        classify_api_sample_result(
+            row={"product_id": 1, "slug": "a", "proposed_base_price": "10.00", "is_active": True},
+            http_ok=False,
+            http_status=None,
+            api_base_price=None,
+            error="timeout",
+        )
+    ]
+    summary = evaluate_api_verification(samples, required_verified=1)
+    assert summary["api_verification_ok"] is False
+    assert summary["http_failed_count"] == 1
+
+
+def test_api_verification_inactive_404_not_counted_as_verified():
+    sample = classify_api_sample_result(
+        row={
+            "product_id": 1,
+            "slug": "inactive",
+            "proposed_base_price": "10.00",
+            "is_active": False,
+        },
+        http_ok=False,
+        http_status=404,
+        api_base_price=None,
+    )
+    assert sample["verification"] == "inactive_not_public"
+    assert sample["counts_as_public_price_verified"] is False
+
+
+def test_resolve_post_commit_status_partial_when_api_incomplete():
+    status, line = resolve_post_commit_status(
+        db_committed=True,
+        db_verification_ok=True,
+        api_verification_ok=False,
+    )
+    assert status == "PARTIALLY_VERIFIED"
+    assert "INCOMPLETE" in line
+
+
+def test_rollback_sql_is_atomic_and_uses_applied_price_guard():
+    sql = build_rollback_sql(
+        [
+            {
+                "product_id": 1,
+                "sku": "A",
+                "old_base_price": "100.00",
+                "proposed_base_price": "110.00",
+            }
+        ]
+    )
+    assert "BEGIN ISOLATION LEVEL SERIALIZABLE" in sql
+    assert "applied_base_price" in sql
+    assert "rollback guard failed" in sql
+    assert "/ 1.10" not in sql

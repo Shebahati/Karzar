@@ -55,7 +55,7 @@ PYTHONPATH=. python3 scripts/ops/insize_price_110_apply_once.py \
 
 ## Expected results
 
-- `APPLY_REPORT.json` → `STATUS: APPLIED`, `FINAL_LINE: INSIZE_PRICE_110_APPLY_OK`
+- `APPLY_REPORT.json` → `STATUS: COMMITTED_VERIFIED`, `FINAL_LINE: INSIZE_PRICE_110_COMMIT_AND_VERIFY_OK` (DB commit and public API verification are separate facts)
 - **206** `products.base_price` updates
 - **206** `product_change_logs` (`field_name=base_price`, event reason above)
 - `VERIFY_REPORT.json` API spot-checks on samples

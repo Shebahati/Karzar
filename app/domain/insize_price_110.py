@@ -10,8 +10,26 @@ from app.domain.phase2c_apply import sql_literal
 EXPECTED_BRAND_ID = 3
 EXPECTED_BRAND_NAME = "INSIZE | اینسایز"
 CHANGE_REASON = "INSIZE +10% owner-authorized price update 2026-10-19"
+ROLLBACK_CHANGE_REASON = (
+    "INSIZE +10% rollback restore exact pre-apply base_price 2026-10-19"
+)
 MULTIPLIER = Decimal("1.10")
 ADVISORY_LOCK_KEY = "karzar:insize:price110:20261019"
+FROZEN_MANIFEST_SHA256 = (
+    "edd614107db14d9ae96e6a5d5c2b04043f95c413e6902d45fc3de7d8228feee1"
+)
+EXPECTED_PRICED_COHORT_ROWS = 206
+EXPECTED_PREFLIGHT_BASE_SUM = Decimal("3103326000.00")
+EXPECTED_POST_APPLY_BASE_SUM = Decimal("3413658600.00")
+EXPECTED_VPS_HOSTNAME = "srv5944957438"
+EXPECTED_POSTGRES_CONTAINER = "lathe_postgres"
+EXPECTED_DATABASE = "karzar_staging"
+EXPECTED_DATABASE_USER = "karzar_staging"
+EXPECTED_DOCKER_VOLUME = "karzar_postgres_data"
+EXPECTED_PG_SYSTEM_IDENTIFIER = "7664189378775347234"
+# Live CR-011 head at 2026-10-19 owner hardening (independent psql proof).
+EXPECTED_ALEMBIC_REVISION = "a3f410b5c6d7"
+MIN_PUBLIC_API_PRICE_VERIFICATIONS = 5
 OPERATOR_LOGIC_FILES = (
     "app/domain/insize_price_110.py",
     "scripts/ops/insize_price_110_apply_once.py",
@@ -100,22 +118,279 @@ def build_manifest_row(raw: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def is_truthy_active(value: Any) -> bool:
+    if value is None or value == "":
+        return False
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "t", "yes"}
+
+
+def cohort_id_set_diff(
+    manifest_ids: set[int],
+    live_ids: set[int],
+) -> dict[str, list[int]]:
+    return {
+        "extra_in_live": sorted(live_ids - manifest_ids),
+        "missing_from_live": sorted(manifest_ids - live_ids),
+    }
+
+
+def validate_production_identity_gates(proof: dict[str, Any]) -> list[str]:
+    """Fail-closed on independently collected production proof (not collector labels)."""
+    errors: list[str] = []
+    gates = proof.get("gates") or {}
+    required_gates = (
+        "host_ok",
+        "container_ok",
+        "db_ok",
+        "user_ok",
+        "volume_ok",
+        "pg_system_identifier_ok",
+        "alembic_ok",
+        "transaction_read_only_on",
+    )
+    for gate in required_gates:
+        if not gates.get(gate):
+            errors.append(f"identity_gate_failed:{gate}")
+    data_plane = proof.get("karzar_data_plane")
+    if data_plane is not None and str(data_plane).strip() and str(data_plane).strip() != "live":
+        errors.append(f"karzar_data_plane={data_plane!r}")
+    if proof.get("host_proof") != EXPECTED_VPS_HOSTNAME:
+        errors.append(f"host_proof={proof.get('host_proof')!r}")
+    if proof.get("database_proof") != EXPECTED_DATABASE:
+        errors.append(f"database_proof={proof.get('database_proof')!r}")
+    if proof.get("pg_system_identifier") != EXPECTED_PG_SYSTEM_IDENTIFIER:
+        errors.append("pg_system_identifier_mismatch")
+    return errors
+
+
+def reconcile_collector_vs_proof(
+    collector_identity: dict[str, Any],
+    proof: dict[str, Any],
+) -> list[str]:
+    """Collector labels are evidence only — must match independent proof."""
+    errors: list[str] = []
+    if collector_identity.get("vps_hostname") != proof.get("host_proof"):
+        errors.append("collector_hostname_disagrees_with_ssh_proof")
+    if collector_identity.get("postgres_container") != EXPECTED_POSTGRES_CONTAINER:
+        errors.append("collector_postgres_container_label_invalid")
+    container_proof = str(proof.get("container_proof") or "").lstrip("/")
+    if EXPECTED_POSTGRES_CONTAINER not in container_proof:
+        errors.append("container_proof_mismatch")
+    if collector_identity.get("postgres_db_name") != proof.get("database_proof"):
+        errors.append("collector_db_name_disagrees_with_psql_proof")
+    return errors
+
+
+def evaluate_db_post_apply_verification(
+    verify: dict[str, Any],
+    *,
+    expected_rows: int,
+    expected_sum: Decimal | None = None,
+) -> dict[str, Any]:
+    target = int(verify.get("target_rows") or expected_rows)
+    exact = int(verify.get("price_exact_match") or 0)
+    formula = int(verify.get("formula_matches") or 0)
+    logs = int(verify.get("change_log_rows_with_reason") or 0)
+    distinct = int(verify.get("distinct_changed_product_ids") or 0)
+    dups = int(verify.get("duplicate_mutations") or 0)
+    post_sum_raw = verify.get("sum_base_price_post")
+    post_sum = parse_money(str(post_sum_raw)) if post_sum_raw is not None else None
+    sum_ok = True
+    if expected_sum is not None and post_sum is not None:
+        sum_ok = post_sum == expected_sum
+    elif expected_sum is not None:
+        sum_ok = False
+    db_ok = (
+        target == expected_rows
+        and exact == expected_rows
+        and formula == expected_rows
+        and logs == expected_rows
+        and distinct == expected_rows
+        and dups == 0
+        and sum_ok
+    )
+    return {
+        "db_verification_ok": db_ok,
+        "price_exact_match": exact,
+        "formula_matches": formula,
+        "change_log_rows_with_reason": logs,
+        "distinct_changed_product_ids": distinct,
+        "duplicate_mutations": dups,
+        "sum_base_price_post": str(post_sum) if post_sum is not None else post_sum_raw,
+        "expected_sum_ok": sum_ok,
+    }
+
+
+def select_public_api_verification_candidates(
+    manifest: list[dict[str, Any]],
+    *,
+    minimum: int = MIN_PUBLIC_API_PRICE_VERIFICATIONS,
+) -> list[dict[str, Any]]:
+    active = [r for r in manifest if is_truthy_active(r.get("is_active"))]
+    picks: list[dict[str, Any]] = []
+    for bucket in (active, manifest):
+        for row in bucket:
+            if len(picks) >= minimum:
+                break
+            pid = int(row["product_id"])
+            if any(int(p["product_id"]) == pid for p in picks):
+                continue
+            picks.append(row)
+        if len(picks) >= minimum:
+            break
+    if len(picks) < minimum:
+        picks = manifest[:minimum]
+    return picks[: max(minimum, len(picks))]
+
+
+def classify_api_sample_result(
+    *,
+    row: dict[str, Any],
+    http_ok: bool,
+    http_status: int | None,
+    api_base_price: str | None,
+    error: str | None = None,
+) -> dict[str, Any]:
+    expected = str(row["proposed_base_price"])
+    active = is_truthy_active(row.get("is_active"))
+    base = {
+        "product_id": int(row["product_id"]),
+        "slug": row.get("slug"),
+        "is_active": active,
+        "expected_base_price": expected,
+        "http_ok": http_ok,
+        "http_status": http_status,
+        "api_base_price": api_base_price,
+        "error": error,
+    }
+    if http_status == 404 and not active:
+        base["verification"] = "inactive_not_public"
+        base["counts_as_public_price_verified"] = False
+        return base
+    if not http_ok:
+        base["verification"] = "http_failed"
+        base["counts_as_public_price_verified"] = False
+        return base
+    if api_base_price == expected:
+        base["verification"] = "price_match"
+        base["counts_as_public_price_verified"] = True
+        return base
+    base["verification"] = "price_mismatch"
+    base["counts_as_public_price_verified"] = False
+    return base
+
+
+def evaluate_api_verification(
+    samples: list[dict[str, Any]],
+    *,
+    required_verified: int,
+) -> dict[str, Any]:
+    verified = [s for s in samples if s.get("counts_as_public_price_verified")]
+    mismatches = [s for s in samples if s.get("verification") == "price_mismatch"]
+    http_failed = [s for s in samples if s.get("verification") == "http_failed"]
+    inactive = [s for s in samples if s.get("verification") == "inactive_not_public"]
+    api_ok = len(verified) >= required_verified and not mismatches and not http_failed
+    return {
+        "api_verification_ok": api_ok,
+        "required_public_price_verifications": required_verified,
+        "public_price_verified_count": len(verified),
+        "http_failed_count": len(http_failed),
+        "price_mismatch_count": len(mismatches),
+        "inactive_not_public_count": len(inactive),
+        "all_http_ok": len(http_failed) == 0,
+        "all_match": api_ok,
+    }
+
+
+def resolve_post_commit_status(
+    *,
+    db_committed: bool,
+    db_verification_ok: bool,
+    api_verification_ok: bool,
+) -> tuple[str, str]:
+    if not db_committed:
+        return "BLOCKED", "INSIZE_PRICE_110_COMMIT_FAILED"
+    if db_verification_ok and api_verification_ok:
+        return "COMMITTED_VERIFIED", "INSIZE_PRICE_110_COMMIT_AND_VERIFY_OK"
+    return "PARTIALLY_VERIFIED", "INSIZE_PRICE_110_VERIFY_INCOMPLETE"
+
+
 def build_rollback_sql(rows: list[dict[str, Any]]) -> str:
-    """Exact-value rollback — never infer by dividing by 1.10."""
-    lines = [
-        "-- INSIZE +10% rollback — restore exact pre-apply base_price values",
-        f"-- change_reason: {CHANGE_REASON}",
-        "BEGIN;",
-    ]
-    for row in sorted(rows, key=lambda r: int(r["product_id"])):
-        pid = int(row["product_id"])
-        old = sql_literal(row["old_base_price"])
-        lines.append(
-            f"UPDATE products SET base_price = {old}::numeric WHERE id = {pid} "
-            f"AND brand_id = {EXPECTED_BRAND_ID} AND deleted_at IS NULL;"
-        )
-    lines.append("COMMIT;")
-    return "\n".join(lines) + "\n"
+    """Atomic rollback — exact frozen pre-apply prices; requires post-APPLY price state."""
+    assert_change_reason()
+    if not rows:
+        raise ValueError("rollback requires manifest rows")
+    reason = sql_literal(ROLLBACK_CHANGE_REASON)
+    values = ",\n  ".join(
+        f"({int(r['product_id'])}, {sql_literal(r['sku'])}, "
+        f"{sql_literal(r['old_base_price'])}::numeric, "
+        f"{sql_literal(r['proposed_base_price'])}::numeric)"
+        for r in sorted(rows, key=lambda r: int(r["product_id"]))
+    )
+    expected_rows = len(rows)
+    return f"""
+-- INSIZE +10% rollback — prepared recovery only (separate human authorization required)
+-- Never divide by 1.10. Do not auto-run after verification failure.
+BEGIN ISOLATION LEVEL SERIALIZABLE;
+
+CREATE TEMP TABLE insize_p110_rollback_expected (
+  product_id integer PRIMARY KEY,
+  expected_sku text NOT NULL,
+  restore_base_price numeric(12,2) NOT NULL,
+  applied_base_price numeric(12,2) NOT NULL
+) ON COMMIT DROP;
+INSERT INTO insize_p110_rollback_expected
+  (product_id, expected_sku, restore_base_price, applied_base_price)
+VALUES
+  {values};
+
+DO $$
+DECLARE
+  expected_n integer := {expected_rows};
+  guard_n integer;
+  updated_n integer;
+  log_n integer;
+BEGIN
+  SELECT COUNT(*) INTO guard_n
+  FROM insize_p110_rollback_expected e
+  JOIN products p ON p.id = e.product_id
+  WHERE p.deleted_at IS NULL
+    AND p.brand_id = {EXPECTED_BRAND_ID}
+    AND p.sku IS NOT DISTINCT FROM e.expected_sku
+    AND p.base_price IS NOT DISTINCT FROM e.applied_base_price;
+  IF guard_n <> expected_n THEN
+    RAISE EXCEPTION 'rollback guard failed: matching applied rows=% expected=%', guard_n, expected_n;
+  END IF;
+
+  UPDATE products p
+  SET base_price = e.restore_base_price,
+      updated_at = NOW()
+  FROM insize_p110_rollback_expected e
+  WHERE p.id = e.product_id
+    AND p.deleted_at IS NULL
+    AND p.brand_id = {EXPECTED_BRAND_ID}
+    AND p.sku IS NOT DISTINCT FROM e.expected_sku
+    AND p.base_price IS NOT DISTINCT FROM e.applied_base_price;
+  GET DIAGNOSTICS updated_n = ROW_COUNT;
+  IF updated_n <> expected_n THEN
+    RAISE EXCEPTION 'rollback updated rows=% expected=%', updated_n, expected_n;
+  END IF;
+
+  INSERT INTO product_change_logs (product_id, field_name, old_value, new_value, reason, actor_user_id)
+  SELECT e.product_id, 'base_price', e.applied_base_price::text, e.restore_base_price::text,
+         {reason}, NULL
+  FROM insize_p110_rollback_expected e
+  ORDER BY e.product_id;
+  GET DIAGNOSTICS log_n = ROW_COUNT;
+  IF log_n <> expected_n THEN
+    RAISE EXCEPTION 'rollback change_log rows=% expected=%', log_n, expected_n;
+  END IF;
+END $$;
+
+COMMIT;
+"""
 
 
 def build_real_apply_sql(
@@ -151,6 +426,8 @@ DO $$
 DECLARE
   expected_n integer := {expected_rows};
   locked_n integer;
+  cohort_n integer;
+  extra_n integer;
   idem_n integer;
   drift_n integer;
   updated_n integer;
@@ -174,6 +451,37 @@ BEGIN
   WHERE p.deleted_at IS NULL AND p.brand_id = {EXPECTED_BRAND_ID};
   IF locked_n <> expected_n THEN
     RAISE EXCEPTION 'lock cohort mismatch: locked=% expected=%', locked_n, expected_n;
+  END IF;
+
+  PERFORM 1
+  FROM products p
+  WHERE p.deleted_at IS NULL
+    AND p.brand_id = {EXPECTED_BRAND_ID}
+    AND p.base_price IS NOT NULL
+    AND p.base_price > 0
+  FOR UPDATE OF p;
+
+  SELECT COUNT(*) INTO cohort_n
+  FROM products p
+  WHERE p.deleted_at IS NULL
+    AND p.brand_id = {EXPECTED_BRAND_ID}
+    AND p.base_price IS NOT NULL
+    AND p.base_price > 0;
+  IF cohort_n <> expected_n THEN
+    RAISE EXCEPTION 'cohort census mismatch: live=% expected=%', cohort_n, expected_n;
+  END IF;
+
+  SELECT COUNT(*) INTO extra_n
+  FROM products p
+  WHERE p.deleted_at IS NULL
+    AND p.brand_id = {EXPECTED_BRAND_ID}
+    AND p.base_price IS NOT NULL
+    AND p.base_price > 0
+    AND NOT EXISTS (
+      SELECT 1 FROM insize_p110_expected e WHERE e.product_id = p.id
+    );
+  IF extra_n > 0 THEN
+    RAISE EXCEPTION 'cohort extra eligible products=%', extra_n;
   END IF;
 
   SELECT COUNT(*) INTO drift_n

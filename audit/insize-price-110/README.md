@@ -60,7 +60,7 @@ PYTHONPATH=. python3 scripts/ops/insize_price_110_apply_once.py \
   --confirm-manifest-sha "$SHA"
 ```
 
-Re-verify live priced count matches manifest row count immediately before APPLY; if census drifted, regenerate manifest and update `--confirm-manifest-sha`.
+Re-verify live priced count matches manifest row count immediately before APPLY. **If census or manifest drift is detected: DRIFT → STOP → INVESTIGATE → OWNER REVIEW.** Never silently regenerate the frozen owner-reviewed cohort or change `--confirm-manifest-sha` without owner review.
 
 ## Production identity (preflight)
 

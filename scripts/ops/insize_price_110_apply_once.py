@@ -15,7 +15,9 @@ import csv
 import hashlib
 import json
 import os
+import subprocess
 import sys
+import urllib.error
 import urllib.request
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -27,15 +29,33 @@ sys.path.insert(0, str(ROOT))
 
 from app.domain.insize_price_110 import (  # noqa: E402
     CHANGE_REASON,
+    EXPECTED_ALEMBIC_REVISION,
     EXPECTED_BRAND_ID,
     EXPECTED_BRAND_NAME,
+    EXPECTED_DATABASE,
+    EXPECTED_DATABASE_USER,
+    EXPECTED_DOCKER_VOLUME,
+    EXPECTED_PG_SYSTEM_IDENTIFIER,
+    EXPECTED_POST_APPLY_BASE_SUM,
+    EXPECTED_POSTGRES_CONTAINER,
+    EXPECTED_VPS_HOSTNAME,
+    MIN_PUBLIC_API_PRICE_VERIFICATIONS,
     MULTIPLIER,
+    ROLLBACK_CHANGE_REASON,
     build_manifest_row,
     build_real_apply_sql,
     build_rollback_sql,
+    classify_api_sample_result,
+    cohort_id_set_diff,
     discount_impact_row,
+    evaluate_api_verification,
+    evaluate_db_post_apply_verification,
     parse_money,
     proposed_base_price,
+    reconcile_collector_vs_proof,
+    resolve_post_commit_status,
+    select_public_api_verification_candidates,
+    validate_production_identity_gates,
 )
 from scripts.ops.phase2c_manufacturer_identity_apply_once import (  # noqa: E402
     _git_head,
@@ -99,6 +119,169 @@ def fetch_brand(ssh_host: str) -> dict[str, Any]:
 
 def _reason_md5() -> str:
     return hashlib.md5(CHANGE_REASON.encode("utf-8")).hexdigest()
+
+
+def _parse_kv_proof(output: str) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for line in output.splitlines():
+        if "PROOF:" not in line:
+            continue
+        segment = line[line.index("PROOF:") :]
+        parts = segment.split(":", 2)
+        if len(parts) < 3:
+            continue
+        out[f"PROOF:{parts[1]}"] = parts[2].strip()
+    return out
+
+
+def collect_production_identity_proof(ssh_host: str) -> dict[str, Any]:
+    """Independent SSH/docker/psql proof — not inferred from collector labels."""
+    host_proof = subprocess.run(
+        ["ssh", "-o", "BatchMode=yes", ssh_host, "hostname"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    vol_proof = subprocess.run(
+        [
+            "ssh",
+            "-o",
+            "BatchMode=yes",
+            ssh_host,
+            "docker inspect -f '{{range .Mounts}}{{.Name}} {{end}}' lathe_postgres",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    container_proof = (
+        subprocess.run(
+            [
+                "ssh",
+                "-o",
+                "BatchMode=yes",
+                ssh_host,
+                "docker inspect -f '{{.Name}}' lathe_postgres",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        .stdout.strip()
+        .lstrip("/")
+    )
+    app_env_raw = subprocess.run(
+        [
+            "ssh",
+            "-o",
+            "BatchMode=yes",
+            ssh_host,
+            "docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' lathe_api "
+            "| grep -E '^(APP_ENV|KARZAR_DATA_PLANE)=' || true",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout.strip()
+    env_map: dict[str, str | None] = {"APP_ENV": None, "KARZAR_DATA_PLANE": None}
+    for line in app_env_raw.splitlines():
+        if "=" in line:
+            key, _, value = line.partition("=")
+            if key in env_map:
+                env_map[key] = value
+
+    db_name = _run_ssh_psql("SELECT current_database();", ssh_host=ssh_host).splitlines()[-1].strip()
+    db_user = _run_ssh_psql("SELECT current_user;", ssh_host=ssh_host).splitlines()[-1].strip()
+    pg_sys = _run_ssh_psql(
+        "SELECT system_identifier::text FROM pg_control_system();",
+        ssh_host=ssh_host,
+    ).splitlines()[-1].strip()
+    alembic = _run_ssh_psql(
+        "SELECT version_num FROM alembic_version LIMIT 1;",
+        ssh_host=ssh_host,
+    ).splitlines()[-1].strip()
+    proof_raw = _run_ssh_psql_script(
+        """
+BEGIN;
+SET TRANSACTION READ ONLY;
+SELECT 'PROOF:transaction_read_only:' || current_setting('transaction_read_only');
+ROLLBACK;
+""",
+        ssh_host=ssh_host,
+        allow_commit=False,
+    )
+    kv = _parse_kv_proof(proof_raw)
+    tro = kv.get("PROOF:transaction_read_only", "")
+    proof = {
+        "host_proof": host_proof,
+        "container_proof": container_proof,
+        "volume_proof": vol_proof,
+        "database_proof": db_name,
+        "database_user_proof": db_user,
+        "pg_system_identifier": pg_sys,
+        "alembic_revision": alembic,
+        "transaction_read_only": tro,
+        "APP_ENV": env_map["APP_ENV"],
+        "karzar_data_plane": env_map["KARZAR_DATA_PLANE"],
+        "gates": {
+            "host_ok": host_proof == EXPECTED_VPS_HOSTNAME,
+            "container_ok": EXPECTED_POSTGRES_CONTAINER in container_proof,
+            "db_ok": db_name == EXPECTED_DATABASE,
+            "user_ok": db_user == EXPECTED_DATABASE_USER,
+            "volume_ok": EXPECTED_DOCKER_VOLUME in vol_proof,
+            "pg_system_identifier_ok": pg_sys == EXPECTED_PG_SYSTEM_IDENTIFIER,
+            "alembic_ok": alembic == EXPECTED_ALEMBIC_REVISION,
+            "transaction_read_only_on": tro == "on",
+        },
+    }
+    proof["identity_errors"] = validate_production_identity_gates(proof)
+    return proof
+
+
+def runtime_gate_errors(
+    *,
+    collector_identity: dict[str, Any],
+    health: dict[str, Any],
+    proof: dict[str, Any],
+) -> list[str]:
+    errors = list(proof.get("identity_errors") or [])
+    errors.extend(reconcile_collector_vs_proof(collector_identity, proof))
+    if not health.get("all_pass"):
+        errors.append("health_all_pass_failed")
+    return errors
+
+
+def fetch_live_priced_cohort_ids(ssh_host: str) -> list[int]:
+    raw = _run_ssh_psql(
+        """
+SELECT id::text FROM products
+WHERE brand_id=3 AND deleted_at IS NULL
+  AND base_price IS NOT NULL AND base_price > 0
+ORDER BY id;
+""",
+        ssh_host=ssh_host,
+    )
+    ids: list[int] = []
+    for line in raw.splitlines():
+        line = line.strip()
+        if line.isdigit():
+            ids.append(int(line))
+    return ids
+
+
+def verify_cohort_membership(
+    manifest: list[dict[str, Any]],
+    live_ids: list[int],
+) -> dict[str, Any]:
+    manifest_ids = {int(r["product_id"]) for r in manifest}
+    live_set = set(live_ids)
+    diff = cohort_id_set_diff(manifest_ids, live_set)
+    return {
+        "ok": not diff["extra_in_live"] and not diff["missing_from_live"],
+        "manifest_ids": len(manifest_ids),
+        "live_ids": len(live_set),
+        **diff,
+    }
 
 
 def idempotency_probe(ssh_host: str) -> dict[str, Any]:
@@ -347,43 +530,48 @@ FROM products WHERE brand_id=3 AND deleted_at IS NULL
     }
 
 
-def api_spot_check(manifest: list[dict[str, Any]], sample: int = 5) -> dict[str, Any]:
-    picks = manifest[:sample] + manifest[-sample:]
-    seen: set[int] = set()
+def api_spot_check(
+    manifest: list[dict[str, Any]],
+    *,
+    minimum_verified: int = MIN_PUBLIC_API_PRICE_VERIFICATIONS,
+) -> dict[str, Any]:
+    picks = select_public_api_verification_candidates(
+        manifest,
+        minimum=minimum_verified,
+    )
     results: list[dict[str, Any]] = []
     for row in picks:
-        pid = int(row["product_id"])
-        if pid in seen:
-            continue
-        seen.add(pid)
-        slug = row["slug"]
+        slug = str(row["slug"])
         url = f"https://api.karzartools.com/api/v1/products/{slug}"
+        http_ok = False
+        http_status: int | None = None
+        api_price: str | None = None
+        error: str | None = None
         try:
             with urllib.request.urlopen(url, timeout=15) as resp:
+                http_status = int(resp.status)
                 body = json.loads(resp.read().decode())
             data = body.get("data") or body
             api_price = str(data.get("base_price"))
-            results.append(
-                {
-                    "product_id": pid,
-                    "slug": slug,
-                    "expected_base_price": row["proposed_base_price"],
-                    "api_base_price": api_price,
-                    "match": api_price == row["proposed_base_price"],
-                    "http_ok": True,
-                }
-            )
+            http_ok = True
+        except urllib.error.HTTPError as exc:
+            http_status = int(exc.code)
+            error = str(exc)
+            http_ok = False
         except Exception as exc:  # noqa: BLE001
-            results.append(
-                {
-                    "product_id": pid,
-                    "slug": slug,
-                    "expected_base_price": row["proposed_base_price"],
-                    "http_ok": False,
-                    "error": str(exc),
-                }
+            error = str(exc)
+            http_ok = False
+        results.append(
+            classify_api_sample_result(
+                row=row,
+                http_ok=http_ok,
+                http_status=http_status,
+                api_base_price=api_price,
+                error=error,
             )
-    return {"samples": results, "all_match": all(r.get("match") for r in results if r.get("http_ok"))}
+        )
+    summary = evaluate_api_verification(results, required_verified=minimum_verified)
+    return {"samples": results, **summary}
 
 
 def main() -> int:
@@ -431,12 +619,15 @@ def main() -> int:
 
     identity = collect_runtime_identity(ssh_host)
     health = collect_live_health(ssh_host)
+    identity_proof = collect_production_identity_proof(ssh_host)
     brand = fetch_brand(ssh_host)
     counts = insize_counts(ssh_host)
+    live_cohort_ids = fetch_live_priced_cohort_ids(ssh_host)
     idem = idempotency_probe(ssh_host)
 
     brand_ok = int(brand["id"]) == EXPECTED_BRAND_ID and brand.get("name") == EXPECTED_BRAND_NAME
     errors: list[str] = []
+    errors.extend(runtime_gate_errors(collector_identity=identity, health=health, proof=identity_proof))
     if not brand_ok:
         errors.append("brand identity mismatch")
     if idem["already_present"]:
@@ -446,6 +637,7 @@ def main() -> int:
 
     discount_rows: list[Any] = []
     drift_report: dict[str, Any] | None = None
+    cohort_membership: dict[str, Any] | None = None
 
     if args.manifest_csv:
         manifest_csv = args.manifest_csv.resolve()
@@ -465,6 +657,13 @@ def main() -> int:
                 errors.append(
                     f"manifest rows {len(manifest)} != live priced census {counts['priced_insize']}"
                 )
+            cohort_membership = verify_cohort_membership(manifest, live_cohort_ids)
+            if not cohort_membership["ok"]:
+                errors.append(
+                    "cohort membership mismatch: "
+                    f"extra_in_live={len(cohort_membership['extra_in_live'])} "
+                    f"missing_from_live={len(cohort_membership['missing_from_live'])}"
+                )
             drift_report = verify_frozen_manifest_against_live(manifest, ssh_host)
             write_json(out_dir / f"MANIFEST_DRIFT_{stamp}.json", drift_report)
             if not drift_report["ok"]:
@@ -479,6 +678,13 @@ def main() -> int:
                 f"cohort count mismatch: fetched={len(raw_rows)} census={counts['priced_insize']}"
             )
         manifest = build_manifest(raw_rows)
+        cohort_membership = verify_cohort_membership(manifest, live_cohort_ids)
+        if not cohort_membership["ok"]:
+            errors.append(
+                "live cohort membership mismatch during snapshot: "
+                f"extra={cohort_membership['extra_in_live'][:5]} "
+                f"missing={cohort_membership['missing_from_live'][:5]}"
+            )
         manifest_info = write_manifest_artifacts(out_dir, manifest, stamp)
     if not args.manifest_csv:
         discount_rows = [r for r in manifest if r.get("discount_impact")]
@@ -500,7 +706,12 @@ def main() -> int:
         "stamp": stamp,
         "formula": f"new_base_price = quantize(old * {MULTIPLIER}, 0.01, ROUND_HALF_UP)",
         "change_reason": CHANGE_REASON,
-        "RUNTIME": {"identity": identity, "health": health},
+        "RUNTIME": {
+            "identity": identity,
+            "identity_proof": identity_proof,
+            "health": health,
+            "cohort_membership": cohort_membership,
+        },
         "BRAND": {"ok": brand_ok, "brand": brand, "errors": errors},
         "IDEMPOTENCY": idem,
         "INSIZE_COUNTS": counts,
@@ -520,7 +731,7 @@ def main() -> int:
         "git_sha": _git_head(),
     }
 
-    if errors and args.apply:
+    if errors and (args.apply or args.rehearsal):
         report["STATUS"] = "BLOCKED"
         write_json(out_dir / "APPLY_REPORT.json", report)
         print(json.dumps(report, indent=2))
@@ -542,10 +753,11 @@ def main() -> int:
         return 0
 
     if not args.apply:
-        report["STATUS"] = "PREFLIGHT_OK"
+        report["STATUS"] = "PREFLIGHT_BLOCKED" if errors else "PREFLIGHT_OK"
+        report["PREFLIGHT_ERRORS"] = errors
         write_json(out_dir / "APPLY_REPORT.json", report)
         print(json.dumps(report, indent=2))
-        return 0
+        return 3 if errors else 0
 
     _require_category_b()
     confirm = args.confirm_manifest_sha.strip().lower()
@@ -565,37 +777,58 @@ def main() -> int:
     api_verify = api_spot_check(manifest)
 
     pre_sum = Decimal(manifest_stats(manifest)["current_sum"])
-    post_sum = Decimal(verify.get("sum_base_price_post") or "0")
+    db_eval = evaluate_db_post_apply_verification(
+        verify,
+        expected_rows=len(manifest),
+        expected_sum=EXPECTED_POST_APPLY_BASE_SUM,
+    )
+    api_ok = bool(api_verify.get("api_verification_ok"))
+    db_ok = bool(db_eval.get("db_verification_ok"))
+    status, final_line = resolve_post_commit_status(
+        db_committed=True,
+        db_verification_ok=db_ok,
+        api_verification_ok=api_ok,
+    )
 
     report["BACKUP"] = backup
+    report["DB_COMMIT"] = {
+        "status": "COMMITTED",
+        "transaction_output_tail": apply_out[-3000:],
+        "do_not_rerun_apply_after_commit": True,
+    }
     report["INSIZE_APPLY"] = {
         "manifest_rows": len(manifest),
         "manifest_sha256_csv": manifest_info["csv_sha256"],
         "updated_rows": verify["price_exact_match"],
-        "transaction_output_tail": apply_out[-3000:],
     }
     report["INSIZE_POST"] = verify
+    report["DB_VERIFICATION"] = db_eval
     report["SITE_VERIFY"] = api_verify
     report["PRICE_TOTALS"] = {
         "before_sum": str(pre_sum),
-        "after_sum": str(post_sum),
+        "after_sum": db_eval.get("sum_base_price_post"),
+        "expected_after_sum": str(EXPECTED_POST_APPLY_BASE_SUM),
     }
-
-    all_ok = (
-        verify["price_exact_match"] == len(manifest)
-        and verify["change_log_rows_with_reason"] == len(manifest)
-        and verify["duplicate_mutations"] == 0
-        and (
-            idem["log_row_count"] == 0
-            or verify["change_log_rows_with_reason"] == len(manifest)
-        )
-    )
-    report["STATUS"] = "APPLIED" if all_ok else "PARTIALLY_VERIFIED"
-    report["FINAL_LINE"] = "INSIZE_PRICE_110_APPLY_OK" if all_ok else "INSIZE_PRICE_110_VERIFY_INCOMPLETE"
+    report["ROLLBACK_PREP"] = {
+        "rollback_sql": str(rollback_path),
+        "rollback_change_reason": ROLLBACK_CHANGE_REASON,
+        "auto_execute_on_verify_failure": False,
+        "note": "Rollback is prepared evidence only; separate human authorization required.",
+    }
+    report["STATUS"] = status
+    report["FINAL_LINE"] = final_line
     write_json(out_dir / "APPLY_REPORT.json", report)
-    write_json(out_dir / "VERIFY_REPORT.json", {"verify": verify, "api": api_verify})
+    write_json(
+        out_dir / "VERIFY_REPORT.json",
+        {
+            "db_commit": report["DB_COMMIT"],
+            "db_verification": db_eval,
+            "api_verification": api_verify,
+            "status": status,
+        },
+    )
     print(json.dumps(report, indent=2))
-    return 0 if all_ok else 5
+    return 0 if status == "COMMITTED_VERIFIED" else 5
 
 
 if __name__ == "__main__":
