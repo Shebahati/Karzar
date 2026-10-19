@@ -30,7 +30,6 @@ import { useHomeLayoutPack } from "@/features/home/use-home-layout";
 import { defaultHomeLayoutPack } from "@/types/home-layout";
 import type { Brand, CategoryTreeNode } from "@/types/category";
 import type { DesignedHeroPack } from "@/types/hero-design";
-import type { ProductSummary } from "@/types/product";
 
 /** Client island for the home page — hydrated from RSC prefetch. */
 export function HomeView({

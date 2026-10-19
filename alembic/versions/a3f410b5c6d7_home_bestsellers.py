@@ -22,6 +22,8 @@ def upgrade() -> None:
         sa.Column("product_ids", postgresql.JSONB(), nullable=False),
         sa.Column("revision", sa.Integer(), nullable=False, server_default="1"),
         sa.Column("published_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
         sa.CheckConstraint("id = 1", name="ck_home_bestseller_singleton"),
         sa.CheckConstraint("revision > 0", name="ck_home_bestseller_revision"),
     )
