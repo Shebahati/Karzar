@@ -468,7 +468,7 @@
           },
           "reading_minutes": {
             "default": 5,
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Reading Minutes",
             "type": "integer"
           },
@@ -647,7 +647,7 @@
           "reading_minutes": {
             "anyOf": [
               {
-                "minimum": 1,
+                "minimum": 1.0,
                 "type": "integer"
               },
               {
@@ -717,7 +717,7 @@
       "BestsellerPublishRequest": {
         "properties": {
           "expected_revision": {
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Expected Revision",
             "type": "integer"
           },
@@ -1071,7 +1071,7 @@
           "product_count": {
             "anyOf": [
               {
-                "minimum": 0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1163,7 +1163,7 @@
       "BulkStockAdjustItem": {
         "properties": {
           "product_id": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Product Id",
             "type": "integer"
           },
@@ -1290,8 +1290,8 @@
             "type": "integer"
           },
           "quantity": {
-            "maximum": 999,
-            "minimum": 0,
+            "maximum": 999.0,
+            "minimum": 0.0,
             "title": "Quantity",
             "type": "integer"
           }
@@ -1583,7 +1583,7 @@
           },
           "depth": {
             "description": "1-based depth; roots are depth 1",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Depth",
             "type": "integer"
           },
@@ -1695,7 +1695,7 @@
           "product_count": {
             "anyOf": [
               {
-                "minimum": 0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1938,7 +1938,7 @@
           "product_count": {
             "anyOf": [
               {
-                "minimum": 0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -2175,7 +2175,7 @@
             "type": "integer"
           },
           "quantity": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Quantity",
             "type": "integer"
           }
@@ -4023,7 +4023,7 @@
             "type": "integer"
           },
           "quantity": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Quantity",
             "type": "integer"
           },
@@ -4116,8 +4116,8 @@
           "confidence": {
             "anyOf": [
               {
-                "maximum": 1,
-                "minimum": 0,
+                "maximum": 1.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -4507,8 +4507,8 @@
           "confidence": {
             "anyOf": [
               {
-                "maximum": 1,
-                "minimum": 0,
+                "maximum": 1.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -4870,8 +4870,8 @@
           "confidence": {
             "anyOf": [
               {
-                "maximum": 1,
-                "minimum": 0,
+                "maximum": 1.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -5352,7 +5352,7 @@
             "type": "string"
           },
           "definition_id": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Definition Id",
             "type": "integer"
           },
@@ -5362,7 +5362,7 @@
             "type": "object"
           },
           "product_type_id": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Product Type Id",
             "type": "integer"
           },
@@ -5644,7 +5644,7 @@
       "KnowledgeWaveProductItem": {
         "properties": {
           "product_id": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Product Id",
             "type": "integer"
           },
@@ -6326,7 +6326,7 @@
             "type": "array"
           },
           "product_id": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Product Id",
             "type": "integer"
           },
@@ -6364,7 +6364,7 @@
           "definition_id": {
             "anyOf": [
               {
-                "minimum": 1,
+                "minimum": 1.0,
                 "type": "integer"
               },
               {
@@ -6388,7 +6388,7 @@
           "product_type_id": {
             "anyOf": [
               {
-                "minimum": 1,
+                "minimum": 1.0,
                 "type": "integer"
               },
               {
@@ -7516,17 +7516,17 @@
             "type": "boolean"
           },
           "limit": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
           },
           "skip": {
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Skip",
             "type": "integer"
           },
           "total_count": {
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Total Count",
             "type": "integer"
           }
@@ -7629,7 +7629,7 @@
             "type": "string"
           },
           "order_id": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Order Id",
             "type": "integer"
           }
@@ -7682,7 +7682,7 @@
       "PaymentInitRequest": {
         "properties": {
           "order_id": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Order Id",
             "type": "integer"
           }
@@ -7722,7 +7722,7 @@
       "PaymentRefundRequest": {
         "properties": {
           "order_id": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Order Id",
             "type": "integer"
           }
@@ -7779,7 +7779,7 @@
           "order_id": {
             "anyOf": [
               {
-                "minimum": 1,
+                "minimum": 1.0,
                 "type": "integer"
               },
               {
@@ -8018,8 +8018,8 @@
             "type": "string"
           },
           "rating": {
-            "maximum": 5,
-            "minimum": 1,
+            "maximum": 5.0,
+            "minimum": 1.0,
             "title": "Rating",
             "type": "integer"
           }
@@ -8123,7 +8123,7 @@
           },
           "category_id": {
             "description": "Required selectable leaf category (depth 2 or 3)",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Category Id",
             "type": "integer"
           },
@@ -8340,8 +8340,8 @@
           "tax_percent": {
             "anyOf": [
               {
-                "maximum": 100,
-                "minimum": 0,
+                "maximum": 100.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -9826,7 +9826,7 @@
           "version": {
             "anyOf": [
               {
-                "minimum": 1,
+                "minimum": 1.0,
                 "type": "integer"
               },
               {
@@ -10126,7 +10126,7 @@
           "category_id": {
             "anyOf": [
               {
-                "minimum": 1,
+                "minimum": 1.0,
                 "type": "integer"
               },
               {
@@ -10985,7 +10985,7 @@
       "ShipmentFinalPackageRequest": {
         "properties": {
           "height_cm": {
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Height Cm",
             "type": "integer"
           },
@@ -10998,17 +10998,17 @@
             "type": "boolean"
           },
           "length_cm": {
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Length Cm",
             "type": "integer"
           },
           "weight_grams": {
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Weight Grams",
             "type": "integer"
           },
           "width_cm": {
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Width Cm",
             "type": "integer"
           }
@@ -11266,7 +11266,7 @@
           "location_code": {
             "anyOf": [
               {
-                "minimum": 1,
+                "minimum": 1.0,
                 "type": "integer"
               },
               {
@@ -11445,12 +11445,12 @@
       "ShippingQuoteLine": {
         "properties": {
           "product_id": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Product Id",
             "type": "integer"
           },
           "quantity": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Quantity",
             "type": "integer"
           }
@@ -11534,7 +11534,7 @@
             "type": "array"
           },
           "location_code": {
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Location Code",
             "type": "integer"
           },
@@ -16106,15 +16106,15 @@
                   "limit": {
                     "default": 50,
                     "description": "Page size (default 50, hard cap 100)",
-                    "maximum": 100,
-                    "minimum": 1,
+                    "maximum": 100.0,
+                    "minimum": 1.0,
                     "title": "Limit",
                     "type": "integer"
                   },
                   "page": {
                     "default": 1,
                     "description": "1-based page index",
-                    "minimum": 1,
+                    "minimum": 1.0,
                     "title": "Page",
                     "type": "integer"
                   },
@@ -16143,15 +16143,15 @@
                   "limit": {
                     "default": 50,
                     "description": "Page size (default 50, hard cap 100)",
-                    "maximum": 100,
-                    "minimum": 1,
+                    "maximum": 100.0,
+                    "minimum": 1.0,
                     "title": "Limit",
                     "type": "integer"
                   },
                   "page": {
                     "default": 1,
                     "description": "1-based page index",
-                    "minimum": 1,
+                    "minimum": 1.0,
                     "title": "Page",
                     "type": "integer"
                   },
@@ -22869,7 +22869,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "minimum": 0,
+                  "minimum": 0.0,
                   "type": "number"
                 },
                 {
@@ -22892,7 +22892,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "minimum": 0,
+                  "minimum": 0.0,
                   "type": "number"
                 },
                 {
