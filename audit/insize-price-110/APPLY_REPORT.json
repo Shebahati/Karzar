@@ -1,0 +1,75 @@
+{
+  "STATUS": "REHEARSAL_OK",
+  "generated_at": "2026-10-19T12:28:00Z",
+  "stamp": "20261019T122754Z",
+  "formula": "new_base_price = quantize(old * 1.10, 0.01, ROUND_HALF_UP)",
+  "change_reason": "INSIZE +10% owner-authorized price update 2026-10-19",
+  "RUNTIME": {
+    "identity": {
+      "collected_at_utc": "2026-10-19T12:27:56.953589+00:00",
+      "collector_hostname": "hp-g2-450",
+      "vps_hostname": "srv5944957438",
+      "deployed_git_sha": "UNKNOWN",
+      "api_container": "lathe_api",
+      "postgres_container": "lathe_postgres",
+      "api_image": "karzar-app:staging",
+      "postgres_db_name": "karzar_staging",
+      "APP_ENV": "staging",
+      "alembic_current": "c1d2e3f4a5b6",
+      "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0"
+    },
+    "health": {
+      "api_readiness": "PASS",
+      "database_readiness": "PASS",
+      "redis_readiness": "PASS",
+      "ready_http_status": 200,
+      "ready_body": {
+        "status": "ready",
+        "service": "Karzar Staging API",
+        "database": "ok",
+        "redis": "ok"
+      },
+      "redis_ping": "PONG",
+      "database_select_1": "1",
+      "all_pass": true
+    }
+  },
+  "BRAND": {
+    "ok": true,
+    "brand": {
+      "id": 3,
+      "name": "INSIZE | اینسایز"
+    },
+    "errors": []
+  },
+  "IDEMPOTENCY": {
+    "reason": "INSIZE +10% owner-authorized price update 2026-10-19",
+    "log_row_count": 0,
+    "distinct_product_id_count": 0,
+    "already_present": false
+  },
+  "INSIZE_COUNTS": {
+    "live_insize": 870,
+    "priced_insize": 206,
+    "unpriced_insize": 664
+  },
+  "MANIFEST": {
+    "csv_path": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_MANIFEST_20261019T122754Z.csv",
+    "json_path": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_MANIFEST_20261019T122754Z.json",
+    "csv_sha256": "edd614107db14d9ae96e6a5d5c2b04043f95c413e6902d45fc3de7d8228feee1",
+    "json_sha256": "bd39c7aea68681275bf67f7beba0c9ab94b042adc467e200c0a4d514a0028f4a",
+    "rows": 206
+  },
+  "DISCOUNT_IMPACT_COUNT": 0,
+  "RECOVERY": {
+    "recovery_csv": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_RECOVERY_PREWRITE_20261019T122754Z.csv",
+    "recovery_csv_sha256": "85cf2a1416eb33389d713f739c3bcb9ef63b7853c8de6514115712ecc464acc9",
+    "rollback_sql": "/home/shebahati/Projects/Karzar-storefront-five-heroes/audit/insize-price-110/INSIZE_PRICE_110_ROLLBACK_20261019T122754Z.sql",
+    "rollback_sql_sha256": "055b4483026b4e21ae948068579f24dd939c228d3dfd4a2917b70642c9a6bd51"
+  },
+  "git_sha": "4f8fc88704953cd1a9ed77de8345be057b5df550",
+  "REHEARSAL": {
+    "status": "ROLLED_BACK",
+    "output_tail": "BEGIN\n pg_advisory_xact_lock \n-----------------------\n \n(1 row)\n\nCREATE TABLE\nINSERT 0 206\nDO\nROLLBACK\n"
+  }
+}
