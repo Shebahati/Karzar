@@ -732,13 +732,6 @@ def gate_openapi(_: argparse.Namespace) -> GateResult:
     except json.JSONDecodeError as exc:
         result.fail("openapi/v1.json", f"invalid JSON: {exc}")
         return result
-    # Temporary contract evidence emitted only when a newly changed API path exists.
-    # Will be removed after its exact generated snapshot is committed.
-    if set(live.get("paths", {})) - set(committed.get("paths", {})):
-        import base64
-        encoded = base64.b64encode((json.dumps(live, ensure_ascii=False, indent=2) + "\\n").encode("utf-8")).decode("ascii")
-        for chunk_index, start in enumerate(range(0, len(encoded), 1200)):
-            print(f"OPENAPI_SNAPSHOT_CHUNK:{chunk_index:05d}:{encoded[start:start + 1200]}")
     result.checked = 1
     live_paths = set(live.get("paths", {}))
     committed_paths = set(committed.get("paths", {}))
