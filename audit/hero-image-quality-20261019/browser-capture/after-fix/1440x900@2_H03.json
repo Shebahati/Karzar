@@ -1,0 +1,14 @@
+{
+  "compact": false,
+  "currentSrc": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H02-measuring-tools-desktop-16x9.webp",
+  "naturalWidth": 3840,
+  "naturalHeight": 2160,
+  "clientWidth": 1440,
+  "clientHeight": 900,
+  "dpr": 2,
+  "objectFit": "cover",
+  "objectPosition": "0% 62%",
+  "mobileMedia": "(max-width: 1023px)",
+  "loading": "lazy",
+  "fetchPriority": "auto"
+}

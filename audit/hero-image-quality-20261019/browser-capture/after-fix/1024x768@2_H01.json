@@ -1,0 +1,14 @@
+{
+  "compact": false,
+  "currentSrc": "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+  "naturalWidth": 3840,
+  "naturalHeight": 2160,
+  "clientWidth": 1024,
+  "clientHeight": 768,
+  "dpr": 2,
+  "objectFit": "cover",
+  "objectPosition": "0% 58%",
+  "mobileMedia": "(max-width: 1023px)",
+  "loading": "eager",
+  "fetchPriority": "high"
+}

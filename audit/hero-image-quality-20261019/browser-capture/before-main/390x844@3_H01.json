@@ -1,0 +1,14 @@
+{
+  "compact": true,
+  "currentSrc": "",
+  "naturalWidth": 0,
+  "naturalHeight": 0,
+  "clientWidth": 390,
+  "clientHeight": 293,
+  "dpr": 3,
+  "objectFit": "cover",
+  "objectPosition": "34% 58%",
+  "mobileMedia": "(max-width: 1023px)",
+  "loading": "lazy",
+  "fetchPriority": "auto"
+}

@@ -1,0 +1,12 @@
+{
+  "heroRequestCount": 1,
+  "uniqueCalibratedUrls": [
+    "http://127.0.0.1:3000/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp"
+  ],
+  "uniqueOptimizedUrls": [],
+  "lcp": {
+    "startTime": 1572,
+    "size": 88976,
+    "url": ""
+  }
+}

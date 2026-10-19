@@ -1,0 +1,14 @@
+{
+  "compact": true,
+  "currentSrc": "http://127.0.0.1:3000/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2Fcalibrated-20261018%2FH02-measuring-tools-mobile-4x3.webp&w=1920&q=90",
+  "naturalWidth": 1022,
+  "naturalHeight": 767,
+  "clientWidth": 1023,
+  "clientHeight": 767,
+  "dpr": 2,
+  "objectFit": "cover",
+  "objectPosition": "34% 58%",
+  "mobileMedia": "(max-width: 1023px)",
+  "loading": "lazy",
+  "fetchPriority": "auto"
+}

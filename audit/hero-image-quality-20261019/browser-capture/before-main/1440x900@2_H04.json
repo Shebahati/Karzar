@@ -1,0 +1,14 @@
+{
+  "compact": false,
+  "currentSrc": "http://127.0.0.1:3000/_next/image?url=%2Fimages%2Fhero%2Freborn-5%2Fcalibrated-20261018%2FH02-measuring-tools-desktop-16x9.webp&w=1920&q=90",
+  "naturalWidth": 1440,
+  "naturalHeight": 810,
+  "clientWidth": 1440,
+  "clientHeight": 900,
+  "dpr": 2,
+  "objectFit": "cover",
+  "objectPosition": "0% 62%",
+  "mobileMedia": "(max-width: 1023px)",
+  "loading": "lazy",
+  "fetchPriority": "auto"
+}
