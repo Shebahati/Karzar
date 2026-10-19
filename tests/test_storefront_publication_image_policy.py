@@ -5,9 +5,9 @@ from datetime import UTC, datetime
 
 import pytest
 
+from app.core.config import settings
 from app.crud import brand as crud_brand
 from app.crud import product as crud_product
-from app.core.config import settings
 from app.db.models.product import Brand, Category, Product, ProductImage
 from app.services.emalls.eligibility import product_eligible_for_emalls_export
 from app.utils.public_catalog import (

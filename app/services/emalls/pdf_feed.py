@@ -27,8 +27,8 @@ from app.schemas.emalls_pdf_feed import (
     EmallsPdfFeedResponse,
     EmallsPdfProduct,
 )
-from app.utils.product_presenter import absolutize_asset_url
 from app.services.emalls.eligibility import filter_emalls_export_products
+from app.utils.product_presenter import absolutize_asset_url
 from app.utils.public_catalog import is_placeholder_image_url
 from app.utils.storefront_catalog import product_is_available
 

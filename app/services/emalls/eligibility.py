@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from sqlalchemy.sql.elements import ColumnElement
 
-from app.db.models.product import Product
 from app.core.config import settings
+from app.db.models.product import Product
 from app.utils.public_catalog import (
+    get_first_valid_public_image_url,
     product_has_valid_public_image,
     product_image_materialized_on_disk,
-    get_first_valid_public_image_url,
     public_image_exists_clause,
     storefront_public_product_filters,
 )

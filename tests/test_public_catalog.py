@@ -11,12 +11,12 @@ from app.services.order_workflow import (
 from app.utils.public_catalog import (
     get_first_valid_public_image_url,
     is_placeholder_image_url,
+    is_product_storefront_public,
     local_upload_relative_path,
     product_has_materialized_public_image,
-    is_product_storefront_public,
-    product_passes_storefront_materialization_guard,
     product_has_valid_public_image,
     product_image_materialized_on_disk,
+    product_passes_storefront_materialization_guard,
 )
 from app.utils.storefront_catalog import product_sort_clause
 
