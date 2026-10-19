@@ -1,10 +1,13 @@
 """Unit tests for INSIZE +10% price APPLY domain helpers."""
 
 from decimal import Decimal
+from pathlib import Path
 
 from app.domain.insize_price_110 import (
     CHANGE_REASON,
     EXPECTED_POST_APPLY_BASE_SUM,
+    EXPECTED_PRICED_COHORT_ROWS,
+    FROZEN_MANIFEST_SHA256,
     build_manifest_row,
     build_rollback_sql,
     classify_api_sample_result,
@@ -12,10 +15,16 @@ from app.domain.insize_price_110 import (
     discount_impact_row,
     evaluate_api_verification,
     evaluate_db_post_apply_verification,
+    evaluate_frozen_handoff_readiness,
+    handoff_must_not_reference_legacy_rollback,
     proposed_base_price,
     resolve_post_commit_status,
+    validate_frozen_manifest_authority,
     validate_production_identity_gates,
 )
+
+ROOT = Path(__file__).resolve().parents[1]
+HANDOFF = ROOT / "audit" / "insize-price-110" / "HUMAN_APPLY_HANDOFF.md"
 
 
 def test_proposed_base_price_round_half_up():
@@ -103,6 +112,37 @@ def test_validate_production_identity_gates_rejects_bad_host():
         },
     }
     assert validate_production_identity_gates(proof)
+
+
+def test_validate_frozen_manifest_authority_rejects_wrong_sha():
+    manifest = [{"product_id": i} for i in range(1, EXPECTED_PRICED_COHORT_ROWS + 1)]
+    bad = validate_frozen_manifest_authority(manifest, csv_sha256="deadbeef")
+    assert bad["ok"] is False
+    assert "frozen_manifest_sha256_mismatch" in bad["errors"]
+
+
+def test_validate_frozen_manifest_authority_requires_unique_206():
+    manifest = [{"product_id": 1}] * EXPECTED_PRICED_COHORT_ROWS
+    bad = validate_frozen_manifest_authority(manifest, csv_sha256=FROZEN_MANIFEST_SHA256)
+    assert bad["ok"] is False
+    assert "unique_product_ids_not_206" in bad["errors"]
+
+
+def test_evaluate_frozen_handoff_readiness_blocks_idempotency():
+    ready = evaluate_frozen_handoff_readiness(
+        manifest_authority={"ok": True, "errors": []},
+        cohort_membership={"ok": True},
+        drift_report={"ok": True},
+        idempotency={"already_present": True},
+        priced_census=EXPECTED_PRICED_COHORT_ROWS,
+    )
+    assert ready["ok"] is False
+    assert "idempotency_logs_present" in ready["blockers"]
+
+
+def test_handoff_doc_does_not_reference_executable_legacy_rollback():
+    text = HANDOFF.read_text(encoding="utf-8")
+    assert handoff_must_not_reference_legacy_rollback(text)
 
 
 def test_build_real_apply_sql_enforces_full_cohort_gate():

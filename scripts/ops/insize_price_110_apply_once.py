@@ -4,8 +4,9 @@
 Dry-run by default. Persistent mutation requires:
   KARZAR_ALLOW_PRODUCTION_WRITE=1
   KARZAR_INGESTION_CATEGORY=B
+  --manifest-csv <owner-frozen manifest CSV>
   --apply
-  --confirm-manifest-sha <SHA256 of manifest CSV>
+  --confirm-manifest-sha <owner-frozen SHA256; must match domain FROZEN_MANIFEST_SHA256>
 """
 
 from __future__ import annotations
@@ -39,6 +40,7 @@ from app.domain.insize_price_110 import (  # noqa: E402
     EXPECTED_POST_APPLY_BASE_SUM,
     EXPECTED_POSTGRES_CONTAINER,
     EXPECTED_VPS_HOSTNAME,
+    FROZEN_MANIFEST_SHA256,
     MIN_PUBLIC_API_PRICE_VERIFICATIONS,
     MULTIPLIER,
     ROLLBACK_CHANGE_REASON,
@@ -50,11 +52,13 @@ from app.domain.insize_price_110 import (  # noqa: E402
     discount_impact_row,
     evaluate_api_verification,
     evaluate_db_post_apply_verification,
+    evaluate_frozen_handoff_readiness,
     parse_money,
     proposed_base_price,
     reconcile_collector_vs_proof,
     resolve_post_commit_status,
     select_public_api_verification_candidates,
+    validate_frozen_manifest_authority,
     validate_production_identity_gates,
 )
 from scripts.ops.phase2c_manufacturer_identity_apply_once import (  # noqa: E402
@@ -530,6 +534,66 @@ FROM products WHERE brand_id=3 AND deleted_at IS NULL
     }
 
 
+def load_manifest_csv(path: Path) -> tuple[list[dict[str, Any]], str]:
+    resolved = path.resolve()
+    if not resolved.is_file():
+        raise FileNotFoundError(resolved)
+    with resolved.open(encoding="utf-8", newline="") as fh:
+        manifest = list(csv.DictReader(fh))
+    return manifest, sha256_file(resolved)
+
+
+def run_frozen_manifest_handoff_verification(
+    manifest_path: Path,
+    *,
+    ssh_host: str,
+) -> dict[str, Any]:
+    """Full read-only handoff gate for the owner-frozen manifest."""
+    manifest, csv_sha = load_manifest_csv(manifest_path)
+    authority = validate_frozen_manifest_authority(manifest, csv_sha256=csv_sha)
+    live_cohort_ids = fetch_live_priced_cohort_ids(ssh_host)
+    cohort_membership = verify_cohort_membership(manifest, live_cohort_ids)
+    drift_report = verify_frozen_manifest_against_live(manifest, ssh_host)
+    idem = idempotency_probe(ssh_host)
+    counts = insize_counts(ssh_host)
+    readiness = evaluate_frozen_handoff_readiness(
+        manifest_authority=authority,
+        cohort_membership=cohort_membership,
+        drift_report=drift_report,
+        idempotency=idem,
+        priced_census=counts["priced_insize"],
+    )
+    return {
+        **readiness,
+        "manifest_csv": str(manifest_path.resolve()),
+        "manifest_csv_sha256": csv_sha,
+        "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "insize_counts": counts,
+    }
+
+
+def require_frozen_manifest_for_mutation(args: argparse.Namespace) -> int | None:
+    """Return exit code if --apply/--rehearsal missing frozen manifest flags."""
+    if not (args.apply or args.rehearsal):
+        return None
+    if not args.manifest_csv:
+        print(
+            "FATAL: --manifest-csv is required for --apply and --rehearsal "
+            "(owner-frozen manifest only; live re-snapshot forbidden).",
+            file=sys.stderr,
+        )
+        return 2
+    confirm = args.confirm_manifest_sha.strip().lower()
+    if confirm != FROZEN_MANIFEST_SHA256.lower():
+        print(
+            f"FATAL: --confirm-manifest-sha must equal owner-frozen SHA256 "
+            f"{FROZEN_MANIFEST_SHA256}",
+            file=sys.stderr,
+        )
+        return 2
+    return None
+
+
 def api_spot_check(
     manifest: list[dict[str, Any]],
     *,
@@ -596,21 +660,20 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    mutation_gate = require_frozen_manifest_for_mutation(args)
+    if mutation_gate is not None:
+        return mutation_gate
+
     if args.verify_frozen_manifest:
         path = args.verify_frozen_manifest.resolve()
         if not path.is_file():
             print(f"FATAL: missing manifest {path}", file=sys.stderr)
             return 2
-        with path.open(encoding="utf-8", newline="") as fh:
-            manifest = list(csv.DictReader(fh))
-        drift = verify_frozen_manifest_against_live(manifest, args.ssh_host)
-        drift["manifest_csv"] = str(path)
-        drift["manifest_csv_sha256"] = sha256_file(path)
-        drift["generated_at"] = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        report = run_frozen_manifest_handoff_verification(path, ssh_host=args.ssh_host)
         out_path = AUDIT_OUT / "MANIFEST_DRIFT_REPORT.json"
-        write_json(out_path, drift)
-        print(json.dumps(drift, indent=2))
-        return 0 if drift["ok"] else 3
+        write_json(out_path, report)
+        print(json.dumps(report, indent=2))
+        return 0 if report.get("ok") else 3
 
     out_dir = args.out_dir.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -638,39 +701,45 @@ def main() -> int:
     discount_rows: list[Any] = []
     drift_report: dict[str, Any] | None = None
     cohort_membership: dict[str, Any] | None = None
+    manifest_authority: dict[str, Any] | None = None
 
     if args.manifest_csv:
         manifest_csv = args.manifest_csv.resolve()
-        if not manifest_csv.is_file():
+        try:
+            manifest, manifest_sha = load_manifest_csv(manifest_csv)
+        except FileNotFoundError:
             errors.append(f"missing manifest csv: {manifest_csv}")
             manifest = []
+            manifest_sha = ""
             manifest_info = {"rows": 0, "csv_sha256": "", "csv_path": str(manifest_csv)}
         else:
-            with manifest_csv.open(encoding="utf-8", newline="") as fh:
-                manifest = list(csv.DictReader(fh))
             manifest_info = {
                 "csv_path": str(manifest_csv),
-                "csv_sha256": sha256_file(manifest_csv),
+                "csv_sha256": manifest_sha,
                 "rows": len(manifest),
             }
-            if len(manifest) != counts["priced_insize"]:
-                errors.append(
-                    f"manifest rows {len(manifest)} != live priced census {counts['priced_insize']}"
-                )
-            cohort_membership = verify_cohort_membership(manifest, live_cohort_ids)
-            if not cohort_membership["ok"]:
-                errors.append(
-                    "cohort membership mismatch: "
-                    f"extra_in_live={len(cohort_membership['extra_in_live'])} "
-                    f"missing_from_live={len(cohort_membership['missing_from_live'])}"
-                )
-            drift_report = verify_frozen_manifest_against_live(manifest, ssh_host)
-            write_json(out_dir / f"MANIFEST_DRIFT_{stamp}.json", drift_report)
-            if not drift_report["ok"]:
-                errors.append(
-                    f"frozen manifest drift: {drift_report['drift_count']} row(s) — see MANIFEST_DRIFT_{stamp}.json"
-                )
+            manifest_authority = validate_frozen_manifest_authority(
+                manifest, csv_sha256=manifest_sha
+            )
+            if not manifest_authority["ok"]:
+                errors.extend(manifest_authority["errors"])
+            handoff = evaluate_frozen_handoff_readiness(
+                manifest_authority=manifest_authority,
+                cohort_membership=verify_cohort_membership(manifest, live_cohort_ids),
+                drift_report=verify_frozen_manifest_against_live(manifest, ssh_host),
+                idempotency=idem,
+                priced_census=counts["priced_insize"],
+            )
+            cohort_membership = handoff["cohort_membership"]
+            drift_report = handoff["drift"]
+            write_json(out_dir / f"MANIFEST_DRIFT_{stamp}.json", handoff)
+            if not handoff["ok"]:
+                errors.extend(handoff["blockers"])
             discount_rows = list(drift_report.get("discount_impacts_sample", []))
+    elif args.apply or args.rehearsal:
+        errors.append("frozen manifest required for mutation paths")
+        manifest = []
+        manifest_info = {"rows": 0, "csv_sha256": "", "csv_path": ""}
     else:
         raw_rows = fetch_insize_cohort(ssh_host)
         if len(raw_rows) != counts["priced_insize"]:
@@ -716,6 +785,8 @@ def main() -> int:
         "IDEMPOTENCY": idem,
         "INSIZE_COUNTS": counts,
         "MANIFEST": manifest_info,
+        "FROZEN_MANIFEST_AUTHORITY": manifest_authority,
+        "FROZEN_MANIFEST_SHA256_REQUIRED": FROZEN_MANIFEST_SHA256,
         "DISCOUNT_IMPACT_COUNT": (
             drift_report.get("discount_display_changes", len(discount_rows))
             if drift_report
@@ -760,11 +831,10 @@ def main() -> int:
         return 3 if errors else 0
 
     _require_category_b()
-    confirm = args.confirm_manifest_sha.strip().lower()
-    if confirm != manifest_info["csv_sha256"]:
+    if manifest_info["csv_sha256"].lower() != FROZEN_MANIFEST_SHA256.lower():
         print(
-            f"FATAL: --confirm-manifest-sha mismatch "
-            f"(expected {manifest_info['csv_sha256']})",
+            f"FATAL: manifest file SHA256 must equal owner-frozen "
+            f"{FROZEN_MANIFEST_SHA256}",
             file=sys.stderr,
         )
         return 2

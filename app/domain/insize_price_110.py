@@ -18,6 +18,14 @@ ADVISORY_LOCK_KEY = "karzar:insize:price110:20261019"
 FROZEN_MANIFEST_SHA256 = (
     "edd614107db14d9ae96e6a5d5c2b04043f95c413e6902d45fc3de7d8228feee1"
 )
+FROZEN_MANIFEST_CSV_REL = (
+    "audit/insize-price-110/INSIZE_PRICE_110_MANIFEST_20261019T122730Z.csv"
+)
+LEGACY_NON_EXECUTABLE_ROLLBACK = (
+    "audit/insize-price-110/"
+    "INSIZE_PRICE_110_ROLLBACK_20261019T122730Z.sql.non-executable-evidence"
+)
+GUARDED_ROLLBACK_FILENAME_PREFIX = "INSIZE_PRICE_110_ROLLBACK_"
 EXPECTED_PRICED_COHORT_ROWS = 206
 EXPECTED_PREFLIGHT_BASE_SUM = Decimal("3103326000.00")
 EXPECTED_POST_APPLY_BASE_SUM = Decimal("3413658600.00")
@@ -124,6 +132,78 @@ def is_truthy_active(value: Any) -> bool:
     if isinstance(value, bool):
         return value
     return str(value).strip().lower() in {"1", "true", "t", "yes"}
+
+
+def manifest_product_ids(manifest: list[dict[str, Any]]) -> list[int]:
+    return [int(row["product_id"]) for row in manifest]
+
+
+def validate_frozen_manifest_authority(
+    manifest: list[dict[str, Any]],
+    *,
+    csv_sha256: str,
+) -> dict[str, Any]:
+    """Owner-approved frozen manifest: exact SHA256 and 206 unique eligible IDs."""
+    errors: list[str] = []
+    sha_norm = csv_sha256.strip().lower()
+    if sha_norm != FROZEN_MANIFEST_SHA256.lower():
+        errors.append("frozen_manifest_sha256_mismatch")
+    ids = manifest_product_ids(manifest)
+    unique_ids = set(ids)
+    if len(manifest) != EXPECTED_PRICED_COHORT_ROWS:
+        errors.append(f"row_count_not_{EXPECTED_PRICED_COHORT_ROWS}")
+    if len(unique_ids) != EXPECTED_PRICED_COHORT_ROWS:
+        errors.append(f"unique_product_ids_not_{EXPECTED_PRICED_COHORT_ROWS}")
+    if len(ids) != len(unique_ids):
+        errors.append("duplicate_product_ids_in_manifest")
+    return {
+        "ok": not errors,
+        "errors": errors,
+        "expected_sha256": FROZEN_MANIFEST_SHA256,
+        "actual_sha256": sha_norm,
+        "row_count": len(manifest),
+        "unique_product_ids": len(unique_ids),
+    }
+
+
+def evaluate_frozen_handoff_readiness(
+    *,
+    manifest_authority: dict[str, Any],
+    cohort_membership: dict[str, Any],
+    drift_report: dict[str, Any],
+    idempotency: dict[str, Any],
+    priced_census: int,
+) -> dict[str, Any]:
+    blockers: list[str] = []
+    if not manifest_authority.get("ok"):
+        blockers.extend(manifest_authority.get("errors") or ["manifest_authority"])
+    if priced_census != EXPECTED_PRICED_COHORT_ROWS:
+        blockers.append(f"live_priced_census_{priced_census}")
+    if not cohort_membership.get("ok"):
+        blockers.append("cohort_membership_mismatch")
+    if not drift_report.get("ok"):
+        blockers.append("per_row_price_drift")
+    if idempotency.get("already_present"):
+        blockers.append("idempotency_logs_present")
+    return {
+        "ok": not blockers,
+        "blockers": blockers,
+        "manifest_authority": manifest_authority,
+        "cohort_membership": cohort_membership,
+        "drift": drift_report,
+        "idempotency": idempotency,
+        "priced_census": priced_census,
+    }
+
+
+def handoff_must_not_reference_legacy_rollback(handoff_text: str) -> bool:
+    """Regression guard: legacy unguarded rollback must not appear as executable .sql."""
+    forbidden = "INSIZE_PRICE_110_ROLLBACK_20261019T122730Z.sql"
+    for line in handoff_text.splitlines():
+        stripped = line.strip()
+        if forbidden in stripped and ".non-executable" not in stripped:
+            return False
+    return True
 
 
 def cohort_id_set_diff(

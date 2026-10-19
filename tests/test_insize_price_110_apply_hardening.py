@@ -2,19 +2,29 @@
 
 from __future__ import annotations
 
+import subprocess
+import sys
+from pathlib import Path
 from unittest.mock import patch
 
 from app.domain.insize_price_110 import (
     EXPECTED_VPS_HOSTNAME,
+    FROZEN_MANIFEST_SHA256,
     evaluate_api_verification,
     evaluate_db_post_apply_verification,
+    validate_frozen_manifest_authority,
 )
 from scripts.ops.insize_price_110_apply_once import (
     api_spot_check,
     collect_production_identity_proof,
+    require_frozen_manifest_for_mutation,
     runtime_gate_errors,
     verify_cohort_membership,
 )
+
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / "scripts" / "ops" / "insize_price_110_apply_once.py"
+FROZEN_CSV = ROOT / "audit/insize-price-110/INSIZE_PRICE_110_MANIFEST_20261019T122730Z.csv"
 
 
 def _valid_proof(**overrides):
@@ -124,6 +134,47 @@ def test_api_spot_check_partial_failure_not_vacuous_success():
     assert result["api_verification_ok"] is False
     assert result["public_price_verified_count"] == 0
     assert result["all_match"] is False
+
+
+def test_require_frozen_manifest_blocks_apply_without_csv():
+    import argparse
+
+    args = argparse.Namespace(apply=True, rehearsal=False, manifest_csv=None, confirm_manifest_sha="")
+    assert require_frozen_manifest_for_mutation(args) == 2
+
+
+def test_require_frozen_manifest_blocks_wrong_confirm_sha():
+    import argparse
+
+    args = argparse.Namespace(
+        apply=True,
+        rehearsal=False,
+        manifest_csv=FROZEN_CSV,
+        confirm_manifest_sha="not-the-frozen-sha",
+    )
+    assert require_frozen_manifest_for_mutation(args) == 2
+
+
+def test_cli_apply_without_manifest_csv_exits_2():
+    proc = subprocess.run(
+        [sys.executable, str(SCRIPT), "--apply", "--confirm-manifest-sha", FROZEN_MANIFEST_SHA256],
+        cwd=ROOT,
+        env={**dict(__import__("os").environ), "PYTHONPATH": str(ROOT)},
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 2
+    assert "manifest-csv" in proc.stderr.lower()
+
+
+@patch("scripts.ops.insize_price_110_apply_once.sha256_file", return_value="alternate_sha")
+def test_validate_frozen_manifest_authority_via_domain(_sha_mock):
+    import csv
+
+    with FROZEN_CSV.open(encoding="utf-8", newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    result = validate_frozen_manifest_authority(rows, csv_sha256="alternate_sha")
+    assert result["ok"] is False
 
 
 def test_db_verification_incomplete_with_commit_facts():

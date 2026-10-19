@@ -21,14 +21,14 @@ SSH alias: `karzar-vps` → host `srv5944957438`, Postgres container `lathe_post
 |------|-------|
 | Path | `audit/insize-price-110/INSIZE_PRICE_110_MANIFEST_20261019T122730Z.csv` |
 | SHA256 | `edd614107db14d9ae96e6a5d5c2b04043f95c413e6902d45fc3de7d8228feee1` |
-| Rows | 206 priced INSIZE products |
+| Rows | 206 priced INSIZE products (206 unique `product_id`) |
 
 ## Mandatory pre-execution checks
 
 1. **Idempotency:** `product_change_logs` must have **zero** rows with reason  
    `INSIZE +10% owner-authorized price update 2026-10-19`
 2. **Brand:** `brands.id=3` name `INSIZE | اینسایز`
-3. **Drift:** read-only manifest vs live (must exit 0):
+3. **Full frozen handoff gate** (must exit 0 — SHA, cohort membership, per-row drift, idempotency):
 
 ```bash
 PYTHONPATH=. python3 scripts/ops/insize_price_110_apply_once.py \
@@ -36,9 +36,11 @@ PYTHONPATH=. python3 scripts/ops/insize_price_110_apply_once.py \
 ```
 
 4. **Census:** live priced INSIZE count must still be **206** and match manifest row count.
-5. **Rehearsal (optional):** `--rehearsal` performs INSERT/update gates then `ROLLBACK`.
+5. **Rehearsal (optional):** requires the same frozen `--manifest-csv` and `--confirm-manifest-sha`; performs gates then `ROLLBACK`.
 
 ## APPLY (human shell only)
+
+`--manifest-csv` and owner-frozen `--confirm-manifest-sha` are **required** (live re-snapshot cannot authorize APPLY).
 
 ```bash
 MANIFEST=audit/insize-price-110/INSIZE_PRICE_110_MANIFEST_20261019T122730Z.csv
@@ -47,11 +49,11 @@ SHA=edd614107db14d9ae96e6a5d5c2b04043f95c413e6902d45fc3de7d8228feee1
 PYTHONPATH=. python3 scripts/ops/insize_price_110_apply_once.py \
   --out-dir audit/insize-price-110 \
   --manifest-csv "$MANIFEST" \
-  --apply \
-  --confirm-manifest-sha "$SHA"
+  --confirm-manifest-sha "$SHA" \
+  --apply
 ```
 
-**Backup:** operator calls `create_live_backup` **before** COMMIT; artifact under `~/karzar-backups/insize-price-110/` plus `audit/insize-price-110/BACKUP_MANIFEST.json`.
+**Backup:** `create_live_backup` runs **before** COMMIT; artifact under `~/karzar-backups/insize-price-110/` plus `audit/insize-price-110/BACKUP_MANIFEST.json`.
 
 ## Expected results
 
@@ -62,13 +64,14 @@ PYTHONPATH=. python3 scripts/ops/insize_price_110_apply_once.py \
 
 ## STOP conditions
 
-- Drift report `ok: false` or manifest SHA mismatch
+- Handoff gate `ok: false`, manifest SHA mismatch, or wrong `--confirm-manifest-sha`
 - Idempotency logs already present
 - Backup failure or empty dump
 - Post-COMMIT verification incomplete → **do not re-run APPLY**; reconcile read-only DB state first
 
 ## Recovery
 
-- Exact rollback: `audit/insize-price-110/INSIZE_PRICE_110_ROLLBACK_20261019T122730Z.sql`
-- Recovery CSV: `INSIZE_PRICE_110_RECOVERY_PREWRITE_20261019T122730Z.csv`
+- **Guarded rollback (executable):** path in `APPLY_REPORT.json` → `RECOVERY.rollback_sql` (SERIALIZABLE script with applied-price CAS and compensating change logs). Generate by running preflight/rehearsal with the frozen manifest before APPLY so the rollback matches the cohort stamp.
+- **Recovery CSV:** `RECOVERY.recovery_csv` in the same `APPLY_REPORT.json` (paired with the guarded rollback).
+- **Legacy evidence only:** `INSIZE_PRICE_110_ROLLBACK_20261019T122730Z.sql.non-executable-evidence` — **NON-EXECUTABLE** (unguarded); preserved for audit only.
 - Never divide prices by 1.10

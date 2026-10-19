@@ -1,3 +1,5 @@
+-- NON-EXECUTABLE EVIDENCE ONLY — legacy unguarded rollback (no price CAS / logs).
+-- Do not run. Use guarded rollback from APPLY_REPORT.json → RECOVERY.rollback_sql.
 -- INSIZE +10% rollback — restore exact pre-apply base_price values
 -- change_reason: INSIZE +10% owner-authorized price update 2026-10-19
 BEGIN;

@@ -56,9 +56,11 @@ SHA=edd614107db14d9ae96e6a5d5c2b04043f95c413e6902d45fc3de7d8228feee1
 PYTHONPATH=. python3 scripts/ops/insize_price_110_apply_once.py \
   --out-dir audit/insize-price-110 \
   --manifest-csv "$MANIFEST" \
-  --apply \
-  --confirm-manifest-sha "$SHA"
+  --confirm-manifest-sha "$SHA" \
+  --apply
 ```
+
+`--manifest-csv` and the owner-frozen SHA are **mandatory** for `--apply` and `--rehearsal`; the operator will not accept a live re-snapshot as authority.
 
 Re-verify live priced count matches manifest row count immediately before APPLY. **If census or manifest drift is detected: DRIFT → STOP → INVESTIGATE → OWNER REVIEW.** Never silently regenerate the frozen owner-reviewed cohort or change `--confirm-manifest-sha` without owner review.
 
@@ -75,13 +77,14 @@ Re-verify live priced count matches manifest row count immediately before APPLY.
 ## Artifacts
 
 - `INSIZE_PRICE_110_MANIFEST_20261019T122730Z.{csv,json}`
-- `INSIZE_PRICE_110_RECOVERY_PREWRITE_20261019T122730Z.csv`
-- `INSIZE_PRICE_110_ROLLBACK_20261019T122730Z.sql`
+- `INSIZE_PRICE_110_RECOVERY_PREWRITE_*.csv` (preflight; path in `APPLY_REPORT.json` → `RECOVERY`)
+- Guarded `INSIZE_PRICE_110_ROLLBACK_<stamp>.sql` (executable; path in `APPLY_REPORT.json` → `RECOVERY.rollback_sql`)
+- `INSIZE_PRICE_110_ROLLBACK_20261019T122730Z.sql.non-executable-evidence` (legacy unguarded — **do not execute**)
 - `APPLY_REPORT.json` (preflight; post-apply section filled after successful APPLY)
 - `DISCOUNT_IMPACT_*.json` (0 rows at preflight — no compare-at display changes)
 
 ## Safety
 
 - Idempotency: abort if any `product_change_logs` row exists with the event reason (MD5 match).
-- Rollback: use exact `INSIZE_PRICE_110_ROLLBACK_*.sql` values — never divide by 1.10.
+- Rollback: use guarded rollback from `APPLY_REPORT.json` → `RECOVERY.rollback_sql` only — never divide by 1.10.
 - Do not rerun after successful APPLY.
