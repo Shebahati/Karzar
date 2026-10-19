@@ -1,0 +1,62 @@
+[
+  {
+    "file": "H01-special-offers-desktop-16x9.webp",
+    "laplacian_var_crop": 37.48,
+    "jpg_laplacian_var_crop": 27.89,
+    "bytes": 493628
+  },
+  {
+    "file": "H01-special-offers-mobile-4x3.webp",
+    "laplacian_var_crop": 47.83,
+    "jpg_laplacian_var_crop": 37.56,
+    "bytes": 494548
+  },
+  {
+    "file": "H02-measuring-tools-desktop-16x9.webp",
+    "laplacian_var_crop": 63.32,
+    "jpg_laplacian_var_crop": 55.35,
+    "bytes": 498784
+  },
+  {
+    "file": "H02-measuring-tools-mobile-4x3.webp",
+    "laplacian_var_crop": 51.02,
+    "jpg_laplacian_var_crop": 43.62,
+    "bytes": 492444
+  },
+  {
+    "file": "H03-inserts-turning-tools-desktop-16x9.webp",
+    "laplacian_var_crop": 21.01,
+    "jpg_laplacian_var_crop": 18.2,
+    "bytes": 284840
+  },
+  {
+    "file": "H03-inserts-turning-tools-mobile-4x3.webp",
+    "laplacian_var_crop": 9.91,
+    "jpg_laplacian_var_crop": 8.71,
+    "bytes": 287304
+  },
+  {
+    "file": "H04-end-mills-desktop-16x9.webp",
+    "laplacian_var_crop": 40.2,
+    "jpg_laplacian_var_crop": 34.24,
+    "bytes": 315784
+  },
+  {
+    "file": "H04-end-mills-mobile-4x3.webp",
+    "laplacian_var_crop": 37.88,
+    "jpg_laplacian_var_crop": 34.12,
+    "bytes": 310422
+  },
+  {
+    "file": "H05-industrial-machines-desktop-16x9.webp",
+    "laplacian_var_crop": 33.51,
+    "jpg_laplacian_var_crop": 30.96,
+    "bytes": 272744
+  },
+  {
+    "file": "H05-industrial-machines-mobile-4x3.webp",
+    "laplacian_var_crop": 34.67,
+    "jpg_laplacian_var_crop": 31.07,
+    "bytes": 279968
+  }
+]

@@ -69,8 +69,10 @@ describe("buildHeroBackgroundPictureSources", () => {
     expect(built!.desktop.srcSet).toContain("H01-special-offers-desktop-16x9.webp");
     expect(built!.mobileSrcSet).toContain("H01-special-offers-mobile-4x3.webp");
     expect(built!.mobileSrcSet).not.toContain("desktop-16x9");
-    expect(built!.desktop.srcSet).toContain("/_next/image?");
-    expect(built!.mobileSrcSet).toContain("/_next/image?");
+    expect(built!.desktop.srcSet).toContain("H01-special-offers-desktop-16x9.webp");
+    expect(built!.mobileSrcSet).toContain("H01-special-offers-mobile-4x3.webp");
+    expect(built!.desktop.srcSet).not.toContain("/_next/image?");
+    expect(built!.mobileSrcSet).not.toContain("/_next/image?");
     expect(built!.loading).toBe("eager");
   });
 

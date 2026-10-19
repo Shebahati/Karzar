@@ -17,6 +17,11 @@ export const CALIBRATED_HERO_MOBILE_INTRINSIC = { width: 2880, height: 2160 } as
 
 const CALIBRATED_HERO_DIR = "/images/hero/reborn-5/calibrated-20261018/";
 
+/** Calibrated masters are pre-exported WebP at full resolution — skip Next re-encode and width cap. */
+export function isCalibratedCampaignHeroArt(src: string): boolean {
+  return src.includes(CALIBRATED_HERO_DIR);
+}
+
 export function heroIntrinsicSize(
   src: string,
   kind: "desktop" | "mobile",
@@ -58,12 +63,16 @@ export function buildHeroBackgroundPictureSources({
     ? { priority: true as const, fetchPriority: "high" as const }
     : { loading: "lazy" as const };
 
+  const unoptimized =
+    isCalibratedCampaignHeroArt(desktopSrc) && isCalibratedCampaignHeroArt(mobileSrc);
+
   const desktop = getImageProps({
     src: desktopSrc,
     alt: "",
     ...heroIntrinsicSize(desktopSrc, "desktop"),
     sizes,
     quality: HERO_IMAGE_QUALITY,
+    unoptimized,
     ...perf,
   });
 
@@ -73,6 +82,7 @@ export function buildHeroBackgroundPictureSources({
     ...heroIntrinsicSize(mobileSrc, "mobile"),
     sizes: "100vw",
     quality: HERO_IMAGE_QUALITY,
+    unoptimized,
     ...perf,
   });
 
@@ -85,11 +95,22 @@ export function buildHeroBackgroundPictureSources({
     decoding,
     fetchPriority,
   } = desktop.props;
-  if (!srcSet || !mobile.props.srcSet) return null;
+  const mobileSrcSet = mobile.props.srcSet ?? mobile.props.src;
+  const desktopSrcSet = srcSet ?? src;
+  if (!src || !mobileSrcSet || !desktopSrcSet) return null;
+  if (!unoptimized && (!srcSet || !mobile.props.srcSet)) return null;
 
   return {
-    desktop: { src, srcSet, sizes: desktopSizes, width, height, decoding, fetchPriority },
-    mobileSrcSet: mobile.props.srcSet,
+    desktop: {
+      src,
+      srcSet: desktopSrcSet,
+      sizes: desktopSizes,
+      width,
+      height,
+      decoding,
+      fetchPriority,
+    },
+    mobileSrcSet,
     loading: priority ? "eager" : "lazy",
   };
 }
@@ -182,6 +203,7 @@ export function HeroBackgroundImage({
   };
 
   if (!picture) {
+    const unoptimized = isCalibratedCampaignHeroArt(desktopSrc);
     return (
       <SafeImage
         src={desktopSrc}
@@ -192,6 +214,7 @@ export function HeroBackgroundImage({
         style={objectStyle}
         fallback={fallback}
         onLoad={onLoad}
+        unoptimized={unoptimized}
         {...(priority
           ? { priority: true, fetchPriority: "high" as const, quality: HERO_IMAGE_QUALITY }
           : { loading: "lazy" as const, quality: HERO_IMAGE_QUALITY })}

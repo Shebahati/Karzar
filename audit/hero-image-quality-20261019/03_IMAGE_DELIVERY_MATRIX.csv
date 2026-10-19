@@ -1,0 +1,8 @@
+phase,viewport,hero,asset,requested_w,delivered_w,delivered_h,bytes,codec,uses_next_optimizer,effective_scale_note
+before,optimizer_probe,H01,desktop,640,640,360,40251,JPEG,true,max_deviceSize_1920
+before,optimizer_probe,H01,desktop,750,750,422,52505,JPEG,true,max_deviceSize_1920
+before,optimizer_probe,H01,desktop,828,828,466,62173,JPEG,true,max_deviceSize_1920
+before,optimizer_probe,H01,desktop,1080,1080,608,97452,JPEG,true,max_deviceSize_1920
+before,optimizer_probe,H01,desktop,1200,1200,675,115994,JPEG,true,max_deviceSize_1920
+before,optimizer_probe,H01,desktop,1920,1920,1080,247178,JPEG,true,max_deviceSize_1920
+after,1920x1080@2,H01,desktop,native,3840,2160,493628,WEBP,false,full_master_served
