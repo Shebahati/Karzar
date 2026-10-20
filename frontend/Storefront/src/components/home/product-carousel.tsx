@@ -7,6 +7,7 @@ import { ProductCard, ProductCardSkeleton } from "@/components/product/product-c
 import { AutoCarousel } from "@/components/ui/auto-carousel";
 import { isPlpLcpIndex } from "@/lib/cwv";
 import { hasPublicProductImage } from "@/lib/product-image";
+import { CuratedCategoryIconImg } from "@/components/ui/curated-category-icon-img";
 import { cn } from "@/lib/utils";
 import type { ProductSummary } from "@/types/product";
 
@@ -45,8 +46,7 @@ function DealMobileHeader({
           className="grid h-[50px] w-[50px] shrink-0 place-items-center rounded-full bg-white/15 ring-1 ring-white/25"
           aria-hidden
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- static public icon URL */}
-          <img
+          <CuratedCategoryIconImg
             src={iconSrc}
             alt=""
             width={39}
@@ -104,8 +104,7 @@ function DealPromoLead({
       </p>
 
       <div className="relative flex flex-1 items-center justify-center py-2 sm:py-3">
-        {/* eslint-disable-next-line @next/next/no-img-element -- static public icon URL */}
-        <img
+        <CuratedCategoryIconImg
           src={iconSrc}
           alt=""
           width={140}

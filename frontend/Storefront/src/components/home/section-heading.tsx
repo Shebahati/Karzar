@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ChevronLeft } from "react-iconly";
+import { CuratedCategoryIconImg } from "@/components/ui/curated-category-icon-img";
 import { cn } from "@/lib/utils";
 
 /**
@@ -36,8 +37,7 @@ export function SectionHeading({
               className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-secondary/80 sm:h-10 sm:w-10"
               aria-hidden
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- static public icon URL */}
-              <img
+              <CuratedCategoryIconImg
                 src={iconSrc}
                 alt=""
                 width={28}
