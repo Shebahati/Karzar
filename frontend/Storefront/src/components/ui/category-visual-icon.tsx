@@ -1,8 +1,12 @@
 "use client";
 
-import type { ComponentType } from "react";
+import type { ComponentType, ImgHTMLAttributes } from "react";
 import * as Icons from "react-iconly";
 import { Category as CategoryIcon } from "react-iconly";
+import {
+  categoryIconWebpExperimentEnabled,
+  resolveCategoryIconSources,
+} from "@/config/category-icon-delivery";
 import { isCategoryIconUrl } from "@/config/category-icons";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +16,72 @@ type IconlyProps = {
   primaryColor?: string;
   stroke?: string;
 };
+
+type DockPriorityProps = {
+  /** Only applied when WebP experiment is enabled (hero dock). */
+  loading?: ImgHTMLAttributes<HTMLImageElement>["loading"];
+  fetchPriority?: "high" | "low" | "auto";
+};
+
+function CategoryIconImage({
+  src,
+  webpSrc,
+  alt,
+  imgSize,
+  className,
+  style,
+  useWebpDelivery,
+  loading,
+  fetchPriority,
+}: {
+  src: string;
+  webpSrc?: string | null;
+  alt: string;
+  imgSize: number;
+  className?: string;
+  style?: React.CSSProperties;
+  useWebpDelivery: boolean;
+  loading?: ImgHTMLAttributes<HTMLImageElement>["loading"];
+  fetchPriority?: "high" | "low" | "auto";
+}) {
+  if (!useWebpDelivery || !webpSrc) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- baseline-compatible when flag off
+      <img
+        src={src}
+        alt={alt}
+        width={imgSize}
+        height={imgSize}
+        className={className}
+        style={style}
+        draggable={false}
+      />
+    );
+  }
+
+  const img = (
+    // eslint-disable-next-line @next/next/no-img-element -- allowlisted WebP experiment
+    <img
+      src={src}
+      alt={alt}
+      width={imgSize}
+      height={imgSize}
+      className={className}
+      style={style}
+      draggable={false}
+      loading={loading}
+      fetchPriority={fetchPriority}
+      decoding="async"
+    />
+  );
+
+  return (
+    <picture>
+      <source type="image/webp" srcSet={webpSrc} />
+      {img}
+    </picture>
+  );
+}
 
 /**
  * Renders a category icon: designed PNG/URL when provided, otherwise Iconly by name.
@@ -24,25 +94,40 @@ export function CategoryVisualIcon({
   className,
   imgClassName,
   overflowTop = false,
-  /** Multiplier when overflowTop (default ~2.02×). Hero dock may bump further. */
   overflowScale = 2.015,
   alt = "",
+  loading,
+  fetchPriority,
 }: {
   icon?: string | null;
   size?: number;
   color?: string;
   className?: string;
   imgClassName?: string;
-  /** Scale up; centered in parent circle with a tiny upward peek. */
   overflowTop?: boolean;
   overflowScale?: number;
   alt?: string;
-}) {
+} & DockPriorityProps) {
   if (isCategoryIconUrl(icon)) {
-    // Circles stay sized by the parent; only the glyph grows / nudges.
+    const sources = resolveCategoryIconSources(icon!);
+    const useWebpDelivery = Boolean(sources);
+    const pngSrc = sources?.png ?? icon!;
+    const webpSrc = sources?.webp ?? null;
+    const webpOn = categoryIconWebpExperimentEnabled();
+    const dockLoading = webpOn && useWebpDelivery ? loading : undefined;
+    const dockPriority = webpOn && useWebpDelivery ? fetchPriority : undefined;
+
     const imgSize = overflowTop ? Math.round(size * overflowScale) : size;
-    // Absolute flex center keeps the glyph dead-center in the circle (avoids
-    // left-stuck replaced-element / RTL quirks). Tiny -translate-y peeks top.
+    const imgClass = cn(
+      overflowTop
+        ? "mx-auto block select-none object-contain object-center"
+        : "pointer-events-none mx-auto block select-none object-contain object-center",
+      overflowTop && "-translate-y-[8%] drop-shadow-[0_6px_12px_rgba(0,0,0,0.28)]",
+      imgClassName,
+      !overflowTop ? className : undefined,
+    );
+    const imgStyle = { width: imgSize, height: imgSize, maxWidth: "none" as const };
+
     if (overflowTop) {
       return (
         <span
@@ -52,37 +137,31 @@ export function CategoryVisualIcon({
           )}
           aria-hidden={alt ? undefined : true}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- dynamic category CDN/local URLs */}
-          <img
-            src={icon!}
+          <CategoryIconImage
+            src={pngSrc}
+            webpSrc={webpSrc}
             alt={alt}
-            width={imgSize}
-            height={imgSize}
-            className={cn(
-              "mx-auto block select-none object-contain object-center",
-              "-translate-y-[8%] drop-shadow-[0_6px_12px_rgba(0,0,0,0.28)]",
-              imgClassName,
-            )}
-            style={{ width: imgSize, height: imgSize, maxWidth: "none" }}
-            draggable={false}
+            imgSize={imgSize}
+            className={imgClass}
+            style={imgStyle}
+            useWebpDelivery={useWebpDelivery}
+            loading={dockLoading}
+            fetchPriority={dockPriority}
           />
         </span>
       );
     }
     return (
-      // eslint-disable-next-line @next/next/no-img-element -- dynamic category CDN/local URLs
-      <img
-        src={icon!}
+      <CategoryIconImage
+        src={pngSrc}
+        webpSrc={webpSrc}
         alt={alt}
-        width={imgSize}
-        height={imgSize}
-        className={cn(
-          "pointer-events-none mx-auto block select-none object-contain object-center",
-          imgClassName,
-          className,
-        )}
-        style={{ width: imgSize, height: imgSize, maxWidth: "none" }}
-        draggable={false}
+        imgSize={imgSize}
+        className={cn(imgClass, className)}
+        style={imgStyle}
+        useWebpDelivery={useWebpDelivery}
+        loading={dockLoading}
+        fetchPriority={dockPriority}
       />
     );
   }

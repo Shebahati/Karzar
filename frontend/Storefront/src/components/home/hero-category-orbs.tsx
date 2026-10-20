@@ -161,6 +161,8 @@ function MaterialOrb({
           size={iconSize}
           overflowTop={!accent}
           overflowScale={heroOverflowScale}
+          loading="eager"
+          fetchPriority="low"
           // Dead-center in circle with a tiny upward peek (overrides default −8%).
           imgClassName={
             !accent
