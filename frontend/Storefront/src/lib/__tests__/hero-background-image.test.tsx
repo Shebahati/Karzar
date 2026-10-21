@@ -58,9 +58,9 @@ describe("buildHeroBackgroundPictureSources", () => {
   it("uses calibrated master dimensions without changing legacy v2 intrinsics", () => {
     const built = buildHeroBackgroundPictureSources({
       desktopSrc:
-        "/images/hero/reborn-5/pack-20261021/H01-special-offers-desktop-16x9.webp",
+        "/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-desktop-16x9.webp",
       mobileSrc:
-        "/images/hero/reborn-5/pack-20261021/H01-special-offers-mobile-4x3.webp",
+        "/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp",
       priority: true,
       sizes: "100vw",
     });

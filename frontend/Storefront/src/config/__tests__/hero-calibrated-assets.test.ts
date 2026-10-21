@@ -84,7 +84,7 @@ describe("calibrated five-hero assets", () => {
     const pack = buildFiveHeroPublishedPack();
     expect(pack.slides.filter((s) => s.isActive)).toHaveLength(5);
     expect(pack.slides[0]?.id).toBe("slide_h01_special_offers");
-    expect(pack.publishedAt).toBe("2026-10-21T06:39:00.000Z");
+    expect(pack.publishedAt).toBe("2026-10-21T09:18:00.000Z");
   });
 
   it("maps each slide to its desktop and mobile master", () => {

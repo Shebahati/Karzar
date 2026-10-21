@@ -1,0 +1,20 @@
+w390 slide1 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp nextImage=false
+w390 slide2 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp nextImage=false
+w390 slide3 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp nextImage=false
+w390 slide4 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp nextImage=false
+w390 slide5 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp nextImage=false
+w1023 slide1 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp nextImage=false
+w1023 slide2 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp nextImage=false
+w1023 slide3 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp nextImage=false
+w1023 slide4 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp nextImage=false
+w1023 slide5 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp nextImage=false
+w1024 slide1 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-desktop-16x9.webp nextImage=false
+w1024 slide2 title= src= nextImage=false
+w1024 slide3 title= src= nextImage=false
+w1024 slide4 title= src= nextImage=false
+w1024 slide5 title= src= nextImage=false
+w1440 slide1 title=تخفیف‌های ویژه‌ی کارزار src=http://127.0.0.1:3015/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-desktop-16x9.webp nextImage=false
+w1440 slide2 title= src= nextImage=false
+w1440 slide3 title= src= nextImage=false
+w1440 slide4 title= src= nextImage=false
+w1440 slide5 title= src= nextImage=false

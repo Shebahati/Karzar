@@ -180,7 +180,7 @@ export async function assertActiveSlide(page, slideIndex, compact) {
         image.complete &&
         image.naturalWidth > 0 &&
         image.currentSrc.includes(expectedAsset) &&
-        image.currentSrc.includes("pack-20261021")
+        image.currentSrc.includes("photo-20261021-v2")
       );
     },
     { expectedAsset },
