@@ -36,9 +36,9 @@ function minimalPack(overrides: Partial<DesignedHeroPack> = {}): DesignedHeroPac
           background: {
             mode: "image",
             imageUrl:
-              "/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
+              "/images/hero/reborn-5/pack-20261021/H01-special-offers-desktop-16x9.webp",
             mobileImageUrl:
-              "/images/hero/reborn-5/calibrated-20261018/H01-special-offers-mobile-4x3.webp",
+              "/images/hero/reborn-5/pack-20261021/H01-special-offers-mobile-4x3.webp",
             color: "#000",
             focal: "center",
           },
@@ -166,10 +166,10 @@ describe("five-hero reborn campaign contract", () => {
     for (const slide of pack.slides) {
       const published = onDisk.slides.find((s) => s.id === slide.id)!;
       expect(slide.config.background.imageUrl).toMatch(
-        /\/calibrated-20261018\/H0\d-.*-desktop-16x9\.webp$/,
+        /\/pack-20261021\/H0\d-.*-desktop-16x9\.webp$/,
       );
       expect(slide.config.background.mobileImageUrl).toMatch(
-        /\/calibrated-20261018\/H0\d-.*-mobile-4x3\.webp$/,
+        /\/pack-20261021\/H0\d-.*-mobile-4x3\.webp$/,
       );
       expect(published.config.background.imageUrl).toBe(slide.config.background.imageUrl);
       expect(published.config.background.mobileImageUrl).toBe(

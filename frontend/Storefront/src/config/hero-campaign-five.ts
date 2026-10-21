@@ -41,7 +41,7 @@ export type HeroCampaignSlideDef = {
 
 /** Versioned path so browsers and the CDN do not reuse the previous generation. */
 export const HERO_CALIBRATED_ASSET_DIR =
-  "/images/hero/reborn-5/calibrated-20261018";
+  "/images/hero/reborn-5/pack-20261021";
 
 /**
  * Desktop masters are 16:9 with the subject cluster on the left.
@@ -225,7 +225,7 @@ function slideFromCampaign(def: HeroCampaignSlideDef): DesignedHeroSlide {
 
 /** Published storefront pack — five slides + full category dock with featured 0–4. */
 export function buildFiveHeroPublishedPack(
-  publishedAt: string | null = "2026-10-13T10:00:00.000Z",
+  publishedAt: string | null = "2026-10-21T06:39:00.000Z",
 ): DesignedHeroPack {
   const dockCategories = [
     {

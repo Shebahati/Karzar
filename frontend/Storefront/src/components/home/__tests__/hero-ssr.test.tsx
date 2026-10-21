@@ -29,7 +29,7 @@ describe("Hero SSR", () => {
     const html = renderHeroWithPack();
 
     expect(html).toContain("تخفیف‌های ویژه‌ی کارزار");
-    expect(html).toContain("/images/hero/reborn-5/calibrated-20261018/");
+    expect(html).toContain("/images/hero/reborn-5/pack-20261021/");
     expect(html).toContain("H01-special-offers-mobile-4x3.webp");
     expect(html).toContain("H01-special-offers-desktop-16x9.webp");
     expect(html).toContain("(max-width: 1023px)");
