@@ -53,13 +53,13 @@ export type CampaignMediaLayout = {
 /** Shared 4:3 media band for every calibrated compact slide. */
 export const DEFAULT_COMPACT_ASPECT = 4 / 3;
 
-/** Calibrated desktop masters: 3840×2160 (16:9). */
-export const CAMPAIGN_DESKTOP_ART_WIDTH_PX = 3840;
-export const CAMPAIGN_DESKTOP_ART_HEIGHT_PX = 2160;
+/** Pack desktop masters: 1920×1080 (16:9). */
+export const CAMPAIGN_DESKTOP_ART_WIDTH_PX = 1920;
+export const CAMPAIGN_DESKTOP_ART_HEIGHT_PX = 1080;
 
-/** Calibrated compact masters: 2880×2160 (4:3). Not a crop of the desktop file. */
-export const CAMPAIGN_COMPACT_ART_WIDTH_PX = 2880;
-export const CAMPAIGN_COMPACT_ART_HEIGHT_PX = 2160;
+/** Pack compact masters: 1200×900 (4:3). Not a crop of the desktop file. */
+export const CAMPAIGN_COMPACT_ART_WIDTH_PX = 1200;
+export const CAMPAIGN_COMPACT_ART_HEIGHT_PX = 900;
 
 // Keep the shared padding as inline style: Tailwind's content globs currently omit
 // src/lib, so arbitrary utilities authored only here were absent from production CSS.

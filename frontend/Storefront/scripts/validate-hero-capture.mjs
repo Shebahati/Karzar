@@ -24,7 +24,7 @@ for (const label of labels) {
         console.error(`${base}: currentSrc does not include expectedAsset`);
         errors += 1;
       }
-      if (!data.currentSrc?.includes("calibrated-20261018")) {
+      if (!data.currentSrc?.includes("pack-20261021")) {
         console.error(`${base}: not calibrated path`);
         errors += 1;
       }

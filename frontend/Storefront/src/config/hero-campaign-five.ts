@@ -41,7 +41,7 @@ export type HeroCampaignSlideDef = {
 
 /** Versioned path so browsers and the CDN do not reuse the previous generation. */
 export const HERO_CALIBRATED_ASSET_DIR =
-  "/images/hero/reborn-5/calibrated-20261018";
+  "/images/hero/reborn-5/pack-20261021";
 
 /**
  * Desktop masters are 16:9 with the subject cluster on the left.
@@ -49,36 +49,40 @@ export const HERO_CALIBRATED_ASSET_DIR =
  * The vertical percentage keeps lower-frame equipment when the stage is wider than 16:9.
  * Compact focals are chosen from the dedicated 4:3 compositions, not from the desktop values.
  */
+/** Owner-approved carousel order (Oct 2026 hero pack). */
 export const HERO_CAMPAIGN_FIVE_SLIDES: HeroCampaignSlideDef[] = [
   {
-    id: "slide_h01_special_offers",
-    linkedOrbKey: DISCOUNTS_ORB_KEY,
+    id: "slide_h05_machines",
+    linkedOrbKey: "industrial-machines",
     sortOrder: 1,
-    name: "تخفیف‌ها",
-    dockLabel: "تخفیف‌ها",
-    title: "تخفیف‌های ویژه‌ی کارزار",
-    subtitle: "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی.",
-    desktopImage: `${HERO_CALIBRATED_ASSET_DIR}/H01-special-offers-desktop-16x9.webp`,
-    mobileImage: `${HERO_CALIBRATED_ASSET_DIR}/H01-special-offers-mobile-4x3.webp`,
-    desktopFocal: "left 58%",
-    mobileFocal: "36% 62%",
-    primaryCta: { label: "مشاهده تخفیف‌ها", href: DISCOUNTS_CATALOG_HREF },
+    name: "دستگاه‌های صنعتی",
+    dockLabel: "دستگاه‌های صنعتی",
+    title: "دستگاه‌های صنعتی",
+    subtitle: "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما.",
+    desktopImage: `${HERO_CALIBRATED_ASSET_DIR}/H05-industrial-machines-desktop-16x9.webp`,
+    mobileImage: `${HERO_CALIBRATED_ASSET_DIR}/H05-industrial-machines-mobile-4x3.webp`,
+    desktopFocal: "left 56%",
+    mobileFocal: "38% 60%",
+    primaryCta: {
+      label: "مشاهده دستگاه‌های صنعتی",
+      href: "/categories/dastgah-sanati",
+    },
   },
   {
-    id: "slide_h02_measuring",
-    linkedOrbKey: "metrology",
+    id: "slide_h04_endmills",
+    linkedOrbKey: "endmills",
     sortOrder: 2,
-    name: "اندازه‌گیری",
-    dockLabel: "اندازه‌گیری",
-    title: "ابزار اندازه‌گیری",
-    subtitle: "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت.",
-    desktopImage: `${HERO_CALIBRATED_ASSET_DIR}/H02-measuring-tools-desktop-16x9.webp`,
-    mobileImage: `${HERO_CALIBRATED_ASSET_DIR}/H02-measuring-tools-mobile-4x3.webp`,
-    desktopFocal: "left 62%",
-    mobileFocal: "34% 58%",
+    name: "فرز انگشتی",
+    dockLabel: "فرز انگشتی",
+    title: "فرز انگشتی",
+    subtitle: "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف.",
+    desktopImage: `${HERO_CALIBRATED_ASSET_DIR}/H04-end-mills-desktop-16x9.webp`,
+    mobileImage: `${HERO_CALIBRATED_ASSET_DIR}/H04-end-mills-mobile-4x3.webp`,
+    desktopFocal: "left center",
+    mobileFocal: "42% 54%",
     primaryCta: {
-      label: "مشاهده ابزار اندازه‌گیری",
-      href: "/categories/andaze-giri",
+      label: "مشاهده فرزهای انگشتی",
+      href: "/categories/farz-angoshti",
     },
   },
   {
@@ -100,38 +104,35 @@ export const HERO_CAMPAIGN_FIVE_SLIDES: HeroCampaignSlideDef[] = [
     },
   },
   {
-    id: "slide_h04_endmills",
-    linkedOrbKey: "endmills",
+    id: "slide_h02_measuring",
+    linkedOrbKey: "metrology",
     sortOrder: 4,
-    name: "فرز انگشتی",
-    dockLabel: "فرز انگشتی",
-    title: "فرز انگشتی",
-    subtitle: "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف.",
-    desktopImage: `${HERO_CALIBRATED_ASSET_DIR}/H04-end-mills-desktop-16x9.webp`,
-    mobileImage: `${HERO_CALIBRATED_ASSET_DIR}/H04-end-mills-mobile-4x3.webp`,
-    desktopFocal: "left center",
-    mobileFocal: "42% 54%",
+    name: "اندازه‌گیری",
+    dockLabel: "اندازه‌گیری",
+    title: "ابزار اندازه‌گیری",
+    subtitle: "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت.",
+    desktopImage: `${HERO_CALIBRATED_ASSET_DIR}/H02-measuring-tools-desktop-16x9.webp`,
+    mobileImage: `${HERO_CALIBRATED_ASSET_DIR}/H02-measuring-tools-mobile-4x3.webp`,
+    desktopFocal: "left 62%",
+    mobileFocal: "34% 58%",
     primaryCta: {
-      label: "مشاهده فرزهای انگشتی",
-      href: "/categories/farz-angoshti",
+      label: "مشاهده ابزار اندازه‌گیری",
+      href: "/categories/andaze-giri",
     },
   },
   {
-    id: "slide_h05_machines",
-    linkedOrbKey: "industrial-machines",
+    id: "slide_h01_special_offers",
+    linkedOrbKey: DISCOUNTS_ORB_KEY,
     sortOrder: 5,
-    name: "دستگاه‌های صنعتی",
-    dockLabel: "دستگاه‌های صنعتی",
-    title: "دستگاه‌های صنعتی",
-    subtitle: "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما.",
-    desktopImage: `${HERO_CALIBRATED_ASSET_DIR}/H05-industrial-machines-desktop-16x9.webp`,
-    mobileImage: `${HERO_CALIBRATED_ASSET_DIR}/H05-industrial-machines-mobile-4x3.webp`,
-    desktopFocal: "left 56%",
-    mobileFocal: "38% 60%",
-    primaryCta: {
-      label: "مشاهده دستگاه‌های صنعتی",
-      href: "/categories/dastgah-sanati",
-    },
+    name: "تخفیف‌ها",
+    dockLabel: "تخفیف‌ها",
+    title: "تخفیف‌های ویژه‌ی کارزار",
+    subtitle: "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی.",
+    desktopImage: `${HERO_CALIBRATED_ASSET_DIR}/H01-special-offers-desktop-16x9.webp`,
+    mobileImage: `${HERO_CALIBRATED_ASSET_DIR}/H01-special-offers-mobile-4x3.webp`,
+    desktopFocal: "left 58%",
+    mobileFocal: "36% 62%",
+    primaryCta: { label: "مشاهده تخفیف‌ها", href: DISCOUNTS_CATALOG_HREF },
   },
 ];
 
@@ -225,7 +226,7 @@ function slideFromCampaign(def: HeroCampaignSlideDef): DesignedHeroSlide {
 
 /** Published storefront pack — five slides + full category dock with featured 0–4. */
 export function buildFiveHeroPublishedPack(
-  publishedAt: string | null = "2026-10-13T10:00:00.000Z",
+  publishedAt: string | null = "2026-10-21T06:39:00.000Z",
 ): DesignedHeroPack {
   const dockCategories = [
     {

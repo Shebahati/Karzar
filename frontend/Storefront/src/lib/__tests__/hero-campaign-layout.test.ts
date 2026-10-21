@@ -52,10 +52,10 @@ describe("hero campaign layout", () => {
   });
 
   it("documents calibrated desktop and compact master dimensions", () => {
-    expect(CAMPAIGN_DESKTOP_ART_WIDTH_PX).toBe(3840);
-    expect(CAMPAIGN_DESKTOP_ART_HEIGHT_PX).toBe(2160);
-    expect(CAMPAIGN_COMPACT_ART_WIDTH_PX).toBe(2880);
-    expect(CAMPAIGN_COMPACT_ART_HEIGHT_PX).toBe(2160);
+    expect(CAMPAIGN_DESKTOP_ART_WIDTH_PX).toBe(1920);
+    expect(CAMPAIGN_DESKTOP_ART_HEIGHT_PX).toBe(1080);
+    expect(CAMPAIGN_COMPACT_ART_WIDTH_PX).toBe(1200);
+    expect(CAMPAIGN_COMPACT_ART_HEIGHT_PX).toBe(900);
     expect(CAMPAIGN_DESKTOP_ART_WIDTH_PX / CAMPAIGN_DESKTOP_ART_HEIGHT_PX).toBeCloseTo(16 / 9);
     expect(CAMPAIGN_COMPACT_ART_WIDTH_PX / CAMPAIGN_COMPACT_ART_HEIGHT_PX).toBeCloseTo(4 / 3);
   });

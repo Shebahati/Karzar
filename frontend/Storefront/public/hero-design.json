@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "publishedAt": "2026-10-13T10:00:00.000Z",
+  "publishedAt": "2026-10-21T06:39:00.000Z",
   "mobilePreset": "balanced",
   "categoryDock": {
     "categories": [
@@ -12,7 +12,7 @@
         "heroImage": "/images/hero/hero-accessories-left.jpg",
         "subtitle": "بهترین پیشنهادهای تخفیف‌دار ابزار صنعتی — قیمت‌های رقابتی برای تجهیز کارگاه",
         "ctaLabel": "مشاهده تخفیف‌ها",
-        "featuredOrder": 0,
+        "featuredOrder": 4,
         "slugHint": "takhfif",
         "special": true
       },
@@ -24,7 +24,7 @@
         "heroImage": "/images/hero/hero-metrology-left.jpg",
         "subtitle": "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر",
         "ctaLabel": "مشاهده اندازه‌گیری",
-        "featuredOrder": 1,
+        "featuredOrder": 3,
         "slugHint": "andaze-giri"
       },
       {
@@ -57,7 +57,7 @@
         "heroImage": "/images/hero/hero-cutting-left.jpg",
         "subtitle": "ابزارهای پروفایل و فرز انگشتی برای ماشین‌کاری تمیز — از کاربید تا پوشش‌های پیشرفته",
         "ctaLabel": "مشاهده فرز انگشتی",
-        "featuredOrder": 3,
+        "featuredOrder": 1,
         "slugHint": "farz-angoshti"
       },
       {
@@ -112,7 +112,7 @@
         "heroImage": "/images/hero/hero-machines-left.jpg",
         "subtitle": "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه",
         "ctaLabel": "مشاهده دستگاه‌ها",
-        "featuredOrder": 4,
+        "featuredOrder": 0,
         "slugHint": "dastgah-sanati"
       },
       {
@@ -152,8 +152,8 @@
   },
   "slides": [
     {
-      "id": "slide_h01_special_offers",
-      "name": "تخفیف‌ها",
+      "id": "slide_h05_machines",
+      "name": "دستگاه‌های صنعتی",
       "sortOrder": 1,
       "isActive": true,
       "mobilePreset": "balanced",
@@ -161,13 +161,13 @@
         "version": 1,
         "minHeight": 760,
         "animation": "fade-up",
-        "linkedOrbKey": "discounts",
+        "linkedOrbKey": "industrial-machines",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/calibrated-20261018/H01-special-offers-desktop-16x9.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/calibrated-20261018/H01-special-offers-mobile-4x3.webp",
+          "imageUrl": "/images/hero/reborn-5/pack-20261021/H05-industrial-machines-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/pack-20261021/H05-industrial-machines-mobile-4x3.webp",
           "color": "#121212",
-          "focal": "left 58%"
+          "focal": "left 56%"
         },
         "overlay": {
           "mode": "gradient",
@@ -188,13 +188,13 @@
             "y": 28
           },
           "maxWidth": 460,
-          "title": "تخفیف‌های ویژه‌ی کارزار",
-          "subtitle": "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی."
+          "title": "دستگاه‌های صنعتی",
+          "subtitle": "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما."
         },
         "buttons": [
           {
-            "id": "btn_slide_h01_special_offers",
-            "label": "مشاهده تخفیف‌ها",
+            "id": "btn_slide_h05_machines",
+            "label": "مشاهده دستگاه‌های صنعتی",
             "variant": "solid",
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
@@ -205,7 +205,7 @@
             },
             "action": {
               "type": "href",
-              "value": "/catalog?on_sale=1"
+              "value": "/categories/dastgah-sanati"
             },
             "stylePreset": "primary",
             "sizePreset": "lg"
@@ -225,8 +225,8 @@
       }
     },
     {
-      "id": "slide_h02_measuring",
-      "name": "اندازه‌گیری",
+      "id": "slide_h04_endmills",
+      "name": "فرز انگشتی",
       "sortOrder": 2,
       "isActive": true,
       "mobilePreset": "balanced",
@@ -234,13 +234,13 @@
         "version": 1,
         "minHeight": 760,
         "animation": "fade-up",
-        "linkedOrbKey": "metrology",
+        "linkedOrbKey": "endmills",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/calibrated-20261018/H02-measuring-tools-desktop-16x9.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/calibrated-20261018/H02-measuring-tools-mobile-4x3.webp",
+          "imageUrl": "/images/hero/reborn-5/pack-20261021/H04-end-mills-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/pack-20261021/H04-end-mills-mobile-4x3.webp",
           "color": "#121212",
-          "focal": "left 62%"
+          "focal": "left center"
         },
         "overlay": {
           "mode": "gradient",
@@ -261,13 +261,13 @@
             "y": 28
           },
           "maxWidth": 460,
-          "title": "ابزار اندازه‌گیری",
-          "subtitle": "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت."
+          "title": "فرز انگشتی",
+          "subtitle": "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف."
         },
         "buttons": [
           {
-            "id": "btn_slide_h02_measuring",
-            "label": "مشاهده ابزار اندازه‌گیری",
+            "id": "btn_slide_h04_endmills",
+            "label": "مشاهده فرزهای انگشتی",
             "variant": "solid",
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
@@ -278,7 +278,7 @@
             },
             "action": {
               "type": "href",
-              "value": "/categories/andaze-giri"
+              "value": "/categories/farz-angoshti"
             },
             "stylePreset": "primary",
             "sizePreset": "lg"
@@ -310,8 +310,8 @@
         "linkedOrbKey": "inserts",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/calibrated-20261018/H03-inserts-turning-tools-desktop-16x9.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/calibrated-20261018/H03-inserts-turning-tools-mobile-4x3.webp",
+          "imageUrl": "/images/hero/reborn-5/pack-20261021/H03-inserts-turning-tools-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/pack-20261021/H03-inserts-turning-tools-mobile-4x3.webp",
           "color": "#121212",
           "focal": "left 64%"
         },
@@ -389,8 +389,8 @@
       }
     },
     {
-      "id": "slide_h04_endmills",
-      "name": "فرز انگشتی",
+      "id": "slide_h02_measuring",
+      "name": "اندازه‌گیری",
       "sortOrder": 4,
       "isActive": true,
       "mobilePreset": "balanced",
@@ -398,13 +398,13 @@
         "version": 1,
         "minHeight": 760,
         "animation": "fade-up",
-        "linkedOrbKey": "endmills",
+        "linkedOrbKey": "metrology",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/calibrated-20261018/H04-end-mills-desktop-16x9.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/calibrated-20261018/H04-end-mills-mobile-4x3.webp",
+          "imageUrl": "/images/hero/reborn-5/pack-20261021/H02-measuring-tools-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/pack-20261021/H02-measuring-tools-mobile-4x3.webp",
           "color": "#121212",
-          "focal": "left center"
+          "focal": "left 62%"
         },
         "overlay": {
           "mode": "gradient",
@@ -425,13 +425,13 @@
             "y": 28
           },
           "maxWidth": 460,
-          "title": "فرز انگشتی",
-          "subtitle": "هندسه‌ها و ابعاد متنوع برای ماشین‌کاری قطعات و سطوح مختلف."
+          "title": "ابزار اندازه‌گیری",
+          "subtitle": "مجموعه‌ای متنوع از ابزارهای اندازه‌گیری برای سنجش دقیق و کنترل کیفیت."
         },
         "buttons": [
           {
-            "id": "btn_slide_h04_endmills",
-            "label": "مشاهده فرزهای انگشتی",
+            "id": "btn_slide_h02_measuring",
+            "label": "مشاهده ابزار اندازه‌گیری",
             "variant": "solid",
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
@@ -442,7 +442,7 @@
             },
             "action": {
               "type": "href",
-              "value": "/categories/farz-angoshti"
+              "value": "/categories/andaze-giri"
             },
             "stylePreset": "primary",
             "sizePreset": "lg"
@@ -462,8 +462,8 @@
       }
     },
     {
-      "id": "slide_h05_machines",
-      "name": "دستگاه‌های صنعتی",
+      "id": "slide_h01_special_offers",
+      "name": "تخفیف‌ها",
       "sortOrder": 5,
       "isActive": true,
       "mobilePreset": "balanced",
@@ -471,13 +471,13 @@
         "version": 1,
         "minHeight": 760,
         "animation": "fade-up",
-        "linkedOrbKey": "industrial-machines",
+        "linkedOrbKey": "discounts",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/calibrated-20261018/H05-industrial-machines-desktop-16x9.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/calibrated-20261018/H05-industrial-machines-mobile-4x3.webp",
+          "imageUrl": "/images/hero/reborn-5/pack-20261021/H01-special-offers-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/pack-20261021/H01-special-offers-mobile-4x3.webp",
           "color": "#121212",
-          "focal": "left 56%"
+          "focal": "left 58%"
         },
         "overlay": {
           "mode": "gradient",
@@ -498,13 +498,13 @@
             "y": 28
           },
           "maxWidth": 460,
-          "title": "دستگاه‌های صنعتی",
-          "subtitle": "تجهیز کارگاه و خط تولید با دستگاه‌های متناسب با نیازهای صنعتی شما."
+          "title": "تخفیف‌های ویژه‌ی کارزار",
+          "subtitle": "پیشنهادهای ویژه برای خرید به‌صرفه‌تر ابزار و تجهیزات صنعتی."
         },
         "buttons": [
           {
-            "id": "btn_slide_h05_machines",
-            "label": "مشاهده دستگاه‌های صنعتی",
+            "id": "btn_slide_h01_special_offers",
+            "label": "مشاهده تخفیف‌ها",
             "variant": "solid",
             "bgColor": "#D02327",
             "textColor": "#FFFFFF",
@@ -515,7 +515,7 @@
             },
             "action": {
               "type": "href",
-              "value": "/categories/dastgah-sanati"
+              "value": "/catalog?on_sale=1"
             },
             "stylePreset": "primary",
             "sizePreset": "lg"
