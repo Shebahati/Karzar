@@ -1,0 +1,170 @@
+{
+  "STATUS": "REHEARSAL_OK",
+  "generated_at": "2026-10-21T14:24:09Z",
+  "stamp": "20261021T142359Z",
+  "price_currency": "TOMAN",
+  "formula": "new_base_price = quantize(old * 1.10, 0.01, ROUND_HALF_UP)",
+  "commercial_event_id": "INSIZE-PRICE-110-20261021",
+  "change_reason": "INSIZE +10% owner-authorized price update 2026-10-21",
+  "PREVIOUS_EVENT_VERIFICATION": {
+    "ok": true,
+    "previous_change_reason": "INSIZE +10% owner-authorized price update 2026-10-19",
+    "log_row_count": 206,
+    "distinct_product_ids": 206,
+    "expected_log_rows": 206,
+    "live_priced_base_sum": "3413658600.00",
+    "expected_priced_base_sum": "3413658600.00",
+    "sum_matches_post_oct19": true,
+    "log_count_matches": true
+  },
+  "DISCOUNT_SEMANTICS_BLOCKERS": [],
+  "RUNTIME": {
+    "identity": {
+      "collected_at_utc": "2026-10-21T14:24:01.443879+00:00",
+      "collector_hostname": "hp-g2-450",
+      "vps_hostname": "srv5944957438",
+      "deployed_git_sha": "UNKNOWN",
+      "api_container": "lathe_api",
+      "postgres_container": "lathe_postgres",
+      "api_image": "karzar-app:staging",
+      "postgres_db_name": "karzar_staging",
+      "APP_ENV": "staging",
+      "alembic_current": "a3f410b5c6d7",
+      "postgres_server_note": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0"
+    },
+    "identity_proof": {
+      "host_proof": "srv5944957438",
+      "container_proof": "lathe_postgres",
+      "volume_proof": "karzar_postgres_data",
+      "database_proof": "karzar_staging",
+      "database_user_proof": "karzar_staging",
+      "pg_system_identifier": "7664189378775347234",
+      "alembic_revision": "a3f410b5c6d7",
+      "transaction_read_only": "on",
+      "APP_ENV": "staging",
+      "karzar_data_plane": null,
+      "gates": {
+        "host_ok": true,
+        "container_ok": true,
+        "db_ok": true,
+        "user_ok": true,
+        "volume_ok": true,
+        "pg_system_identifier_ok": true,
+        "alembic_ok": true,
+        "transaction_read_only_on": true
+      },
+      "identity_errors": []
+    },
+    "health": {
+      "api_readiness": "PASS",
+      "database_readiness": "PASS",
+      "redis_readiness": "PASS",
+      "ready_http_status": 200,
+      "ready_body": {
+        "status": "ready",
+        "service": "Karzar Staging API",
+        "database": "ok",
+        "redis": "ok"
+      },
+      "redis_ping": "PONG",
+      "database_select_1": "1",
+      "all_pass": true
+    },
+    "cohort_membership": {
+      "ok": true,
+      "manifest_ids": 206,
+      "live_ids": 206,
+      "extra_in_live": [],
+      "missing_from_live": []
+    }
+  },
+  "BRAND": {
+    "ok": true,
+    "brand": {
+      "id": 3,
+      "name": "INSIZE | اینسایز"
+    },
+    "errors": []
+  },
+  "IDEMPOTENCY": {
+    "reason": "INSIZE +10% owner-authorized price update 2026-10-21",
+    "log_row_count": 0,
+    "distinct_product_id_count": 0,
+    "already_present": false,
+    "original_clear_reason": "INSIZE +10% owner-authorized original_price clear (1944,3639) 2026-10-21",
+    "original_clear_log_row_count": 0,
+    "original_clear_distinct_product_ids": 0,
+    "original_clear_already_present": false
+  },
+  "INSIZE_COUNTS": {
+    "live_insize": 870,
+    "priced_insize": 206,
+    "unpriced_insize": 664
+  },
+  "MANIFEST": {
+    "csv_path": "/home/shebahati/Projects/Karzar-insize-price-110-20261021/audit/insize-price-110-20261021/INSIZE_PRICE_110_20261021_MANIFEST_20261021T133454Z.csv",
+    "csv_sha256": "bb2d073b8adc037ccfc50122da845d9e4869658a0467c364264fbe7f0af80540",
+    "rows": 206
+  },
+  "FROZEN_MANIFEST_AUTHORITY": {
+    "ok": true,
+    "errors": [],
+    "expected_sha256": "bb2d073b8adc037ccfc50122da845d9e4869658a0467c364264fbe7f0af80540",
+    "actual_sha256": "bb2d073b8adc037ccfc50122da845d9e4869658a0467c364264fbe7f0af80540",
+    "row_count": 206,
+    "unique_product_ids": 206
+  },
+  "FROZEN_MANIFEST_SHA256_REQUIRED": "bb2d073b8adc037ccfc50122da845d9e4869658a0467c364264fbe7f0af80540",
+  "DISCOUNT_IMPACT_COUNT": 2,
+  "MANIFEST_DRIFT": {
+    "ok": true,
+    "manifest_rows": 206,
+    "live_rows_fetched": 206,
+    "drift_count": 0,
+    "drifts_sample": [],
+    "drifts_truncated": false,
+    "discount_display_changes": 2,
+    "discount_impacts_sample": [
+      {
+        "product_id": 1944,
+        "sku": "3203-1506",
+        "before": "discounted",
+        "after": "no_compare_at",
+        "original_price": "47100000.0",
+        "old_base_price": "44038500.0",
+        "new_base_price": "48442350.00"
+      },
+      {
+        "product_id": 3639,
+        "sku": "S3-2824",
+        "before": "discounted",
+        "after": "no_compare_at",
+        "original_price": "53400000.0",
+        "old_base_price": "49929000.0",
+        "new_base_price": "54921900.00"
+      }
+    ]
+  },
+  "RECOVERY": {
+    "recovery_csv": "/home/shebahati/Projects/Karzar-insize-price-110-20261021/audit/insize-price-110-20261021/INSIZE_PRICE_110_20261021_RECOVERY_PREWRITE_20261021T142359Z.csv",
+    "recovery_csv_sha256": "5515aff4261f9a40c574d7281ff328d0871c2a641fc7a4d82ecb00d58bfec651",
+    "rollback_sql": "/home/shebahati/Projects/Karzar-insize-price-110-20261021/audit/insize-price-110-20261021/INSIZE_PRICE_110_20261021_ROLLBACK_20261021T142359Z.sql",
+    "rollback_sql_sha256": "ddb841b1e5a448e565cdcaf39a3bff1fef60fa78f838d60d489a3ba32b8f59e4"
+  },
+  "git_sha": "f2151c9927d751df12127192a70ad980f08ae74f",
+  "REHEARSAL": {
+    "status": "ROLLED_BACK",
+    "output_tail": "BEGIN\n pg_advisory_xact_lock \n-----------------------\n \n(1 row)\n\nCREATE TABLE\nINSERT 0 206\nDO\nROLLBACK\n",
+    "contract": {
+      "base_price_updates": 206,
+      "original_price_updates": 2,
+      "base_price_change_logs": 206,
+      "original_price_change_logs": 2,
+      "total_event_logs": 208,
+      "exception_product_ids": [
+        1944,
+        3639
+      ]
+    }
+  }
+}

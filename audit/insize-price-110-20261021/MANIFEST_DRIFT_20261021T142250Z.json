@@ -1,0 +1,59 @@
+{
+  "ok": true,
+  "blockers": [],
+  "manifest_authority": {
+    "ok": true,
+    "errors": [],
+    "expected_sha256": "bb2d073b8adc037ccfc50122da845d9e4869658a0467c364264fbe7f0af80540",
+    "actual_sha256": "bb2d073b8adc037ccfc50122da845d9e4869658a0467c364264fbe7f0af80540",
+    "row_count": 206,
+    "unique_product_ids": 206
+  },
+  "cohort_membership": {
+    "ok": true,
+    "manifest_ids": 206,
+    "live_ids": 206,
+    "extra_in_live": [],
+    "missing_from_live": []
+  },
+  "drift": {
+    "ok": true,
+    "manifest_rows": 206,
+    "live_rows_fetched": 206,
+    "drift_count": 0,
+    "drifts_sample": [],
+    "drifts_truncated": false,
+    "discount_display_changes": 2,
+    "discount_impacts_sample": [
+      {
+        "product_id": 1944,
+        "sku": "3203-1506",
+        "before": "discounted",
+        "after": "no_compare_at",
+        "original_price": "47100000.0",
+        "old_base_price": "44038500.0",
+        "new_base_price": "48442350.00"
+      },
+      {
+        "product_id": 3639,
+        "sku": "S3-2824",
+        "before": "discounted",
+        "after": "no_compare_at",
+        "original_price": "53400000.0",
+        "old_base_price": "49929000.0",
+        "new_base_price": "54921900.00"
+      }
+    ]
+  },
+  "idempotency": {
+    "reason": "INSIZE +10% owner-authorized price update 2026-10-21",
+    "log_row_count": 0,
+    "distinct_product_id_count": 0,
+    "already_present": false,
+    "original_clear_reason": "INSIZE +10% owner-authorized original_price clear (1944,3639) 2026-10-21",
+    "original_clear_log_row_count": 0,
+    "original_clear_distinct_product_ids": 0,
+    "original_clear_already_present": false
+  },
+  "priced_census": 206
+}

@@ -921,6 +921,58 @@ documents:
     owner_role: R-DOC-ARCH
     branch: cursor/terma-price-150-2a10
 
+
+  - id: INSIZE-PRICE-110-20261021-AUDIT
+    path: audit/insize-price-110-20261021/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/insize-price-110-20261021
+    notes: >
+      INSIZE second +10% Category B operator evidence (2026-10-21).
+      No production APPLY in repo; explicit owner authorization required.
+
+  - id: INSIZE-PRICE-110-20261021-OWNER-REVIEW
+    path: audit/insize-price-110-20261021/OWNER_REVIEW_REPORT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/insize-price-110-20261021
+
+  - id: INSIZE-PRICE-110-20261021-HANDOFF
+    path: audit/insize-price-110-20261021/HUMAN_APPLY_HANDOFF.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/insize-price-110-20261021
+
+  - id: INSIZE-PRICE-110-20261021-MERCH-EXCEPTION
+    path: audit/insize-price-110-20261021/MERCHANDISING_EXCEPTION_COMPARISON.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/insize-price-110-20261021
+
+  - id: INSIZE-PRICE-110-20261021-APPLY-GATE
+    path: audit/insize-price-110-20261021/APPLY_GATE_EVIDENCE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/insize-price-110-20261021
+
+  - id: INSIZE-PRICE-110-20261021-IMMUTABLE-V1
+    path: audit/insize-price-110-20261021/immutable-v1/README.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: feat/insize-price-110-20261021
+
   - id: INSIZE-PRICE-112-AUDIT
     path: audit/insize-price-112/README.md
     class: EVIDENCE
