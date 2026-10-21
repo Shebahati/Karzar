@@ -23,32 +23,29 @@ export function CuratedCategoryIconImg({
   ...rest
 }: CuratedCategoryIconImgProps) {
   const sources = resolveCategoryIconSources(src);
-  const common = {
+  const imgAttrs = {
     alt,
     width,
     height,
     className,
     style,
     draggable,
+    loading,
+    fetchPriority,
+    decoding,
     ...rest,
   };
 
   if (!sources) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- curated / static public URLs
-      <img src={src} {...common} />
+      <img src={src} {...imgAttrs} />
     );
   }
 
   const img = (
     // eslint-disable-next-line @next/next/no-img-element -- PNG fallback for allowlisted WebP
-    <img
-      src={sources.png}
-      {...common}
-      loading={loading}
-      fetchPriority={fetchPriority}
-      decoding={decoding ?? "async"}
-    />
+    <img src={sources.png} {...imgAttrs} decoding={decoding ?? "async"} />
   );
 
   return (
