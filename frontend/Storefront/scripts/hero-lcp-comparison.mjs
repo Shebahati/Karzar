@@ -17,7 +17,7 @@ async function oneRun(page) {
   const heroResponses = [];
   page.on("response", (res) => {
     const u = res.url();
-    if (u.includes("pack-20261021") || u.includes("/_next/image")) {
+    if (u.includes("photo-20261021-v2") || u.includes("/_next/image")) {
       heroResponses.push({ url: u, status: res.status() });
     }
   });
@@ -54,7 +54,7 @@ async function oneRun(page) {
             )));
     const imageRequestCount = performance
       .getEntriesByType("resource")
-      .filter((r) => r.initiatorType === "img" || r.name.includes("pack-20261021") || r.name.includes("/_next/image"))
+      .filter((r) => r.initiatorType === "img" || r.name.includes("photo-20261021-v2") || r.name.includes("/_next/image"))
       .length;
     return {
       lcpEntries,

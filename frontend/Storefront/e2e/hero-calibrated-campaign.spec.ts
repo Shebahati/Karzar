@@ -36,7 +36,8 @@ const SLIDES = [
 
 const REVIEW_VIEWPORTS = [
   { width: 390, height: 844, name: "390x844" },
-  { width: 768, height: 1024, name: "768x1024" },
+  { width: 1023, height: 900, name: "1023x900" },
+  { width: 1024, height: 768, name: "1024x768" },
   { width: 1440, height: 900, name: "1440x900" },
 ] as const;
 
@@ -91,11 +92,17 @@ async function expectSlide(page: Page, index: number, compact: boolean) {
       timeout: 20_000,
     })
     .toContain(compact ? slide.mobile : slide.desktop);
+  await expect
+    .poll(async () => img.evaluate((node) => (node as HTMLImageElement).currentSrc), {
+      timeout: 20_000,
+    })
+    .toContain("photo-20261021-v2");
   await expect.poll(async () => img.evaluate((node) => {
     const image = node as HTMLImageElement;
     return image.complete && image.naturalWidth > 0;
   }), { timeout: 20_000 }).toBe(true);
   const currentSrc = await img.evaluate((node) => (node as HTMLImageElement).currentSrc);
+  expect(currentSrc).not.toContain("/_next/image");
   if (compact) {
     expect(currentSrc).not.toContain("desktop-16x9");
     expect(currentSrc).not.toContain("w=3840");
@@ -132,9 +139,7 @@ test.describe("calibrated five-hero campaign", () => {
           path: shotPath(viewport.name, `H0${index + 1}`),
         });
         if (index < SLIDES.length - 1) {
-          const region = page.getByRole("region", { name: "هیرو کارزار" });
-          await region.focus();
-          await page.keyboard.press("ArrowLeft");
+          await page.getByRole("button", { name: "اسلاید بعدی" }).click();
         }
       }
     });

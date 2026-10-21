@@ -15,7 +15,7 @@ const LEGACY_HERO_MOBILE_INTRINSIC = { width: 1280, height: 720 } as const;
 export const CALIBRATED_HERO_DESKTOP_INTRINSIC = { width: 1920, height: 1080 } as const;
 export const CALIBRATED_HERO_MOBILE_INTRINSIC = { width: 1200, height: 900 } as const;
 
-const CALIBRATED_HERO_DIR = "/images/hero/reborn-5/pack-20261021/";
+const CALIBRATED_HERO_DIR = "/images/hero/reborn-5/photo-20261021-v2/";
 
 /** Calibrated masters are pre-exported WebP at full resolution — skip Next re-encode and width cap. */
 export function isCalibratedCampaignHeroArt(src: string): boolean {

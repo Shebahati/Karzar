@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "publishedAt": "2026-10-21T06:39:00.000Z",
+  "publishedAt": "2026-10-21T09:18:00.000Z",
   "mobilePreset": "balanced",
   "categoryDock": {
     "categories": [
@@ -164,8 +164,8 @@
         "linkedOrbKey": "discounts",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/pack-20261021/H01-special-offers-desktop-16x9.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/pack-20261021/H01-special-offers-mobile-4x3.webp",
+          "imageUrl": "/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp",
           "color": "#121212",
           "focal": "left 58%"
         },
@@ -237,8 +237,8 @@
         "linkedOrbKey": "metrology",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/pack-20261021/H02-measuring-tools-desktop-16x9.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/pack-20261021/H02-measuring-tools-mobile-4x3.webp",
+          "imageUrl": "/images/hero/reborn-5/photo-20261021-v2/H02-measuring-tools-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/photo-20261021-v2/H02-measuring-tools-mobile-4x3.webp",
           "color": "#121212",
           "focal": "left 62%"
         },
@@ -310,8 +310,8 @@
         "linkedOrbKey": "inserts",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/pack-20261021/H03-inserts-turning-tools-desktop-16x9.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/pack-20261021/H03-inserts-turning-tools-mobile-4x3.webp",
+          "imageUrl": "/images/hero/reborn-5/photo-20261021-v2/H03-inserts-turning-tools-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/photo-20261021-v2/H03-inserts-turning-tools-mobile-4x3.webp",
           "color": "#121212",
           "focal": "left 64%"
         },
@@ -401,8 +401,8 @@
         "linkedOrbKey": "endmills",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/pack-20261021/H04-end-mills-desktop-16x9.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/pack-20261021/H04-end-mills-mobile-4x3.webp",
+          "imageUrl": "/images/hero/reborn-5/photo-20261021-v2/H04-end-mills-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/photo-20261021-v2/H04-end-mills-mobile-4x3.webp",
           "color": "#121212",
           "focal": "left center"
         },
@@ -474,8 +474,8 @@
         "linkedOrbKey": "industrial-machines",
         "background": {
           "mode": "image",
-          "imageUrl": "/images/hero/reborn-5/pack-20261021/H05-industrial-machines-desktop-16x9.webp",
-          "mobileImageUrl": "/images/hero/reborn-5/pack-20261021/H05-industrial-machines-mobile-4x3.webp",
+          "imageUrl": "/images/hero/reborn-5/photo-20261021-v2/H05-industrial-machines-desktop-16x9.webp",
+          "mobileImageUrl": "/images/hero/reborn-5/photo-20261021-v2/H05-industrial-machines-mobile-4x3.webp",
           "color": "#121212",
           "focal": "left 56%"
         },
