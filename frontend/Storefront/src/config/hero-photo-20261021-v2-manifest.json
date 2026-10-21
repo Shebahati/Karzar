@@ -9,97 +9,97 @@
       "slide": "H01",
       "slide_title_fa": "پیشنهادهای ویژه",
       "subject": "Mixed tools",
-      "source_file": "Gemini_Generated_Image_ortfc1ortfc1ortf.jpeg",
-      "source_sha256": "034dad3d73aee2145449d2d5fae624f50a6a8158fb9724daa47be240a95355bf",
+      "source_file": "Gemini_Generated_Image_m2gu1dm2gu1dm2gu-acf6a8fb-7dd5-46eb-a298-8bee0e2826d8.jpg",
+      "source_sha256": "e88f19bcd67e3f2a3f6f26f558bceb1ebb611f115819ca5857f018e6ef579e53",
       "original_px": [
-        2048,
-        1143
+        1024,
+        571
       ],
       "crop_xyxy": [
-        8,
         0,
-        2040,
-        1143
+        0,
+        1024,
+        571
       ],
       "result_px": [
         1920,
         1080
       ],
       "path_relative_repo": "frontend/Storefront/public/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-desktop-16x9.webp",
-      "bytes": 141188,
-      "sha256": "723630b39e2201b248212f2964d1208c35d002115ccae08a4e8dc9762f277b34"
+      "bytes": 104898,
+      "sha256": "574a31408a22dc0e35403c22e502c4a9145ca35fffb8dbe9cdd42b60878d66a1"
     },
     {
       "slide": "H01",
       "slide_title_fa": "پیشنهادهای ویژه",
       "subject": "Mixed tools",
-      "source_file": "Gemini_Generated_Image_ortfc1ortfc1ortf.jpeg",
-      "source_sha256": "034dad3d73aee2145449d2d5fae624f50a6a8158fb9724daa47be240a95355bf",
+      "source_file": "Gemini_Generated_Image_m2gu1dm2gu1dm2gu-acf6a8fb-7dd5-46eb-a298-8bee0e2826d8.jpg",
+      "source_sha256": "e88f19bcd67e3f2a3f6f26f558bceb1ebb611f115819ca5857f018e6ef579e53",
       "original_px": [
-        2048,
-        1143
+        1024,
+        571
       ],
       "crop_xyxy": [
         0,
         0,
-        1524,
-        1143
+        1024,
+        571
       ],
       "result_px": [
         1200,
         900
       ],
       "path_relative_repo": "frontend/Storefront/public/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp",
-      "bytes": 99052,
-      "sha256": "631c79a853d56a65916cefc3ae3f6ef4a68f73b1baacaa4a28a63eae2610ca9a"
+      "bytes": 71248,
+      "sha256": "80337be9d02cd740fade34ee38d73a32c0db6bd2ea86ee2eed5a67bed7354aac"
     },
     {
       "slide": "H02",
       "slide_title_fa": "ابزارهای اندازه‌گیری",
       "subject": "Caliper, micrometer, dial indicator",
-      "source_file": "Gemini_Generated_Image_ortfc1ortfc1ortf (1).jpeg",
-      "source_sha256": "f510b46a9883ba270d42ea2643335dd1750b0bee3c4df2b287b5a92e3d8cd2ea",
+      "source_file": "Gemini_Generated_Image_emgjmeemgjmeemgj-00d3709c-0ed2-44bb-bd81-b22efd2c104e.jpg",
+      "source_sha256": "8859d7731ea533ce6b438d2a5a0000113c4e395af2e8dcbe96c8bfef5dd0e9b2",
       "original_px": [
-        2048,
-        1143
+        1024,
+        571
       ],
       "crop_xyxy": [
-        8,
         0,
-        2040,
-        1143
+        0,
+        1024,
+        571
       ],
       "result_px": [
         1920,
         1080
       ],
       "path_relative_repo": "frontend/Storefront/public/images/hero/reborn-5/photo-20261021-v2/H02-measuring-tools-desktop-16x9.webp",
-      "bytes": 137284,
-      "sha256": "a81926d5b814789b64ef015cc447f65fb0a61476171f33fa16eca63d6d63239c"
+      "bytes": 104980,
+      "sha256": "c50ba637242f65c8ba28d559abc150409158f5012fb5e10f54e6ee72e1be5db5"
     },
     {
       "slide": "H02",
       "slide_title_fa": "ابزارهای اندازه‌گیری",
       "subject": "Caliper, micrometer, dial indicator",
-      "source_file": "Gemini_Generated_Image_ortfc1ortfc1ortf (1).jpeg",
-      "source_sha256": "f510b46a9883ba270d42ea2643335dd1750b0bee3c4df2b287b5a92e3d8cd2ea",
+      "source_file": "Gemini_Generated_Image_emgjmeemgjmeemgj-00d3709c-0ed2-44bb-bd81-b22efd2c104e.jpg",
+      "source_sha256": "8859d7731ea533ce6b438d2a5a0000113c4e395af2e8dcbe96c8bfef5dd0e9b2",
       "original_px": [
-        2048,
-        1143
+        1024,
+        571
       ],
       "crop_xyxy": [
         0,
         0,
-        1524,
-        1143
+        1024,
+        571
       ],
       "result_px": [
         1200,
         900
       ],
       "path_relative_repo": "frontend/Storefront/public/images/hero/reborn-5/photo-20261021-v2/H02-measuring-tools-mobile-4x3.webp",
-      "bytes": 95444,
-      "sha256": "4d50ec388a495f8c52a351a085a29cafb86d24be2524cefdbdcdb23eab179b7c"
+      "bytes": 72950,
+      "sha256": "cc08ccb4d41fa979a38caeb08d4f7c0b1be63bc4b3afe43140c0633fdac57a71"
     },
     {
       "slide": "H03",
