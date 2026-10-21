@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import manifest from "@/config/hero-photo-20261021-v2-manifest.json";
@@ -34,16 +34,13 @@ describe("hero photo-20261021-v2 source integrity", () => {
     }
   });
 
-  it("rejects the known graphic-placeholder H01 desktop bytes if present on disk", () => {
+  it("rejects the known graphic-placeholder H01 desktop bytes when pack-20261021 is present", () => {
     const placeholder = path.join(
       publicRoot,
       "images/hero/reborn-5/pack-20261021/H01-special-offers-desktop-16x9.webp",
     );
-    try {
-      const hash = sha256File(placeholder);
-      expect(hash).toBe(PLACEHOLDER_PACK_H01_DESKTOP_SHA256);
-    } catch {
-      // pack dir optional in some checkouts
+    if (existsSync(placeholder)) {
+      expect(sha256File(placeholder)).toBe(PLACEHOLDER_PACK_H01_DESKTOP_SHA256);
     }
     const liveH01 = path.join(
       publicRoot,
