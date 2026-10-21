@@ -1,0 +1,20 @@
+[
+  {
+    "product_id": 1944,
+    "sku": "3203-1506",
+    "before": "discounted",
+    "after": "above_compare_at",
+    "original_price": "47100000.0",
+    "old_base_price": "44038500.0",
+    "new_base_price": "48442350.00"
+  },
+  {
+    "product_id": 3639,
+    "sku": "S3-2824",
+    "before": "discounted",
+    "after": "above_compare_at",
+    "original_price": "53400000.0",
+    "old_base_price": "49929000.0",
+    "new_base_price": "54921900.00"
+  }
+]

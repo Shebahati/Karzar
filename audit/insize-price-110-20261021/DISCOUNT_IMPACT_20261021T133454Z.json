@@ -1,0 +1,54 @@
+[
+  {
+    "product_id": 1944,
+    "sku": "3203-1506",
+    "name": "میکرومتر اینسایز (Insize) 150-0 میلی متر خارج سنج صندوقی مدل 1506-3203",
+    "slug": "3203-1506",
+    "brand_id": 3,
+    "brand_name": "INSIZE | اینسایز",
+    "category_id": 58,
+    "product_type_id": null,
+    "old_base_price": "44038500.00",
+    "proposed_base_price": "48442350.00",
+    "old_original_price": "47100000.00",
+    "proposed_original_price": null,
+    "authorized_original_price_exception": true,
+    "is_active": true,
+    "is_available": true,
+    "deleted_at": null,
+    "discount_impact": {
+      "before": "discounted",
+      "after": "no_compare_at",
+      "old_original_price": "47100000.00",
+      "proposed_original_price": null,
+      "old_base_price": "44038500.00",
+      "new_base_price": "48442350.00"
+    }
+  },
+  {
+    "product_id": 3639,
+    "sku": "S3-2824",
+    "name": "ست گیج داخل سیلندر ساعتی 160-18 میلی متری اینسایز (Insize) مدل S3-2824",
+    "slug": "ست-گیج-داخل-سیلندر-ساعتی-160-18-میلی-متری-اینسایز-insize-مدل-s3-2824",
+    "brand_id": 3,
+    "brand_name": "INSIZE | اینسایز",
+    "category_id": 63,
+    "product_type_id": null,
+    "old_base_price": "49929000.00",
+    "proposed_base_price": "54921900.00",
+    "old_original_price": "53400000.00",
+    "proposed_original_price": null,
+    "authorized_original_price_exception": true,
+    "is_active": true,
+    "is_available": true,
+    "deleted_at": null,
+    "discount_impact": {
+      "before": "discounted",
+      "after": "no_compare_at",
+      "old_original_price": "53400000.00",
+      "proposed_original_price": null,
+      "old_base_price": "49929000.00",
+      "new_base_price": "54921900.00"
+    }
+  }
+]

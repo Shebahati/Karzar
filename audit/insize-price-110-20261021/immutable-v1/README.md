@@ -1,0 +1,1 @@
+Immutable v1 manifest (blocked on discount semantics). SHA256 cc1003dd41d5a87ddfb4c98724992ffad897585a46203ad780992ec46cae2d15
