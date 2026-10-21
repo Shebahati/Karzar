@@ -84,7 +84,7 @@ describe("calibrated five-hero assets", () => {
     const pack = buildFiveHeroPublishedPack();
     expect(pack.slides.filter((s) => s.isActive)).toHaveLength(5);
     expect(pack.slides[0]?.id).toBe("slide_h01_special_offers");
-    expect(pack.publishedAt).toBe("2026-10-13T10:00:00.000Z");
+    expect(pack.publishedAt).toBe("2026-10-21T06:39:00.000Z");
   });
 
   it("maps each slide to its desktop and mobile master", () => {
@@ -103,7 +103,7 @@ describe("calibrated five-hero assets", () => {
     }
   });
 
-  it("stores 3840×2160 desktop and 2880×2160 mobile masters", () => {
+  it("stores 1920×1080 desktop and 1200×900 mobile masters", () => {
     for (const expected of EXPECTED) {
       const desktop = webpSize(
         path.join(publicRoot, HERO_CALIBRATED_ASSET_DIR.slice(1), expected.desktop),
@@ -111,8 +111,8 @@ describe("calibrated five-hero assets", () => {
       const mobile = webpSize(
         path.join(publicRoot, HERO_CALIBRATED_ASSET_DIR.slice(1), expected.mobile),
       );
-      expect(desktop).toEqual({ width: 3840, height: 2160 });
-      expect(mobile).toEqual({ width: 2880, height: 2160 });
+      expect(desktop).toEqual({ width: 1920, height: 1080 });
+      expect(mobile).toEqual({ width: 1200, height: 900 });
     }
   });
 

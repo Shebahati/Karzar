@@ -43,16 +43,16 @@ export const DISCOUNTS_SPECIAL = {
   subtitle:
     "بهترین پیشنهادهای تخفیف‌دار ابزار صنعتی — قیمت‌های رقابتی برای تجهیز کارگاه",
   ctaLabel: "مشاهده تخفیف‌ها",
-  featuredOrder: 4 as const,
+  featuredOrder: 0 as const,
   aliases: ["تخفیف‌ها", "تخفیف ها", "تخفیف"],
 };
 
 /** RTL dock featured L1 keys (slots 1–4 after تخفیف‌ها @ 0). */
 export const FINAL_L1_FEATURED_KEYS = [
-  "industrial-machines",
-  "endmills",
-  "inserts",
   "metrology",
+  "inserts",
+  "endmills",
+  "industrial-machines",
 ] as const;
 
 /**
@@ -69,7 +69,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     subtitle:
       "کولیس، میکرومتر و گیج‌های صنعتی از برندهای معتبر",
     ctaLabel: "مشاهده اندازه‌گیری",
-    featuredOrder: 3,
+    featuredOrder: 1,
     aliases: [
       "اندازه‌گیری",
       "اندازه گیری",
@@ -114,7 +114,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     subtitle:
       "ابزارهای پروفایل و فرز انگشتی برای ماشین‌کاری تمیز — از کاربید تا پوشش‌های پیشرفته",
     ctaLabel: "مشاهده فرز انگشتی",
-    featuredOrder: 1,
+    featuredOrder: 3,
     aliases: ["فرز انگشتی", "ابزار انگشتی"],
   },
   {
@@ -171,7 +171,7 @@ export const FINAL_L1_CATEGORIES: FinalL1Category[] = [
     subtitle:
       "ماشین‌ها و تجهیزات صنعتی برای ارتقای ظرفیت کارگاه",
     ctaLabel: "مشاهده دستگاه‌ها",
-    featuredOrder: 0,
+    featuredOrder: 4,
     aliases: ["دستگاه‌های صنعتی", "دستگاه های صنعتی"],
   },
   {

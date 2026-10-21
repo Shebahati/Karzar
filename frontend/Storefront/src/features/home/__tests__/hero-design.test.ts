@@ -12,11 +12,11 @@ import type { DesignedHeroPack } from "@/types/hero-design";
 const publishedPath = path.join(process.cwd(), "public", "hero-design.json");
 
 const EXPECTED_ORDER = [
-  "industrial-machines",
-  "endmills",
-  "inserts",
-  "metrology",
   "discounts",
+  "metrology",
+  "inserts",
+  "endmills",
+  "industrial-machines",
 ] as const;
 
 function minimalPack(overrides: Partial<DesignedHeroPack> = {}): DesignedHeroPack {

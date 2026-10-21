@@ -28,7 +28,7 @@ describe("CampaignHeroSlide layout", () => {
     expect(html).not.toMatch(/data-testid="campaign-hero-desktop"(?!-copy)/);
     expect(html).not.toContain("campaign-hero-compact");
     expect(html).toContain("absolute inset-0");
-    expect(html).toContain("دستگاه‌های صنعتی");
+    expect(html).toContain("تخفیف‌های ویژه‌ی کارزار");
   });
 
   it("stacks compact media and copy in separate regions", () => {
@@ -41,7 +41,7 @@ describe("CampaignHeroSlide layout", () => {
     expect(html).toContain('data-testid="campaign-hero-compact"');
     expect(html).toContain('data-testid="campaign-hero-compact-media"');
     expect(html).not.toContain('data-testid="campaign-hero-fullbleed"');
-    expect(html).toContain("فرز انگشتی");
+    expect(html).toContain("ابزار اندازه‌گیری");
   });
 
   it("uses shared desktop copy safe shell with RTL stack (no magic top percentages)", () => {
