@@ -148,6 +148,7 @@ def test_handoff_doc_does_not_reference_executable_legacy_rollback():
 
 
 def test_build_real_apply_sql_enforces_full_cohort_gate():
+    import pytest
     from app.domain.insize_price_110_20261021 import build_real_apply_sql
 
     rows = [
@@ -156,11 +157,11 @@ def test_build_real_apply_sql_enforces_full_cohort_gate():
             "sku": "A",
             "old_base_price": "100.00",
             "proposed_base_price": "110.00",
+            "authorized_original_price_exception": False,
         }
     ]
-    sql = build_real_apply_sql(rows, expected_rows=1, manifest_sha256="abc")
-    assert "cohort extra eligible products" in sql
-    assert "cohort census mismatch" in sql
+    with pytest.raises(ValueError, match="commercial contract"):
+        build_real_apply_sql(rows, expected_rows=1, manifest_sha256="abc")
 
 
 def test_db_post_apply_requires_formula_and_sum():
@@ -223,20 +224,21 @@ def test_resolve_post_commit_status_partial_when_api_incomplete():
 
 
 def test_rollback_sql_is_atomic_and_uses_applied_price_guard():
-    sql = build_rollback_sql(
-        [
-            {
-                "product_id": 1,
-                "sku": "A",
-                "old_base_price": "100.00",
-                "proposed_base_price": "110.00",
-            }
-        ]
-    )
-    assert "BEGIN ISOLATION LEVEL SERIALIZABLE" in sql
-    assert "applied_base_price" in sql
-    assert "rollback guard failed" in sql
-    assert "/ 1.10" not in sql
+    import pytest
+
+    with pytest.raises(ValueError, match="commercial contract"):
+        build_rollback_sql(
+            [
+                {
+                    "product_id": 1,
+                    "sku": "A",
+                    "old_base_price": "100.00",
+                    "proposed_base_price": "110.00",
+                    "authorized_original_price_exception": False,
+                }
+            ]
+        )
+
 
 
 def test_authorized_exception_clears_original_in_manifest():

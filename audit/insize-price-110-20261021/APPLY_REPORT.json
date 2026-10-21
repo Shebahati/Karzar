@@ -1,7 +1,7 @@
 {
   "STATUS": "REHEARSAL_OK",
-  "generated_at": "2026-10-21T13:38:04Z",
-  "stamp": "20261021T133753Z",
+  "generated_at": "2026-10-21T14:24:09Z",
+  "stamp": "20261021T142359Z",
   "price_currency": "TOMAN",
   "formula": "new_base_price = quantize(old * 1.10, 0.01, ROUND_HALF_UP)",
   "commercial_event_id": "INSIZE-PRICE-110-20261021",
@@ -20,7 +20,7 @@
   "DISCOUNT_SEMANTICS_BLOCKERS": [],
   "RUNTIME": {
     "identity": {
-      "collected_at_utc": "2026-10-21T13:37:55.661724+00:00",
+      "collected_at_utc": "2026-10-21T14:24:01.443879+00:00",
       "collector_hostname": "hp-g2-450",
       "vps_hostname": "srv5944957438",
       "deployed_git_sha": "UNKNOWN",
@@ -90,7 +90,11 @@
     "reason": "INSIZE +10% owner-authorized price update 2026-10-21",
     "log_row_count": 0,
     "distinct_product_id_count": 0,
-    "already_present": false
+    "already_present": false,
+    "original_clear_reason": "INSIZE +10% owner-authorized original_price clear (1944,3639) 2026-10-21",
+    "original_clear_log_row_count": 0,
+    "original_clear_distinct_product_ids": 0,
+    "original_clear_already_present": false
   },
   "INSIZE_COUNTS": {
     "live_insize": 870,
@@ -142,14 +146,25 @@
     ]
   },
   "RECOVERY": {
-    "recovery_csv": "/home/shebahati/Projects/Karzar-insize-price-110-20261021/audit/insize-price-110-20261021/INSIZE_PRICE_110_20261021_RECOVERY_PREWRITE_20261021T133753Z.csv",
+    "recovery_csv": "/home/shebahati/Projects/Karzar-insize-price-110-20261021/audit/insize-price-110-20261021/INSIZE_PRICE_110_20261021_RECOVERY_PREWRITE_20261021T142359Z.csv",
     "recovery_csv_sha256": "5515aff4261f9a40c574d7281ff328d0871c2a641fc7a4d82ecb00d58bfec651",
-    "rollback_sql": "/home/shebahati/Projects/Karzar-insize-price-110-20261021/audit/insize-price-110-20261021/INSIZE_PRICE_110_20261021_ROLLBACK_20261021T133753Z.sql",
-    "rollback_sql_sha256": "11b91eb549a3decedddadde64a79d60da01f5bf075907d905f0ee757d3f83cce"
+    "rollback_sql": "/home/shebahati/Projects/Karzar-insize-price-110-20261021/audit/insize-price-110-20261021/INSIZE_PRICE_110_20261021_ROLLBACK_20261021T142359Z.sql",
+    "rollback_sql_sha256": "ddb841b1e5a448e565cdcaf39a3bff1fef60fa78f838d60d489a3ba32b8f59e4"
   },
-  "git_sha": "3d3c5d33b46ebcba15fa8d29fe1ec5bafc3604d1",
+  "git_sha": "f2151c9927d751df12127192a70ad980f08ae74f",
   "REHEARSAL": {
     "status": "ROLLED_BACK",
-    "output_tail": "BEGIN\n pg_advisory_xact_lock \n-----------------------\n \n(1 row)\n\nCREATE TABLE\nINSERT 0 206\nDO\nROLLBACK\n"
+    "output_tail": "BEGIN\n pg_advisory_xact_lock \n-----------------------\n \n(1 row)\n\nCREATE TABLE\nINSERT 0 206\nDO\nROLLBACK\n",
+    "contract": {
+      "base_price_updates": 206,
+      "original_price_updates": 2,
+      "base_price_change_logs": 206,
+      "original_price_change_logs": 2,
+      "total_event_logs": 208,
+      "exception_product_ids": [
+        1944,
+        3639
+      ]
+    }
   }
 }

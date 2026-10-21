@@ -54,6 +54,7 @@ from app.domain.insize_price_110_20261021 import (
     MIN_PUBLIC_API_PRICE_VERIFICATIONS,
     MULTIPLIER,
     ROLLBACK_CHANGE_REASON,
+    ORIGINAL_PRICE_CLEAR_CHANGE_REASON,
     build_manifest_row,
     build_real_apply_sql,
     build_rollback_sql,
@@ -64,6 +65,12 @@ from app.domain.insize_price_110_20261021 import (
     evaluate_db_post_apply_verification,
     evaluate_frozen_handoff_readiness,
     parse_money,
+    normalize_manifest_from_csv_rows,
+    rehearsal_contract_summary,
+    validate_owner_frozen_commercial_contract,
+    money_equal_nullable,
+    EXPECTED_TOTAL_EVENT_LOG_ROWS,
+    EXPECTED_ORIGINAL_EXCEPTION_COUNT,
     proposed_base_price,
     reconcile_collector_vs_proof,
     resolve_post_commit_status,
@@ -342,6 +349,10 @@ def verify_cohort_membership(
     }
 
 
+def _original_clear_reason_md5() -> str:
+    return hashlib.md5(ORIGINAL_PRICE_CLEAR_CHANGE_REASON.encode("utf-8")).hexdigest()
+
+
 def idempotency_probe(ssh_host: str) -> dict[str, Any]:
     reason_md5 = _reason_md5()
     sql = f"""
@@ -354,11 +365,26 @@ WHERE md5(reason::text) = '{reason_md5}';
     parts = line.split("\t") if "\t" in line else line.split("|")
     count = int(parts[0]) if parts else 0
     distinct = int(parts[1]) if len(parts) > 1 else 0
+    orig_md5 = _original_clear_reason_md5()
+    orig_sql = f"""
+SELECT COUNT(*)::text,
+       COUNT(DISTINCT product_id)::text
+FROM product_change_logs
+WHERE md5(reason::text) = '{orig_md5}';
+"""
+    orig_line = _run_ssh_psql(orig_sql, ssh_host=ssh_host).splitlines()[-1]
+    orig_parts = orig_line.split("\t") if "\t" in orig_line else orig_line.split("|")
+    orig_count = int(orig_parts[0]) if orig_parts else 0
+    orig_distinct = int(orig_parts[1]) if len(orig_parts) > 1 else 0
     return {
         "reason": CHANGE_REASON,
         "log_row_count": count,
         "distinct_product_id_count": distinct,
         "already_present": count > 0,
+        "original_clear_reason": ORIGINAL_PRICE_CLEAR_CHANGE_REASON,
+        "original_clear_log_row_count": orig_count,
+        "original_clear_distinct_product_ids": orig_distinct,
+        "original_clear_already_present": orig_count > 0,
     }
 
 
@@ -483,6 +509,22 @@ def verify_frozen_manifest_against_live(
                     "live_base_price": str(live_old),
                 }
             )
+        manifest_old_orig = parse_money(row.get("old_original_price"))
+        live_original_all = parse_money(live_row.get("original_price") or "")
+        if not money_equal_nullable(manifest_old_orig, live_original_all):
+            drifts.append(
+                {
+                    "product_id": pid,
+                    "sku": sku,
+                    "reason": "old_original_price_drift",
+                    "manifest_old_original_price": (
+                        str(manifest_old_orig) if manifest_old_orig is not None else None
+                    ),
+                    "live_original_price": (
+                        str(live_original_all) if live_original_all is not None else None
+                    ),
+                }
+            )
         expected_new = proposed_base_price(live_old)
         manifest_new = parse_money(str(row.get("proposed_base_price") or ""))
         if manifest_new != expected_new:
@@ -572,30 +614,67 @@ def write_manifest_artifacts(
 
 def post_apply_verify(ssh_host: str, manifest: list[dict[str, Any]]) -> dict[str, Any]:
     reason_md5 = _reason_md5()
+    orig_md5 = _original_clear_reason_md5()
     exact = 0
     formula_ok = 0
+    orig_null_exception = 0
+    orig_unchanged_non_exception = 0
+    unexpected_original_mutations = 0
     for row in manifest:
         pid = int(row["product_id"])
         old = row["old_base_price"]
         new = row["proposed_base_price"]
-        raw = _run_ssh_psql(
+        expected_new = parse_money(new)
+        old_orig = parse_money(row.get("old_original_price"))
+        is_exception = bool(row.get("authorized_original_price_exception"))
+        raw_base = _run_ssh_psql(
             f"SELECT base_price::text FROM products WHERE id={pid} AND brand_id=3;",
             ssh_host=ssh_host,
         ).strip()
-        if raw == new:
-            exact += 1
-        cur = parse_money(raw)
+        cur = parse_money(raw_base)
         old_d = parse_money(old)
+        if cur is not None and expected_new is not None and cur == expected_new:
+            exact += 1
         if cur is not None and old_d is not None and cur == proposed_base_price(old_d):
             formula_ok += 1
-    log_sql = f"""
+        raw_orig = _run_ssh_psql(
+            f"SELECT original_price::text FROM products WHERE id={pid} AND brand_id=3;",
+            ssh_host=ssh_host,
+        ).strip()
+        live_orig = parse_money(raw_orig) if raw_orig and raw_orig.lower() != "null" else None
+        if is_exception:
+            if live_orig is None:
+                orig_null_exception += 1
+            else:
+                unexpected_original_mutations += 1
+        elif money_equal_nullable(live_orig, old_orig):
+            orig_unchanged_non_exception += 1
+        else:
+            unexpected_original_mutations += 1
+    base_log_sql = f"""
 SELECT COUNT(*)::text, COUNT(DISTINCT product_id)::text
 FROM product_change_logs WHERE md5(reason::text) = '{reason_md5}';
 """
-    log_line = _run_ssh_psql(log_sql, ssh_host=ssh_host).splitlines()[-1]
-    log_parts = log_line.split("\t") if "\t" in log_line else log_line.split("|")
-    log_count = int(log_parts[0])
-    log_distinct = int(log_parts[1]) if len(log_parts) > 1 else 0
+    base_log_line = _run_ssh_psql(base_log_sql, ssh_host=ssh_host).splitlines()[-1]
+    base_parts = base_log_line.split("\t") if "\t" in base_log_line else base_log_line.split("|")
+    base_log_count = int(base_parts[0])
+    base_log_distinct = int(base_parts[1]) if len(base_parts) > 1 else 0
+    orig_log_sql = f"""
+SELECT COUNT(*)::text, COUNT(DISTINCT product_id)::text
+FROM product_change_logs WHERE md5(reason::text) = '{orig_md5}';
+"""
+    orig_log_line = _run_ssh_psql(orig_log_sql, ssh_host=ssh_host).splitlines()[-1]
+    orig_parts = orig_log_line.split("\t") if "\t" in orig_log_line else orig_log_line.split("|")
+    orig_log_count = int(orig_parts[0])
+    orig_log_distinct = int(orig_parts[1]) if len(orig_parts) > 1 else 0
+    unexpected_orig_logs_sql = f"""
+SELECT COUNT(*)::text FROM product_change_logs
+WHERE field_name = 'original_price'
+  AND md5(reason::text) NOT IN ('{orig_md5}');
+"""
+    unexpected_orig_logs = int(
+        _run_ssh_psql(unexpected_orig_logs_sql, ssh_host=ssh_host).splitlines()[-1].strip() or 0
+    )
     sum_sql = """
 SELECT COALESCE(SUM(base_price),0)::text
 FROM products WHERE brand_id=3 AND deleted_at IS NULL
@@ -606,9 +685,17 @@ FROM products WHERE brand_id=3 AND deleted_at IS NULL
         "target_rows": len(manifest),
         "price_exact_match": exact,
         "formula_matches": formula_ok,
-        "change_log_rows_with_reason": log_count,
-        "distinct_changed_product_ids": log_distinct,
-        "duplicate_mutations": max(0, log_count - log_distinct),
+        "base_change_log_rows": base_log_count,
+        "original_change_log_rows": orig_log_count,
+        "total_event_log_rows": base_log_count + orig_log_count,
+        "change_log_rows_with_reason": base_log_count,
+        "distinct_changed_product_ids": base_log_distinct,
+        "duplicate_mutations": max(0, base_log_count - base_log_distinct),
+        "original_null_exception_count": orig_null_exception,
+        "original_unchanged_non_exception_count": orig_unchanged_non_exception,
+        "unexpected_original_mutations": unexpected_original_mutations,
+        "unexpected_original_change_logs": unexpected_orig_logs,
+        "original_clear_log_distinct_product_ids": orig_log_distinct,
         "sum_base_price_post": price_sum,
     }
 
@@ -618,7 +705,8 @@ def load_manifest_csv(path: Path) -> tuple[list[dict[str, Any]], str]:
     if not resolved.is_file():
         raise FileNotFoundError(resolved)
     with resolved.open(encoding="utf-8", newline="") as fh:
-        manifest = list(csv.DictReader(fh))
+        raw_rows = list(csv.DictReader(fh))
+    manifest = normalize_manifest_from_csv_rows(raw_rows)
     return manifest, sha256_file(resolved)
 
 
@@ -777,6 +865,8 @@ def main() -> int:
         errors.append("previous_event_incomplete_or_unverified")
     if idem["already_present"]:
         errors.append("idempotency: change logs already present for this event reason")
+    if idem.get("original_clear_already_present"):
+        errors.append("idempotency: original_price clear logs already present")
     if counts["priced_insize"] == 0:
         errors.append("empty priced cohort")
 
@@ -804,6 +894,15 @@ def main() -> int:
             manifest_authority = validate_frozen_manifest_authority(
                 manifest, csv_sha256=manifest_sha
             )
+            commercial = validate_owner_frozen_commercial_contract(manifest)
+            if not commercial["ok"]:
+                errors.extend(commercial["errors"][:10])
+                manifest_authority = {
+                    **manifest_authority,
+                    "ok": False,
+                    "errors": (manifest_authority.get("errors") or [])
+                    + ["commercial_contract_failed"],
+                }
             if not manifest_authority["ok"]:
                 errors.extend(manifest_authority["errors"])
             handoff = evaluate_frozen_handoff_readiness(
@@ -919,7 +1018,11 @@ def main() -> int:
     if args.rehearsal:
         rehearsal_sql = apply_sql.replace("COMMIT;", "ROLLBACK;")
         out = _run_ssh_psql_script(rehearsal_sql, ssh_host=ssh_host, allow_commit=False)
-        report["REHEARSAL"] = {"status": "ROLLED_BACK", "output_tail": out[-2000:]}
+        report["REHEARSAL"] = {
+            "status": "ROLLED_BACK",
+            "output_tail": out[-2000:],
+            "contract": rehearsal_contract_summary(),
+        }
         report["STATUS"] = "REHEARSAL_OK"
         write_json(out_dir / "APPLY_REPORT.json", report)
         print(json.dumps(report, indent=2))

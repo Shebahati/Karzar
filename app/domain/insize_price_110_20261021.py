@@ -42,6 +42,16 @@ ORIGINAL_PRICE_CLEAR_CHANGE_REASON = (
 PRICE_CURRENCY_LABEL = "TOMAN"  # products.base_price is stored in Toman; never convert.
 GUARDED_ROLLBACK_FILENAME_PREFIX = "INSIZE_PRICE_110_20261021_ROLLBACK_"
 EXPECTED_PRICED_COHORT_ROWS = 206
+EXPECTED_ORIGINAL_EXCEPTION_COUNT = len(AUTHORIZED_ORIGINAL_PRICE_NULL_EXCEPTIONS)
+EXPECTED_NON_EXCEPTION_ORIGINAL_COUNT = (
+    EXPECTED_PRICED_COHORT_ROWS - EXPECTED_ORIGINAL_EXCEPTION_COUNT
+)
+EXPECTED_TOTAL_EVENT_LOG_ROWS = (
+    EXPECTED_PRICED_COHORT_ROWS + EXPECTED_ORIGINAL_EXCEPTION_COUNT
+)
+AUTHORIZED_EXCEPTION_IDS_SQL = ", ".join(
+    str(pid) for pid in sorted(AUTHORIZED_ORIGINAL_PRICE_NULL_EXCEPTIONS)
+)
 EXPECTED_PREFLIGHT_BASE_SUM = Decimal("3413658600.00")
 EXPECTED_POST_APPLY_BASE_SUM = Decimal("3755024460.00")
 EXPECTED_VPS_HOSTNAME = "srv5944957438"
@@ -150,6 +160,190 @@ def parse_money(value: str | Decimal | None) -> Decimal | None:
         return Decimal(str(value).strip())
     except (InvalidOperation, ValueError):
         return None
+
+def money_equal_nullable(
+    left: Decimal | None,
+    right: Decimal | None,
+) -> bool:
+    return left == right
+
+
+_CSV_BOOL_TRUE = frozenset({"true", "1", "yes", "t"})
+_CSV_BOOL_FALSE = frozenset({"false", "0", "no", "f"})
+
+
+def parse_csv_bool(
+    value: Any,
+    *,
+    field: str,
+    product_id: int | None = None,
+) -> bool:
+    """Strict CSV boolean — never use Python truthiness on strings."""
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        raise ValueError(f"{field}: missing boolean (product_id={product_id})")
+    text = str(value).strip()
+    if not text:
+        raise ValueError(f"{field}: empty boolean (product_id={product_id})")
+    lowered = text.lower()
+    if lowered in _CSV_BOOL_TRUE:
+        return True
+    if lowered in _CSV_BOOL_FALSE:
+        return False
+    raise ValueError(
+        f"{field}: malformed boolean {value!r} (product_id={product_id})"
+    )
+
+
+def parse_manifest_proposed_original(value: Any) -> Decimal | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() == "null":
+        return None
+    parsed = parse_money(text)
+    if parsed is None:
+        raise ValueError(f"unparseable proposed_original_price: {value!r}")
+    return parsed
+
+
+def resolve_exception_flag(row: dict[str, Any]) -> bool:
+    """Validated exception flag; must agree with authorized ID whitelist."""
+    pid = int(row["product_id"])
+    raw = row.get("authorized_original_price_exception")
+    if isinstance(raw, bool):
+        flag = raw
+    else:
+        flag = parse_csv_bool(
+            raw,
+            field="authorized_original_price_exception",
+            product_id=pid,
+        )
+    must_exception = pid in AUTHORIZED_ORIGINAL_PRICE_NULL_EXCEPTIONS
+    if flag != must_exception:
+        raise ValueError(
+            f"authorized_original_price_exception/id mismatch product_id={pid} "
+            f"flag={flag} expected={must_exception}"
+        )
+    return flag
+
+
+def validate_owner_frozen_commercial_contract(
+    rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Fail-closed merchandising + original_price whitelist (CSV-safe)."""
+    errors: list[str] = []
+    exception_ids: set[int] = set()
+    non_exception_ids: set[int] = set()
+    for row in rows:
+        try:
+            pid = int(row["product_id"])
+            flag = resolve_exception_flag(row)
+        except (TypeError, ValueError) as exc:
+            errors.append(str(exc))
+            continue
+        old_orig = parse_money(row.get("old_original_price"))
+        try:
+            proposed_orig = parse_manifest_proposed_original(
+                row.get("proposed_original_price")
+            )
+        except ValueError as exc:
+            errors.append(f"product_id={row.get('product_id')}: {exc}")
+            continue
+        if flag:
+            exception_ids.add(pid)
+            if proposed_orig is not None:
+                errors.append(
+                    f"product_id={pid}: authorized exception requires NULL proposed_original"
+                )
+        else:
+            non_exception_ids.add(pid)
+            if not money_equal_nullable(proposed_orig, old_orig):
+                errors.append(
+                    f"product_id={pid}: unauthorized original_price mutation "
+                    f"proposed={proposed_orig} old={old_orig}"
+                )
+    if exception_ids != AUTHORIZED_ORIGINAL_PRICE_NULL_EXCEPTIONS:
+        errors.append(
+            f"exception_product_ids={sorted(exception_ids)} "
+            f"expected={sorted(AUTHORIZED_ORIGINAL_PRICE_NULL_EXCEPTIONS)}"
+        )
+    if len(exception_ids) != EXPECTED_ORIGINAL_EXCEPTION_COUNT:
+        errors.append(
+            f"exception_count={len(exception_ids)} "
+            f"expected={EXPECTED_ORIGINAL_EXCEPTION_COUNT}"
+        )
+    if len(non_exception_ids) != EXPECTED_NON_EXCEPTION_ORIGINAL_COUNT:
+        errors.append(
+            f"non_exception_count={len(non_exception_ids)} "
+            f"expected={EXPECTED_NON_EXCEPTION_ORIGINAL_COUNT}"
+        )
+    return {
+        "ok": not errors,
+        "errors": errors,
+        "exception_product_ids": sorted(exception_ids),
+        "non_exception_count": len(non_exception_ids),
+    }
+
+
+def normalize_manifest_from_csv_rows(
+    raw_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """DictReader rows → typed manifest rows with validated exception flags."""
+    contract = validate_owner_frozen_commercial_contract(raw_rows)
+    if not contract["ok"]:
+        detail = "; ".join(contract["errors"][:20])
+        raise ValueError(f"frozen manifest commercial contract failed: {detail}")
+    normalized: list[dict[str, Any]] = []
+    for raw in raw_rows:
+        pid = int(raw["product_id"])
+        flag = resolve_exception_flag(raw)
+        normalized.append(
+            {
+                **raw,
+                "product_id": pid,
+                "authorized_original_price_exception": flag,
+            }
+        )
+    normalized.sort(key=lambda r: int(r["product_id"]))
+    return normalized
+
+
+def rehearsal_contract_summary() -> dict[str, int | list[int]]:
+    return {
+        "base_price_updates": EXPECTED_PRICED_COHORT_ROWS,
+        "original_price_updates": EXPECTED_ORIGINAL_EXCEPTION_COUNT,
+        "base_price_change_logs": EXPECTED_PRICED_COHORT_ROWS,
+        "original_price_change_logs": EXPECTED_ORIGINAL_EXCEPTION_COUNT,
+        "total_event_logs": EXPECTED_TOTAL_EVENT_LOG_ROWS,
+        "exception_product_ids": sorted(AUTHORIZED_ORIGINAL_PRICE_NULL_EXCEPTIONS),
+    }
+
+
+def _sql_exception_literal(row: dict[str, Any]) -> str:
+    flag = row.get("authorized_original_price_exception")
+    if not isinstance(flag, bool):
+        raise TypeError(
+            "authorized_original_price_exception must be bool before SQL generation"
+        )
+    pid = int(row["product_id"])
+    must_exception = pid in AUTHORIZED_ORIGINAL_PRICE_NULL_EXCEPTIONS
+    if flag != must_exception:
+        raise ValueError(f"SQL generation exception flag mismatch product_id={pid}")
+    return "TRUE" if flag else "FALSE"
+
+
+def _assert_rows_ready_for_sql(rows: list[dict[str, Any]], expected_rows: int) -> None:
+    if len(rows) != expected_rows:
+        raise ValueError(f"rows {len(rows)} != expected_rows {expected_rows}")
+    contract = validate_owner_frozen_commercial_contract(rows)
+    if not contract["ok"]:
+        raise ValueError(
+            "manifest commercial contract invalid for SQL: "
+            + "; ".join(contract["errors"][:10])
+        )
+
 
 
 def proposed_base_price(current: Decimal) -> Decimal:
@@ -298,6 +492,8 @@ def evaluate_frozen_handoff_readiness(
         blockers.append("per_row_price_drift")
     if idempotency.get("already_present"):
         blockers.append("idempotency_logs_present")
+    if idempotency.get("original_clear_already_present"):
+        blockers.append("idempotency_original_clear_logs_present")
     return {
         "ok": not blockers,
         "blockers": blockers,
@@ -385,9 +581,15 @@ def evaluate_db_post_apply_verification(
     target = int(verify.get("target_rows") or expected_rows)
     exact = int(verify.get("price_exact_match") or 0)
     formula = int(verify.get("formula_matches") or 0)
-    logs = int(verify.get("change_log_rows_with_reason") or 0)
+    base_logs = int(verify.get("base_change_log_rows") or verify.get("change_log_rows_with_reason") or 0)
+    orig_logs = int(verify.get("original_change_log_rows") or 0)
+    total_logs = int(verify.get("total_event_log_rows") or (base_logs + orig_logs))
     distinct = int(verify.get("distinct_changed_product_ids") or 0)
     dups = int(verify.get("duplicate_mutations") or 0)
+    orig_null_ok = int(verify.get("original_null_exception_count") or 0)
+    orig_unchanged_ok = int(verify.get("original_unchanged_non_exception_count") or 0)
+    unexpected_orig = int(verify.get("unexpected_original_mutations") or 0)
+    unexpected_orig_logs = int(verify.get("unexpected_original_change_logs") or 0)
     post_sum_raw = verify.get("sum_base_price_post")
     post_sum = parse_money(str(post_sum_raw)) if post_sum_raw is not None else None
     sum_ok = True
@@ -395,22 +597,42 @@ def evaluate_db_post_apply_verification(
         sum_ok = post_sum == expected_sum
     elif expected_sum is not None:
         sum_ok = False
+    original_ok = (
+        orig_null_ok == EXPECTED_ORIGINAL_EXCEPTION_COUNT
+        and orig_unchanged_ok == EXPECTED_NON_EXCEPTION_ORIGINAL_COUNT
+        and unexpected_orig == 0
+        and unexpected_orig_logs == 0
+    )
+    logs_ok = (
+        base_logs == expected_rows
+        and orig_logs == EXPECTED_ORIGINAL_EXCEPTION_COUNT
+        and total_logs == EXPECTED_TOTAL_EVENT_LOG_ROWS
+    )
     db_ok = (
         target == expected_rows
         and exact == expected_rows
         and formula == expected_rows
-        and logs == expected_rows
+        and logs_ok
         and distinct == expected_rows
         and dups == 0
         and sum_ok
+        and original_ok
     )
     return {
         "db_verification_ok": db_ok,
         "price_exact_match": exact,
         "formula_matches": formula,
-        "change_log_rows_with_reason": logs,
+        "base_change_log_rows": base_logs,
+        "original_change_log_rows": orig_logs,
+        "total_event_log_rows": total_logs,
+        "change_log_rows_with_reason": base_logs,
         "distinct_changed_product_ids": distinct,
         "duplicate_mutations": dups,
+        "original_null_exception_count": orig_null_ok,
+        "original_unchanged_non_exception_count": orig_unchanged_ok,
+        "unexpected_original_mutations": unexpected_orig,
+        "unexpected_original_change_logs": unexpected_orig_logs,
+        "original_price_verification_ok": original_ok,
         "sum_base_price_post": str(post_sum) if post_sum is not None else post_sum_raw,
         "expected_sum_ok": sum_ok,
     }
@@ -421,8 +643,13 @@ def select_public_api_verification_candidates(
     *,
     minimum: int = MIN_PUBLIC_API_PRICE_VERIFICATIONS,
 ) -> list[dict[str, Any]]:
-    active = [r for r in manifest if is_truthy_active(r.get("is_active"))]
     picks: list[dict[str, Any]] = []
+    for pid in sorted(AUTHORIZED_ORIGINAL_PRICE_NULL_EXCEPTIONS):
+        for row in manifest:
+            if int(row["product_id"]) == pid and row not in picks:
+                picks.append(row)
+                break
+    active = [r for r in manifest if is_truthy_active(r.get("is_active"))]
     for bucket in (active, manifest):
         for row in bucket:
             if len(picks) >= minimum:
@@ -466,7 +693,9 @@ def classify_api_sample_result(
         base["verification"] = "http_failed"
         base["counts_as_public_price_verified"] = False
         return base
-    if api_base_price == expected:
+    expected_dec = parse_money(expected)
+    api_dec = parse_money(api_base_price) if api_base_price is not None else None
+    if expected_dec is not None and api_dec is not None and expected_dec == api_dec:
         base["verification"] = "price_match"
         base["counts_as_public_price_verified"] = True
         return base
@@ -522,6 +751,8 @@ def build_rollback_sql(rows: list[dict[str, Any]]) -> str:
     assert_change_reason()
     if not rows:
         raise ValueError("rollback requires manifest rows")
+    expected_rows = len(rows)
+    _assert_rows_ready_for_sql(rows, expected_rows)
     base_reason = sql_literal(ROLLBACK_CHANGE_REASON)
     orig_reason = sql_literal(
         "INSIZE +10% rollback restore original_price (exceptions) 2026-10-21"
@@ -530,11 +761,10 @@ def build_rollback_sql(rows: list[dict[str, Any]]) -> str:
         f"({int(r['product_id'])}, {sql_literal(r['sku'])}, "
         f"{_sql_money(r['old_base_price'])}, {_sql_money(r['proposed_base_price'])}, "
         f"{_sql_money(r.get('old_original_price'))}, "
-        f"{'TRUE' if r.get('authorized_original_price_exception') else 'FALSE'})"
+        f"{_sql_exception_literal(r)})"
         for r in sorted(rows, key=lambda r: int(r["product_id"]))
     )
-    expected_rows = len(rows)
-    exception_n = sum(1 for r in rows if r.get("authorized_original_price_exception"))
+    exception_n = EXPECTED_ORIGINAL_EXCEPTION_COUNT
     return f"""
 BEGIN ISOLATION LEVEL SERIALIZABLE;
 
@@ -554,13 +784,20 @@ VALUES
 DO $$
 DECLARE
   expected_n integer := {expected_rows};
-  exception_n integer := {exception_n};
+  expected_exception_n integer := {exception_n};
   guard_n integer;
   updated_n integer;
   log_n integer;
   orig_n integer;
   orig_log_n integer;
 BEGIN
+  SELECT COUNT(*) INTO orig_n
+  FROM insize_p110_rollback_expected
+  WHERE clear_original_exception IS TRUE AND product_id NOT IN ();
+  IF orig_n > 0 THEN
+    RAISE EXCEPTION 'rollback exception flags outside whitelist=%', orig_n;
+  END IF;
+
   SELECT COUNT(*) INTO guard_n
   FROM insize_p110_rollback_expected e
   JOIN products p ON p.id = e.product_id
@@ -596,8 +833,8 @@ BEGIN
     AND p.brand_id = {EXPECTED_BRAND_ID}
     AND p.original_price IS NULL;
   GET DIAGNOSTICS orig_n = ROW_COUNT;
-  IF orig_n <> exception_n THEN
-    RAISE EXCEPTION 'rollback original restore rows=% expected=%', orig_n, exception_n;
+  IF orig_n <> expected_exception_n THEN
+    RAISE EXCEPTION 'rollback original restore rows=% expected=%', orig_n, expected_exception_n;
   END IF;
 
   INSERT INTO product_change_logs (product_id, field_name, old_value, new_value, reason, actor_user_id)
@@ -617,8 +854,8 @@ BEGIN
   WHERE e.clear_original_exception IS TRUE
   ORDER BY e.product_id;
   GET DIAGNOSTICS orig_log_n = ROW_COUNT;
-  IF orig_log_n <> exception_n THEN
-    RAISE EXCEPTION 'rollback original change_log rows=% expected=%', orig_log_n, exception_n;
+  IF orig_log_n <> expected_exception_n THEN
+    RAISE EXCEPTION 'rollback original change_log rows=% expected=%', orig_log_n, expected_exception_n;
   END IF;
 END $$;
 
@@ -633,8 +870,7 @@ def build_real_apply_sql(
     manifest_sha256: str,
 ) -> str:
     assert_change_reason()
-    if len(rows) != expected_rows:
-        raise ValueError(f"rows {len(rows)} != expected_rows {expected_rows}")
+    _assert_rows_ready_for_sql(rows, expected_rows)
     base_reason = sql_literal(CHANGE_REASON)
     orig_reason = sql_literal(ORIGINAL_PRICE_CLEAR_CHANGE_REASON)
     values = ",\n  ".join(
@@ -642,10 +878,12 @@ def build_real_apply_sql(
         f"{_sql_money(r['old_base_price'])}, {_sql_money(r['proposed_base_price'])}, "
         f"{_sql_money(r.get('old_original_price'))}, "
         f"{_sql_money(r.get('proposed_original_price'))}, "
-        f"{'TRUE' if r.get('authorized_original_price_exception') else 'FALSE'})"
+        f"{_sql_exception_literal(r)})"
         for r in rows
     )
-    exception_n = sum(1 for r in rows if r.get("authorized_original_price_exception"))
+    exception_n = EXPECTED_ORIGINAL_EXCEPTION_COUNT
+    expected_total_logs = EXPECTED_TOTAL_EVENT_LOG_ROWS
+    authorized_ids_sql = AUTHORIZED_EXCEPTION_IDS_SQL
     return f"""
 BEGIN ISOLATION LEVEL SERIALIZABLE;
 SELECT pg_advisory_xact_lock(hashtext({sql_literal(ADVISORY_LOCK_KEY)}));
@@ -670,6 +908,8 @@ DO $$
 DECLARE
   expected_n integer := {expected_rows};
   exception_n integer := {exception_n};
+  expected_total_logs integer := {expected_total_logs};
+  exception_flag_n integer;
   locked_n integer;
   cohort_n integer;
   extra_n integer;
@@ -690,6 +930,23 @@ BEGIN
   SELECT COUNT(*) INTO idem_orig_n FROM product_change_logs WHERE reason = {orig_reason};
   IF idem_orig_n > 0 THEN
     RAISE EXCEPTION 'idempotency: % existing original_price change logs', idem_orig_n;
+  END IF;
+
+  SELECT COUNT(*) INTO exception_flag_n FROM insize_p110_expected WHERE clear_original_exception IS TRUE;
+  IF exception_flag_n <> exception_n THEN
+    RAISE EXCEPTION 'temp exception flags=% expected=%', exception_flag_n, exception_n;
+  END IF;
+
+  SELECT COUNT(*) INTO exception_flag_n FROM insize_p110_expected
+    WHERE clear_original_exception IS TRUE AND product_id NOT IN ({authorized_ids_sql});
+  IF exception_flag_n > 0 THEN
+    RAISE EXCEPTION 'temp exception flags outside whitelist=%', exception_flag_n;
+  END IF;
+
+  SELECT COUNT(*) INTO exception_flag_n FROM insize_p110_expected
+    WHERE product_id IN ({authorized_ids_sql}) AND clear_original_exception IS NOT TRUE;
+  IF exception_flag_n > 0 THEN
+    RAISE EXCEPTION 'authorized ids missing exception flag=%', exception_flag_n;
   END IF;
 
   PERFORM 1
@@ -800,6 +1057,44 @@ BEGIN
   GET DIAGNOSTICS orig_log_n = ROW_COUNT;
   IF orig_log_n <> exception_n THEN
     RAISE EXCEPTION 'original change_log rows=% expected=%', orig_log_n, exception_n;
+  END IF;
+
+  IF log_n + orig_log_n <> {expected_total_logs} THEN
+    RAISE EXCEPTION 'total event logs=% expected=%', log_n + orig_log_n, {expected_total_logs};
+  END IF;
+
+  SELECT COUNT(*) INTO orig_n
+  FROM insize_p110_expected e
+  JOIN products p ON p.id = e.product_id
+  WHERE NOT e.clear_original_exception
+    AND p.deleted_at IS NULL AND p.brand_id = {EXPECTED_BRAND_ID}
+    AND p.original_price IS DISTINCT FROM e.old_original_price;
+  IF orig_n > 0 THEN
+    RAISE EXCEPTION 'unauthorized original_price mutations=%', orig_n;
+  END IF;
+
+  SELECT COUNT(*) INTO orig_n
+  FROM insize_p110_expected e
+  JOIN products p ON p.id = e.product_id
+  WHERE e.clear_original_exception IS TRUE
+    AND e.product_id NOT IN ({authorized_ids_sql})
+    AND p.deleted_at IS NULL AND p.brand_id = {EXPECTED_BRAND_ID};
+  IF orig_n > 0 THEN
+    RAISE EXCEPTION 'original clear outside whitelist rows=%', orig_n;
+  END IF;
+
+  SELECT COUNT(*) INTO orig_n
+  FROM insize_p110_expected e
+  WHERE e.clear_original_exception IS TRUE AND e.product_id NOT IN ({authorized_ids_sql});
+  IF orig_n > 0 THEN
+    RAISE EXCEPTION 'exception flag set outside whitelist rows=%', orig_n;
+  END IF;
+
+  SELECT COUNT(*) INTO orig_n
+  FROM insize_p110_expected e
+  WHERE e.product_id IN ({authorized_ids_sql}) AND e.clear_original_exception IS NOT TRUE;
+  IF orig_n > 0 THEN
+    RAISE EXCEPTION 'authorized exception ids missing clear flag rows=%', orig_n;
   END IF;
 END $$;
 

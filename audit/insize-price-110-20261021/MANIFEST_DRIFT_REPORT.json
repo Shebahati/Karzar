@@ -49,12 +49,16 @@
     "reason": "INSIZE +10% owner-authorized price update 2026-10-21",
     "log_row_count": 0,
     "distinct_product_id_count": 0,
-    "already_present": false
+    "already_present": false,
+    "original_clear_reason": "INSIZE +10% owner-authorized original_price clear (1944,3639) 2026-10-21",
+    "original_clear_log_row_count": 0,
+    "original_clear_distinct_product_ids": 0,
+    "original_clear_already_present": false
   },
   "priced_census": 206,
   "manifest_csv": "/home/shebahati/Projects/Karzar-insize-price-110-20261021/audit/insize-price-110-20261021/INSIZE_PRICE_110_20261021_MANIFEST_20261021T133454Z.csv",
   "manifest_csv_sha256": "bb2d073b8adc037ccfc50122da845d9e4869658a0467c364264fbe7f0af80540",
-  "generated_at": "2026-10-21T13:37:51Z",
+  "generated_at": "2026-10-21T14:22:49Z",
   "insize_counts": {
     "live_insize": 870,
     "priced_insize": 206,

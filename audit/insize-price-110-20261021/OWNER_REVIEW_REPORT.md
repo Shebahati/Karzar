@@ -1,6 +1,6 @@
 # INSIZE second +10% — revised owner review (`INSIZE-PRICE-110-20261021`)
 
-**Status:** `READY_FOR_OWNER_REVIEW`  
+**Status:** `READY_FOR_INDEPENDENT_RE_REVIEW`  
 **Production APPLY:** **not executed**
 
 ## Currency correction
@@ -54,9 +54,9 @@ No replacement compare-at prices. All other attributes unchanged; cohort remains
 
 | Step | Result |
 |------|--------|
-| Unit tests | **31/31** pass |
+| Unit tests | **36+** pass (incl. frozen CSV boolean regression) |
 | Read-only preflight (v2 snapshot) | **PREFLIGHT_OK** (0 blockers) |
-| SERIALIZABLE rehearsal + ROLLBACK | **REHEARSAL_OK** (206 rows) |
+| SERIALIZABLE rehearsal + ROLLBACK | **REHEARSAL_OK** — 206 base + 2 original + 208 logs |
 | Oct 19 prior event | **verified** (206 logs, sum 3413658600.00 Toman) |
 
 ## Before APPLY
@@ -66,3 +66,10 @@ No replacement compare-at prices. All other attributes unchanged; cohort remains
 3. Category B controls + backup; no Hesabfa / deploy / Admin Publish.
 
 Worktree: `/home/shebahati/Projects/Karzar-insize-price-110-20261021` (`feat/insize-price-110-20261021`).
+
+
+## Critical review fix (PR #549)
+
+- Strict CSV boolean parsing (`parse_csv_bool`); no string truthiness in SQL paths.
+- Commercial contract validates `{1944, 3639}` only; drift check includes `old_original_price` for all 206 rows.
+- Post-commit verification requires `original_price` proof for `COMMITTED_VERIFIED`.
