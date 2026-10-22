@@ -1,0 +1,11 @@
+product_id,sku,pre_is_available,pre_state_hash,rollback_action
+1788,1111-100,false,4c659b51d2c90c9d607e1c4e8f8fcbe4e05f9d9c63867c44fffc4a4ec1e93eed,is_available true→false (only if APPLY succeeded)
+1795,1120-150,false,6e5a749daf3c0209365c03c81d07670a179f74ec9c1fa20fc17fef0bedcbe822,is_available true→false (only if APPLY succeeded)
+2100,8601-100,false,0a9d436b9f22aa4ec48630bafa15163785481c11aabec30d317b7ce6d9966c0b,is_available true→false (only if APPLY succeeded)
+3483,2308-10,false,74ff236903100efa57fa15be7a60661f4466afceb2eff98e7690ab129dd2e7c7,is_available true→false (only if APPLY succeeded)
+3550,3109-25,false,c990d3c92f1d4c0f8163428e5aec431e394627fb96496dfc244b68b2dd3c76fc,is_available true→false (only if APPLY succeeded)
+3556,3203-25,false,10d221d85346835d9fa561d94dde7c5bef5aecc2df2be8687756a512cd340974,is_available true→false (only if APPLY succeeded)
+3618,2310-30,false,586ecb702db16b7adafd44020108720f872642250ea0d92c27e5cd65125c63df,is_available true→false (only if APPLY succeeded)
+3620,2313-1,false,13b3e07eb3bee00c108935028971bbcb13ebcd27e21cf29be18fe2934bb579fa,is_available true→false (only if APPLY succeeded)
+3763,2383-08,false,89f5912406552cecdd78cde0e3675e62b96b69f4ac8767588679c4ef45741eb5,is_available true→false (only if APPLY succeeded)
+4140,5042,false,bcb12dbadb0edab9a57d1bcdd9bb725ecfe6adc8f4c12e525818b8f491208523,is_available true→false (only if APPLY succeeded)

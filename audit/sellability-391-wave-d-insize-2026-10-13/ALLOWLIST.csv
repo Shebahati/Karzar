@@ -1,0 +1,11 @@
+product_id,catalog_sku,source_code,production_found,live_sku,manufacturer_code,brand,blockers,production_gate
+1788,1111-100,1111-100A,YES,1111-100,1111-100,INSIZE | اینسایز,only_availability,PASS
+1795,1120-150,1120-150A,YES,1120-150,1120-150,INSIZE | اینسایز,only_availability,PASS
+2100,8601-100,8601-100,YES,8601-100,8601-100,INSIZE | اینسایز,only_availability,PASS
+3483,2308-10,2308-10A,YES,2308-10,2308-10,INSIZE | اینسایز,only_availability,PASS
+3550,3109-25,3109-25A,YES,3109-25,3109-25,INSIZE | اینسایز,only_availability,PASS
+3556,3203-25,3203-25A,YES,3203-25,3203-25,INSIZE | اینسایز,only_availability,PASS
+3618,2310-30,2310-30A,YES,2310-30,2310-30,INSIZE | اینسایز,only_availability,PASS
+3620,2313-1,2313-1A,YES,2313-1,,INSIZE | اینسایز,only_availability,PASS
+3763,2383-08,2383-08A,YES,2383-08,2383-08,INSIZE | اینسایز,only_availability,PASS
+4140,5042,5042,YES,5042,,INSIZE | اینسایز,only_availability,PASS

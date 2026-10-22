@@ -1,0 +1,24 @@
+{
+  "snapshot_utc": "2026-10-13T20:20:11Z",
+  "git_head": "10c2e53615aef70824be251a52d28340b06961ad",
+  "expected_pr488_head": "10c2e53615aef70824be251a52d28340b06961ad",
+  "pr488_ci": {
+    "gate": "PASS",
+    "detail": "all reported checks pass"
+  },
+  "transaction_read_only": "on",
+  "host": "srv5944957438",
+  "alembic": "c1d2e3f4a5b6",
+  "mutation": {
+    "PRODUCTION_MUTATION": "NO",
+    "DATABASE_MUTATION": "NO",
+    "AVAILABILITY_APPLY": "NO",
+    "PRICE_APPLY": "NO",
+    "HESABFA_MUTATION": "NO",
+    "DEPLOYMENT": "NO"
+  },
+  "read_only_proof": {
+    "transaction_read_only": "on",
+    "mutation_capable_statements_executed": "0"
+  }
+}

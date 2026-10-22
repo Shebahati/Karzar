@@ -1,0 +1,11 @@
+product_id,sku,field,before,after,base_price_change,is_active_change,image_change,identity_change
+1788,1111-100,is_available,false,true,NO,NO,NO,NO
+1795,1120-150,is_available,false,true,NO,NO,NO,NO
+2100,8601-100,is_available,false,true,NO,NO,NO,NO
+3483,2308-10,is_available,false,true,NO,NO,NO,NO
+3550,3109-25,is_available,false,true,NO,NO,NO,NO
+3556,3203-25,is_available,false,true,NO,NO,NO,NO
+3618,2310-30,is_available,false,true,NO,NO,NO,NO
+3620,2313-1,is_available,false,true,NO,NO,NO,NO
+3763,2383-08,is_available,false,true,NO,NO,NO,NO
+4140,5042,is_available,false,true,NO,NO,NO,NO
