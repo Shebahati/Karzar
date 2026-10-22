@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
+import { LEGACY_HERO_FILE_PUBLISH_DISABLED_FA } from "@/features/hero-builder/lib/legacy-publish";
 
 export const runtime = "nodejs";
 
@@ -46,6 +47,16 @@ function normalizePack(body: PublishedPack): PublishedPack {
 }
 
 export async function POST(request: Request) {
+  if (process.env.HERO_LEGACY_FILE_PUBLISH !== "1") {
+    return NextResponse.json(
+      {
+        error: "legacy_publish_disabled",
+        message_fa: LEGACY_HERO_FILE_PUBLISH_DISABLED_FA,
+      },
+      { status: 403 },
+    );
+  }
+
   let body: PublishedPack;
   try {
     body = (await request.json()) as PublishedPack;

@@ -22,6 +22,14 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Status:** Active  
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
+
+### 2026-10-22 — Hero Studio PR1 revision foundation (Issue #550)
+
+- New read APIs: `GET /api/v1/storefront/hero-design`, `GET /api/v1/cms/hero-design/published`, revision history, draft read, validate.
+- Publish/rollback CMS endpoints exist but return **403** unless `HERO_STUDIO_API_PUBLISH=true` (default off); require super-admin step-up when enabled.
+- `PUT /api/v1/cms/hero-design/draft` returns **501** (deferred PR2).
+- Regenerated `openapi/v1.json`.
+
 ### 2026-10-19 — Website publication no longer requires product images
 
 - Public catalog visibility (`storefront_public_product_filters`, PDP guards, category/brand counts, related products) uses **active + not soft-deleted** only. Missing or placeholder-only images do not hide products.

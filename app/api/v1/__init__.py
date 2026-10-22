@@ -9,6 +9,7 @@ from app.api.endpoints import (
     cart,
     category,
     cms,
+    hero_design,
     emalls,
     hesabfa,
     home_merchandising,
@@ -43,6 +44,7 @@ api_router.include_router(
 api_router.include_router(payment.router, prefix="/payments", tags=["Payments"])
 api_router.include_router(users.router, prefix="/users", tags=["Users"])
 api_router.include_router(cms.router, prefix="/cms", tags=["CMS"])
+api_router.include_router(hero_design.cms_router, prefix="/cms", tags=["CMS"])
 api_router.include_router(home_merchandising.router, prefix="/home-merchandising", tags=["Home Merchandising"])
 api_router.include_router(knowledge.router, prefix="/knowledge", tags=["Knowledge"])
 api_router.include_router(

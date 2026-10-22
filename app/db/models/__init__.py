@@ -73,6 +73,11 @@ from app.db.models.product_type import (
     ProductTypeDefinitionStatus,
     ProductTypeStatus,
 )
+from app.db.models.hero_design import (
+    HeroDesignDraft,
+    HeroDesignPublished,
+    HeroDesignRevision,
+)
 from app.db.models.user import User, UserRole
 
 __all__ = [
@@ -137,4 +142,7 @@ __all__ = [
     "ProductChangeLog",
     "IdempotencyKey",
     "StepUpTokenUse",
+    "HeroDesignRevision",
+    "HeroDesignPublished",
+    "HeroDesignDraft",
 ]
