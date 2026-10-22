@@ -373,10 +373,17 @@ export function toProductUpdatePayload(
   template?: CategorySpecTemplate | null,
 ): ProductUpdatePayload {
   // FE-A-21: availability is owned by ProductStockSection (PUT /availability), not form save.
-  const { is_available: _availability, ...rest } = toProductCreatePayload(values, template);
+  // An empty brand picker is NOT an instruction to clear the persisted brand:
+  // optional brand_id=null on ProductUpdate is a destructive explicit write.
+  // The edit page has no dedicated, confirmed clear-brand action. Omit the
+  // field unless a positive brand is selected (create form behavior unchanged).
+  const { is_available: _availability, brand_id: _brand, ...rest } =
+    toProductCreatePayload(values, template);
+  const selectedBrand = values.brand_id.trim();
   const override = values.hesabfa_category_override_code.trim();
   return {
     ...rest,
+    ...(selectedBrand ? { brand_id: Number(selectedBrand) } : {}),
     hesabfa_category_override_code: override || null,
   };
 }
