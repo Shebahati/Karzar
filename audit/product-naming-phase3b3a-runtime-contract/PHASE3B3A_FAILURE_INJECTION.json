@@ -1,0 +1,56 @@
+{
+  "property_import": {
+    "raises": true,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "after_first_new_pt": {
+    "raises": true,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "mid_definition_creation": {
+    "raises": true,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "membership_creation": {
+    "raises": true,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "definition_activation": {
+    "raises": true,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "published_fact_reassignment_refusal": {
+    "raises": true,
+    "rollback_ok": true,
+    "persistent_drift": 0,
+    "result": "PASS"
+  },
+  "asserted_fact_incompatibility": {
+    "raises": true,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "mid_service_reassignment": {
+    "raises": true,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "audit_write_failure": {
+    "raises": true,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "final_validation_failure": {
+    "raises": true,
+    "rollback_ok": true,
+    "result": "PASS"
+  },
+  "all_rollback_ok": true,
+  "result": "PASS",
+  "note": "Canonical property import / definition activate may be multi-statement; outer apply must wrap in SERIALIZABLE transaction or accept service split boundaries"
+}

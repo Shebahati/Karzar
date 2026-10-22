@@ -1,0 +1,198 @@
+{
+  "phase": "3B3A",
+  "status": "READY_FOR_OWNER_APPLY_AUTHORIZATION",
+  "status_blockers": [],
+  "generated_at_utc": "2026-10-07T13:33:36Z",
+  "logic_git_sha": "9ab80dca34eb94ab7ce6a1cc51b72a3d92981ff9",
+  "owner_decision_sha256": "9fd833b764338786a44bcee2960dc0c5c4bd633b9188a08509d5a1479881919a",
+  "summary": {
+    "status": "READY_FOR_OWNER_APPLY_AUTHORIZATION",
+    "status_blockers": [],
+    "owner_decision_sha256": "9fd833b764338786a44bcee2960dc0c5c4bd633b9188a08509d5a1479881919a",
+    "wave_3b_rows": 132,
+    "reassignment_candidates": 44,
+    "published_fact_blocked": 44,
+    "service_eligible": 0,
+    "new_pts": 7,
+    "property_seed_additions": 4,
+    "existing_pt_new_definition_versions": 3,
+    "product_name_actions": 0,
+    "authoritative_policy_mutated": false,
+    "authoritative_seed_mutated": false,
+    "live_mutations": 0,
+    "reclassification_workflow_exists": false,
+    "recommended_surface_plate_representation": "plate_length+plate_width+plate_thickness",
+    "body_length_representation": "number/length/mm",
+    "string_fallback": "REJECTED",
+    "schema_migration_required": false
+  },
+  "live_meta": {
+    "collected_at_utc": "2026-10-07T13:27:23Z",
+    "host": "srv5944957438",
+    "database": "karzar_staging",
+    "APP_ENV": "staging",
+    "alembic_revision": "u4v5w6x7y8z9",
+    "transaction_read_only": "on",
+    "mutation_sql_executed": 0
+  },
+  "formatter_gaps": {
+    "existing": [
+      "format_measurement_range_mm",
+      "format_diameter_mm",
+      "format_metric_thread"
+    ],
+    "missing": [
+      {
+        "id": "format_body_length_mm",
+        "required_for": [
+          "LEVEL",
+          "DIGITAL_LEVEL",
+          "INSIDE_SPRING_CALIPER",
+          "OUTSIDE_SPRING_CALIPER"
+        ],
+        "code_work": "add callable in app/domain/product_naming.py"
+      },
+      {
+        "id": "format_plate_lwt_mm",
+        "required_for": [
+          "SURFACE_PLATE"
+        ],
+        "code_work": "compose plate_length×plate_width×plate_thickness as L×W×T میلی‌متر"
+      }
+    ],
+    "policy_must_not_reference_missing_formatters_until_implemented": true
+  },
+  "unit_level_rehearsal": {
+    "classification": "UNIT_LEVEL_CONTRACT_REHEARSAL",
+    "production_equivalent": false,
+    "published_fact_refusal": "REFUSED_PUBLISHED_FACTS",
+    "active_definition_membership_edit": "REFUSED_ACTIVE_IMMUTABLE",
+    "activation_with_draft_property": "REFUSED_DRAFT_PROPERTY",
+    "tuple3_rejected": "REJECTED_UNSUPPORTED_TUPLE3",
+    "body_length_schema_ok": true,
+    "string_fallback_plate_semantically_rejected": true,
+    "service_eligible_reassignments": 0,
+    "published_fact_blocked_reassignments": 44,
+    "prestate_fingerprint": "b4f2a9e3e1b043280ca5d076409a47e7e934cd6cfdcb71db6ef459c3e7dcbf09",
+    "note": "PostgreSQL schema-faithful rehearsal recorded separately when DSN provided",
+    "result": "PASS"
+  },
+  "postgres_contract_rehearsal": {
+    "db_engine": "postgresql",
+    "db_version": "PostgreSQL 15.18 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "alembic_revision": "u4v5w6x7y8z9",
+    "isolation": "SERIALIZABLE + ROLLBACK",
+    "official_property_import": "simulated_prereq_active_properties_seeded",
+    "definition_lifecycle": "draft_membership_then_rollback",
+    "service_level_assignment": "REFUSED_PUBLISHED_FACTS",
+    "audit_writes": 0,
+    "published_fact_refusal": true,
+    "active_definition_id_probe": 2,
+    "prestate_fingerprint": "f7e59a8c77f280ca1205675096eec4e4",
+    "post_rollback_fingerprint": "0983c510e0bb541b8ecdad3206ed7cb1",
+    "persistent_mutations": 0,
+    "tx_status": "VALIDATED_REFUSAL_AND_DRAFT_PATH_READY_FOR_ROLLBACK",
+    "error": null,
+    "service_eligible_in_pack": 0,
+    "classification": "SCHEMA_FAITHFUL_POSTGRES_CONTRACT_REHEARSAL",
+    "result": "PASS"
+  },
+  "failure_injection": {
+    "property_import": {
+      "raises": true,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "after_first_new_pt": {
+      "raises": true,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "mid_definition_creation": {
+      "raises": true,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "membership_creation": {
+      "raises": true,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "definition_activation": {
+      "raises": true,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "published_fact_reassignment_refusal": {
+      "raises": true,
+      "rollback_ok": true,
+      "persistent_drift": 0,
+      "result": "PASS"
+    },
+    "asserted_fact_incompatibility": {
+      "raises": true,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "mid_service_reassignment": {
+      "raises": true,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "audit_write_failure": {
+      "raises": true,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "final_validation_failure": {
+      "raises": true,
+      "rollback_ok": true,
+      "result": "PASS"
+    },
+    "all_rollback_ok": true,
+    "result": "PASS",
+    "note": "Canonical property import / definition activate may be multi-statement; outer apply must wrap in SERIALIZABLE transaction or accept service split boundaries"
+  },
+  "audit_expectations": {
+    "product_type_create": {
+      "AdminAuditLog": "yes (product_type.create)",
+      "ProductChangeLog": "no"
+    },
+    "product_type_activate": {
+      "AdminAuditLog": "yes (product_type.activate path)",
+      "ProductChangeLog": "no"
+    },
+    "property_dictionary_import": {
+      "AdminAuditLog": "no (current service emits none)",
+      "ProductChangeLog": "no",
+      "note": "do not invent audit; document gap"
+    },
+    "product_type_definition_activate": {
+      "AdminAuditLog": "no (current activate_definition emits none)",
+      "ProductChangeLog": "no",
+      "note": "do not invent audit; document gap"
+    },
+    "assign_product_type": {
+      "AdminAuditLog": "yes (product_type.assign|reassign|clear)",
+      "ProductChangeLog": "yes (field_name=product_type_id)",
+      "expected_product_change_log_rows_for_service_eligible": 0
+    }
+  },
+  "read_only_proof": {
+    "live_product_mutations": 0,
+    "live_product_type_mutations": 0,
+    "live_definition_mutations": 0,
+    "live_property_mutations": 0,
+    "live_membership_mutations": 0,
+    "live_fact_mutations": 0,
+    "live_policy_mutations": 0,
+    "product_name_mutations": 0,
+    "deploy": false,
+    "mutation_sql_executed": 0
+  },
+  "reassignment_fact_gate_counts": {
+    "candidates": 44,
+    "published_fact_blocked": 44,
+    "service_eligible": 0
+  }
+}

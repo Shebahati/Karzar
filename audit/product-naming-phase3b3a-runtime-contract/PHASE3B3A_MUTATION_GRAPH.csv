@@ -1,0 +1,56 @@
+sequence,mutation_class,entity,depends_on,count,notes
+1,PropertyDictionary.seed_ADD,body_length;plate_length;plate_width;plate_thickness,,4,Git authoring SoT overlay then merge into canonical seed in apply phase
+2,PropertyDictionary.IMPORT,property-dictionary-v0-metrology.json,PropertyDictionary.seed_ADD,1,import_property_dictionary transactional/idempotent; no AdminAuditLog today
+3,ProductType.CREATE,LONG_JAW_CALIPER,,1,create_product_type starts draft; audit product_type.create; slug=long-jaw-caliper
+4,ProductType.CREATE,INSIDE_SPRING_CALIPER,,1,create_product_type starts draft; audit product_type.create; slug=inside-spring-caliper
+5,ProductType.CREATE,OUTSIDE_SPRING_CALIPER,,1,create_product_type starts draft; audit product_type.create; slug=outside-spring-caliper
+6,ProductType.CREATE,GAP_TAPER_GAUGE,,1,create_product_type starts draft; audit product_type.create; slug=gap-taper-gauge
+7,ProductType.CREATE,TAPER_BORE_GAUGE,,1,create_product_type starts draft; audit product_type.create; slug=taper-bore-gauge
+8,ProductType.CREATE,TAPER_GAUGE_SET,,1,create_product_type starts draft; audit product_type.create; slug=taper-gauge-set
+9,ProductType.CREATE,LASER_LEVEL,,1,create_product_type starts draft; audit product_type.create; slug=laser-level
+10,ProductTypeDefinition.CREATE,LONG_JAW_CALIPER:v1,ProductType.CREATE:LONG_JAW_CALIPER;PropertyDictionary.IMPORT,1,create_draft_definition then add memberships; empty draft alone insufficient
+11,ProductTypeDefinition.membership_COPY_ADD,LONG_JAW_CALIPER,ProductTypeDefinition.CREATE:LONG_JAW_CALIPER:v1,1,draft-only membership edits
+12,ProductTypeDefinition.ACTIVATE,LONG_JAW_CALIPER:v1,ProductTypeDefinition.membership_COPY_ADD:LONG_JAW_CALIPER,1,activation requires all membership properties status=active
+13,ProductType.ACTIVATE,LONG_JAW_CALIPER,ProductTypeDefinition.ACTIVATE:LONG_JAW_CALIPER:v1,1,Only active PT may be assigned
+14,ProductTypeDefinition.CREATE,INSIDE_SPRING_CALIPER:v1,ProductType.CREATE:INSIDE_SPRING_CALIPER;PropertyDictionary.IMPORT,1,create_draft_definition then add memberships; empty draft alone insufficient
+15,ProductTypeDefinition.membership_COPY_ADD,INSIDE_SPRING_CALIPER,ProductTypeDefinition.CREATE:INSIDE_SPRING_CALIPER:v1,1,draft-only membership edits
+16,ProductTypeDefinition.ACTIVATE,INSIDE_SPRING_CALIPER:v1,ProductTypeDefinition.membership_COPY_ADD:INSIDE_SPRING_CALIPER,1,activation requires all membership properties status=active
+17,ProductType.ACTIVATE,INSIDE_SPRING_CALIPER,ProductTypeDefinition.ACTIVATE:INSIDE_SPRING_CALIPER:v1,1,Only active PT may be assigned
+18,ProductTypeDefinition.CREATE,OUTSIDE_SPRING_CALIPER:v1,ProductType.CREATE:OUTSIDE_SPRING_CALIPER;PropertyDictionary.IMPORT,1,create_draft_definition then add memberships; empty draft alone insufficient
+19,ProductTypeDefinition.membership_COPY_ADD,OUTSIDE_SPRING_CALIPER,ProductTypeDefinition.CREATE:OUTSIDE_SPRING_CALIPER:v1,1,draft-only membership edits
+20,ProductTypeDefinition.ACTIVATE,OUTSIDE_SPRING_CALIPER:v1,ProductTypeDefinition.membership_COPY_ADD:OUTSIDE_SPRING_CALIPER,1,activation requires all membership properties status=active
+21,ProductType.ACTIVATE,OUTSIDE_SPRING_CALIPER,ProductTypeDefinition.ACTIVATE:OUTSIDE_SPRING_CALIPER:v1,1,Only active PT may be assigned
+22,ProductTypeDefinition.CREATE,GAP_TAPER_GAUGE:v1,ProductType.CREATE:GAP_TAPER_GAUGE;PropertyDictionary.IMPORT,1,create_draft_definition then add memberships; empty draft alone insufficient
+23,ProductTypeDefinition.membership_COPY_ADD,GAP_TAPER_GAUGE,ProductTypeDefinition.CREATE:GAP_TAPER_GAUGE:v1,1,draft-only membership edits
+24,ProductTypeDefinition.ACTIVATE,GAP_TAPER_GAUGE:v1,ProductTypeDefinition.membership_COPY_ADD:GAP_TAPER_GAUGE,1,activation requires all membership properties status=active
+25,ProductType.ACTIVATE,GAP_TAPER_GAUGE,ProductTypeDefinition.ACTIVATE:GAP_TAPER_GAUGE:v1,1,Only active PT may be assigned
+26,ProductTypeDefinition.CREATE,TAPER_BORE_GAUGE:v1,ProductType.CREATE:TAPER_BORE_GAUGE;PropertyDictionary.IMPORT,1,create_draft_definition then add memberships; empty draft alone insufficient
+27,ProductTypeDefinition.membership_COPY_ADD,TAPER_BORE_GAUGE,ProductTypeDefinition.CREATE:TAPER_BORE_GAUGE:v1,1,draft-only membership edits
+28,ProductTypeDefinition.ACTIVATE,TAPER_BORE_GAUGE:v1,ProductTypeDefinition.membership_COPY_ADD:TAPER_BORE_GAUGE,1,activation requires all membership properties status=active
+29,ProductType.ACTIVATE,TAPER_BORE_GAUGE,ProductTypeDefinition.ACTIVATE:TAPER_BORE_GAUGE:v1,1,Only active PT may be assigned
+30,ProductTypeDefinition.CREATE,TAPER_GAUGE_SET:v1,ProductType.CREATE:TAPER_GAUGE_SET;PropertyDictionary.IMPORT,1,create_draft_definition then add memberships; empty draft alone insufficient
+31,ProductTypeDefinition.membership_COPY_ADD,TAPER_GAUGE_SET,ProductTypeDefinition.CREATE:TAPER_GAUGE_SET:v1,1,draft-only membership edits
+32,ProductTypeDefinition.ACTIVATE,TAPER_GAUGE_SET:v1,ProductTypeDefinition.membership_COPY_ADD:TAPER_GAUGE_SET,1,activation requires all membership properties status=active
+33,ProductType.ACTIVATE,TAPER_GAUGE_SET,ProductTypeDefinition.ACTIVATE:TAPER_GAUGE_SET:v1,1,Only active PT may be assigned
+34,ProductTypeDefinition.CREATE,LASER_LEVEL:v1,ProductType.CREATE:LASER_LEVEL;PropertyDictionary.IMPORT,1,create_draft_definition then add memberships; empty draft alone insufficient
+35,ProductTypeDefinition.membership_COPY_ADD,LASER_LEVEL,ProductTypeDefinition.CREATE:LASER_LEVEL:v1,1,draft-only membership edits
+36,ProductTypeDefinition.ACTIVATE,LASER_LEVEL:v1,ProductTypeDefinition.membership_COPY_ADD:LASER_LEVEL,1,activation requires all membership properties status=active
+37,ProductType.ACTIVATE,LASER_LEVEL,ProductTypeDefinition.ACTIVATE:LASER_LEVEL:v1,1,Only active PT may be assigned
+38,ProductTypeDefinition.CREATE,LEVEL:v2,PropertyDictionary.IMPORT,1,active Definitions immutable; new draft version required
+39,ProductTypeDefinition.membership_COPY_ADD,LEVEL:v2,ProductTypeDefinition.CREATE:LEVEL:v2,1,copy prior memberships then apply approved ADD delta
+40,ProductTypeDefinition.ACTIVATE,LEVEL:v2,ProductTypeDefinition.membership_COPY_ADD:LEVEL:v2,1,prior active Definition retires on activate
+41,ProductTypeDefinition.old_lifecycle_transition,LEVEL:v1->retired,ProductTypeDefinition.ACTIVATE:LEVEL:v2,1,service retires prior active during activate_definition
+42,ProductTypeDefinition.CREATE,DIGITAL_LEVEL:v2,PropertyDictionary.IMPORT,1,active Definitions immutable; new draft version required
+43,ProductTypeDefinition.membership_COPY_ADD,DIGITAL_LEVEL:v2,ProductTypeDefinition.CREATE:DIGITAL_LEVEL:v2,1,copy prior memberships then apply approved ADD delta
+44,ProductTypeDefinition.ACTIVATE,DIGITAL_LEVEL:v2,ProductTypeDefinition.membership_COPY_ADD:DIGITAL_LEVEL:v2,1,prior active Definition retires on activate
+45,ProductTypeDefinition.old_lifecycle_transition,DIGITAL_LEVEL:v1->retired,ProductTypeDefinition.ACTIVATE:DIGITAL_LEVEL:v2,1,service retires prior active during activate_definition
+46,ProductTypeDefinition.CREATE,SURFACE_PLATE:v2,PropertyDictionary.IMPORT,1,active Definitions immutable; new draft version required
+47,ProductTypeDefinition.membership_COPY_ADD,SURFACE_PLATE:v2,ProductTypeDefinition.CREATE:SURFACE_PLATE:v2,1,copy prior memberships then apply approved ADD delta
+48,ProductTypeDefinition.ACTIVATE,SURFACE_PLATE:v2,ProductTypeDefinition.membership_COPY_ADD:SURFACE_PLATE:v2,1,prior active Definition retires on activate
+49,ProductTypeDefinition.old_lifecycle_transition,SURFACE_PLATE:v1->retired,ProductTypeDefinition.ACTIVATE:SURFACE_PLATE:v2,1,service retires prior active during activate_definition
+50,Product.product_type_id.REASSIGN_SERVICE,assign_product_type,ProductType.ACTIVATE;ProductTypeDefinition.ACTIVATE,0,service-eligible only; emits ProductChangeLog + AdminAuditLog
+51,Product.product_type_id.RECLASSIFICATION_REQUIRED,PHASE_3B3_RECLASSIFICATION_BLOCKER,explicit_reclassification_workflow_missing,44,published_facts>0; no bypass; no direct SQL
+52,ProductChangeLog,field_name=product_type_id,Product.product_type_id.REASSIGN_SERVICE,0,expected log rows == service-eligible reassignment count
+53,AdminAuditLog,product_type.reassign,Product.product_type_id.REASSIGN_SERVICE,0,assignment path dual-writes audit; property import does not
+54,NamingPolicy.delta,docs/architecture/specs/product-naming-v1/PRODUCT_TYPE_CANONICAL_NAMING_POLICY.csv,ProductType.ACTIVATE;PropertyDictionary.IMPORT,0,NOT mutated in 3B3A; eventual ADD/UPDATE after PT+property exist
+55,Product.name,FORBIDDEN,,0,Phase 3B3A/3B3 must keep Product.name actions = 0
