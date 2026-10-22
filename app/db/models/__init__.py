@@ -23,6 +23,11 @@ from app.db.models.content import (
     OtpPurpose,
     ProductComment,
 )
+from app.db.models.hero_design import (
+    HeroDesignDraft,
+    HeroDesignPublished,
+    HeroDesignRevision,
+)
 from app.db.models.hesabfa import (
     HesabfaContactMapping,
     HesabfaInvoiceRecord,
@@ -72,11 +77,6 @@ from app.db.models.product_type import (
     ProductTypeDefinition,
     ProductTypeDefinitionStatus,
     ProductTypeStatus,
-)
-from app.db.models.hero_design import (
-    HeroDesignDraft,
-    HeroDesignPublished,
-    HeroDesignRevision,
 )
 from app.db.models.user import User, UserRole
 

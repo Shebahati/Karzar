@@ -16,9 +16,9 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql import func
 
 from app.db.models.base import Base
 
