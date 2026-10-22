@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "manifest_rows": 206,
+  "live_rows_fetched": 206,
+  "drift_count": 0,
+  "drifts_sample": [],
+  "drifts_truncated": false,
+  "discount_display_changes": 0,
+  "discount_impacts_sample": []
+}
