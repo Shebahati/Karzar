@@ -363,7 +363,7 @@ async def create_products_ast_batch(
     db: Any,
     plan_rows: list[CreatePlanRow],
 ) -> list[int]:
-    """AST one-time CREATE: ProductCreate validation, flush-only, no Hesabfa."""
+    """AST one-time CREATE: ProductCreate validation, flush-only, no external ERP sync."""
     from app.crud.product import check_sku_exists, create_product
     from app.schemas.product import ProductCreate
     from app.utils.category_validation import (
