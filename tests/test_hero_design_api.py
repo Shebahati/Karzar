@@ -256,7 +256,6 @@ def test_rollback_stale_current_revision_rejected(hero_seeded, step_up_headers, 
         headers=step_up_headers,
     )
     assert publish.status_code == 200
-    current_id = publish.json()["revision_id"]
 
     pin = client.post(
         "/api/v1/auth/verify-pin",
