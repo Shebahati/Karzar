@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.utils.storefront_catalog import decimal_to_api_string
 
-AdjustmentMode = Literal["percent", "fixed"]
+AdjustmentMode = Literal["percent"]
 AdjustmentDirection = Literal["increase", "decrease"]
 
 
@@ -24,8 +24,13 @@ class BrandBulkPricingAdjustRequest(BaseModel):
     @classmethod
     def validate_amount(cls, value: Decimal, info):
         mode = info.data.get("mode")
-        if mode == "percent" and value > Decimal("100"):
-            raise ValueError("percent amount cannot exceed 100")
+        if mode == "percent":
+            if value <= Decimal("0"):
+                raise ValueError("percent must be positive")
+            if value >= Decimal("100") and info.data.get("direction") == "decrease":
+                raise ValueError("decrease percent must be less than 100")
+            if value > Decimal("100"):
+                raise ValueError("percent amount cannot exceed 100")
         return value
 
 

@@ -3,10 +3,10 @@
 from fastapi import APIRouter
 
 from app.api.endpoints import (
-    brand_bulk_pricing,
     abandoned_carts,
     auth,
     brand,
+    brand_bulk_pricing,
     cart,
     category,
     cms,

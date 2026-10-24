@@ -1,9 +1,8 @@
 """Brand bulk base_price adjustment (Feature D)."""
 
-import pytest
 from app.core.config import settings
-from fastapi.testclient import TestClient
 from app.main import app
+from fastapi.testclient import TestClient
 
 BASE = "/api/v1/admin/brand-bulk-pricing"
 
@@ -82,9 +81,9 @@ class TestBrandBulkPricing:
             client,
             super_admin_headers,
             brand_id=1,
-            mode="fixed",
+            mode="percent",
             direction="increase",
-            amount="50",
+            amount="25",
         ).json()
         confirm = _confirm(client, super_admin_headers, preview)
         assert confirm.status_code == 201
@@ -145,7 +144,7 @@ class TestBrandBulkPricing:
             client,
             super_admin_headers,
             brand_id=1,
-            mode="fixed",
+            mode="percent",
             direction="increase",
             amount="5",
         ).json()
@@ -178,14 +177,101 @@ class TestBrandBulkPricing:
         assert listing.json()["total"] >= 1
 
 
+
+
+    def test_fixed_mode_rejected(self, super_admin_headers):
+        client = TestClient(app)
+        response = _preview(
+            client,
+            super_admin_headers,
+            brand_id=1,
+            mode="fixed",
+            direction="increase",
+            amount="10",
+        )
+        assert response.status_code == 422
+
+    def test_null_base_price_skipped_in_cohort_no_false_drift(
+        self, super_admin_headers, step_up_headers, valid_product_data, monkeypatch
+    ):
+        client = TestClient(app)
+        with_null = _create_product(
+            client, super_admin_headers, valid_product_data, "BBP-NULL", base_price=None
+        )
+        with_price = _create_product(
+            client, super_admin_headers, valid_product_data, "BBP-OK", base_price="100"
+        )
+        preview = _preview(
+            client,
+            super_admin_headers,
+            brand_id=1,
+            mode="percent",
+            direction="increase",
+            amount="10",
+        ).json()
+        null_line = next(row for row in preview["lines"] if row["sku"] == "BBP-NULL")
+        ok_line = next(row for row in preview["lines"] if row["sku"] == "BBP-OK")
+        assert null_line["line_status"] == "skipped"
+        assert ok_line["line_status"] == "pending"
+        operation_id = _confirm(client, super_admin_headers, preview).json()["id"]
+        monkeypatch.setattr(settings, "BRAND_BULK_PRICE_APPLY_ENABLED", True)
+        applied = client.post(
+            f"{BASE}/operations/{operation_id}/apply",
+            headers={**step_up_headers, "Idempotency-Key": "bbp-mixed-cohort"},
+        )
+        assert applied.status_code == 200
+        assert applied.json()["applied_count"] == 1
+        product = client.get(f"/api/v1/products/{with_price['id']}", headers=super_admin_headers)
+        assert product.json()["base_price"] == "110"
+
+    def test_stale_manifest_rejected(self, super_admin_headers, valid_product_data):
+        client = TestClient(app)
+        _create_product(client, super_admin_headers, valid_product_data, "BBP-MAN", base_price="100")
+        preview = _preview(
+            client,
+            super_admin_headers,
+            brand_id=1,
+            mode="percent",
+            direction="increase",
+            amount="10",
+        ).json()
+        preview["manifest_sha256"] = "0" * 64
+        confirm = _confirm(client, super_admin_headers, preview)
+        assert confirm.status_code == 409
+
+class TestBrandBulkPricingFingerprint:
+    def test_unchanged_mixed_cohort_same_fingerprint(self):
+        from datetime import UTC, datetime
+        from decimal import Decimal
+
+        from app.db.models.product import Product
+        from app.services.brand_bulk_pricing_service import compute_catalog_fingerprint_sha256
+
+        def prod(pid, sku, base, original=None):
+            p = Product(id=pid, brand_id=1, sku=sku)
+            p.base_price = Decimal(base) if base is not None else None
+            p.original_price = Decimal(original) if original is not None else None
+            p.deleted_at = None
+            return p
+
+        cohort = [
+            prod(1, "A", "100"),
+            prod(2, "B", None),
+            prod(3, "C", "80", "100"),
+        ]
+        fp1 = compute_catalog_fingerprint_sha256(cohort)
+        fp2 = compute_catalog_fingerprint_sha256(list(reversed(cohort)))
+        assert fp1 == fp2
+
 class TestBrandBulkPricingUnit:
     def test_compute_adjusted_base_price(self):
+        from decimal import Decimal
+
         from app.db.models.brand_bulk_pricing import (
             BrandPriceAdjustmentDirection,
             BrandPriceAdjustmentMode,
         )
         from app.services.brand_bulk_pricing_service import compute_adjusted_base_price
-        from decimal import Decimal
 
         result = compute_adjusted_base_price(
             old_base=Decimal("100"),

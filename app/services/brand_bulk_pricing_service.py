@@ -28,13 +28,13 @@ from app.db.models.brand_bulk_pricing import (
 from app.db.models.product import Brand, Product
 from app.db.models.user import User
 from app.schemas.brand_bulk_pricing import (
+    BrandBulkPricingAdjustRequest,
     BrandBulkPricingApplyResponse,
     BrandBulkPricingConfirmRequest,
     BrandBulkPricingOperationDetail,
     BrandBulkPricingOperationListResponse,
     BrandBulkPricingOperationSummary,
     BrandBulkPricingPreviewResponse,
-    BrandBulkPricingAdjustRequest,
     line_from_values,
 )
 from app.services.audit_service import record_audit
@@ -82,14 +82,19 @@ def _discount_conflict(new_base: Decimal, original: Decimal | None) -> str | Non
     return None
 
 
-def _catalog_fingerprint_rows(products: list[Product]) -> list[dict[str, str]]:
+def _catalog_fingerprint_rows(products: list[Product]) -> list[dict[str, str | None]]:
     rows = []
     for product in sorted(products, key=lambda p: p.id):
         base = product.base_price
+        original = product.original_price
         rows.append(
             {
                 "product_id": str(product.id),
+                "brand_id": str(product.brand_id),
+                "sku": product.sku,
                 "base_price": decimal_to_api_string(base) if base is not None else None,
+                "original_price": decimal_to_api_string(original) if original is not None else None,
+                "deleted_at": product.deleted_at.isoformat() if product.deleted_at else None,
             }
         )
     return rows
@@ -214,7 +219,14 @@ class BrandBulkPricingService:
         db: AsyncSession, payload: BrandBulkPricingAdjustRequest
     ) -> BrandBulkPricingPreviewResponse:
         await _fetch_brand_or_404(db, payload.brand_id)
-        mode = BrandPriceAdjustmentMode(payload.mode)
+        if payload.mode != "percent":
+            raise api_error(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                error_code=ErrorCode.VALIDATION_FAILED,
+                message="Only percent adjustments are supported",
+                details=[{"field": "mode", "message": "percent only"}],
+            )
+        mode = BrandPriceAdjustmentMode.PERCENT
         direction = BrandPriceAdjustmentDirection(payload.direction)
         amount = to_decimal(payload.amount)
         products = await _fetch_brand_products(db, payload.brand_id)
@@ -488,15 +500,17 @@ class BrandBulkPricingService:
                 message=f"Operation status {operation.status.value} cannot be applied",
             )
 
-        pending_lines = [
-            line for line in operation.lines if line.line_status == BrandPriceLineStatus.PENDING
-        ]
-        product_ids = [line.product_id for line in pending_lines]
-        locked = await crud_product.get_products_for_update(db, product_ids)
-        live_products = list(locked.values())
-        live_fingerprint = compute_catalog_fingerprint_sha256(live_products)
-        drift_detected = live_fingerprint != operation.catalog_fingerprint_sha256
-        if drift_detected:
+        pending_lines = sorted(
+            [line for line in operation.lines if line.line_status == BrandPriceLineStatus.PENDING],
+            key=lambda row: row.product_id,
+        )
+        cohort_products = await _fetch_brand_products(db, operation.brand_id)
+        cohort_ids = sorted(p.id for p in cohort_products)
+        locked = await crud_product.get_products_for_update(db, cohort_ids)
+        live_fingerprint = compute_catalog_fingerprint_sha256(
+            [locked[pid] for pid in cohort_ids if pid in locked]
+        )
+        if live_fingerprint != operation.catalog_fingerprint_sha256:
             operation.status = BrandPriceOperationStatus.FAILED
             operation.apply_error = "catalog_fingerprint_drift"
             await db.commit()
@@ -507,22 +521,53 @@ class BrandBulkPricingService:
                 details=[{"field": "catalog_fingerprint_sha256", "message": "drift"}],
             )
 
-        applied_count = 0
+        drift_details: list[dict[str, str]] = []
         for line in pending_lines:
             product = locked.get(line.product_id)
-            if product is None:
-                line.line_status = BrandPriceLineStatus.SKIPPED
-                line.conflict_reason = "product_missing"
+            if product is None or product.deleted_at is not None:
+                drift_details.append({"product_id": str(line.product_id), "reason": "product_missing"})
+                continue
+            if product.brand_id != operation.brand_id:
+                drift_details.append({"product_id": str(line.product_id), "reason": "brand_mismatch"})
+                continue
+            old_live = decimal_to_api_string(product.base_price)
+            old_plan = decimal_to_api_string(line.old_base_price)
+            if old_live != old_plan:
+                drift_details.append({"product_id": str(line.product_id), "reason": "base_price_drift"})
+                continue
+            orig_live = decimal_to_api_string(product.original_price)
+            orig_plan = decimal_to_api_string(line.original_price_snapshot)
+            if orig_live != orig_plan:
+                drift_details.append({"product_id": str(line.product_id), "reason": "original_price_drift"})
                 continue
             if line.new_base_price is None:
-                line.line_status = BrandPriceLineStatus.SKIPPED
+                drift_details.append({"product_id": str(line.product_id), "reason": "missing_new_price"})
                 continue
             new_base = to_decimal(line.new_base_price)
             conflict = _discount_conflict(new_base, product.original_price)
             if conflict:
-                line.line_status = BrandPriceLineStatus.CONFLICT
-                line.conflict_reason = conflict
+                drift_details.append({"product_id": str(line.product_id), "reason": conflict})
                 continue
+            expected_new = decimal_to_api_string(new_base)
+            if expected_new != decimal_to_api_string(line.new_base_price):
+                drift_details.append({"product_id": str(line.product_id), "reason": "new_price_mismatch"})
+
+        if drift_details:
+            operation.status = BrandPriceOperationStatus.FAILED
+            operation.apply_error = "apply_precheck_failed"
+            operation.audit_details = {"drift": drift_details}
+            await db.commit()
+            raise api_error(
+                status.HTTP_409_CONFLICT,
+                error_code=ErrorCode.CONFLICT,
+                message="Approved plan no longer matches live catalog",
+                details=drift_details,
+            )
+
+        applied_count = 0
+        for line in pending_lines:
+            product = locked[line.product_id]
+            new_base = to_decimal(line.new_base_price)
             old_str = decimal_to_api_string(product.base_price)
             product.base_price = new_base
             line.line_status = BrandPriceLineStatus.APPLIED

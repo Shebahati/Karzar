@@ -1,7 +1,7 @@
 """Brand bulk price operations (Feature D).
 
 Revision ID: a1b2c3d4e5f6
-Revises: z1a2b3c4d5e6
+Revises: a3f410b5c6d7
 Create Date: 2026-10-24 18:30:00.000000
 """
 
@@ -14,7 +14,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision: str = "a1b2c3d4e5f6"
-down_revision: str | None = "z1a2b3c4d5e6"
+down_revision: str | None = "a3f410b5c6d7"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

@@ -98,7 +98,7 @@ class BrandPriceOperation(Base):
     apply_error: Mapped[str | None] = mapped_column(Text)
     audit_details: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
 
-    lines: Mapped[list["BrandPriceOperationLine"]] = relationship(
+    lines: Mapped[list[BrandPriceOperationLine]] = relationship(
         "BrandPriceOperationLine",
         back_populates="operation",
         cascade="all, delete-orphan",

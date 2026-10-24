@@ -9,12 +9,12 @@ from app.crud import platform as crud_platform
 from app.db.database import get_db
 from app.db.models.user import User
 from app.schemas.brand_bulk_pricing import (
+    BrandBulkPricingAdjustRequest,
     BrandBulkPricingApplyResponse,
     BrandBulkPricingConfirmRequest,
     BrandBulkPricingOperationDetail,
     BrandBulkPricingOperationListResponse,
     BrandBulkPricingPreviewResponse,
-    BrandBulkPricingAdjustRequest,
 )
 from app.services.brand_bulk_pricing_service import (
     IDEMPOTENCY_SCOPE_PREFIX,
