@@ -159,6 +159,9 @@ class Settings(BaseSettings):
 
     PENDING_PAYMENT_EXPIRE_MINUTES: int = Field(default=30, ge=5, le=1440)
     ORDER_EXPIRY_SWEEP_INTERVAL_SECONDS: int = Field(default=60, ge=10, le=600)
+    # Feature D: brand bulk base_price apply kill switch (preview/confirm always allowed).
+    BRAND_BULK_PRICE_APPLY_ENABLED: bool = False
+
     ADMIN_STEP_UP_PIN: str = Field(
         ...,
         min_length=6,

@@ -3,6 +3,7 @@
 from fastapi import APIRouter
 
 from app.api.endpoints import (
+    brand_bulk_pricing,
     abandoned_carts,
     auth,
     brand,
@@ -35,6 +36,11 @@ api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_router.include_router(product.router, prefix="/products", tags=["Products"])
 api_router.include_router(category.router, prefix="/categories", tags=["Categories"])
 api_router.include_router(brand.router, prefix="/brands", tags=["Brands"])
+api_router.include_router(
+    brand_bulk_pricing.router,
+    prefix="/admin/brand-bulk-pricing",
+    tags=["Admin — Brand Bulk Pricing"],
+)
 api_router.include_router(cart.router, prefix="/cart", tags=["Cart"])
 api_router.include_router(order.router, prefix="/orders", tags=["Orders"])
 api_router.include_router(
