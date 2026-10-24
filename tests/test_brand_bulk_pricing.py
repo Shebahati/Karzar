@@ -195,7 +195,7 @@ class TestBrandBulkPricing:
         self, super_admin_headers, step_up_headers, valid_product_data, monkeypatch
     ):
         client = TestClient(app)
-        with_null = _create_product(
+        _create_product(
             client, super_admin_headers, valid_product_data, "BBP-NULL", base_price=None
         )
         with_price = _create_product(
@@ -241,7 +241,6 @@ class TestBrandBulkPricing:
 
 class TestBrandBulkPricingFingerprint:
     def test_unchanged_mixed_cohort_same_fingerprint(self):
-        from datetime import UTC, datetime
         from decimal import Decimal
 
         from app.db.models.product import Product

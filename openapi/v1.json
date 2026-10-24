@@ -14263,10 +14263,7 @@
           },
           "mode": {
             "type": "string",
-            "enum": [
-              "percent",
-              "fixed"
-            ],
+            "const": "percent",
             "title": "Mode"
           },
           "direction": {
@@ -14347,10 +14344,7 @@
           },
           "mode": {
             "type": "string",
-            "enum": [
-              "percent",
-              "fixed"
-            ],
+            "const": "percent",
             "title": "Mode"
           },
           "direction": {
@@ -14407,10 +14401,7 @@
           },
           "mode": {
             "type": "string",
-            "enum": [
-              "percent",
-              "fixed"
-            ],
+            "const": "percent",
             "title": "Mode"
           },
           "direction": {
@@ -14543,10 +14534,7 @@
           },
           "mode": {
             "type": "string",
-            "enum": [
-              "percent",
-              "fixed"
-            ],
+            "const": "percent",
             "title": "Mode"
           },
           "direction": {
@@ -14701,10 +14689,7 @@
           },
           "mode": {
             "type": "string",
-            "enum": [
-              "percent",
-              "fixed"
-            ],
+            "const": "percent",
             "title": "Mode"
           },
           "direction": {
