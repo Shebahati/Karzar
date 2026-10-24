@@ -17,8 +17,6 @@ unclassified_allow:
   - "scripts/brand_logo_assets/README.md"
   - "deploy/staging/frontend/README.md"
   - "audit/ci-acceleration-2026-10-14/**"
-  - "audit/hero-image-quality-20261019/**"
-  - "audit/owner-migration-reconciliation-20261019/**"
   - "audit/taxonomy-phase1b-baseline-2026-10-15/preserved-evidence/**"
 
 documents:
@@ -2661,3 +2659,33 @@ documents:
     branch: audit/catalog-258-insize-final-commercial-source
     notes: >
       Rollback plan + manifest pointers for INSIZE commercial reconcile (#258).
+
+  - id: AST-PRICE-CATALOG-COMMERCIAL-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/COMMERCIAL_PRICING_DECISION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: chore/ast-price-catalog-20261024
+    notes: >
+      Sanitized AST one-time commercial pricing decision (owner-approved formula). No APPLY.
+
+  - id: AST-PRICE-CATALOG-POLICY-EVIDENCE-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/PRICE_POLICY_EVIDENCE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: chore/ast-price-catalog-20261024
+    notes: >
+      OWNER_COMMERCIAL_PRICING_POLICY_APPROVED evidence for AST_COOPERATION_LIST_RIAL_DIV_10.
+
+  - id: AST-PRICE-CATALOG-APPLY-PLAN-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/PRODUCTION_APPLY_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: chore/ast-price-catalog-20261024
+    notes: >
+      Category B production APPLY plan for AST price/catalog one-time operation. Not executed.
