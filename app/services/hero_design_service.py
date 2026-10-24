@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -56,6 +57,9 @@ def _append_error(errors: list[HeroValidationErrorItem], field: str, message: st
     errors.append(HeroValidationErrorItem(field=field, message=message))
 
 
+_MAX_INT_STRING_DIGITS = 20
+
+
 def _safe_non_negative_int(
     value: Any,
     field: str,
@@ -64,16 +68,28 @@ def _safe_non_negative_int(
     if isinstance(value, bool):
         _append_error(errors, field, "must be an integer")
         return None
+    number: int | None = None
     if isinstance(value, int):
         number = value
-    elif isinstance(value, float) and value.is_integer():
-        number = int(value)
-    elif isinstance(value, str):
-        stripped = value.strip()
-        if not stripped.isdigit():
+    elif isinstance(value, float):
+        if not math.isfinite(value) or not value.is_integer():
             _append_error(errors, field, "must be an integer")
             return None
-        number = int(stripped)
+        try:
+            number = int(value)
+        except (OverflowError, ValueError):
+            _append_error(errors, field, "must be an integer")
+            return None
+    elif isinstance(value, str):
+        stripped = value.strip()
+        if not stripped or len(stripped) > _MAX_INT_STRING_DIGITS or not stripped.isdigit():
+            _append_error(errors, field, "must be an integer")
+            return None
+        try:
+            number = int(stripped)
+        except (OverflowError, ValueError):
+            _append_error(errors, field, "must be an integer")
+            return None
     else:
         _append_error(errors, field, "must be an integer")
         return None
@@ -85,9 +101,19 @@ def _safe_non_negative_int(
 
 def _slide_sort_key(slide: dict[str, Any]) -> int:
     order = slide.get("sortOrder")
-    if isinstance(order, bool) or not isinstance(order, int | float):
+    if isinstance(order, bool):
         return 10_000
-    return int(order)
+    if isinstance(order, int):
+        return order if order >= 0 else 10_000
+    if isinstance(order, float):
+        if not math.isfinite(order) or not order.is_integer():
+            return 10_000
+        try:
+            converted = int(order)
+        except (OverflowError, ValueError):
+            return 10_000
+        return converted if converted >= 0 else 10_000
+    return 10_000
 
 
 def validate_pack(pack: dict[str, Any]) -> list[HeroValidationErrorItem]:

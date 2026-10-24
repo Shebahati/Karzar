@@ -47,3 +47,43 @@ def test_validate_rejects_non_object_slide_without_raising():
     pack = {"version": 1, "slides": [None, "bad"], "categoryDock": {"categories": []}}
     errors = hero_svc.validate_pack(pack)
     assert errors
+
+def test_validate_rejects_oversized_numeric_string_featured_order():
+    pack = _r0_pack()
+    pack["categoryDock"]["categories"][0]["featuredOrder"] = "9" * 10_000
+    errors = hero_svc.validate_pack(pack)
+    assert any("featuredOrder" in e.field for e in errors)
+
+
+def test_validate_rejects_nan_sort_order_without_raising():
+    pack = _r0_pack()
+    pack["slides"][0]["sortOrder"] = float("nan")
+    errors = hero_svc.validate_pack(pack)
+    assert any("sortOrder" in e.field for e in errors)
+
+
+def test_validate_rejects_infinity_sort_order_without_raising():
+    pack = _r0_pack()
+    pack["slides"][0]["sortOrder"] = float("inf")
+    errors = hero_svc.validate_pack(pack)
+    assert any("sortOrder" in e.field for e in errors)
+
+
+def test_validate_extreme_numeric_inputs_never_raise():
+    pack = {
+        "version": 1,
+        "slides": [
+            {
+                "isActive": True,
+                "id": "s",
+                "sortOrder": float("inf"),
+                "config": {"linkedOrbKey": "discounts", "background": {}},
+            }
+        ]
+        * 5,
+        "categoryDock": {
+            "categories": [{"key": "discounts", "featuredOrder": "1" * 500}],
+        },
+    }
+    errors = hero_svc.validate_pack(pack)
+    assert errors
