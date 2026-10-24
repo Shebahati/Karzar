@@ -451,6 +451,54 @@ def run_reconcile(
                 outcome_counts["UNCHANGED"] += 1
                 continue
 
+            if not extraction_visual_qa_cleared(r):
+                hold_reason = "HOLD_VISUAL_PDF_QA_REQUIRED"
+                ledger.append(
+                    _ledger_from(
+                        r, code, "HOLD", hold_reason, qa_flags, product.product_id,
+                        str(proposed) if proposed else "", str(current) if current else "", policy_id,
+                    )
+                )
+                holds.append(
+                    {
+                        "product_id": product.product_id,
+                        "sku": product.sku,
+                        "code": code,
+                        "hold_reason": hold_reason,
+                        "qa_flags": "|".join(qa_flags + ["UPDATE_PATH_VISUAL_QA_UNRESOLVED"]),
+                        "current_price": str(current) if current else "",
+                        "proposed_price": str(proposed) if proposed else "",
+                        "source_document": r.get("file"),
+                        "source_page": r.get("page"),
+                    }
+                )
+                outcome_counts["HOLD"] += 1
+                continue
+
+            if QA_MANUFACTURER_IDENTITY_REVIEW in qa_flags:
+                hold_reason = "HOLD_MANUFACTURER_IDENTITY_UNVERIFIED"
+                ledger.append(
+                    _ledger_from(
+                        r, code, "HOLD", hold_reason, qa_flags, product.product_id,
+                        str(proposed) if proposed else "", str(current) if current else "", policy_id,
+                    )
+                )
+                holds.append(
+                    {
+                        "product_id": product.product_id,
+                        "sku": product.sku,
+                        "code": code,
+                        "hold_reason": hold_reason,
+                        "qa_flags": "|".join(qa_flags),
+                        "current_price": str(current) if current else "",
+                        "proposed_price": str(proposed) if proposed else "",
+                        "source_document": r.get("file"),
+                        "source_page": r.get("page"),
+                    }
+                )
+                outcome_counts["HOLD"] += 1
+                continue
+
             pct = pct_change(current, proposed)
             if pct is not None and (
                 pct <= -PRICE_DECREASE_REVIEW_PCT or pct >= PRICE_INCREASE_REVIEW_PCT

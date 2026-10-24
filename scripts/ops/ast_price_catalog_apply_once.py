@@ -81,6 +81,8 @@ def main() -> int:
     parser.add_argument("--confirm-stage-manifest-sha256", default="")
     parser.add_argument("--confirm-master-update-manifest-sha256", default="")
     parser.add_argument("--confirm-product-id-allowlist-sha256", default="")
+    parser.add_argument("--owner-acceptance-record-file", type=Path, default=None)
+    parser.add_argument("--confirm-canary-full-cohort-bypass", action="store_true")
     args = parser.parse_args()
 
     cohort = _parse_cohort(args.apply_cohort)
@@ -150,6 +152,25 @@ def main() -> int:
         return 2
 
     try:
+        if args.apply and cohort == "update":
+            if update_stage == "full" and not args.confirm_canary_full_cohort_bypass:
+                raise ApplyAbort("update_stage_full_blocked_use_stage1_stage2_stage3_canary_sequence")
+            if update_stage in {"stage2", "stage3"} and args.database_url:
+                from catalog_target.ast_price_catalog_execution import async_sqlalchemy_database_url
+                from catalog_target.ast_price_catalog_execution_store import assert_prior_canary_stages_verified
+                from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+
+                async def _check_prior() -> None:
+                    engine = create_async_engine(async_sqlalchemy_database_url(args.database_url))
+                    async with AsyncSession(engine) as session:
+                        await assert_prior_canary_stages_verified(
+                            session,
+                            master_update_manifest_sha256=master_update_sha,
+                            update_stage=update_stage,
+                        )
+                    await engine.dispose()
+
+                asyncio.run(_check_prior())
         assert_apply_gates(
             apply=args.apply,
             rollback=args.rollback,
@@ -175,7 +196,7 @@ def main() -> int:
                 live_create_manifest_sha256=ids["create_manifest_sha256"],
                 live_update_count=update_count,
                 live_create_count=create_count,
-                confirm_git_commit_sha=args.confirm_git_commit_sha,
+                owner_acceptance_record_path=args.owner_acceptance_record_file,
                 confirm_update_stage=update_stage,
                 confirm_stage_manifest_sha256=args.confirm_stage_manifest_sha256 or stage_sha,
                 confirm_master_update_manifest_sha256=(

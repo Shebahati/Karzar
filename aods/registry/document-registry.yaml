@@ -2744,6 +2744,30 @@ documents:
     owner_role: R-OPS
     branch: chore/ast-price-catalog-20261024
 
+  - id: AST-UPDATE-SOURCE-VERIFICATION-REGISTRY-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_SOURCE_VERIFICATION_REGISTRY.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-UPDATE-QA-COVERAGE-REPORT-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_QA_COVERAGE_REPORT.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-OWNER-ACCEPTANCE-RECORD-STAGE1-TEMPLATE-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_ACCEPTANCE_RECORD_UPDATE_STAGE1.template.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
   - id: AST-UPDATE-OWNER-EVIDENCE-INDEX-20261024
     path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_OWNER_EVIDENCE_INDEX.json
     class: EVIDENCE

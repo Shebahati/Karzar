@@ -1,13 +1,13 @@
 # UPDATE cohort owner package
 
-- Master UPDATE manifest SHA256: `ba2eb3784f7b2026fc7c72a0cbc9260fa4484ec60de6af87cc8cc58720dcb891`
-- UPDATE rows: **1706**
+- Master UPDATE manifest SHA256: `7a92ad9d458c9faec7365261b4ac19511900a40e7ba71459cb83283c2eb23379`
+- UPDATE rows: **1083**
 - Abnormal-price HOLD exclusions: **32**
 - Financial workbook (off-repo path): `work/UPDATE_FINANCIAL_REVIEW_1706.csv`
-- Workbook SHA256: `542c11eb0eee26b1e15834e58c0390ad0350f2e7cbb4d08f3a056a4ddb9f3f08`
+- Workbook SHA256: `6b27222ae7cc137120416b49e8ddb5b7de214721f685432118fcb71fa96f1e01`
 
 ## Canary stages
 
-- **stage1**: 5 rows, manifest SHA256 `9da27558c3bec52786db4943950d2eb2133b208a4c5b98a4aaead6703360cd51`
-- **stage2**: 50 rows, manifest SHA256 `204d060443897c120a1a8fdf0ee6a6c9b6851c7ad7de7b98242fdebe8e6dbb7a`
-- **stage3**: 1651 rows, manifest SHA256 `bd1218129eb7c65ba0db413ddeee8ae00aa7756c50003069f9a3b3876d75fe69`
+- **stage1**: 5 rows, manifest SHA256 `ae82e5bb9ebed1508df97797795f6df5440944663a4e891618b7fa8ad0f1abb2`
+- **stage2**: 50 rows, manifest SHA256 `d3025eaf7a1421d60c3d8edbe291a5e2c7a5849fdeeda763b0900f006ed87f76`
+- **stage3**: 1028 rows, manifest SHA256 `882fa3d92b1b0d7c9aa23952d1c683e8c2c270891b02142fda038e1d5950973e`

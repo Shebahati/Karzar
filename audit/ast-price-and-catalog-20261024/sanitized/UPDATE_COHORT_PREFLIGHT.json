@@ -7,10 +7,9 @@
   "snapshot_drift_mismatches": [],
   "snapshot_drift_count": 0,
   "canary_plan": {
-    "stage_1": "5 low-risk brand-diverse UPDATE rows (excludes abnormal holds).",
-    "stage_2": "50 additional low-risk rows; excludes stage1 product IDs.",
-    "stage_3": "Remaining UPDATE rows; disjoint allowlists; see UPDATE_CANARY_MANIFESTS.json.",
-    "registry_file": "sanitized/UPDATE_CANARY_MANIFESTS.json"
+    "stage_1": "Apply 5 UPDATE rows with highest absolute_diff; post-commit verify.",
+    "stage_2": "Apply 50-row stratified sample across brand_id; verify.",
+    "stage_3": "Full 1706 UPDATE cohort after owner authorization."
   },
   "post_commit_verification_plan": {
     "method": "fresh_async_connection",

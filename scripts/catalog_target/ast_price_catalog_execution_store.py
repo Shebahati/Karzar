@@ -161,6 +161,36 @@ async def committed_update_product_ids(
     return committed
 
 
+async def assert_prior_canary_stages_verified(
+    session: AsyncSession,
+    *,
+    master_update_manifest_sha256: str,
+    update_stage: str,
+) -> None:
+    order = ("stage1", "stage2", "stage3")
+    stage = (update_stage or "").strip().lower()
+    if stage not in order:
+        return
+    idx = order.index(stage)
+    for prior in order[:idx]:
+        res = await session.execute(
+            text(
+                """
+                SELECT batch_id FROM ast_catalog_execution_batches
+                WHERE cohort = 'update'
+                  AND execution_state = 'VERIFIED'
+                  AND post_commit_verified = TRUE
+                  AND (mutation_plan->'metadata'->>'master_update_manifest_sha256') = :master
+                  AND (mutation_plan->'metadata'->>'update_stage') = :stage
+                LIMIT 1
+                """
+            ),
+            {"master": master_update_manifest_sha256, "stage": prior},
+        )
+        if res.first() is None:
+            raise ApplyAbort(f"prior_canary_stage_not_verified:{prior}")
+
+
 async def assert_update_product_ids_not_committed(
     session: AsyncSession,
     *,
