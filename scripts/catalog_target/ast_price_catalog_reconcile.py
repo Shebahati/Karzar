@@ -13,6 +13,7 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 from typing import Any, Literal
 
+from catalog_target.ast_price_catalog_category_map import classify_create_category
 from catalog_target.ast_price_catalog_constants import (
     BRAND_HINT_TO_ID,
     BRAND_HINT_TO_KEY,
@@ -30,33 +31,9 @@ from catalog_target.core import normalize_sku
 
 PrimaryOutcome = Literal["UPDATE", "CREATE", "UNCHANGED", "HOLD", "REJECTED"]
 
-FILE_CATEGORY_RULES: list[tuple[tuple[str, ...], int, str]] = [
-    (("قلاویز ET",), 49, "قلاویز ماشینی صاف"),
-    (("قلاویز ماشینی چینی",), 49, "قلاویز ماشینی صاف"),
-    (("قلاویز زن اتومات", "قلاویززن اتومات"), 122, "دستگاه قلاویز زن"),
-    (("قلاویززن برقی", "قلاویز زن برقی"), 122, "دستگاه قلاویز زن"),
-    (("قلاویززن بادی",), 122, "دستگاه قلاویز زن"),
-    (("دریل مگنت",), 123, "دستگاه دریل مگنت"),
-    (("کردریل", "کُرگیری", "کر دریل"), 123, "دستگاه دریل مگنت"),
-    (("گردبر دریل مگنت",), 123, "دستگاه دریل مگنت"),
-    (("قلاویزگیر",), 164, "لوازم جانبی قلاویز زن"),
-    (("پول استادگیر",), 164, "لوازم جانبی قلاویز زن"),
-    (("گیره مارک",), 101, "گیره دقیق"),
-    (("سه نظام",), 164, "لوازم جانبی قلاویز زن"),
-    (("مته برگی",), 41, "مته کارباید"),
-    (("مته ته کونیک", "مته پشت کونیک"), 44, "مته پشت کونیک HSS"),
-    (("مته مرغک", "مته خزینه"), 46, "مته مرغک"),
-    (("مته یوتکس", "یوتکس"), 41, "مته کارباید"),
-    (("فرز انگشتی",), 41, "مته کارباید"),
-    (("ابزار تیز کن",), 122, "دستگاه قلاویز زن"),
-    (("تایکوپ", "صفحه گردان"), 164, "لوازم جانبی قلاویز زن"),
-    (("کلت", "فشنگی", "مونوفورس"), 164, "لوازم جانبی قلاویز زن"),
-    (("کلاهک", "دنباله"), 164, "لوازم جانبی قلاویز زن"),
-    (("روغن",), 164, "لوازم جانبی قلاویز زن"),
-    (("گردبر کیگو", "کیگو"), 41, "مته کارباید"),
-    (("داسکوا",), 49, "قلاویز ماشینی صاف"),
-    (("چام پاور", "چام‌پاور"), 49, "قلاویز ماشینی صاف"),
-]
+QA_MANUFACTURER_IDENTITY_REVIEW = "QA_MANUFACTURER_IDENTITY_REVIEW"
+CREATE_APPROVAL_PROPOSED = "PROPOSED"
+CREATE_APPROVAL_OWNER = "OWNER_APPROVED_FOR_APPLY"
 
 
 def sha256_file(path: Path) -> str:
@@ -104,13 +81,6 @@ def proposed_customer_price(rial: int, discount_label: str) -> tuple[Decimal | N
     if list_t is None:
         return None, "INVALID_SOURCE_PRICE", proc_flags
     return list_t, PRICING_POLICY_ID, proc_flags
-
-
-def category_for_file(filename: str) -> tuple[int | None, str]:
-    for needles, cat_id, label in FILE_CATEGORY_RULES:
-        if any(n in filename for n in needles):
-            return cat_id, label
-    return None, ""
 
 
 @dataclass
@@ -408,6 +378,8 @@ def run_reconcile(
         list_t = list_toman_from_rial(rial)
 
         qa_flags: list[str] = list(proc_flags) + list(proc_flags2)
+        if brand_hint == "ASTPOWER_OR_SOURCE_BRAND_REVIEW":
+            qa_flags.append(QA_MANUFACTURER_IDENTITY_REVIEW)
         hold_reason = ""
 
         if not brand_id:
@@ -541,7 +513,23 @@ def run_reconcile(
             outcome_counts["UPDATE"] += 1
             continue
 
-        cat_id, family_label = category_for_file(r.get("file") or "")
+        cat_decision = classify_create_category(
+            source_file=r.get("file") or "",
+            brand_hint=brand_hint,
+            code=code,
+            code_nearby=r.get("code_nearby") or "",
+            cat_meta=cat_meta,
+        )
+        cat_id = cat_decision.category_id
+        family_label = cat_decision.family_label
+        if cat_decision.hold_reason and cat_id is None:
+            hold_reason = cat_decision.hold_reason
+            ledger.append(
+                _ledger_from(r, code, "HOLD", hold_reason, qa_flags, "", str(proposed or ""), "", policy_id)
+            )
+            holds.append(_hold_row(r, code, hold_reason, qa_flags + [cat_decision.mapping_rule]))
+            outcome_counts["HOLD"] += 1
+            continue
         name = persian_product_name(brand_key, code, family_label)
         ok, issues = validate_create_candidate(
             code=code,
@@ -578,10 +566,13 @@ def run_reconcile(
                 "brand_id": brand_id,
                 "brand_key": brand_key,
                 "category_id": str(cat_id),
+                "category_mapping_rule": cat_decision.mapping_rule,
                 "name": name,
                 "base_price": str(proposed) if proposed else "",
                 "is_active": "true",
                 "is_available": "false",
+                "apply_eligible": "YES",
+                "approval_status": CREATE_APPROVAL_PROPOSED,
                 "pricing_policy_id": policy_id,
                 "cash_discount_percent": disc if disc is not None else "",
                 "source_document": r.get("file"),
@@ -862,13 +853,19 @@ def _production_apply_plan(hashes: dict[str, str]) -> str:
     return f"""# Production APPLY plan
 
 1. Owner accepts `{PRICING_POLICY_ID}` in COMMERCIAL_PRICING_DECISION.md.
-2. Resolve HOLD / ABNORMAL_UPDATE_REVIEW rows.
-3. Backup production DB.
-4. Fresh snapshot + drift check.
-5. Dry-run apply CLI.
-6. UPDATE canary → verify → CREATE canary → verify.
-7. Full cohort apply with journal.
-8. Post-verify API + storefront.
+2. Resolve HOLD / ABNORMAL_UPDATE_REVIEW rows (32 large swings + 11 duplicate-SKU collisions stay out of UPDATE).
+3. Per-row CREATE QA: set `approval_status={CREATE_APPROVAL_OWNER}` only on validated CREATE manifest rows.
+4. Backup production DB.
+5. Fresh catalog snapshot + stale-state check (UPDATE `expected_current_price` / SKU guards).
+6. Dry-run: `python scripts/ops/ast_price_catalog_apply_once.py` (default; no DB write).
+7. UPDATE canary → post-commit verify → CREATE canary → verify.
+8. Full cohort APPLY (single transaction journal): `ast_price_catalog_apply_once.py --apply` with Category B env +
+   manifest SHA/count confirmations. CLI returns `APPLIED` only after real UPDATE/CREATE execution and post-verify.
+9. Post-verify API + storefront.
+
+**Rollback (committed journal only):** `ast_price_catalog_apply_once.py --rollback --rollback-journal audit/.../journals/AST_APPLY_<batch>.json`
+— UPDATE rollback only when current price still equals the applied price; CREATE rollback soft-deletes exact journal IDs
+with no `order_items` activity.
 
 **Authorization tokens:** `{OWNER_AUTH_APPLY}` / `{OWNER_AUTH_ROLLBACK}`
 

@@ -17,6 +17,8 @@ unclassified_allow:
   - "scripts/brand_logo_assets/README.md"
   - "deploy/staging/frontend/README.md"
   - "audit/ci-acceleration-2026-10-14/**"
+  - "audit/hero-image-quality-20261019/**"
+  - "audit/owner-migration-reconciliation-20261019/**"
   - "audit/taxonomy-phase1b-baseline-2026-10-15/preserved-evidence/**"
 
 documents:
