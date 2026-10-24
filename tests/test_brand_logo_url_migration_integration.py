@@ -39,9 +39,9 @@ def _run_alembic(db_name: str, *args: str) -> None:
     )
 
 
-def test_alembic_single_head_is_a3f410():
+def test_alembic_single_head_is_brand_bulk_pricing():
     heads = get_alembic_script_directory().get_heads()
-    assert heads == ["a3f410b5c6d7"]
+    assert heads == ["a1b2c3d4e5f6"]
 
 
 @requires_postgres

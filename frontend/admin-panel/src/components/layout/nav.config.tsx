@@ -1,6 +1,7 @@
 import {
   Bag2,
   Buy,
+  Swap,
   Call,
   Category,
   Chart,
@@ -48,6 +49,12 @@ export const navSections: NavSection[] = [
     items: [
       { label: "محصولات", href: "/catalog/products", icon: Bag2 as IconlyIcon, matchPrefix: true },
       { label: "دسته‌بندی‌ها", href: "/catalog/categories", icon: Category as IconlyIcon, matchPrefix: true },
+      {
+        label: "مدیریت گروهی قیمت‌ها",
+        href: "/catalog/brand-bulk-pricing",
+        icon: Swap as IconlyIcon,
+        matchPrefix: true,
+      },
     ],
   },
   {

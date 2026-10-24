@@ -1,6 +1,10 @@
 """ORM model registry — import here to register all tables with Base.metadata."""
 
 from app.db.models.base import Base
+from app.db.models.brand_bulk_pricing import (
+    BrandPriceOperation,
+    BrandPriceOperationLine,
+)
 from app.db.models.commerce import (
     Order,
     OrderItem,
@@ -79,6 +83,8 @@ __all__ = [
     "Base",
     "Category",
     "Brand",
+    "BrandPriceOperation",
+    "BrandPriceOperationLine",
     "Product",
     "ProductType",
     "ProductTypeStatus",
