@@ -1,7 +1,7 @@
 """Order acquisition attribution snapshot columns.
 
 Revision ID: c3d4e5f6a7b8
-Revises: z1a2b3c4d5e6
+Revises: a3f410b5c6d7
 """
 
 from collections.abc import Sequence
@@ -11,7 +11,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision: str = "c3d4e5f6a7b8"
-down_revision: str | None = "z1a2b3c4d5e6"
+down_revision: str | None = "a3f410b5c6d7"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

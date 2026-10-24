@@ -2661,3 +2661,11 @@ documents:
     branch: audit/catalog-258-insize-final-commercial-source
     notes: >
       Rollback plan + manifest pointers for INSIZE commercial reconcile (#258).
+
+  - id: ADMIN-V2-ORDER-ATTRIBUTION
+    path: docs/admin-v2/ORDER_ATTRIBUTION.md
+    class: REFERENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: Admin V2 order acquisition attribution contract.

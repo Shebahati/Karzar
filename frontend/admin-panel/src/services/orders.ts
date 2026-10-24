@@ -3,6 +3,7 @@ import { getMockApi } from "@/lib/get-mock-api";
 import { env } from "@/config/env";
 import { formatShippingAddress } from "@/lib/shipping";
 import type {
+  AcquisitionReportResponse,
   OrderDetail,
   OrderDetailBackend,
   OrderLineItem,
@@ -122,6 +123,16 @@ export const ordersService = {
     if (env.USE_MOCK) return (await getMockApi()).issueQuote(id, payload);
     const { data } = await apiClient.post<OrderDetailBackend>(`/orders/${id}/quote`, payload);
     return mapOrderDetail(data);
+  },
+
+  async getAcquisitionReport(params?: { from_date?: string; to_date?: string }): Promise<AcquisitionReportResponse> {
+    if (env.USE_MOCK) {
+      return { from_date: null, to_date: null, rows: [] };
+    }
+    const { data } = await apiClient.get<AcquisitionReportResponse>("/orders/reports/acquisition", {
+      params,
+    });
+    return data;
   },
 
   async archive(id: number, stepUpToken: string): Promise<void> {

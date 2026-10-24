@@ -164,3 +164,18 @@ export interface OrderDetailBackend {
   shipping_service_code?: string | null;
   shipments?: import("@/features/orders/shipment-actions").AdminShipment[];
 }
+
+
+export interface AcquisitionReportRow {
+  source: string;
+  source_label: string;
+  order_count: number;
+  paid_order_count: number;
+  paid_sales_toman: string;
+}
+
+export interface AcquisitionReportResponse {
+  from_date: string | null;
+  to_date: string | null;
+  rows: AcquisitionReportRow[];
+}

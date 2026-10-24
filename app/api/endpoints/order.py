@@ -1,8 +1,10 @@
 """Order endpoints: admin management, customer history, and public tracking."""
 
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, Header, Query, Request, status
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import (
@@ -17,11 +19,14 @@ from app.core.security import verify_step_up_token
 from app.crud import commerce as crud_commerce
 from app.crud import platform as crud_platform
 from app.db.database import get_db
-from app.db.models.commerce import Order, OrderMode, OrderStatus
+from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.db.models.user import User
 from app.schemas.common import build_pagination_meta, resolve_pagination
 from app.schemas.order import (
+    AcquisitionReportResponse,
+    AcquisitionReportRow,
     IssueQuoteRequest,
+    OrderAcquisitionDetail,
     OrderDetailResponse,
     OrderItemResponse,
     OrderListResponse,
@@ -36,6 +41,7 @@ from app.services.logistics.customer_shipping_display import customer_shipping_l
 from app.services.logistics.exceptions import ShipmentStateError
 from app.services.logistics.manual_portal_guard import lock_order_for_status_update
 from app.services.logistics.service import admin_shipment_view, public_shipment_view
+from app.services.order_attribution import report_row_key, source_label_fa
 from app.services.order_service import (
     ManualPortalOrderBypassError,
     allowed_next_statuses,
@@ -46,11 +52,6 @@ from app.services.order_service import (
     transition_order_status,
 )
 from app.utils.storefront_catalog import decimal_to_api_string
-from app.services.order_attribution import source_label_fa
-from app.schemas.order import AcquisitionReportResponse, AcquisitionReportRow, OrderAcquisitionDetail
-from sqlalchemy import case, func, select
-from decimal import Decimal
-from app.db.models.commerce import PaymentStatus
 
 router = APIRouter()
 
@@ -199,31 +200,37 @@ async def acquisition_report(
     stmt = (
         select(
             Order.acquisition_source,
+            Order.acquisition_source_subtype,
             func.count(Order.id),
             func.sum(
                 case((Order.payment_status == PaymentStatus.PAID.value, 1), else_=0)
             ),
         )
         .where(*filters)
-        .group_by(Order.acquisition_source)
+        .group_by(Order.acquisition_source, Order.acquisition_source_subtype)
     )
     rows_raw = (await db.execute(stmt)).all()
     paid_sales_stmt = (
-        select(Order.acquisition_source, func.coalesce(func.sum(Order.estimated_total), 0))
+        select(
+            Order.acquisition_source,
+            Order.acquisition_source_subtype,
+            func.coalesce(func.sum(Order.estimated_total), 0),
+        )
         .where(*filters, Order.payment_status == PaymentStatus.PAID.value)
-        .group_by(Order.acquisition_source)
+        .group_by(Order.acquisition_source, Order.acquisition_source_subtype)
     )
-    sales_by_source = {
-        row[0]: row[1] for row in (await db.execute(paid_sales_stmt)).all()
+    sales_by_key = {
+        report_row_key(row[0], row[1]): row[2]
+        for row in (await db.execute(paid_sales_stmt)).all()
     }
     rows: list[AcquisitionReportRow] = []
-    for source, total_count, paid_count in rows_raw:
-        src = source or "unknown"
-        sales = sales_by_source.get(source, Decimal("0"))
+    for source, subtype, total_count, paid_count in rows_raw:
+        key = report_row_key(source, subtype)
+        sales = sales_by_key.get(key, Decimal("0"))
         rows.append(
             AcquisitionReportRow(
-                source=src,
-                source_label=source_label_fa(src),
+                source=key,
+                source_label=source_label_fa(source, subtype),
                 order_count=int(total_count),
                 paid_order_count=int(paid_count or 0),
                 paid_sales_toman=decimal_to_api_string(sales) or "0",

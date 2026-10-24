@@ -44,12 +44,12 @@ from app.services.logistics.shipping_payment import (
     ShippingPaymentMode,
     default_shipping_payment_mode,
 )
+from app.services.order_attribution import resolve_order_snapshot, sanitize_checkout_snapshot
 from app.services.order_expiry_service import cancel_expired_pending_payment_orders
 from app.services.order_service import record_initial_status_event, status_label
 from app.services.payment_flow_service import initialize_order_payment
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import decimal_to_api_string
-from app.services.order_attribution import resolve_order_snapshot, sanitize_checkout_snapshot
 
 logger = get_logger(__name__)
 

@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { StatValue } from "@/components/ui/stat-value";
 import { useWebsitePaidSales } from "@/features/hesabfa/queries";
-import { useOrders } from "@/features/orders/queries";
+import { useAcquisitionReport, useOrders } from "@/features/orders/queries";
 import { useProductStatistics, useProducts } from "@/features/catalog/queries";
 import { formatNumber, formatToman } from "@/lib/utils";
 import type { IconlyIcon } from "@/components/layout/nav.config";
@@ -44,6 +44,8 @@ function ReportStat({ label, value, icon: Icon, loading, hint }: ReportStatProps
 }
 
 export default function ReportsPage() {
+  const { data: acquisitionReport, isPending: acquisitionPending, isError: acquisitionError } =
+    useAcquisitionReport();
   const { data: stats, isPending: statsPending, isError: statsError } = useProductStatistics();
   const { data: websiteSalesSummary, isPending: salesPending } = useWebsitePaidSales();
   const { data: ordersData, isPending: ordersPending } = useOrders({ limit: 200 });
@@ -168,6 +170,45 @@ export default function ReportsPage() {
             }
           />
         </div>
+      </div>
+
+
+      <div>
+        <h3 className="mb-3 text-sm font-bold text-foreground">منابع ورود سفارش (سرور)</h3>
+        <Card>
+          <CardContent className="p-0">
+            {acquisitionPending ? (
+              <Skeleton className="m-4 h-32 w-full" />
+            ) : acquisitionError ? (
+              <p className="p-4 text-sm text-destructive">بارگذاری گزارش منابع ورود ناموفق بود.</p>
+            ) : !acquisitionReport?.rows.length ? (
+              <p className="p-4 text-sm text-muted-foreground">داده‌ای برای نمایش وجود ندارد.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[520px] text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-muted-foreground">
+                      <th className="px-4 py-3 text-start font-medium">منبع</th>
+                      <th className="px-4 py-3 text-start font-medium">سفارش</th>
+                      <th className="px-4 py-3 text-start font-medium">پرداخت‌شده</th>
+                      <th className="px-4 py-3 text-start font-medium">فروش (تومان)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {acquisitionReport.rows.map((row) => (
+                      <tr key={row.source} className="border-b border-border/60 last:border-0">
+                        <td className="px-4 py-3 font-medium text-foreground">{row.source_label}</td>
+                        <td className="px-4 py-3 tnum">{formatNumber(row.order_count)}</td>
+                        <td className="px-4 py-3 tnum">{formatNumber(row.paid_order_count)}</td>
+                        <td className="px-4 py-3 tnum">{formatToman(Number(row.paid_sales_toman))}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <Card>

@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import re
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 from urllib.parse import urlparse
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, field_validator
 
 ATTRIBUTION_TTL_DAYS = 30
 MAX_LANDING_PATH = 256
@@ -34,6 +33,9 @@ SOURCE_LABELS_FA: dict[str, str] = {
     "emalls": "ایمالز",
     "instagram": "اینستاگرام",
     "google": "گوگل",
+    "google:google_organic": "گوگل (ارگانیک)",
+    "google:google_paid": "گوگل (تبلیغات)",
+    "google:google_unspecified": "گوگل",
     "direct": "ورود مستقیم",
     "other": "سایر",
     "unknown": "نامشخص",
@@ -88,8 +90,18 @@ class OrderAcquisitionSnapshot(BaseModel):
     captured_at: datetime | None = None
 
 
-def source_label_fa(source: str | None) -> str:
-    return SOURCE_LABELS_FA.get((source or "").strip(), SOURCE_LABELS_FA["unknown"])
+def source_label_fa(source: str | None, source_subtype: str | None = None) -> str:
+    src = (source or "").strip() or "unknown"
+    if src == "google" and source_subtype:
+        return SOURCE_LABELS_FA.get(f"google:{source_subtype}", SOURCE_LABELS_FA["google"])
+    return SOURCE_LABELS_FA.get(src, SOURCE_LABELS_FA["unknown"])
+
+
+def report_row_key(source: str | None, source_subtype: str | None = None) -> str:
+    src = (source or "unknown").strip() or "unknown"
+    if src == "google" and source_subtype:
+        return f"google:{source_subtype}"
+    return src
 
 
 def _host_from_referrer(referrer: str | None) -> str | None:
@@ -108,6 +120,53 @@ def _normalize_utm(value: str | None) -> str | None:
     text = value.strip().lower()
     return text or None
 
+
+
+RECOGNIZED_UTM_SOURCES: dict[str, str] = {
+    "torob": "torob", "trob": "torob", "emalls": "emalls", "emall": "emalls",
+    "instagram": "instagram", "ig": "instagram", "google": "google",
+    "google_ads": "google", "adwords": "google",
+}
+
+MAX_FUTURE_SKEW = timedelta(minutes=5)
+
+
+def _host_matches_domain(host: str, domain: str) -> bool:
+    host = host.lower().strip(".")
+    domain = domain.lower()
+    return host == domain or host.endswith(f".{domain}")
+
+
+def _is_google_host(host: str) -> bool:
+    if _host_matches_domain(host, "google.com"):
+        return True
+    labels = host.lower().split(".")
+    return len(labels) >= 2 and labels[-2] == "google"
+
+
+def _source_from_recognized_utm(utm_s: str | None, utm_m: str | None):
+    if not utm_s:
+        return None
+    canonical = RECOGNIZED_UTM_SOURCES.get(utm_s)
+    if canonical is None:
+        return None
+    if canonical == "google":
+        return canonical, _google_subtype(utm_m, utm_s)
+    return canonical, None
+
+
+def _source_from_trusted_referrer(host: str | None):
+    if not host:
+        return None
+    if _host_matches_domain(host, "torob.com"):
+        return "torob", None
+    if _host_matches_domain(host, "emalls.ir"):
+        return "emalls", None
+    if _host_matches_domain(host, "instagram.com") or _host_matches_domain(host, "l.instagram.com"):
+        return "instagram", None
+    if _is_google_host(host):
+        return "google", "google_unspecified"
+    return None
 
 def _google_subtype(utm_medium: str | None, utm_source: str | None) -> GoogleSubtype:
     medium = _normalize_utm(utm_medium) or ""
@@ -144,47 +203,38 @@ def classify_visit(
     utm_s = _normalize_utm(utm_source)
     utm_m = _normalize_utm(utm_medium)
     host = _host_from_referrer(referrer)
+    has_campaign = any([campaign.utm_source, campaign.utm_medium, campaign.utm_campaign])
 
-    if utm_s in {"torob", "trob"} or (host and "torob" in host):
+    from_utm = _source_from_recognized_utm(utm_s, utm_m)
+    if from_utm is not None:
+        source, subtype = from_utm
         return AcquisitionTouch(
-            source="torob",
-            method="utm" if utm_s else "referrer",
-            landing_path=path,
-            campaign=campaign if any([campaign.utm_source, campaign.utm_medium, campaign.utm_campaign]) else None,
-            captured_at=at,
-        )
-    if utm_s in {"emalls", "emall"} or (host and "emalls" in host):
-        return AcquisitionTouch(
-            source="emalls",
-            method="utm" if utm_s else "referrer",
-            landing_path=path,
-            campaign=campaign if any([campaign.utm_source, campaign.utm_medium, campaign.utm_campaign]) else None,
-            captured_at=at,
-        )
-    if utm_s in {"instagram", "ig"} or (host and ("instagram.com" in host or "l.instagram.com" in host)):
-        return AcquisitionTouch(
-            source="instagram",
-            method="utm" if utm_s else "referrer",
-            landing_path=path,
-            campaign=campaign if any([campaign.utm_source, campaign.utm_medium, campaign.utm_campaign]) else None,
-            captured_at=at,
-        )
-    if utm_s in {"google", "google_ads", "adwords"} or (host and "google." in host):
-        subtype = _google_subtype(utm_m, utm_s)
-        return AcquisitionTouch(
-            source="google",
+            source=source,
             source_subtype=subtype,
-            method="utm" if utm_s else "referrer",
+            method="utm",
             landing_path=path,
-            campaign=campaign if any([campaign.utm_source, campaign.utm_medium, campaign.utm_campaign]) else None,
+            campaign=campaign if has_campaign else None,
             captured_at=at,
         )
+
+    from_ref = _source_from_trusted_referrer(host)
+    if from_ref is not None:
+        source, subtype = from_ref
+        return AcquisitionTouch(
+            source=source,
+            source_subtype=subtype,
+            method="referrer",
+            landing_path=path,
+            campaign=None,
+            captured_at=at,
+        )
+
     if utm_s:
         return AcquisitionTouch(
             source="other",
             method="utm",
             landing_path=path,
-            campaign=campaign,
+            campaign=campaign if has_campaign else None,
             captured_at=at,
         )
     if host:
@@ -204,6 +254,7 @@ def classify_visit(
     )
 
 
+
 def merge_client_state(
     existing: AcquisitionClientState | None,
     visit: AcquisitionTouch,
@@ -216,8 +267,10 @@ def merge_client_state(
     return state
 
 
-def _touch_fresh(touch: AcquisitionTouch | None, now: datetime) -> bool:
+def _touch_usable(touch: AcquisitionTouch | None, now: datetime) -> bool:
     if touch is None:
+        return False
+    if touch.captured_at > now + MAX_FUTURE_SKEW:
         return False
     return touch.captured_at >= now - timedelta(days=ATTRIBUTION_TTL_DAYS)
 
@@ -231,10 +284,10 @@ def resolve_order_snapshot(
     if payload is None:
         return OrderAcquisitionSnapshot()
 
-    first = payload.first_touch if _touch_fresh(payload.first_touch, now) else None
+    first = payload.first_touch if _touch_usable(payload.first_touch, now) else None
     last_nd = (
         payload.last_non_direct_touch
-        if _touch_fresh(payload.last_non_direct_touch, now)
+        if _touch_usable(payload.last_non_direct_touch, now)
         else None
     )
 

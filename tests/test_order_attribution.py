@@ -75,3 +75,25 @@ def test_expired_attribution_unknown():
     payload = AcquisitionCheckoutSnapshot(first_touch=_touch("torob", captured_at=old))
     snap = resolve_order_snapshot(payload)
     assert snap.source == "unknown"
+
+
+def test_fake_google_host_not_classified_as_google():
+    t = classify_visit(landing_path="/", referrer="https://fake-google.example/path", utm_source=None)
+    assert t.source == "other"
+
+
+def test_utm_emalls_wins_over_torob_referrer():
+    t = classify_visit(
+        landing_path="/",
+        referrer="https://torob.com/product/1",
+        utm_source="emalls",
+    )
+    assert t.source == "emalls"
+    assert t.method == "utm"
+
+
+def test_future_touch_rejected():
+    future = datetime.now(UTC) + timedelta(days=1)
+    payload = AcquisitionCheckoutSnapshot(first_touch=_touch("torob", captured_at=future))
+    snap = resolve_order_snapshot(payload)
+    assert snap.source == "unknown"

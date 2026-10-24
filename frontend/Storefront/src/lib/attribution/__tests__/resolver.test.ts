@@ -14,3 +14,15 @@ describe("attribution resolver", () => {
     expect(t.source).toBe("torob");
   });
 });
+
+  it("does not treat fake-google host as Google", () => {
+    const t = classifyVisit({
+      landingPath: "/",
+      referrer: "https://fake-google.example/x",
+      utmSource: null,
+      utmMedium: null,
+      utmCampaign: null,
+      capturedAt: new Date().toISOString(),
+    });
+    expect(t.source).toBe("other");
+  });

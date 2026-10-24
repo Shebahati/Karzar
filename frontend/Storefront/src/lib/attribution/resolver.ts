@@ -9,6 +9,31 @@ function hostFromReferrer(referrer: string | null): string | null {
   }
 }
 
+
+function hostMatchesDomain(host: string, domain: string): boolean {
+  const h = host.toLowerCase().replace(/\.+$/, "");
+  const d = domain.toLowerCase();
+  return h === d || h.endsWith(`.${d}`);
+}
+
+function isGoogleHost(host: string): boolean {
+  if (hostMatchesDomain(host, "google.com")) return true;
+  const parts = host.toLowerCase().split(".");
+  return parts.length >= 2 && parts[parts.length - 2] === "google";
+}
+
+const RECOGNIZED_UTM: Record<string, AcquisitionTouch["source"]> = {
+  torob: "torob",
+  trob: "torob",
+  emalls: "emalls",
+  emall: "emalls",
+  instagram: "instagram",
+  ig: "instagram",
+  google: "google",
+  google_ads: "google",
+  adwords: "google",
+};
+
 function googleSubtype(utmMedium: string | null, utmSource: string | null): string {
   const medium = (utmMedium || "").toLowerCase();
   const source = (utmSource || "").toLowerCase();
@@ -36,27 +61,44 @@ export function classifyVisit(input: {
       ? { utm_source: utmS || null, utm_medium: utmM || null, utm_campaign: utmC || null }
       : null;
 
-  if (utmS === "torob" || (host && host.includes("torob")))
-    return { source: "torob", method: utmS ? "utm" : "referrer", landing_path: path, campaign, captured_at: input.capturedAt };
-  if (utmS === "emalls" || (host && host.includes("emalls")))
-    return { source: "emalls", method: utmS ? "utm" : "referrer", landing_path: path, campaign, captured_at: input.capturedAt };
-  if (utmS === "instagram" || (host && host.includes("instagram")))
-    return { source: "instagram", method: utmS ? "utm" : "referrer", landing_path: path, campaign, captured_at: input.capturedAt };
-  if (utmS.startsWith("google") || (host && host.includes("google.")))
+  const recognized = RECOGNIZED_UTM[utmS];
+  if (recognized) {
+    const subtype = recognized === "google" ? googleSubtype(utmM, utmS) : undefined;
     return {
-      source: "google",
-      source_subtype: googleSubtype(utmM, utmS),
-      method: utmS ? "utm" : "referrer",
+      source: recognized,
+      source_subtype: subtype,
+      method: "utm",
       landing_path: path,
       campaign,
       captured_at: input.capturedAt,
     };
+  }
+
+  if (host) {
+    if (hostMatchesDomain(host, "torob.com"))
+      return { source: "torob", method: "referrer", landing_path: path, campaign: null, captured_at: input.capturedAt };
+    if (hostMatchesDomain(host, "emalls.ir"))
+      return { source: "emalls", method: "referrer", landing_path: path, campaign: null, captured_at: input.capturedAt };
+    if (hostMatchesDomain(host, "instagram.com") || hostMatchesDomain(host, "l.instagram.com"))
+      return { source: "instagram", method: "referrer", landing_path: path, campaign: null, captured_at: input.capturedAt };
+    if (isGoogleHost(host))
+      return {
+        source: "google",
+        source_subtype: "google_unspecified",
+        method: "referrer",
+        landing_path: path,
+        campaign: null,
+        captured_at: input.capturedAt,
+      };
+  }
+
   if (utmS)
     return { source: "other", method: "utm", landing_path: path, campaign, captured_at: input.capturedAt };
   if (host)
     return { source: "other", method: "referrer", landing_path: path, campaign: null, captured_at: input.capturedAt };
   return { source: "direct", method: "direct", landing_path: path, campaign: null, captured_at: input.capturedAt };
 }
+
 
 export function mergeState(existing: AttributionState | null, visit: AcquisitionTouch): AttributionState {
   const state: AttributionState = {
