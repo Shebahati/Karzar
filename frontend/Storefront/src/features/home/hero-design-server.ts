@@ -24,7 +24,20 @@ type StorefrontHeroDesignApiBody = {
   pack?: unknown;
 };
 
+type VerifiedApiHeroCache = {
+  pack: DesignedHeroPack;
+  etag: string;
+  revisionId?: string;
+};
+
 let lastStorefrontHeroEtag: string | undefined;
+let verifiedApiHeroCache: VerifiedApiHeroCache | null = null;
+
+/** Test-only: clear in-process API hero cache between cases. */
+export function resetHeroDesignApiCacheForTests(): void {
+  verifiedApiHeroCache = null;
+  lastStorefrontHeroEtag = undefined;
+}
 
 function normalizeEtag(value: string | null | undefined): string | undefined {
   if (!value) return undefined;
@@ -108,15 +121,30 @@ export async function readPublishedHeroDesignPack(): Promise<PublishedHeroDesign
   );
 
   if (apiResult.notModified) {
-    return readPublishedHeroDesignPackFromFile();
+    const etag = apiResult.etag;
+    if (
+      verifiedApiHeroCache &&
+      etag &&
+      verifiedApiHeroCache.etag === etag
+    ) {
+      return { pack: verifiedApiHeroCache.pack, loadedAtMs: Date.now() };
+    }
+    return { pack: null, loadedAtMs: null };
   }
 
-  if (apiResult.ok && apiResult.pack) {
-    if (apiResult.etag) {
-      lastStorefrontHeroEtag = apiResult.etag;
-    }
+  if (apiResult.ok && apiResult.pack && apiResult.etag) {
+    lastStorefrontHeroEtag = apiResult.etag;
+    verifiedApiHeroCache = {
+      pack: apiResult.pack,
+      etag: apiResult.etag,
+      revisionId: apiResult.revisionId,
+    };
     return { pack: apiResult.pack, loadedAtMs: Date.now() };
   }
 
-  return readPublishedHeroDesignPackFromFile();
+  if (verifiedApiHeroCache) {
+    return { pack: verifiedApiHeroCache.pack, loadedAtMs: Date.now() };
+  }
+
+  return { pack: null, loadedAtMs: null };
 }

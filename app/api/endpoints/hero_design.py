@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Header, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_super_admin, get_current_super_admin_with_step_up
+from app.api.deps import get_current_super_admin, verify_and_consume_step_up
 from app.core.errors import ErrorCode, api_error
 from app.db.database import get_db
 from app.db.models.hero_design import HeroDesignRevision
@@ -161,9 +161,17 @@ async def validate_pack(
 @cms_router.post("/hero-design/publish", response_model=HeroPublishResult)
 async def publish_hero(
     body: HeroPublishRequest,
-    actor: User = Depends(get_current_super_admin_with_step_up),
+    x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
+    actor: User = Depends(get_current_super_admin),
     db: AsyncSession = Depends(get_db),
 ):
+    step_up_payload = await verify_and_consume_step_up(db, x_step_up_token)
+    if step_up_payload.get("sub") != actor.phone_number:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.STEP_UP_MISMATCH,
+            message="Step-up token does not match the authenticated user",
+        )
     pointer = await hero_service.publish_from_server_draft(
         db,
         actor=actor,
@@ -181,9 +189,17 @@ async def publish_hero(
 @cms_router.post("/hero-design/rollback", response_model=HeroPublishResult)
 async def rollback_hero(
     body: HeroRollbackRequest,
-    actor: User = Depends(get_current_super_admin_with_step_up),
+    x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
+    actor: User = Depends(get_current_super_admin),
     db: AsyncSession = Depends(get_db),
 ):
+    step_up_payload = await verify_and_consume_step_up(db, x_step_up_token)
+    if step_up_payload.get("sub") != actor.phone_number:
+        raise api_error(
+            status.HTTP_403_FORBIDDEN,
+            error_code=ErrorCode.STEP_UP_MISMATCH,
+            message="Step-up token does not match the authenticated user",
+        )
     pointer = await hero_service.rollback_to_revision(db, actor=actor, revision_id=body.revision_id)
     await db.commit()
     return HeroPublishResult(

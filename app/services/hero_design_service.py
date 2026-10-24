@@ -23,7 +23,9 @@ from app.db.models.hero_design import (
 from app.db.models.user import User
 from app.schemas.hero_design import (
     EXPECTED_R0_SHA256,
+    REBORN_FIVE_ASSET_PREFIX,
     REBORN_FIVE_DOCK_KEYS,
+    REBORN_FIVE_SLIDE_IDS,
     HeroValidationErrorItem,
 )
 from app.services.audit_service import record_audit
@@ -69,6 +71,31 @@ def validate_pack(pack: dict[str, Any]) -> list[HeroValidationErrorItem]:
         key = cfg.get("linkedOrbKey")
         if isinstance(key, str):
             keys.append(key)
+    active_sorted = sorted(
+        active,
+        key=lambda s: int(s.get("sortOrder") or 0) if isinstance(s.get("sortOrder"), int | float) else 0,
+    )
+    slide_ids = [s.get("id") for s in active_sorted if isinstance(s.get("id"), str)]
+    if slide_ids != list(REBORN_FIVE_SLIDE_IDS):
+        errors.append(
+            HeroValidationErrorItem(
+                field="slides.id",
+                message=f"expected active slide ids {list(REBORN_FIVE_SLIDE_IDS)}",
+            )
+        )
+    for idx, slide in enumerate(active_sorted):
+        cfg = slide.get("config") if isinstance(slide.get("config"), dict) else {}
+        bg = cfg.get("background") if isinstance(cfg.get("background"), dict) else {}
+        for field in ("imageUrl", "mobileImageUrl"):
+            url = bg.get(field)
+            if not isinstance(url, str) or not url.startswith(REBORN_FIVE_ASSET_PREFIX):
+                errors.append(
+                    HeroValidationErrorItem(
+                        field=f"slides[{idx}].config.background.{field}",
+                        message=f"must start with {REBORN_FIVE_ASSET_PREFIX}",
+                    )
+                )
+
     if keys != list(REBORN_FIVE_DOCK_KEYS):
         errors.append(
             HeroValidationErrorItem(
@@ -110,6 +137,13 @@ def _publish_disabled() -> None:
         message="Hero Studio API publish is disabled",
         details=[{"field": "HERO_STUDIO_API_PUBLISH", "message": "hero_publish_disabled"}],
     )
+
+
+async def _lock_published_pointer(db: AsyncSession) -> HeroDesignPublished | None:
+    result = await db.execute(
+        select(HeroDesignPublished).where(HeroDesignPublished.id == 1).with_for_update()
+    )
+    return result.scalar_one_or_none()
 
 
 async def get_published_pointer(db: AsyncSession) -> HeroDesignPublished | None:
@@ -214,7 +248,7 @@ async def publish_from_server_draft(
             message="Pack validation failed",
             details=[e.model_dump() for e in errors],
         )
-    pointer = await get_published_pointer(db)
+    pointer = await _lock_published_pointer(db)
     current_parent = pointer.revision_id if pointer else None
     if expected_parent_revision_id != current_parent:
         raise api_error(
@@ -286,7 +320,7 @@ async def rollback_to_revision(
             error_code=ErrorCode.NOT_FOUND,
             message="Revision not found",
         )
-    pointer = await get_published_pointer(db)
+    pointer = await _lock_published_pointer(db)
     if pointer is None:
         raise api_error(
             status.HTTP_409_CONFLICT,

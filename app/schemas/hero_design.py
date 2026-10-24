@@ -16,6 +16,16 @@ REBORN_FIVE_DOCK_KEYS = (
     "industrial-machines",
 )
 
+REBORN_FIVE_SLIDE_IDS = (
+    "slide_h01_special_offers",
+    "slide_h02_measuring",
+    "slide_h03_inserts",
+    "slide_h04_endmills",
+    "slide_h05_machines",
+)
+
+REBORN_FIVE_ASSET_PREFIX = "/images/hero/reborn-5/photo-20261021-v2/"
+
 
 class HeroValidationErrorItem(BaseModel):
     field: str

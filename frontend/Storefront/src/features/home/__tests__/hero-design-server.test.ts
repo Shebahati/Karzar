@@ -5,6 +5,7 @@ import { parseDesignedHeroPack } from "@/features/home/hero-design";
 import {
   fetchHeroDesignPackFromApi,
   readPublishedHeroDesignPack,
+  resetHeroDesignApiCacheForTests,
 } from "@/features/home/hero-design-server";
 
 const publishedPath = path.join(process.cwd(), "public", "hero-design.json");
@@ -17,6 +18,7 @@ describe("hero-design-server", () => {
     vi.stubGlobal("fetch", fetchMock);
     fetchMock.mockReset();
     delete process.env.HERO_STOREFRONT_API_READ;
+    resetHeroDesignApiCacheForTests();
   });
 
   afterEach(() => {
@@ -39,6 +41,7 @@ describe("hero-design-server", () => {
     expect(result.pack?.slides.length).toBe(onDisk?.slides.length);
     expect(result.loadedAtMs).not.toBeNull();
   });
+
 
   it("fetchHeroDesignPackFromApi parses revision-aware payload", async () => {
     const packBody = JSON.parse(readFileSync(publishedPath, "utf8")) as unknown;
@@ -68,5 +71,17 @@ describe("hero-design-server", () => {
     expect(api.revisionId).toBe("00000000-0000-4000-8000-000000000001");
     expect(api.etag).toBe("abc123");
     expect(api.pack?.slides.length).toBeGreaterThan(0);
+  });
+
+  it("readPublishedHeroDesignPack does not fall back to static file on 304 without verified cache", async () => {
+    process.env.HERO_STOREFRONT_API_READ = "1";
+    fetchMock.mockResolvedValueOnce(
+      new Response(null, { status: 304, headers: { ETag: '"etag-unknown"' } }),
+    );
+
+    const result = await readPublishedHeroDesignPack();
+
+    expect(result.pack).toBeNull();
+    expect(result.loadedAtMs).toBeNull();
   });
 });

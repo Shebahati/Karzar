@@ -1,7 +1,7 @@
 """Hero design revision tables and R0 seed from Storefront pack.
 
 Revision ID: f2a3b4c5d6e7
-Revises: z1a2b3c4d5e6
+Revises: a2b3c4d5e6f7, a3f410b5c6d7 (merge)
 """
 
 from __future__ import annotations

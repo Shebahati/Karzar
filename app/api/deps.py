@@ -116,11 +116,11 @@ async def get_current_super_admin(current_user: User = Depends(get_current_activ
     return current_user
 
 
-async def get_verified_step_up(
-    x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
-    db: AsyncSession = Depends(get_db),
+async def verify_and_consume_step_up(
+    db: AsyncSession,
+    x_step_up_token: str | None,
 ) -> dict:
-    """Validate the step-up JWT supplied in the X-Step-Up-Token header."""
+    """Validate and consume a one-time step-up JWT in the caller's database session."""
     if not x_step_up_token:
         raise api_error(
             403,
@@ -142,6 +142,14 @@ async def get_verified_step_up(
             message="Step-up token has already been used",
         )
     return payload
+
+
+async def get_verified_step_up(
+    x_step_up_token: str | None = Header(None, alias="X-Step-Up-Token"),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Validate the step-up JWT supplied in the X-Step-Up-Token header."""
+    return await verify_and_consume_step_up(db, x_step_up_token)
 
 
 async def get_current_super_admin_with_step_up(
