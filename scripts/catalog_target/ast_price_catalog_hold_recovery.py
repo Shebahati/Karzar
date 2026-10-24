@@ -1,4 +1,4 @@
-"""CREATE HOLD recovery planning by product family."""
+"""CREATE HOLD recovery planning by product family (mutually exclusive from UPDATE-side holds)."""
 
 from __future__ import annotations
 
@@ -7,6 +7,43 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+# Holds that belong to matched-product / UPDATE QA — not CREATE recovery targets.
+UPDATE_SIDE_HOLD_REASONS = frozenset(
+    {
+        "QA_LARGE_PRICE_SWING",
+        "duplicate_sku_active",
+        "AMBIGUOUS_IDENTITY",
+        "UNKNOWN_BRAND_HINT",
+        "INVALID_SOURCE_PRICE",
+        "SOURCE_PRICE_CONFLICT",
+    }
+)
+
+CREATE_RECOVERY_HOLD_REASONS = frozenset(
+    {
+        "HOLD_MANUFACTURER_IDENTITY_UNVERIFIED",
+        "HOLD_VISUAL_PDF_QA_REQUIRED",
+        "HOLD_CATEGORY_MAPPING",
+        "HOLD_ET_TAP_VARIANT",
+        "HOLD_DRILL_CHUCK_IDENTITY",
+        "dasqua:missing_keyword",
+    }
+)
+
+
+def is_create_recovery_hold(row: dict[str, Any]) -> bool:
+    reason = str(row.get("hold_reason") or "").strip()
+    if reason in UPDATE_SIDE_HOLD_REASONS:
+        return False
+    qa = str(row.get("qa_flags") or "")
+    if "QA_LARGE_PRICE_SWING" in qa:
+        return False
+    if reason in CREATE_RECOVERY_HOLD_REASONS:
+        return True
+    if reason.startswith("HOLD_"):
+        return True
+    return False
 
 
 def _family_from_source(source_document: str) -> str:
@@ -35,25 +72,17 @@ def write_create_hold_recovery_plan(
     holds: list[dict[str, Any]],
 ) -> Path:
     sanitized_dir.mkdir(parents=True, exist_ok=True)
-    create_hold_rows = [
-        h
-        for h in holds
-        if (h.get("hold_reason") or "")
-        in {
-            "HOLD_MANUFACTURER_IDENTITY_UNVERIFIED",
-            "HOLD_VISUAL_PDF_QA_REQUIRED",
-            "HOLD_CATEGORY_MAPPING",
-            "HOLD_ET_TAP_VARIANT",
-            "HOLD_DRILL_CHUCK_IDENTITY",
-            "dasqua:missing_keyword",
-        }
-        or str(h.get("hold_reason") or "").startswith("HOLD_")
-    ]
-    by_reason = Counter(str(h.get("hold_reason") or "") for h in holds)
+    create_hold_rows = [h for h in holds if is_create_recovery_hold(h)]
+    update_side_hold_rows = [h for h in holds if not is_create_recovery_hold(h)]
+
+    by_reason_all = Counter(str(h.get("hold_reason") or "") for h in holds)
+    by_reason_create = Counter(str(h.get("hold_reason") or "") for h in create_hold_rows)
+    by_reason_update_side = Counter(str(h.get("hold_reason") or "") for h in update_side_hold_rows)
+
     by_family: Counter = Counter()
     family_reason: dict[str, Counter] = defaultdict(Counter)
-    for h in holds:
-        fam = _family_from_source(str(h.get("source_document") or ""))
+    for h in create_hold_rows:
+        fam = _family_from_source(str(h.get("source_file") or h.get("source_document") or ""))
         reason = str(h.get("hold_reason") or "")
         by_family[fam] += 1
         family_reason[fam][reason] += 1
@@ -90,7 +119,7 @@ def write_create_hold_recovery_plan(
         {
             "batch_id": "CREATE-BATCH-04_AST_MANUFACTURER",
             "family": "AST_MANUFACTURER_REVIEW",
-            "row_count": by_reason.get("HOLD_MANUFACTURER_IDENTITY_UNVERIFIED", 0),
+            "row_count": by_reason_create.get("HOLD_MANUFACTURER_IDENTITY_UNVERIFIED", 0),
             "resolution_steps": [
                 "Establish manufacturer identity independent of ASTPOWER supplier label.",
                 "Do not infer manufacturer from distributor identity alone.",
@@ -101,12 +130,18 @@ def write_create_hold_recovery_plan(
     payload = {
         "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "total_hold_rows": len(holds),
+        "update_side_hold_rows": len(update_side_hold_rows),
         "create_recovery_target_rows": len(create_hold_rows),
-        "hold_reason_counts": dict(by_reason),
-        "hold_by_product_family": dict(by_family),
-        "family_reason_matrix": {k: dict(v) for k, v in family_reason.items()},
+        "hold_reason_counts_all": dict(by_reason_all),
+        "hold_reason_counts_create_recovery": dict(by_reason_create),
+        "hold_reason_counts_update_side": dict(by_reason_update_side),
+        "hold_by_create_recovery_family": dict(by_family),
+        "family_reason_matrix_create_recovery": {k: dict(v) for k, v in family_reason.items()},
         "controlled_batches": batches,
-        "policy": "HOLD is not rejection; resolved rows graduate to reviewed CREATE manifests per family.",
+        "policy": (
+            "CREATE recovery excludes UPDATE-side abnormal-price and identity-match holds. "
+            "HOLD is not rejection; resolved rows graduate to reviewed CREATE manifests per family."
+        ),
     }
     out_json = sanitized_dir / "CREATE_HOLD_RECOVERY_PLAN.json"
     out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -114,12 +149,16 @@ def write_create_hold_recovery_plan(
         "# CREATE HOLD recovery plan",
         "",
         f"- Total HOLD rows: **{len(holds)}**",
-        f"- Recovery objective rows: **{len(create_hold_rows)}**",
+        f"- UPDATE-side holds (excluded from CREATE recovery): **{len(update_side_hold_rows)}**",
+        f"- CREATE recovery objective rows: **{len(create_hold_rows)}**",
         "",
-        "## Hold reasons",
+        "## Hold reasons (all)",
         "",
     ]
-    for reason, count in by_reason.most_common():
+    for reason, count in by_reason_all.most_common():
+        lines.append(f"- `{reason}`: **{count}**")
+    lines.extend(["", "## CREATE recovery hold reasons", ""])
+    for reason, count in by_reason_create.most_common():
         lines.append(f"- `{reason}`: **{count}**")
     lines.extend(["", "## Controlled batches", ""])
     for batch in batches:

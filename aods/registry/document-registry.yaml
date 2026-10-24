@@ -2719,3 +2719,59 @@ documents:
     branch: chore/ast-price-catalog-20261024
     notes: >
       Category B production APPLY plan for AST price/catalog one-time operation. Not executed.
+
+  - id: AST-CREATE-HOLD-RECOVERY-MD-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/CREATE_HOLD_RECOVERY_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-UPDATE-COHORT-OWNER-PACKAGE-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_COHORT_OWNER_PACKAGE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-UPDATE-CANARY-MANIFESTS-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_CANARY_MANIFESTS.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-UPDATE-OWNER-EVIDENCE-INDEX-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_OWNER_EVIDENCE_INDEX.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-OWNER-MANIFEST-BUNDLE-UPDATE-STAGE1-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_MANIFEST_BUNDLE_UPDATE_STAGE1.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-OWNER-MANIFEST-BUNDLE-UPDATE-STAGE2-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_MANIFEST_BUNDLE_UPDATE_STAGE2.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-OWNER-MANIFEST-BUNDLE-UPDATE-STAGE3-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_MANIFEST_BUNDLE_UPDATE_STAGE3.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024

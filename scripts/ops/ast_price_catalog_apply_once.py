@@ -33,9 +33,18 @@ from catalog_target.ast_price_catalog_execution import (  # noqa: E402
     ApplyCohort,
     execute_ast_apply_async,
 )
+from catalog_target.ast_price_catalog_database_identity import (  # noqa: E402
+    fetch_database_identity_fingerprint,
+)
 from catalog_target.ast_price_catalog_manifest_acceptance import (  # noqa: E402
     assert_owner_manifest_acceptance_gate,
+    manifest_file_sha256,
     resolve_bundle_path,
+)
+from catalog_target.ast_price_catalog_update_canary import (  # noqa: E402
+    load_canary_registry,
+    product_id_allowlist_sha256,
+    resolve_stage_update_path,
 )
 from catalog_target.sales_wave_apply import ApplyAbort, connect_runtime_db  # noqa: E402
 
@@ -67,15 +76,42 @@ def main() -> int:
     parser.add_argument("--confirm-owner-acceptance-id", default="")
     parser.add_argument("--confirm-backup-artifact-sha256", default="")
     parser.add_argument("--backup-attestation-file", type=Path, default=None)
-    parser.add_argument("--production-database-identity", default="")
+    parser.add_argument("--update-stage", default="full", choices=["stage1", "stage2", "stage3", "full"])
+    parser.add_argument("--confirm-git-commit-sha", default="")
+    parser.add_argument("--confirm-stage-manifest-sha256", default="")
+    parser.add_argument("--confirm-master-update-manifest-sha256", default="")
+    parser.add_argument("--confirm-product-id-allowlist-sha256", default="")
     args = parser.parse_args()
 
     cohort = _parse_cohort(args.apply_cohort)
-    update_path = args.audit_dir / "UPDATE_PRODUCTS.csv"
+    update_stage = (args.update_stage or "full").strip().lower()
     create_path = args.audit_dir / "CREATE_PRODUCTS.csv"
-    bundle_path = resolve_bundle_path(args.audit_dir, cohort)
+    master_update_path = args.audit_dir / "UPDATE_PRODUCTS.csv"
+    master_update_sha = manifest_file_sha256(master_update_path)
+    stage_allowlist_sha = ""
+    if cohort == "update" and update_stage != "full":
+        registry = load_canary_registry(args.audit_dir)
+        stage_meta = registry.get("stages", {}).get(update_stage) or {}
+        update_path = resolve_stage_update_path(args.audit_dir, update_stage)  # type: ignore[arg-type]
+        stage_sha = manifest_file_sha256(update_path)
+        if stage_sha != str(stage_meta.get("manifest_sha256") or ""):
+            print(json.dumps({"status": "blocked", "reason": "stage_manifest_sha256_registry_mismatch"}, ensure_ascii=False))
+            return 2
+        stage_allowlist_sha = str(stage_meta.get("product_id_allowlist_sha256") or "")
+    else:
+        update_path = master_update_path
+        stage_sha = master_update_sha
+        if cohort == "update":
+            stage_allowlist_sha = product_id_allowlist_sha256(
+                [int(r["product_id"]) for r in load_update_plan(update_path)] if update_path.is_file() else []
+            )
+
+    bundle_path = resolve_bundle_path(args.audit_dir, cohort, update_stage=update_stage)
     journal_dir = args.journal_dir or (args.audit_dir / "journals")
     ids = manifest_identity(update_path, create_path)
+    ids["master_update_manifest_sha256"] = master_update_sha
+    ids["stage_manifest_sha256"] = stage_sha
+    ids["update_stage"] = update_stage
     updates = load_update_plan(update_path) if cohort in {"update", "both"} else []
     creates = (
         load_create_plan(
@@ -94,10 +130,12 @@ def main() -> int:
                 {
                     "status": "dry_run",
                     "apply_cohort": cohort,
+                    "update_stage": update_stage,
                     "updates": len(updates),
                     "creates_eligible": len(creates),
                     "manifest": ids,
                     "owner_bundle_path": str(bundle_path),
+                    "stage_product_id_allowlist_sha256": stage_allowlist_sha,
                     "note": "Pass --apply with full Category B gates to mutate production.",
                 },
                 ensure_ascii=False,
@@ -118,9 +156,9 @@ def main() -> int:
             owner_authorization=args.owner_authorization,
             confirm_production_write=args.confirm_production_write,
             confirm_source_sha256=args.confirm_source_sha256,
-            confirm_update_manifest_sha256=args.confirm_update_manifest_sha256,
+            confirm_update_manifest_sha256=args.confirm_update_manifest_sha256 or stage_sha,
             confirm_create_manifest_sha256=args.confirm_create_manifest_sha256,
-            update_manifest_sha256=ids["update_manifest_sha256"],
+            update_manifest_sha256=stage_sha,
             create_manifest_sha256=ids["create_manifest_sha256"],
             confirm_update_count=args.confirm_update_count,
             confirm_create_count=args.confirm_create_count,
@@ -133,18 +171,28 @@ def main() -> int:
                 bundle_path=bundle_path,
                 confirm_manifest_bundle_sha256=args.confirm_manifest_bundle_sha256,
                 confirm_owner_acceptance_id=args.confirm_owner_acceptance_id,
-                live_update_manifest_sha256=ids["update_manifest_sha256"],
+                live_update_manifest_sha256=stage_sha,
                 live_create_manifest_sha256=ids["create_manifest_sha256"],
                 live_update_count=update_count,
                 live_create_count=create_count,
+                confirm_git_commit_sha=args.confirm_git_commit_sha,
+                confirm_update_stage=update_stage,
+                confirm_stage_manifest_sha256=args.confirm_stage_manifest_sha256 or stage_sha,
+                confirm_master_update_manifest_sha256=(
+                    args.confirm_master_update_manifest_sha256 or master_update_sha
+                ),
+                confirm_product_id_allowlist_sha256=(
+                    args.confirm_product_id_allowlist_sha256 or stage_allowlist_sha
+                ),
             )
             attestation_path = args.backup_attestation_file or (
                 args.audit_dir / "sanitized" / BACKUP_ATTESTATION_FILENAME
             )
+            verified_db_identity = asyncio.run(fetch_database_identity_fingerprint(args.database_url))
             assert_production_backup_attestation_gate(
                 attestation_path=attestation_path,
                 confirm_backup_artifact_sha256=args.confirm_backup_artifact_sha256,
-                production_database_identity=args.production_database_identity,
+                verified_database_identity=verified_db_identity,
             )
     except ApplyAbort as exc:
         print(json.dumps({"status": "blocked", "reason": str(exc)}, ensure_ascii=False))
@@ -184,7 +232,10 @@ def main() -> int:
                 journal_dir=journal_dir,
                 metadata={
                     "source_archive_sha256": SOURCE_ARCHIVE_SHA256,
-                    "update_manifest_sha256": ids["update_manifest_sha256"],
+                    "update_manifest_sha256": stage_sha,
+                    "master_update_manifest_sha256": master_update_sha,
+                    "stage_manifest_sha256": stage_sha,
+                    "update_stage": update_stage,
                     "create_manifest_sha256": ids["create_manifest_sha256"],
                     "apply_cohort": cohort,
                 },

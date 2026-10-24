@@ -24,6 +24,7 @@ from catalog_target.ast_price_catalog_apply import (
 from catalog_target.ast_price_catalog_execution_store import (
     assert_no_blocking_unknown_batches,
     ensure_execution_store,
+    assert_update_product_ids_not_committed,
     insert_prepared_batch,
     mark_batch_committed,
     mark_batch_verified,
@@ -302,6 +303,13 @@ async def execute_ast_apply_async(
             async with session.begin():
                 await ensure_execution_store(session)
                 await assert_no_blocking_unknown_batches(session)
+                master_sha = str(metadata.get("master_update_manifest_sha256") or "")
+                if scoped_updates and master_sha:
+                    await assert_update_product_ids_not_committed(
+                        session,
+                        product_ids=[r.product_id for r in scoped_updates],
+                        master_update_manifest_sha256=master_sha,
+                    )
                 await insert_prepared_batch(
                     session,
                     batch_id=batch_id,

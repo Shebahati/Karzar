@@ -1,0 +1,22 @@
+{
+  "bundle_schema_version": "2",
+  "apply_cohort": "update",
+  "update_stage": "stage2",
+  "pricing_policy_id": "AST_COOPERATION_LIST_RIAL_DIV_10",
+  "source_archive_sha256": "976fca74faabd4fb62bb57feb396450717c32b660efa2200db0a94b032d55a8b",
+  "update_manifest_sha256": "204d060443897c120a1a8fdf0ee6a6c9b6851c7ad7de7b98242fdebe8e6dbb7a",
+  "master_update_manifest_sha256": "ba2eb3784f7b2026fc7c72a0cbc9260fa4484ec60de6af87cc8cc58720dcb891",
+  "stage_manifest_sha256": "204d060443897c120a1a8fdf0ee6a6c9b6851c7ad7de7b98242fdebe8e6dbb7a",
+  "create_manifest_sha256": "MANIFEST_ABSENT",
+  "ledger_manifest_sha256": "353ffebe948ed8c6e60db1cc9447805a2967af0b3b3cfb8b829a491be80d7003",
+  "expected_update_count": 50,
+  "expected_create_count": 0,
+  "product_id_allowlist_sha256": "a8bb5eb63edb8aec0d3abdf24244a78e077e1fdc9a5f73efe693b240e3bdce8f",
+  "owner_accepted_git_commit_sha": "",
+  "manifest_bundle_sha256": "742eca6300c6aa4c0b1823c5a683cc33a770aed70a8e16b16ec4b653209f26f2",
+  "owner_acceptance_status": "PENDING_OWNER_SIGNATURE",
+  "owner_acceptance_id": "",
+  "owner_acceptance_at": "",
+  "owner_acceptance_by": "",
+  "owner_acceptance_note": "Stage-scoped UPDATE canary bundle. Owner must bind owner_accepted_git_commit_sha to the repository commit under review, then accept with OWNER_MANIFEST_ACCEPTED."
+}

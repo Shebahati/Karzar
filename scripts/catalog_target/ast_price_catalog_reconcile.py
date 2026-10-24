@@ -28,6 +28,9 @@ from catalog_target.ast_price_catalog_constants import (
     SOURCE_ARCHIVE_SHA256,
 )
 from catalog_target.ast_price_catalog_hold_recovery import write_create_hold_recovery_plan
+from catalog_target.ast_price_catalog_manifest_acceptance import write_update_stage_owner_bundles
+from catalog_target.ast_price_catalog_update_canary import write_update_canary_artifacts
+from catalog_target.ast_price_catalog_update_owner_package import write_update_owner_package
 from catalog_target.ast_price_catalog_manifest_acceptance import (
     MANIFEST_ABSENT,
     write_owner_manifest_bundles,
@@ -651,6 +654,25 @@ def run_reconcile(
         manifest_hashes,
         update_count=outcome_counts["UPDATE"],
         create_count=outcome_counts["CREATE"],
+    )
+    master_update_sha = manifest_hashes.get("UPDATE_PRODUCTS.csv", "")
+    canary_registry = write_update_canary_artifacts(
+        audit_dir=audit_dir,
+        update_rows=updates,
+        master_manifest_sha256=master_update_sha,
+    )
+    write_update_stage_owner_bundles(
+        sanitized,
+        ledger_manifest_sha256=manifest_hashes.get("SOURCE_ROW_LEDGER.csv", ""),
+        canary_registry=canary_registry,
+    )
+    write_update_owner_package(
+        audit_dir=audit_dir,
+        sanitized_dir=sanitized,
+        catalog_csv=catalog_csv,
+        update_rows=updates,
+        abnormal_updates=abnormal_updates,
+        canary_registry=canary_registry,
     )
     write_update_cohort_preflight(
         audit_dir=audit_dir,

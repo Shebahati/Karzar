@@ -15,22 +15,10 @@ STATE_COMMITTED = "COMMITTED"
 STATE_VERIFIED = "VERIFIED"
 STATE_UNKNOWN = "UNKNOWN"
 
-_DDL = """
-CREATE TABLE IF NOT EXISTS ast_catalog_execution_batches (
-    batch_id TEXT PRIMARY KEY,
-    execution_state TEXT NOT NULL,
-    cohort TEXT NOT NULL,
-    mutation_plan JSONB NOT NULL,
-    mutation_result JSONB,
-    post_commit_verified BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-)
-"""
-
-
 async def ensure_execution_store(session: AsyncSession) -> None:
-    await session.execute(text(_DDL))
+    res = await session.execute(text("SELECT to_regclass('public.ast_catalog_execution_batches')"))
+    if res.scalar() is None:
+        raise ApplyAbort("ast_catalog_execution_batches_missing_run_alembic_migration")
 
 
 def _plan_payload(
@@ -143,6 +131,50 @@ async def assert_no_blocking_unknown_batches(session: AsyncSession) -> None:
     if rows:
         ids = ",".join(str(r[0]) for r in rows)
         raise ApplyAbort(f"blocking_unreconciled_execution_batches:{ids}")
+
+
+async def committed_update_product_ids(
+    session: AsyncSession,
+    *,
+    master_update_manifest_sha256: str,
+) -> set[int]:
+    res = await session.execute(
+        text(
+            """
+            SELECT mutation_result
+            FROM ast_catalog_execution_batches
+            WHERE execution_state IN ('COMMITTED', 'VERIFIED')
+              AND cohort = 'update'
+              AND (mutation_plan->'metadata'->>'master_update_manifest_sha256') = :master
+            """
+        ),
+        {"master": master_update_manifest_sha256},
+    )
+    committed: set[int] = set()
+    for (mutation_result,) in res.fetchall():
+        if not mutation_result:
+            continue
+        for entry in mutation_result.get("updates") or []:
+            pid = entry.get("product_id")
+            if pid is not None:
+                committed.add(int(pid))
+    return committed
+
+
+async def assert_update_product_ids_not_committed(
+    session: AsyncSession,
+    *,
+    product_ids: list[int],
+    master_update_manifest_sha256: str,
+) -> None:
+    if not product_ids or not master_update_manifest_sha256:
+        return
+    committed = await committed_update_product_ids(
+        session, master_update_manifest_sha256=master_update_manifest_sha256
+    )
+    overlap = sorted(committed.intersection(int(pid) for pid in product_ids))
+    if overlap:
+        raise ApplyAbort(f"update_product_ids_already_committed:{overlap[:20]}")
 
 
 async def fetch_batch_state(session: AsyncSession, batch_id: str) -> dict[str, Any] | None:

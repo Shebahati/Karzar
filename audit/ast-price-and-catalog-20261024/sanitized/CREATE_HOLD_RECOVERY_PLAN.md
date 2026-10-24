@@ -1,9 +1,10 @@
 # CREATE HOLD recovery plan
 
 - Total HOLD rows: **1205**
-- Recovery objective rows: **1173**
+- UPDATE-side holds (excluded from CREATE recovery): **32**
+- CREATE recovery objective rows: **1173**
 
-## Hold reasons
+## Hold reasons (all)
 
 - `HOLD_VISUAL_PDF_QA_REQUIRED`: **1168**
 - `QA_MANUFACTURER_IDENTITY_REVIEW`: **20**
@@ -12,14 +13,21 @@
 - `HOLD_CATEGORY_MAPPING`: **2**
 - `HOLD_MANUFACTURER_IDENTITY_UNVERIFIED`: **1**
 
+## CREATE recovery hold reasons
+
+- `HOLD_VISUAL_PDF_QA_REQUIRED`: **1168**
+- `HOLD_ET_TAP_VARIANT`: **2**
+- `HOLD_CATEGORY_MAPPING`: **2**
+- `HOLD_MANUFACTURER_IDENTITY_UNVERIFIED`: **1**
+
 ## Controlled batches
 
-### CREATE-BATCH-01_DASQUA_MEASURING (11 rows)
+### CREATE-BATCH-01_DASQUA_MEASURING (184 rows)
 - Attach PDF visual QA per SKU (visual_pdf_qa_verified=YES).
 - Map measuring subfamily from code_nearby keywords.
 - Set manufacturer=DASQUA with evidence; regenerate partial CREATE manifest.
 
-### CREATE-BATCH-02_ET_TAPS (0 rows)
+### CREATE-BATCH-02_ET_TAPS (45 rows)
 - Confirm straight vs spiral from PDF row text.
 - Verify ET brand identity; assign leaf 48/49.
 
