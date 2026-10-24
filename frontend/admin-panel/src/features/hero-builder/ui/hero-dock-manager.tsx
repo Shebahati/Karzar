@@ -264,7 +264,7 @@ export function HeroDockManager({ onBack }: { onBack: () => void }) {
                 <span className="text-[10px] font-bold text-muted-foreground">
                   {slot === 0 ? "۱ · راست" : `${slot + 1}`}
                 </span>
-                <span className="grid h-12 w-12 place-items-center rounded-full bg-white shadow-soft">
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-card shadow-soft">
                   {orb ? (
                     <DockIconPreview name={orb.icon} label={orb.name} />
                   ) : (
@@ -312,7 +312,7 @@ export function HeroDockManager({ onBack }: { onBack: () => void }) {
                   </span>
                   {orb ? (
                     <>
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white shadow-soft">
+                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card shadow-soft">
                         <DockIconPreview name={orb.icon} label={orb.name} />
                       </span>
                       <div className="min-w-0 flex-1">
@@ -435,7 +435,7 @@ export function HeroDockManager({ onBack }: { onBack: () => void }) {
                       isFeatured ? "bg-primary/5 ring-primary/20" : "bg-muted/40 ring-transparent",
                     )}
                   >
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white shadow-soft">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-card shadow-soft">
                       <DockIconPreview name={orb.icon} label={orb.name} />
                     </span>
                     <div className="min-w-0 flex-1">

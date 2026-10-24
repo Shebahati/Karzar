@@ -325,7 +325,7 @@ export function ProductDescriptionEditor({
         placeholder={placeholder}
         aria-invalid={invalid || undefined}
         className={cn(
-          "rounded-xl border border-input bg-white shadow-none",
+          "rounded-xl border border-input bg-card shadow-none",
           invalid && "ring-2 ring-destructive/50",
         )}
       />
@@ -339,7 +339,7 @@ export function ProductDescriptionEditor({
           {embedded.map((img) => (
             <span
               key={img.src}
-              className="relative h-8 w-8 overflow-hidden rounded-md border border-border bg-white"
+              className="relative h-8 w-8 overflow-hidden rounded-md border border-border bg-card"
               title={img.alt}
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary description URLs */}

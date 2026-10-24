@@ -453,7 +453,7 @@ export function StaticPageEditor({ slug: rawSlug }: Props) {
                 </div>
 
                 {expanded ? (
-                  <div className="mt-4 grid gap-3 rounded-lg border border-border/60 bg-white p-4">
+                  <div className="mt-4 grid gap-3 rounded-lg border border-border/60 bg-card p-4">
                     <div className="space-y-1.5">
                       <Label>عنوان بخش</Label>
                       <Input

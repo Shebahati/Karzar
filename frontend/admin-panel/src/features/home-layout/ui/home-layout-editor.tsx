@@ -318,7 +318,7 @@ export function HomeLayoutEditor() {
                 </div>
 
                 {carousel && expanded ? (
-                  <div className="mt-4 grid gap-3 rounded-lg border border-border/60 bg-white p-4 sm:grid-cols-2">
+                  <div className="mt-4 grid gap-3 rounded-lg border border-border/60 bg-card p-4 sm:grid-cols-2">
                     <div className="space-y-1.5 sm:col-span-2">
                       <Label htmlFor={`title-${section.id}`}>عنوان</Label>
                       <Input

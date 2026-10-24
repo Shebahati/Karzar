@@ -2661,3 +2661,11 @@ documents:
     branch: audit/catalog-258-insize-final-commercial-source
     notes: >
       Rollback plan + manifest pointers for INSIZE commercial reconcile (#258).
+
+  - id: ADMIN-V2-BASELINE-AUDIT
+    path: docs/admin-v2/ADMIN_V2_BASELINE_AUDIT.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    notes: Admin V2 integration baseline audit and verification matrix.

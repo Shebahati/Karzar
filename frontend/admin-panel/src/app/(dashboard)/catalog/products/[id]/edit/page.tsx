@@ -206,7 +206,7 @@ export default function EditProductPage() {
                 <textarea
                   id="short_description"
                   rows={3}
-                  className="w-full rounded-xl border border-input bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                  className="w-full rounded-xl border border-input bg-card px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                   aria-invalid={Boolean(errors.short_description)}
                   {...register("short_description")}
                 />

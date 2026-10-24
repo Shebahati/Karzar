@@ -41,7 +41,7 @@ function ProformaPreview({ record }: { record: IssuedProformaRecord }) {
 
   return (
     <div className="overflow-hidden rounded-xl border border-[#F0C4C5]/40] bg-[#F7F7F7]">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EFEFEF] bg-white px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#EFEFEF] bg-card px-4 py-3">
         <div>
           <p className="text-sm font-bold text-[#4F4F4F]">
             {record.document.kind === "proforma" ? "پیش‌فاکتور" : "فاکتور"}{" "}
@@ -63,11 +63,11 @@ function ProformaPreview({ record }: { record: IssuedProformaRecord }) {
         <iframe
           title={`پیش‌نمایش ${record.refCode}`}
           srcDoc={html}
-          className="min-h-[720px] w-full rounded-lg bg-white"
+          className="min-h-[720px] w-full rounded-lg bg-card"
           sandbox="allow-same-origin"
         />
       </div>
-      <div className="space-y-2 border-t border-[#EFEFEF] bg-white px-4 py-3 text-xs leading-6 text-muted-foreground">
+      <div className="space-y-2 border-t border-[#EFEFEF] bg-card px-4 py-3 text-xs leading-6 text-muted-foreground">
         <p>
           خریدار: <span className="font-bold text-foreground">{record.buyerName}</span>
           {record.buyerPhone ? (
@@ -170,7 +170,7 @@ export function IssuedProformasList() {
         سرویس عوض می‌شود.
       </div>
 
-      <div className="rounded-xl bg-white p-4 shadow-sm">
+      <div className="rounded-xl bg-card p-4 shadow-sm">
         <div className="relative max-w-md">
           <span className="pointer-events-none absolute inset-y-0 start-3 flex items-center text-muted-foreground">
             <Search set="light" size={18} />

@@ -81,7 +81,7 @@ export function Header() {
         </span>
         <Input
           placeholder="جستجوی سریع SKU..."
-          className="bg-white/60 ps-10"
+          className="bg-card/60 ps-10"
           dir="ltr"
           value={sku}
           onChange={(e) => {
@@ -99,7 +99,7 @@ export function Header() {
         />
       </div>
 
-      <div className="flex items-center gap-3 rounded-xl bg-white/60 py-1.5 pe-2 ps-3 shadow-soft">
+      <div className="flex items-center gap-3 rounded-xl bg-card/60 py-1.5 pe-2 ps-3 shadow-soft">
         <div className="hidden flex-col items-end leading-tight sm:flex">
           <span className="text-sm font-bold text-foreground">مدیر سیستم</span>
           <span className="text-xs text-muted-foreground">سوپر ادمین</span>

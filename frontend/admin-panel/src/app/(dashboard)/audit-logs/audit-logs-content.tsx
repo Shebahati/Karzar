@@ -120,7 +120,7 @@ export function AuditLogsContent() {
         </div>
       )}
 
-      <div className="rounded-xl bg-white p-4 shadow-sm">
+      <div className="rounded-xl bg-card p-4 shadow-sm">
         <div className="grid gap-3 sm:grid-cols-2">
           <Select
             value={entityType || "all"}
