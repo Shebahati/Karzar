@@ -49,6 +49,7 @@ from app.services.order_service import record_initial_status_event, status_label
 from app.services.payment_flow_service import initialize_order_payment
 from app.utils.decimal_utils import to_decimal as _to_decimal
 from app.utils.storefront_catalog import decimal_to_api_string
+from app.services.order_attribution import resolve_order_snapshot, sanitize_checkout_snapshot
 
 logger = get_logger(__name__)
 
@@ -243,6 +244,8 @@ async def submit_checkout(
         if resolved_method_code:
             shipping_snapshot["shipping_method_code"] = resolved_method_code
 
+    acquisition = resolve_order_snapshot(sanitize_checkout_snapshot(payload.acquisition))
+
     order = await crud_commerce.create_order(
         db,
         tracking_prefix="KZ-",
@@ -286,6 +289,14 @@ async def submit_checkout(
             else (None if receiver_due else (shipping_quote.service_code if shipping_quote else None))
         ),
         shipping_payment_mode=shipping_payment_mode.value if shipping_payment_mode else None,
+        acquisition_source=acquisition.source,
+        acquisition_first_touch_source=acquisition.first_touch_source,
+        acquisition_last_non_direct_source=acquisition.last_non_direct_source,
+        acquisition_source_subtype=acquisition.source_subtype,
+        acquisition_method=acquisition.method,
+        acquisition_landing_path=acquisition.landing_path,
+        acquisition_campaign=acquisition.campaign,
+        acquisition_captured_at=acquisition.captured_at,
     )
     if shipping_quote is not None:
         await bind_quote_to_order(db, shipping_quote, order.id)

@@ -37,19 +37,21 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 export default function OrdersPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("");
+  const [source, setSource] = useState<string>("");
 
   const listParams = useMemo(
     () => ({
       limit: 50,
       search: search.trim() || undefined,
       status: (status || undefined) as OrderStatus | undefined,
+      acquisition_source: source || undefined,
     }),
-    [search, status],
+    [search, status, source],
   );
 
   const { data, isPending, isError, error, refetch, isFetching } = useOrders(listParams);
   const orders = data?.data ?? [];
-  const hasFilters = Boolean(search.trim() || status);
+  const hasFilters = Boolean(search.trim() || status || source);
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -62,12 +64,12 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      <div className="rounded-xl bg-white p-4 shadow-sm">
+      <div className="rounded-xl bg-card p-4 shadow-sm border border-border/60">
         <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[#4F4F4F]">
           <Filter set="light" size={18} primaryColor="#D02327" />
           فیلتر
         </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 start-3 flex items-center text-muted-foreground">
               <Search set="light" size={18} />
@@ -92,6 +94,21 @@ export default function OrdersPage() {
               ))}
             </SelectContent>
           </Select>
+          <Select value={source || "all"} onValueChange={(v) => setSource(v === "all" ? "" : v)}>
+            <SelectTrigger>
+              <SelectValue placeholder="همه منابع" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">همه منابع</SelectItem>
+              <SelectItem value="torob">ترب</SelectItem>
+              <SelectItem value="emalls">ایمالز</SelectItem>
+              <SelectItem value="instagram">اینستاگرام</SelectItem>
+              <SelectItem value="google">گوگل</SelectItem>
+              <SelectItem value="direct">ورود مستقیم</SelectItem>
+              <SelectItem value="other">سایر</SelectItem>
+              <SelectItem value="unknown">نامشخص</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         {hasFilters && (
           <Button
@@ -102,6 +119,7 @@ export default function OrdersPage() {
             onClick={() => {
               setSearch("");
               setStatus("");
+              setSource("");
             }}
           >
             پاک کردن فیلترها
@@ -156,7 +174,7 @@ export default function OrdersPage() {
                       <p className="text-sm text-foreground">{order.customer_name}</p>
                       <p className="text-xs text-muted-foreground tnum">{order.customer_phone}</p>
                     </div>
-                    <span className="text-sm font-bold tnum">{formatToman(order.estimated_total)}</span>
+                    <span className="text-sm font-bold tnum">{order.acquisition_source_label ?? "نامشخص"} · {formatToman(order.estimated_total)}</span>
                     <Badge variant="outline">{order.status_label}</Badge>
                     <div className="flex justify-end">
                       <Button asChild variant="ghost" size="sm">

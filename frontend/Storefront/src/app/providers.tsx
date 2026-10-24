@@ -24,6 +24,7 @@ import { getQueryClient } from "@/lib/get-query-client";
 import { loadFeatureLabels } from "@/lib/feature-labels";
 import { ADDRESS_PERSIST_KEY, useAddressStore } from "@/store/address-store";
 import { useCartStore } from "@/store/cart-store";
+import { AttributionCapture } from "@/lib/attribution/attribution-capture";
 
 function SessionWatcher() {
   useEffect(() => {
@@ -166,6 +167,7 @@ export function Providers({ children }: { children: ReactNode }) {
       <CustomerSessionBoundary />
       <AuthBootstrap />
       <SessionWatcher />
+      <AttributionCapture />
       <FeatureLabelsBootstrap />
       {children}
     </QueryClientProvider>

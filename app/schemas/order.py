@@ -40,6 +40,22 @@ class OrderSummary(BaseModel):
     company_name: str | None = None
     created_at: datetime
     updated_at: datetime
+    acquisition_source: str = "unknown"
+    acquisition_source_label: str = "نامشخص"
+
+
+class OrderAcquisitionDetail(BaseModel):
+    source: str
+    source_label: str
+    first_touch_source: str
+    first_touch_source_label: str
+    last_non_direct_source: str | None = None
+    last_non_direct_source_label: str | None = None
+    source_subtype: str | None = None
+    method: str | None = None
+    landing_path: str | None = None
+    captured_at: datetime | None = None
+    campaign: dict[str, Any] | None = None
 
 
 class OrderDetailResponse(OrderSummary):
@@ -76,6 +92,7 @@ class OrderDetailResponse(OrderSummary):
     items: list[OrderItemResponse] = Field(default_factory=list)
     allowed_next_statuses: list[str] = Field(default_factory=list)
     timeline: list["OrderTrackingEvent"] = Field(default_factory=list)
+    acquisition: OrderAcquisitionDetail | None = None
 
 
 class OrderListResponse(BaseModel):
@@ -137,3 +154,17 @@ class OrderTrackingResponse(BaseModel):
     items: list[OrderTrackingItemResponse] = Field(default_factory=list)
     timeline: list[OrderTrackingEvent] = Field(default_factory=list)
     shipments: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class AcquisitionReportRow(BaseModel):
+    source: str
+    source_label: str
+    order_count: int
+    paid_order_count: int
+    paid_sales_toman: str
+
+
+class AcquisitionReportResponse(BaseModel):
+    from_date: datetime | None = None
+    to_date: datetime | None = None
+    rows: list[AcquisitionReportRow] = Field(default_factory=list)

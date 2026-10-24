@@ -58,6 +58,7 @@ export function mapOrderDetail(
     shipping_carrier_code: raw.shipping_carrier_code ?? null,
     shipping_service_code: raw.shipping_service_code ?? null,
     shipments: raw.shipments ?? [],
+    acquisition: raw.acquisition ?? null,
     items: raw.items.map((item) =>
       mapLineItem(item, productsById?.get(item.product_id)),
     ),
@@ -83,6 +84,8 @@ export const ordersService = {
         customer_phone: row.customer_phone,
         estimated_total: row.estimated_total,
         created_at: row.created_at,
+        acquisition_source: row.acquisition_source,
+        acquisition_source_label: row.acquisition_source_label,
       })),
       meta: data.meta,
     };
