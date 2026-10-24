@@ -24,15 +24,18 @@ from catalog_target.ast_price_catalog_apply import (  # noqa: E402
     new_batch_id,
     rollback_from_journal,
 )
+from catalog_target.ast_price_catalog_backup_attestation import (  # noqa: E402
+    BACKUP_ATTESTATION_FILENAME,
+    assert_production_backup_attestation_gate,
+)
 from catalog_target.ast_price_catalog_constants import SOURCE_ARCHIVE_SHA256  # noqa: E402
 from catalog_target.ast_price_catalog_execution import (  # noqa: E402
     ApplyCohort,
     execute_ast_apply_async,
 )
 from catalog_target.ast_price_catalog_manifest_acceptance import (  # noqa: E402
-    OWNER_MANIFEST_BUNDLE_FILENAME,
-    assert_backup_evidence_gate,
-    assert_owner_manifest_bundle_gate,
+    assert_owner_manifest_acceptance_gate,
+    resolve_bundle_path,
 )
 from catalog_target.sales_wave_apply import ApplyAbort, connect_runtime_db  # noqa: E402
 
@@ -49,7 +52,7 @@ def main() -> int:
     parser.add_argument("--audit-dir", type=Path, default=ROOT / "audit/ast-price-and-catalog-20261024")
     parser.add_argument("--journal-dir", type=Path, default=None)
     parser.add_argument("--database-url", default=os.environ.get("DATABASE_URL", ""))
-    parser.add_argument("--apply-cohort", default="both", choices=["update", "create", "both"])
+    parser.add_argument("--apply-cohort", default="update", choices=["update", "create", "both"])
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--rollback", action="store_true")
     parser.add_argument("--rollback-journal", type=Path, default=None)
@@ -61,22 +64,28 @@ def main() -> int:
     parser.add_argument("--confirm-update-count", type=int, default=-1)
     parser.add_argument("--confirm-create-count", type=int, default=-1)
     parser.add_argument("--confirm-manifest-bundle-sha256", default="")
-    parser.add_argument("--confirm-backup-evidence-sha256", default="")
-    parser.add_argument("--backup-evidence-file", type=Path, default=None)
+    parser.add_argument("--confirm-owner-acceptance-id", default="")
+    parser.add_argument("--confirm-backup-artifact-sha256", default="")
+    parser.add_argument("--backup-attestation-file", type=Path, default=None)
+    parser.add_argument("--production-database-identity", default="")
     args = parser.parse_args()
 
     cohort = _parse_cohort(args.apply_cohort)
     update_path = args.audit_dir / "UPDATE_PRODUCTS.csv"
     create_path = args.audit_dir / "CREATE_PRODUCTS.csv"
-    bundle_path = args.audit_dir / "sanitized" / OWNER_MANIFEST_BUNDLE_FILENAME
+    bundle_path = resolve_bundle_path(args.audit_dir, cohort)
     journal_dir = args.journal_dir or (args.audit_dir / "journals")
     ids = manifest_identity(update_path, create_path)
     updates = load_update_plan(update_path) if cohort in {"update", "both"} else []
-    creates = load_create_plan(
-        create_path,
-        expected_manifest_sha256=ids["create_manifest_sha256"],
-        require_owner_approval=True,
-    ) if cohort in {"create", "both"} else []
+    creates = (
+        load_create_plan(
+            create_path,
+            expected_manifest_sha256=ids["create_manifest_sha256"],
+            require_owner_approval=True,
+        )
+        if cohort in {"create", "both"}
+        else []
+    )
 
     dry_run = not args.apply and not args.rollback
     if dry_run:
@@ -88,7 +97,7 @@ def main() -> int:
                     "updates": len(updates),
                     "creates_eligible": len(creates),
                     "manifest": ids,
-                    "manifest_bundle_path": str(bundle_path),
+                    "owner_bundle_path": str(bundle_path),
                     "note": "Pass --apply with full Category B gates to mutate production.",
                 },
                 ensure_ascii=False,
@@ -119,14 +128,23 @@ def main() -> int:
             create_count=create_count,
         )
         if args.apply:
-            assert_owner_manifest_bundle_gate(
-                confirm_manifest_bundle_sha256=args.confirm_manifest_bundle_sha256,
+            assert_owner_manifest_acceptance_gate(
+                cohort=cohort,
                 bundle_path=bundle_path,
+                confirm_manifest_bundle_sha256=args.confirm_manifest_bundle_sha256,
+                confirm_owner_acceptance_id=args.confirm_owner_acceptance_id,
+                live_update_manifest_sha256=ids["update_manifest_sha256"],
+                live_create_manifest_sha256=ids["create_manifest_sha256"],
+                live_update_count=update_count,
+                live_create_count=create_count,
             )
-            backup_path = args.backup_evidence_file or (args.audit_dir / "sanitized" / "BACKUP_EVIDENCE.sha256")
-            assert_backup_evidence_gate(
-                confirm_backup_evidence_sha256=args.confirm_backup_evidence_sha256,
-                backup_evidence_path=backup_path,
+            attestation_path = args.backup_attestation_file or (
+                args.audit_dir / "sanitized" / BACKUP_ATTESTATION_FILENAME
+            )
+            assert_production_backup_attestation_gate(
+                attestation_path=attestation_path,
+                confirm_backup_artifact_sha256=args.confirm_backup_artifact_sha256,
+                production_database_identity=args.production_database_identity,
             )
     except ApplyAbort as exc:
         print(json.dumps({"status": "blocked", "reason": str(exc)}, ensure_ascii=False))

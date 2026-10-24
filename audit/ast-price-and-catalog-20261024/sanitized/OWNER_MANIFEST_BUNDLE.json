@@ -1,10 +1,5 @@
 {
-  "pricing_policy_id": "AST_COOPERATION_LIST_RIAL_DIV_10",
-  "source_archive_sha256": "976fca74faabd4fb62bb57feb396450717c32b660efa2200db0a94b032d55a8b",
-  "update_manifest_sha256": "ba2eb3784f7b2026fc7c72a0cbc9260fa4484ec60de6af87cc8cc58720dcb891",
-  "create_manifest_sha256": "",
-  "ledger_manifest_sha256": "353ffebe948ed8c6e60db1cc9447805a2967af0b3b3cfb8b829a491be80d7003",
-  "manifest_bundle_sha256": "36dc5cf6b99744cecd1f4b666ad6f7cc4f340399246a4bee819ecdd097703bb9",
-  "owner_acceptance_status": "PENDING_OWNER_SIGNATURE",
-  "owner_acceptance_note": "Confirm manifest_bundle_sha256 from this committed file; re-hashing local CSV files is not owner acceptance."
+  "update_bundle_file": "OWNER_MANIFEST_BUNDLE_UPDATE.json",
+  "create_bundle_file": "OWNER_MANIFEST_BUNDLE_CREATE.json",
+  "note": "Production APPLY uses cohort-specific bundle files only."
 }

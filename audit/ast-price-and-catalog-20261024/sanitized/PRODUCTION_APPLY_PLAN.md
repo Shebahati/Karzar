@@ -19,5 +19,5 @@ with no `order_items` activity.
 
 **Manifest SHA256**
 - UPDATE: `ba2eb3784f7b2026fc7c72a0cbc9260fa4484ec60de6af87cc8cc58720dcb891`
-- CREATE: ``
+- CREATE: `MANIFEST_ABSENT`
 - LEDGER: `353ffebe948ed8c6e60db1cc9447805a2967af0b3b3cfb8b829a491be80d7003`

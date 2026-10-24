@@ -7,10 +7,11 @@ import hashlib
 import json
 import os
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any, Callable, Protocol
+from typing import Any, Protocol
 
 from catalog_target.ast_price_catalog_constants import (
     OWNER_AUTH_APPLY,
@@ -18,8 +19,12 @@ from catalog_target.ast_price_catalog_constants import (
     PRICING_POLICY_ID,
     SOURCE_ARCHIVE_SHA256,
 )
+from catalog_target.ast_price_catalog_manifest_acceptance import (
+    MANIFEST_ABSENT,
+    manifest_file_sha256,
+)
 from catalog_target.ast_price_catalog_reconcile import CREATE_APPROVAL_OWNER
-from catalog_target.sales_wave_apply import ApplyAbort, normalize_database_url
+from catalog_target.sales_wave_apply import ApplyAbort
 
 CREATE_APPROVAL_REQUIRED = CREATE_APPROVAL_OWNER
 
@@ -154,6 +159,12 @@ def load_update_plan(path: Path) -> list[UpdatePlanRow]:
     return rows
 
 
+def normalize_create_manifest_for_gate(value: str) -> str:
+    if (value or "").strip() == MANIFEST_ABSENT:
+        return MANIFEST_ABSENT
+    return value
+
+
 def load_create_plan(
     path: Path,
     *,
@@ -161,8 +172,13 @@ def load_create_plan(
     require_owner_approval: bool = True,
 ) -> list[CreatePlanRow]:
     if expected_manifest_sha256:
-        actual = sha256_file(path)
-        if actual != expected_manifest_sha256:
+        actual = manifest_file_sha256(path)
+        expected = normalize_create_manifest_for_gate(expected_manifest_sha256)
+        if expected == MANIFEST_ABSENT:
+            if actual != MANIFEST_ABSENT:
+                raise ApplyAbort(f"create_manifest_expected_absent_got:{actual}")
+            return []
+        if actual != expected:
             raise ApplyAbort(
                 f"create_manifest_sha256_mismatch:expected={expected_manifest_sha256}:got={actual}"
             )
@@ -230,7 +246,9 @@ def assert_apply_gates(
             raise ApplyAbort("confirm_source_sha256_mismatch")
         if confirm_update_manifest_sha256 != update_manifest_sha256:
             raise ApplyAbort("confirm_update_manifest_sha256_mismatch")
-        if confirm_create_manifest_sha256 != create_manifest_sha256:
+        live_create = normalize_create_manifest_for_gate(create_manifest_sha256)
+        confirm_create = normalize_create_manifest_for_gate(confirm_create_manifest_sha256)
+        if confirm_create != live_create:
             raise ApplyAbort("confirm_create_manifest_sha256_mismatch")
         if confirm_update_count < 0 or confirm_create_count < 0:
             raise ApplyAbort("missing_explicit_confirm_mutation_counts")
@@ -348,7 +366,10 @@ async def create_products_ast_batch(
     """AST one-time CREATE: ProductCreate validation, flush-only, no Hesabfa."""
     from app.crud.product import check_sku_exists, create_product
     from app.schemas.product import ProductCreate
-    from app.utils.category_validation import ensure_brand_exists, ensure_selectable_product_category
+    from app.utils.category_validation import (
+        ensure_brand_exists,
+        ensure_selectable_product_category,
+    )
 
     created_ids: list[int] = []
     for row in plan_rows:
@@ -432,8 +453,8 @@ def write_journal(path: Path, payload: dict[str, Any]) -> None:
 
 def manifest_identity(update_path: Path, create_path: Path) -> dict[str, str]:
     return {
-        "update_manifest_sha256": sha256_file(update_path),
-        "create_manifest_sha256": sha256_file(create_path),
+        "update_manifest_sha256": manifest_file_sha256(update_path),
+        "create_manifest_sha256": manifest_file_sha256(create_path),
     }
 
 

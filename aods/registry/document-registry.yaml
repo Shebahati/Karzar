@@ -2682,6 +2682,27 @@ documents:
     notes: >
       OWNER_COMMERCIAL_PRICING_POLICY_APPROVED evidence for AST_COOPERATION_LIST_RIAL_DIV_10.
 
+  - id: AST-OWNER-MANIFEST-BUNDLE-UPDATE-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_MANIFEST_BUNDLE_UPDATE.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+
+  - id: AST-UPDATE-COHORT-PREFLIGHT-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_COHORT_PREFLIGHT.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+
+  - id: AST-CREATE-HOLD-RECOVERY-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/CREATE_HOLD_RECOVERY_PLAN.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+
   - id: AST-OWNER-MANIFEST-BUNDLE-20261024
     path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_MANIFEST_BUNDLE.json
     class: EVIDENCE

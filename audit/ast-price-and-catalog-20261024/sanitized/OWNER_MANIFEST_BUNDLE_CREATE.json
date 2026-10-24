@@ -1,0 +1,17 @@
+{
+  "bundle_schema_version": "1",
+  "apply_cohort": "create",
+  "pricing_policy_id": "AST_COOPERATION_LIST_RIAL_DIV_10",
+  "source_archive_sha256": "976fca74faabd4fb62bb57feb396450717c32b660efa2200db0a94b032d55a8b",
+  "update_manifest_sha256": "ba2eb3784f7b2026fc7c72a0cbc9260fa4484ec60de6af87cc8cc58720dcb891",
+  "create_manifest_sha256": "MANIFEST_ABSENT",
+  "ledger_manifest_sha256": "353ffebe948ed8c6e60db1cc9447805a2967af0b3b3cfb8b829a491be80d7003",
+  "expected_update_count": 0,
+  "expected_create_count": 0,
+  "manifest_bundle_sha256": "b019c197b304cbbbd4e5e438f7e28e93c853d420687afbbb0c115302f447fe9b",
+  "owner_acceptance_status": "PENDING_OWNER_SIGNATURE",
+  "owner_acceptance_id": "",
+  "owner_acceptance_at": "",
+  "owner_acceptance_by": "",
+  "owner_acceptance_note": "Owner must set owner_acceptance_status=OWNER_MANIFEST_ACCEPTED, owner_acceptance_id, owner_acceptance_at, owner_acceptance_by. Operator APPLY must pass --confirm-owner-acceptance-id matching owner_acceptance_id. Do not auto-accept during APPLY."
+}

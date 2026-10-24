@@ -1,0 +1,12 @@
+{
+  "attestation_schema_version": "1",
+  "backup_completion_status": "PENDING",
+  "backup_artifact_sha256": "",
+  "backup_artifact_location": "/secure/off-repo/path/to/backup.dump",
+  "backup_created_at": "",
+  "production_database_identity": "karzar-production-db-identity",
+  "restore_validation_status": "PENDING",
+  "restore_validation_evidence_ref": "ticket-or-runbook-id",
+  "attested_by": "",
+  "attestation_signed_at": ""
+}

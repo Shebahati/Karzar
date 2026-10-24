@@ -21,6 +21,13 @@ from catalog_target.ast_price_catalog_apply import (
     verify_update_stale_guard,
     write_journal,
 )
+from catalog_target.ast_price_catalog_execution_store import (
+    assert_no_blocking_unknown_batches,
+    ensure_execution_store,
+    insert_prepared_batch,
+    mark_batch_committed,
+    mark_batch_verified,
+)
 
 
 def async_sqlalchemy_database_url(url: str) -> str:
@@ -257,6 +264,25 @@ async def execute_ast_apply_async(
     update_journal: list[dict[str, Any]] = []
     create_journal: list[dict[str, Any]] = []
 
+    planned_updates = [
+        {
+            "product_id": r.product_id,
+            "sku": r.sku,
+            "expected_current_price": str(r.expected_current_price or ""),
+            "proposed_price": str(r.proposed_price or ""),
+        }
+        for r in scoped_updates
+    ]
+    planned_creates = [
+        {
+            "sku": r.sku,
+            "brand_id": r.brand_id,
+            "category_id": r.category_id,
+            "base_price": str(r.base_price or ""),
+            "name": r.name,
+        }
+        for r in scoped_creates
+    ]
     prepared_payload: dict[str, Any] = {
         "batch_id": batch_id,
         "execution_state": ExecutionState.PREPARED,
@@ -266,12 +292,24 @@ async def execute_ast_apply_async(
         "metadata": metadata,
         "updates_planned": len(scoped_updates),
         "creates_planned": len(scoped_creates),
+        "planned_updates": planned_updates,
+        "planned_creates": planned_creates,
     }
     _write_state(paths["prepared"], prepared_payload)
 
     try:
         async with session_factory() as session:
             async with session.begin():
+                await ensure_execution_store(session)
+                await assert_no_blocking_unknown_batches(session)
+                await insert_prepared_batch(
+                    session,
+                    batch_id=batch_id,
+                    cohort=cohort,
+                    updates=planned_updates,
+                    creates=planned_creates,
+                    metadata=metadata,
+                )
                 if scoped_updates:
                     live = await _fetch_live_updates(session, scoped_updates)
                     guard = verify_update_stale_guard(scoped_updates, live)
@@ -284,6 +322,12 @@ async def execute_ast_apply_async(
                         _create_journal_row(row, pid)
                         for row, pid in zip(scoped_creates, created_ids, strict=True)
                     ]
+                await mark_batch_committed(
+                    session,
+                    batch_id=batch_id,
+                    update_journal=update_journal,
+                    create_journal=create_journal,
+                )
     except ApplyAbort:
         failed = {**prepared_payload, "execution_state": ExecutionState.FAILED, "committed": False}
         _write_state(paths["recovery"], failed)
@@ -340,6 +384,10 @@ async def execute_ast_apply_async(
         "verified": True,
     }
     _write_state(paths["committed"], verified_payload)
+    async with session_factory() as session:
+        async with session.begin():
+            await ensure_execution_store(session)
+            await mark_batch_verified(session, batch_id=batch_id)
     await engine.dispose()
     return ApplyResult(
         mode="apply",

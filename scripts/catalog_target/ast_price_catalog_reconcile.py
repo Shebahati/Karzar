@@ -9,12 +9,11 @@ import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Literal
 
 from catalog_target.ast_price_catalog_category_map import classify_create_category
-from catalog_target.ast_price_catalog_manifest_acceptance import write_owner_manifest_bundle
 from catalog_target.ast_price_catalog_constants import (
     BRAND_HINT_TO_ID,
     BRAND_HINT_TO_KEY,
@@ -28,6 +27,12 @@ from catalog_target.ast_price_catalog_constants import (
     QA_DEVICE_SPARE_DISCOUNT_SPLIT,
     SOURCE_ARCHIVE_SHA256,
 )
+from catalog_target.ast_price_catalog_hold_recovery import write_create_hold_recovery_plan
+from catalog_target.ast_price_catalog_manifest_acceptance import (
+    MANIFEST_ABSENT,
+    write_owner_manifest_bundles,
+)
+from catalog_target.ast_price_catalog_update_preflight import write_update_cohort_preflight
 from catalog_target.core import normalize_sku
 
 PrimaryOutcome = Literal["UPDATE", "CREATE", "UNCHANGED", "HOLD", "REJECTED"]
@@ -639,7 +644,22 @@ def run_reconcile(
         (audit_dir / "SOURCE_DOCUMENTS.csv").write_bytes(source_docs_csv.read_bytes())
 
     manifest_hashes = _write_execution_manifest(audit_dir)
-    write_owner_manifest_bundle(sanitized, manifest_hashes)
+    if not creates:
+        manifest_hashes["CREATE_PRODUCTS.csv"] = MANIFEST_ABSENT
+    write_owner_manifest_bundles(
+        sanitized,
+        manifest_hashes,
+        update_count=outcome_counts["UPDATE"],
+        create_count=outcome_counts["CREATE"],
+    )
+    write_update_cohort_preflight(
+        audit_dir=audit_dir,
+        sanitized_dir=sanitized,
+        catalog_csv=catalog_csv,
+        update_rows=updates,
+        abnormal_updates=abnormal_updates,
+    )
+    write_create_hold_recovery_plan(audit_dir=audit_dir, sanitized_dir=sanitized, holds=holds)
 
     with source_docs_csv.open(encoding="utf-8-sig") as f:
         pdf_count = len(list(csv.DictReader(f)))

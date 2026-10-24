@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-10-24T14:15:00+00:00",
+  "total_hold_rows": 1205,
+  "create_recovery_target_rows": 1173,
+  "hold_reason_counts": {
+    "QA_MANUFACTURER_IDENTITY_REVIEW": 20,
+    "HOLD_VISUAL_PDF_QA_REQUIRED": 1168,
+    "HOLD_ET_TAP_VARIANT": 2,
+    "HOLD_CATEGORY_MAPPING": 2,
+    "QA_LARGE_PRICE_SWING": 12,
+    "HOLD_MANUFACTURER_IDENTITY_UNVERIFIED": 1
+  },
+  "hold_by_product_family": {
+    "OTHER_AST_FAMILY": 1174,
+    "DASQUA_MEASURING": 11,
+    "MAGNET_DRILL_AND_ANNULAR": 19,
+    "CHUMPOWER_INSERTS": 1
+  },
+  "family_reason_matrix": {
+    "OTHER_AST_FAMILY": {
+      "QA_MANUFACTURER_IDENTITY_REVIEW": 1,
+      "HOLD_VISUAL_PDF_QA_REQUIRED": 1168,
+      "HOLD_ET_TAP_VARIANT": 2,
+      "HOLD_CATEGORY_MAPPING": 2,
+      "HOLD_MANUFACTURER_IDENTITY_UNVERIFIED": 1
+    },
+    "DASQUA_MEASURING": {
+      "QA_LARGE_PRICE_SWING": 11
+    },
+    "MAGNET_DRILL_AND_ANNULAR": {
+      "QA_MANUFACTURER_IDENTITY_REVIEW": 19
+    },
+    "CHUMPOWER_INSERTS": {
+      "QA_LARGE_PRICE_SWING": 1
+    }
+  },
+  "controlled_batches": [
+    {
+      "batch_id": "CREATE-BATCH-01_DASQUA_MEASURING",
+      "family": "DASQUA_MEASURING",
+      "row_count": 11,
+      "resolution_steps": [
+        "Attach PDF visual QA per SKU (visual_pdf_qa_verified=YES).",
+        "Map measuring subfamily from code_nearby keywords.",
+        "Set manufacturer=DASQUA with evidence; regenerate partial CREATE manifest."
+      ]
+    },
+    {
+      "batch_id": "CREATE-BATCH-02_ET_TAPS",
+      "family": "ET_TAPS",
+      "row_count": 0,
+      "resolution_steps": [
+        "Confirm straight vs spiral from PDF row text.",
+        "Verify ET brand identity; assign leaf 48/49."
+      ]
+    },
+    {
+      "batch_id": "CREATE-BATCH-03_END_MILLS",
+      "family": "END_MILLS",
+      "row_count": 0,
+      "resolution_steps": [
+        "Distinguish HSS/HSSCO vs carbide from supplier text.",
+        "Reject carbide labels for HSSCO rows."
+      ]
+    },
+    {
+      "batch_id": "CREATE-BATCH-04_AST_MANUFACTURER",
+      "family": "AST_MANUFACTURER_REVIEW",
+      "row_count": 1,
+      "resolution_steps": [
+        "Establish manufacturer identity independent of ASTPOWER supplier label.",
+        "Do not infer manufacturer from distributor identity alone."
+      ]
+    }
+  ],
+  "policy": "HOLD is not rejection; resolved rows graduate to reviewed CREATE manifests per family."
+}

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T14:07:53+00:00",
+  "generated_at": "2026-10-24T14:14:59+00:00",
   "source_pdfs_processed": 22,
   "source_archive_sha256": "976fca74faabd4fb62bb57feb396450717c32b660efa2200db0a94b032d55a8b",
   "catalog_snapshot_sha256": "1e8a888adb06e431d3a21087fcd9eb3eb92044f3b00eb6f6a575db4da45677fd",
@@ -30,5 +30,6 @@
   "manifest_sha256_SOURCE_ROW_LEDGER.csv": "353ffebe948ed8c6e60db1cc9447805a2967af0b3b3cfb8b829a491be80d7003",
   "manifest_sha256_UPDATE_PRODUCTS.csv": "ba2eb3784f7b2026fc7c72a0cbc9260fa4484ec60de6af87cc8cc58720dcb891",
   "manifest_sha256_HOLD_PRODUCTS.csv": "4dbe7529c7d4aabccb1edda3e5d8d002e52829a47f24c1ca8de4432fbb59bd4a",
-  "manifest_sha256_SOURCE_DOCUMENTS.csv": "6e0b14081d6a298a49402556a242f92a2834ffe4e7d1125e2936d53bfdae0cdc"
+  "manifest_sha256_SOURCE_DOCUMENTS.csv": "6e0b14081d6a298a49402556a242f92a2834ffe4e7d1125e2936d53bfdae0cdc",
+  "manifest_sha256_CREATE_PRODUCTS.csv": "MANIFEST_ABSENT"
 }
