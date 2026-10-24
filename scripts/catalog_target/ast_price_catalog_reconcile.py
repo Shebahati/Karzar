@@ -429,8 +429,14 @@ def run_reconcile(
 
         if policy_id != PRICING_POLICY_ID:
             hold_reason = policy_id
-            ledger.append(_ledger_from(r, code, "HOLD", hold_reason, qa_flags, "", "", "", policy_id))
-            holds.append(_hold_row(r, code, hold_reason, qa_flags))
+            pid = product.product_id if product else ""
+            ledger.append(_ledger_from(r, code, "HOLD", hold_reason, qa_flags, pid, "", "", policy_id))
+            holds.append(
+                {
+                    **_hold_row(r, code, hold_reason, qa_flags),
+                    **({"product_id": pid, "sku": product.sku} if product else {}),
+                }
+            )
             outcome_counts["HOLD"] += 1
             continue
 
