@@ -7,6 +7,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.schemas.auth import PHONE_PATTERN
+from app.services.order_attribution import AcquisitionCheckoutSnapshot
 
 BlogBlock = (
     dict[Literal["type"], Literal["paragraph"]]
@@ -178,6 +179,7 @@ class CheckoutRequest(BaseModel):
     shipping_quote_token: str | None = Field(None, max_length=128)
     # Server resolves provider/service/payment from this code only.
     shipping_method_code: str | None = Field(None, max_length=64)
+    acquisition: AcquisitionCheckoutSnapshot | None = None
 
 
 class CheckoutResponse(BaseModel):

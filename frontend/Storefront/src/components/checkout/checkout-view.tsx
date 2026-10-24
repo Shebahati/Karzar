@@ -24,6 +24,7 @@ import {
   savePendingPaymentPreservingOwner,
 } from "@/lib/pending-payment";
 import type { CheckoutPayload } from "@/types/checkout";
+import { getAttributionCheckoutSnapshot } from "@/lib/attribution/storage";
 
 type Step = "auth" | "details";
 
@@ -152,6 +153,7 @@ export function CheckoutView() {
       shipping_quote_token: result.shipping_quote_token ?? null,
       shipping_method_code: result.shipping_method_code ?? null,
       company_name: result.company_name ?? null,
+      acquisition: getAttributionCheckoutSnapshot(),
     };
 
     submit.mutate(payload, {

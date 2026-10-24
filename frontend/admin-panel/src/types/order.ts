@@ -26,6 +26,8 @@ export interface OrderSummary {
   customer_phone: string;
   estimated_total: string | null;
   created_at: string;
+  acquisition_source?: string;
+  acquisition_source_label?: string;
 }
 
 /** Raw line item from backend (includes order-time catalog snapshot). */
@@ -61,6 +63,20 @@ export interface OrderTimelineEvent {
   actor?: "system" | "admin";
 }
 
+export interface OrderAcquisition {
+  source: string;
+  source_label: string;
+  first_touch_source: string;
+  first_touch_source_label: string;
+  last_non_direct_source?: string | null;
+  last_non_direct_source_label?: string | null;
+  source_subtype?: string | null;
+  method?: string | null;
+  landing_path?: string | null;
+  captured_at?: string | null;
+  campaign?: Record<string, string> | null;
+}
+
 export interface OrderDetail extends OrderSummary {
   note: string | null;
   shipping_address: string | null;
@@ -78,6 +94,7 @@ export interface OrderDetail extends OrderSummary {
   shipping_carrier_code?: string | null;
   shipping_service_code?: string | null;
   shipments?: import("@/features/orders/shipment-actions").AdminShipment[];
+  acquisition?: OrderAcquisition | null;
 }
 
 export interface IssueQuotePayload {
@@ -92,6 +109,7 @@ export interface OrderListParams {
   skip?: number;
   limit?: number;
   status?: OrderStatus;
+  acquisition_source?: string;
   search?: string;
   mode?: "purchase" | "inquiry";
   customer_phone?: string;
@@ -115,6 +133,8 @@ export interface OrderDetailBackend {
   customer_phone: string;
   estimated_total: string | null;
   created_at: string;
+  acquisition_source?: string;
+  acquisition_source_label?: string;
   note: string | null;
   shipping: Record<string, unknown> | null;
   payment_status: string;
@@ -130,4 +150,20 @@ export interface OrderDetailBackend {
   shipping_carrier_code?: string | null;
   shipping_service_code?: string | null;
   shipments?: import("@/features/orders/shipment-actions").AdminShipment[];
+  acquisition?: OrderAcquisition | null;
+}
+
+
+export interface AcquisitionReportRow {
+  source: string;
+  source_label: string;
+  order_count: number;
+  paid_order_count: number;
+  paid_sales_toman: string;
+}
+
+export interface AcquisitionReportResponse {
+  from_date: string | null;
+  to_date: string | null;
+  rows: AcquisitionReportRow[];
 }

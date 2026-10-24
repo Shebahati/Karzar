@@ -44,6 +44,14 @@ async def create_order(
     shipping_carrier_code: str | None = None,
     shipping_service_code: str | None = None,
     shipping_payment_mode: str | None = None,
+    acquisition_source: str = "unknown",
+    acquisition_first_touch_source: str | None = None,
+    acquisition_last_non_direct_source: str | None = None,
+    acquisition_source_subtype: str | None = None,
+    acquisition_method: str | None = None,
+    acquisition_landing_path: str | None = None,
+    acquisition_campaign: dict[str, Any] | None = None,
+    acquisition_captured_at: datetime | None = None,
 ) -> Order:
     tracking_code = await generate_unique_tracking_code(db, tracking_prefix)
     order = Order(
@@ -66,6 +74,14 @@ async def create_order(
         shipping_carrier_code=shipping_carrier_code,
         shipping_service_code=shipping_service_code,
         shipping_payment_mode=shipping_payment_mode,
+        acquisition_source=acquisition_source,
+        acquisition_first_touch_source=acquisition_first_touch_source,
+        acquisition_last_non_direct_source=acquisition_last_non_direct_source,
+        acquisition_source_subtype=acquisition_source_subtype,
+        acquisition_method=acquisition_method,
+        acquisition_landing_path=acquisition_landing_path,
+        acquisition_campaign=acquisition_campaign,
+        acquisition_captured_at=acquisition_captured_at,
     )
     db.add(order)
     await db.flush()
@@ -208,6 +224,7 @@ async def list_orders(
     user_id: int | None = None,
     sort: str = "newest",
     open_only: bool | None = None,
+    acquisition_source: str | None = None,
 ) -> tuple[list[Order], int]:
     """Return a page of orders plus the total match count."""
     from app.services.order_workflow import open_statuses_for_mode
@@ -239,6 +256,9 @@ async def list_orders(
         )
     if user_id is not None:
         filters.append(Order.user_id == user_id)
+
+    if acquisition_source is not None:
+        filters.append(Order.acquisition_source == acquisition_source)
 
     count_stmt = select(func.count()).select_from(Order)
     if filters:

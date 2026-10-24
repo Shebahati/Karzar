@@ -167,6 +167,17 @@ class Order(Base):
     payment_authority_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     payment_provider_data: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
 
+    acquisition_source: Mapped[str] = mapped_column(
+        String(32), nullable=False, server_default="unknown"
+    )
+    acquisition_first_touch_source: Mapped[str | None] = mapped_column(String(32))
+    acquisition_last_non_direct_source: Mapped[str | None] = mapped_column(String(32))
+    acquisition_source_subtype: Mapped[str | None] = mapped_column(String(64))
+    acquisition_method: Mapped[str | None] = mapped_column(String(64))
+    acquisition_landing_path: Mapped[str | None] = mapped_column(String(256))
+    acquisition_campaign: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    acquisition_captured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
     items: Mapped[list["OrderItem"]] = relationship(
         "OrderItem", back_populates="order", cascade="all, delete-orphan"
     )

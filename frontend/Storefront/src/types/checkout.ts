@@ -37,6 +37,10 @@ export interface CheckoutPayload {
   shipping_method_code?: string | null;
   /** Inquiry mode only (optional B2B company). */
   company_name?: string | null;
+  acquisition?: {
+    first_touch?: Record<string, unknown> | null;
+    last_non_direct_touch?: Record<string, unknown> | null;
+  } | null;
 }
 
 export interface CheckoutResponse {

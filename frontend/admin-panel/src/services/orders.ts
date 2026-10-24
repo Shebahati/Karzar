@@ -3,6 +3,7 @@ import { getMockApi } from "@/lib/get-mock-api";
 import { env } from "@/config/env";
 import { formatShippingAddress } from "@/lib/shipping";
 import type {
+  AcquisitionReportResponse,
   OrderDetail,
   OrderDetailBackend,
   OrderLineItem,
@@ -58,6 +59,7 @@ export function mapOrderDetail(
     shipping_carrier_code: raw.shipping_carrier_code ?? null,
     shipping_service_code: raw.shipping_service_code ?? null,
     shipments: raw.shipments ?? [],
+    acquisition: raw.acquisition ?? null,
     items: raw.items.map((item) =>
       mapLineItem(item, productsById?.get(item.product_id)),
     ),
@@ -83,6 +85,8 @@ export const ordersService = {
         customer_phone: row.customer_phone,
         estimated_total: row.estimated_total,
         created_at: row.created_at,
+        acquisition_source: row.acquisition_source,
+        acquisition_source_label: row.acquisition_source_label,
       })),
       meta: data.meta,
     };
@@ -119,6 +123,16 @@ export const ordersService = {
     if (env.USE_MOCK) return (await getMockApi()).issueQuote(id, payload);
     const { data } = await apiClient.post<OrderDetailBackend>(`/orders/${id}/quote`, payload);
     return mapOrderDetail(data);
+  },
+
+  async getAcquisitionReport(params?: { from_date?: string; to_date?: string }): Promise<AcquisitionReportResponse> {
+    if (env.USE_MOCK) {
+      return { from_date: null, to_date: null, rows: [] };
+    }
+    const { data } = await apiClient.get<AcquisitionReportResponse>("/orders/reports/acquisition", {
+      params,
+    });
+    return data;
   },
 
   async archive(id: number, stepUpToken: string): Promise<void> {

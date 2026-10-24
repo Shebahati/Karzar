@@ -68,7 +68,32 @@ export default function OrderDetailPage() {
         <div className="flex flex-col gap-5 sm:gap-6">
           {order.invoice && <InvoiceCard order={order} />}
 
-          <OrderLogisticsSection order={order} />
+          
+              {order.acquisition && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">منبع سفارش</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid gap-2 text-sm">
+                    <p><span className="text-muted-foreground">منبع سفارش: </span>{order.acquisition.source_label}</p>
+                    <p><span className="text-muted-foreground">اولین منبع ورودی: </span>{order.acquisition.first_touch_source_label}</p>
+                    {order.acquisition.last_non_direct_source_label && (
+                      <p><span className="text-muted-foreground">آخرین منبع غیردایرکت: </span>{order.acquisition.last_non_direct_source_label}</p>
+                    )}
+                    {order.acquisition.source_subtype && (
+                      <p><span className="text-muted-foreground">نوع ورودی: </span>{order.acquisition.source_subtype}</p>
+                    )}
+                    {order.acquisition.landing_path && (
+                      <p><span className="text-muted-foreground">صفحه ورود: </span>{order.acquisition.landing_path}</p>
+                    )}
+                    {order.acquisition.captured_at && (
+                      <p><span className="text-muted-foreground">زمان ورود: </span>{order.acquisition.captured_at}</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              <OrderLogisticsSection order={order} />
 
           <div className="grid gap-5 sm:grid-cols-2">
             <Card>

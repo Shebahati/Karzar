@@ -1,8 +1,10 @@
 """Order endpoints: admin management, customer history, and public tracking."""
 
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, Header, Query, Request, status
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import (
@@ -17,11 +19,14 @@ from app.core.security import verify_step_up_token
 from app.crud import commerce as crud_commerce
 from app.crud import platform as crud_platform
 from app.db.database import get_db
-from app.db.models.commerce import Order, OrderMode, OrderStatus
+from app.db.models.commerce import Order, OrderMode, OrderStatus, PaymentStatus
 from app.db.models.user import User
 from app.schemas.common import build_pagination_meta, resolve_pagination
 from app.schemas.order import (
+    AcquisitionReportResponse,
+    AcquisitionReportRow,
     IssueQuoteRequest,
+    OrderAcquisitionDetail,
     OrderDetailResponse,
     OrderItemResponse,
     OrderListResponse,
@@ -36,6 +41,7 @@ from app.services.logistics.customer_shipping_display import customer_shipping_l
 from app.services.logistics.exceptions import ShipmentStateError
 from app.services.logistics.manual_portal_guard import lock_order_for_status_update
 from app.services.logistics.service import admin_shipment_view, public_shipment_view
+from app.services.order_attribution import report_row_key, source_label_fa
 from app.services.order_service import (
     ManualPortalOrderBypassError,
     allowed_next_statuses,
@@ -77,7 +83,27 @@ def _build_timeline(order: Order) -> list[OrderTrackingEvent]:
     ]
 
 
+def _acquisition_detail(order: Order) -> OrderAcquisitionDetail:
+    src = order.acquisition_source or "unknown"
+    first = order.acquisition_first_touch_source or src
+    last_nd = order.acquisition_last_non_direct_source
+    return OrderAcquisitionDetail(
+        source=src,
+        source_label=source_label_fa(src),
+        first_touch_source=first,
+        first_touch_source_label=source_label_fa(first),
+        last_non_direct_source=last_nd,
+        last_non_direct_source_label=source_label_fa(last_nd) if last_nd else None,
+        source_subtype=order.acquisition_source_subtype,
+        method=order.acquisition_method,
+        landing_path=order.acquisition_landing_path,
+        captured_at=order.acquisition_captured_at,
+        campaign=order.acquisition_campaign,
+    )
+
+
 def _to_summary(order: Order) -> OrderSummary:
+    src = order.acquisition_source or "unknown"
     return OrderSummary(
         id=order.id,
         tracking_code=order.tracking_code,
@@ -92,6 +118,8 @@ def _to_summary(order: Order) -> OrderSummary:
         company_name=order.company_name,
         created_at=order.created_at,
         updated_at=order.updated_at,
+        acquisition_source=src,
+        acquisition_source_label=source_label_fa(src),
     )
 
 
@@ -128,6 +156,7 @@ def _to_detail(order: Order) -> OrderDetailResponse:
         ],
         allowed_next_statuses=allowed_next_statuses(order.status),
         timeline=_build_timeline(order),
+        acquisition=_acquisition_detail(order),
     )
 
 
@@ -148,6 +177,67 @@ async def list_my_orders(
         "meta": build_pagination_meta(total_count=total, skip=skip, limit=limit),
     }
 
+
+
+
+@router.get(
+    "/reports/acquisition",
+    response_model=AcquisitionReportResponse,
+    summary="Acquisition channel report (admin)",
+)
+async def acquisition_report(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_super_admin),
+    from_date: datetime | None = Query(None),
+    to_date: datetime | None = Query(None),
+):
+    filters = [Order.deleted_at.is_(None), Order.mode == OrderMode.PURCHASE]
+    if from_date is not None:
+        filters.append(Order.created_at >= from_date)
+    if to_date is not None:
+        filters.append(Order.created_at <= to_date)
+
+    stmt = (
+        select(
+            Order.acquisition_source,
+            Order.acquisition_source_subtype,
+            func.count(Order.id),
+            func.sum(
+                case((Order.payment_status == PaymentStatus.PAID.value, 1), else_=0)
+            ),
+        )
+        .where(*filters)
+        .group_by(Order.acquisition_source, Order.acquisition_source_subtype)
+    )
+    rows_raw = (await db.execute(stmt)).all()
+    paid_sales_stmt = (
+        select(
+            Order.acquisition_source,
+            Order.acquisition_source_subtype,
+            func.coalesce(func.sum(Order.estimated_total), 0),
+        )
+        .where(*filters, Order.payment_status == PaymentStatus.PAID.value)
+        .group_by(Order.acquisition_source, Order.acquisition_source_subtype)
+    )
+    sales_by_key = {
+        report_row_key(row[0], row[1]): row[2]
+        for row in (await db.execute(paid_sales_stmt)).all()
+    }
+    rows: list[AcquisitionReportRow] = []
+    for source, subtype, total_count, paid_count in rows_raw:
+        key = report_row_key(source, subtype)
+        sales = sales_by_key.get(key, Decimal("0"))
+        rows.append(
+            AcquisitionReportRow(
+                source=key,
+                source_label=source_label_fa(source, subtype),
+                order_count=int(total_count),
+                paid_order_count=int(paid_count or 0),
+                paid_sales_toman=decimal_to_api_string(sales) or "0",
+            )
+        )
+    rows.sort(key=lambda r: r.paid_order_count, reverse=True)
+    return AcquisitionReportResponse(from_date=from_date, to_date=to_date, rows=rows)
 
 @router.get(
     "/track/{tracking_code}",
@@ -220,6 +310,7 @@ async def list_orders(
     customer_phone: str | None = Query(None),
     search: str | None = Query(None),
     sort: str = Query("newest"),
+    acquisition_source: str | None = Query(None, alias="acquisition_source"),
     open: bool | None = Query(
         None, description="Filter to actionable open orders for the given mode"
     ),
@@ -276,6 +367,7 @@ async def list_orders(
         search=search,
         sort=sort,
         open_only=open,
+        acquisition_source=acquisition_source,
     )
     return {
         "data": [_to_summary(order) for order in orders],

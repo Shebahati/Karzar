@@ -57,3 +57,12 @@ export function useArchiveOrder() {
     },
   });
 }
+
+
+export function useAcquisitionReport(params?: { from_date?: string; to_date?: string }) {
+  return useQuery({
+    queryKey: [...ordersKeys.all, "acquisition-report", params ?? {}] as const,
+    queryFn: () => ordersService.getAcquisitionReport(params),
+    staleTime: 60_000,
+  });
+}
