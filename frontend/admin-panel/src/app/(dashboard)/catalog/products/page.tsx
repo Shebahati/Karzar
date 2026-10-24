@@ -263,7 +263,7 @@ export default function ProductsListPage() {
         </Button>
       </div>
 
-      <div className="rounded-xl bg-white p-4 shadow-sm">
+      <div className="rounded-xl bg-card p-4 shadow-sm">
         <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[#4F4F4F]">
           <Filter set="light" size={18} primaryColor="#D02327" />
           فیلتر پیشرفته

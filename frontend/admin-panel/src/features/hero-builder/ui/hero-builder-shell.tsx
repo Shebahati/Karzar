@@ -102,7 +102,7 @@ export function HeroBuilderShell() {
 
   return (
     <div className="flex h-[calc(100vh-7.5rem)] min-h-[640px] flex-col gap-3">
-      <header className="rounded-2xl border border-[#E8E8E8] bg-white px-4 py-3 shadow-sm">
+      <header className="rounded-2xl border border-[#E8E8E8] bg-card px-4 py-3 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <nav className="flex rounded-xl bg-[#F5F5F5] p-1" aria-label="مراحل هیرو">
@@ -121,7 +121,7 @@ export function HeroBuilderShell() {
                   className={cn(
                     "rounded-lg px-3 py-1.5 text-[11px] font-bold transition",
                     phase === tab.id
-                      ? "bg-white text-[#1A1A1A] shadow-sm"
+                      ? "bg-card text-[#1A1A1A] shadow-sm"
                       : "text-[#5E5F5E] hover:text-[#1A1A1A]",
                   )}
                 >
@@ -167,7 +167,7 @@ export function HeroBuilderShell() {
                       className={cn(
                         "rounded-lg px-3 py-1.5 text-[11px] font-bold transition",
                         project.previewDevice === device
-                          ? "bg-white text-[#1A1A1A] shadow-sm"
+                          ? "bg-card text-[#1A1A1A] shadow-sm"
                           : "text-[#5E5F5E]",
                       )}
                     >
@@ -208,7 +208,7 @@ export function HeroBuilderShell() {
       {phase === "edit" ? (
         <>
           {project.previewDevice === "mobile" && activeSlide && !activeSlide.isPlaceholder ? (
-            <div className="rounded-2xl border border-[#E8E8E8] bg-white p-3 shadow-sm">
+            <div className="rounded-2xl border border-[#E8E8E8] bg-card p-3 shadow-sm">
               <div className="mb-2 flex items-baseline justify-between gap-2 px-1">
                 <h2 className="text-xs font-black text-[#1A1A1A]">قالب موبایل این اسلاید</h2>
                 <span className="text-[10px] text-[#5E5F5E]">
@@ -265,7 +265,7 @@ export function HeroBuilderShell() {
                     "shrink-0 rounded-xl px-3 py-2 text-xs font-bold",
                     project.activeSlideId === slide.id
                       ? "bg-[#D02327] text-white"
-                      : "border border-[#E8E8E8] bg-white text-[#1A1A1A]",
+                      : "border border-[#E8E8E8] bg-card text-[#1A1A1A]",
                     slide.isPlaceholder && "border-dashed opacity-60",
                     !slide.isActive && !slide.isPlaceholder && "opacity-60",
                   )}
@@ -323,7 +323,7 @@ export function HeroBuilderShell() {
               </p>
             </div>
 
-            <aside className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[1.5rem] border border-[#E8E8E8] bg-white p-3 shadow-sm">
+            <aside className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[1.5rem] border border-[#E8E8E8] bg-card p-3 shadow-sm">
               <div className="mb-2 shrink-0 px-1 text-xs font-bold text-[#5E5F5E]">
                 {project.previewDevice === "mobile"
                   ? "موبایل · متن و دکمه‌ها"

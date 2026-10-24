@@ -38,7 +38,7 @@ export default function CustomersPage() {
         </p>
       </div>
 
-      <div className="rounded-xl bg-white p-4 shadow-sm">
+      <div className="rounded-xl bg-card p-4 shadow-sm">
         <div className="relative max-w-md">
           <span className="pointer-events-none absolute inset-y-0 start-3 flex items-center text-muted-foreground">
             <Search set="light" size={18} />

@@ -217,7 +217,7 @@ export function ProductImagesSection({ productId }: { productId: number }) {
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="bg-white/95 text-foreground"
+                className="bg-card/95 text-foreground"
                 disabled={activeIndex === 0}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -238,7 +238,7 @@ export function ProductImagesSection({ productId }: { productId: number }) {
                     }}
                     className={cn(
                       "h-2 w-2 rounded-full transition-all",
-                      index === activeIndex ? "w-5 bg-white" : "bg-white/50",
+                      index === activeIndex ? "w-5 bg-card" : "bg-card/50",
                     )}
                   />
                 ))}
@@ -247,7 +247,7 @@ export function ProductImagesSection({ productId }: { productId: number }) {
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="bg-white/95 text-foreground"
+                className="bg-card/95 text-foreground"
                 disabled={activeIndex >= images.length - 1}
                 onClick={(e) => {
                   e.stopPropagation();

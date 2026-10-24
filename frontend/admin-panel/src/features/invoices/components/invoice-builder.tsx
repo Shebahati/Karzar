@@ -472,7 +472,7 @@ export function InvoiceBuilder() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-card p-4 shadow-sm">
         <p className="text-sm text-muted-foreground">
           جمع قابل پرداخت:{" "}
           <span className="font-bold text-[#4F4F4F] tnum">{formatToman(grandToman)}</span>

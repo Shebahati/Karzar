@@ -29,7 +29,7 @@ function CategoryColumn({
   emptyHint,
 }: CategoryColumnProps) {
   return (
-    <div className="flex min-h-[420px] flex-col rounded-xl bg-white shadow-sm">
+    <div className="flex min-h-[420px] flex-col rounded-xl bg-card shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
         <h3 className="text-sm font-bold text-[#4F4F4F]">{title}</h3>
         {onAdd && (

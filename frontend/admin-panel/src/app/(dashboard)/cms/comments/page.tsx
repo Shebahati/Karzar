@@ -77,7 +77,7 @@ export default function ProductCommentsPage() {
         </p>
       </div>
 
-      <div className="rounded-xl bg-white p-4 shadow-sm">
+      <div className="rounded-xl bg-card p-4 shadow-sm">
         <div className="max-w-xs">
           <Input
             placeholder="فیلتر بر اساس شناسه محصول..."

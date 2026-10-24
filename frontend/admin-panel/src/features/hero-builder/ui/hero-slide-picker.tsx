@@ -67,7 +67,7 @@ export function HeroSlidePicker({
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-1 pb-8">
-      <header className="rounded-2xl border border-[#E8E8E8] bg-white px-6 py-5 shadow-sm">
+      <header className="rounded-2xl border border-[#E8E8E8] bg-card px-6 py-5 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 max-w-xl">
             <p className="text-[11px] font-bold tracking-wide text-[#5E5F5E]">
@@ -142,7 +142,7 @@ export function HeroSlidePicker({
             <article
               key={slide.id}
               className={cn(
-                "flex flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition",
+                "flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition",
                 selected ? "border-[#D02327] ring-2 ring-[#D02327]/20" : "border-[#E8E8E8]",
                 !filled && "border-dashed",
               )}
@@ -237,7 +237,7 @@ export function HeroSlidePicker({
                   <label className="block text-[10px] font-bold text-[#5E5F5E]">
                     از پکیج کارزار
                     <select
-                      className="mt-1 h-10 w-full rounded-xl border border-[#E8E8E8] bg-white px-3 text-xs font-bold"
+                      className="mt-1 h-10 w-full rounded-xl border border-[#E8E8E8] bg-card px-3 text-xs font-bold"
                       defaultValue=""
                       onChange={(e) => {
                         const orbKey = e.target.value;
