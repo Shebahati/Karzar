@@ -13,7 +13,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from catalog_target.ast_price_catalog_apply import assert_apply_gates, load_update_plan  # noqa: E402
-from catalog_target.ast_price_catalog_constants import OWNER_AUTH_APPLY, SOURCE_ARCHIVE_SHA256  # noqa: E402
+from catalog_target.ast_price_catalog_constants import SOURCE_ARCHIVE_SHA256  # noqa: E402
 from catalog_target.sales_wave_apply import ApplyAbort  # noqa: E402
 
 
