@@ -1,0 +1,5 @@
+{
+  "update_bundle_file": "OWNER_MANIFEST_BUNDLE_UPDATE.json",
+  "create_bundle_file": "OWNER_MANIFEST_BUNDLE_CREATE.json",
+  "note": "Production APPLY uses cohort-specific bundle files only."
+}

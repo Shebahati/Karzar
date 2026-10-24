@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-10-24T14:15:00+00:00",
+  "update_manifest_sha256": "ba2eb3784f7b2026fc7c72a0cbc9260fa4484ec60de6af87cc8cc58720dcb891",
+  "update_row_count": 1706,
+  "abnormal_price_hold_count": 32,
+  "abnormal_ids_leaked_into_update_manifest": [],
+  "snapshot_drift_mismatches": [],
+  "snapshot_drift_count": 0,
+  "canary_plan": {
+    "stage_1": "Apply 5 UPDATE rows with highest absolute_diff; post-commit verify.",
+    "stage_2": "Apply 50-row stratified sample across brand_id; verify.",
+    "stage_3": "Full 1706 UPDATE cohort after owner authorization."
+  },
+  "post_commit_verification_plan": {
+    "method": "fresh_async_connection",
+    "checks": [
+      "sku",
+      "base_price",
+      "no_create_side_effects",
+      "no_hesabfa_calls"
+    ]
+  },
+  "scope_guarantee": "UPDATE SQL mutates base_price only; no original_price/is_available/Hesabfa."
+}

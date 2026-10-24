@@ -1,0 +1,24 @@
+{
+  "record_schema_version": "1",
+  "apply_cohort": "update",
+  "update_stage": "stage1",
+  "owner_acceptance_status": "PENDING_OWNER_SIGNATURE",
+  "owner_acceptance_id": "",
+  "owner_acceptance_at": "",
+  "owner_acceptance_by": "",
+  "repository_commit_sha": "",
+  "manifest_bundle_sha256": "49f953370267ae4bd647dba47420b7d1738710d9ce7cf645658aa313dce2ab92",
+  "stage_manifest_sha256": "ae82e5bb9ebed1508df97797795f6df5440944663a4e891618b7fa8ad0f1abb2",
+  "master_update_manifest_sha256": "7a92ad9d458c9faec7365261b4ac19511900a40e7ba71459cb83283c2eb23379",
+  "product_id_allowlist_sha256": "35938403625ba747ae4b9909f330f335a68efcad0b5bddd5eed4bf0c6ebfe0da",
+  "pricing_policy_id": "AST_COOPERATION_LIST_RIAL_DIV_10",
+  "expected_update_count": 5,
+  "product_ids": [
+    1078,
+    1067,
+    1168,
+    1680,
+    1176
+  ],
+  "acceptance_record_digest": "0f9adb1a135467d85cdc527181dd8e061fc39813ee26a2cb49df266819024065"
+}

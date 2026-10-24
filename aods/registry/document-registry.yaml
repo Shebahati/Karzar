@@ -2661,3 +2661,141 @@ documents:
     branch: audit/catalog-258-insize-final-commercial-source
     notes: >
       Rollback plan + manifest pointers for INSIZE commercial reconcile (#258).
+
+  - id: AST-PRICE-CATALOG-COMMERCIAL-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/COMMERCIAL_PRICING_DECISION.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: chore/ast-price-catalog-20261024
+    notes: >
+      Sanitized AST one-time commercial pricing decision (owner-approved formula). No APPLY.
+
+  - id: AST-PRICE-CATALOG-POLICY-EVIDENCE-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/PRICE_POLICY_EVIDENCE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: chore/ast-price-catalog-20261024
+    notes: >
+      OWNER_COMMERCIAL_PRICING_POLICY_APPROVED evidence for AST_COOPERATION_LIST_RIAL_DIV_10.
+
+  - id: AST-OWNER-MANIFEST-BUNDLE-UPDATE-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_MANIFEST_BUNDLE_UPDATE.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+
+  - id: AST-UPDATE-COHORT-PREFLIGHT-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_COHORT_PREFLIGHT.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+
+  - id: AST-CREATE-HOLD-RECOVERY-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/CREATE_HOLD_RECOVERY_PLAN.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+
+  - id: AST-OWNER-MANIFEST-BUNDLE-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_MANIFEST_BUNDLE.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+
+  - id: AST-PRICE-CATALOG-APPLY-PLAN-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/PRODUCTION_APPLY_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-DOC-ARCH
+    branch: chore/ast-price-catalog-20261024
+    notes: >
+      Category B production APPLY plan for AST price/catalog one-time operation. Not executed.
+
+  - id: AST-CREATE-HOLD-RECOVERY-MD-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/CREATE_HOLD_RECOVERY_PLAN.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-UPDATE-COHORT-OWNER-PACKAGE-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_COHORT_OWNER_PACKAGE.md
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-UPDATE-CANARY-MANIFESTS-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_CANARY_MANIFESTS.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-UPDATE-SOURCE-VERIFICATION-REGISTRY-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_SOURCE_VERIFICATION_REGISTRY.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-UPDATE-QA-COVERAGE-REPORT-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_QA_COVERAGE_REPORT.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-OWNER-ACCEPTANCE-RECORD-STAGE1-TEMPLATE-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_ACCEPTANCE_RECORD_UPDATE_STAGE1.template.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-UPDATE-OWNER-EVIDENCE-INDEX-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/UPDATE_OWNER_EVIDENCE_INDEX.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-OWNER-MANIFEST-BUNDLE-UPDATE-STAGE1-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_MANIFEST_BUNDLE_UPDATE_STAGE1.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-OWNER-MANIFEST-BUNDLE-UPDATE-STAGE2-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_MANIFEST_BUNDLE_UPDATE_STAGE2.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024
+
+  - id: AST-OWNER-MANIFEST-BUNDLE-UPDATE-STAGE3-20261024
+    path: audit/ast-price-and-catalog-20261024/sanitized/OWNER_MANIFEST_BUNDLE_UPDATE_STAGE3.json
+    class: EVIDENCE
+    rank: 6
+    status: current
+    owner_role: R-OPS
+    branch: chore/ast-price-catalog-20261024

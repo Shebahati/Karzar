@@ -1,0 +1,3 @@
+PENDING_OWNER_PRODUCTION_BACKUP_ATTESTATION
+# Replace this file with the SHA256 of the verified production backup artifact before APPLY.
+# Pass --confirm-backup-evidence-sha256 and --backup-evidence-file to the apply CLI.

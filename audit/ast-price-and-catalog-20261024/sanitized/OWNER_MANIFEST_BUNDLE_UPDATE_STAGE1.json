@@ -1,0 +1,18 @@
+{
+  "bundle_schema_version": "3",
+  "apply_cohort": "update",
+  "update_stage": "stage1",
+  "pricing_policy_id": "AST_COOPERATION_LIST_RIAL_DIV_10",
+  "source_archive_sha256": "976fca74faabd4fb62bb57feb396450717c32b660efa2200db0a94b032d55a8b",
+  "update_manifest_sha256": "ae82e5bb9ebed1508df97797795f6df5440944663a4e891618b7fa8ad0f1abb2",
+  "master_update_manifest_sha256": "7a92ad9d458c9faec7365261b4ac19511900a40e7ba71459cb83283c2eb23379",
+  "stage_manifest_sha256": "ae82e5bb9ebed1508df97797795f6df5440944663a4e891618b7fa8ad0f1abb2",
+  "create_manifest_sha256": "MANIFEST_ABSENT",
+  "ledger_manifest_sha256": "353ffebe948ed8c6e60db1cc9447805a2967af0b3b3cfb8b829a491be80d7003",
+  "expected_update_count": 5,
+  "expected_create_count": 0,
+  "product_id_allowlist_sha256": "35938403625ba747ae4b9909f330f335a68efcad0b5bddd5eed4bf0c6ebfe0da",
+  "manifest_bundle_sha256": "49f953370267ae4bd647dba47420b7d1738710d9ce7cf645658aa313dce2ab92",
+  "owner_acceptance_record_file": "OWNER_ACCEPTANCE_RECORD_UPDATE_STAGE1.template.json",
+  "owner_acceptance_note": "Immutable manifest binding only. Owner acceptance is recorded separately in OWNER_ACCEPTANCE_RECORD_UPDATE_<STAGE>.json (not committed with operator signature)."
+}

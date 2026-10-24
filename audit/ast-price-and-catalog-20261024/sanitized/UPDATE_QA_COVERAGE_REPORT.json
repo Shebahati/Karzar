@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-10-24T15:45:04+00:00",
+  "prior_master_update_row_count": 1706,
+  "verified_master_update_row_count": 1083,
+  "update_ledger_qa_flags": {
+    "visual_pdf_unresolved_rows": 1705,
+    "manufacturer_identity_unresolved_rows": 623,
+    "note": "validation_result=OK does not clear independent ledger QA flags."
+  },
+  "apply_cohort_policy": "UPDATE master includes only PDF-verified rows without unresolved manufacturer-identity review; visual QA resolved via UPDATE_SOURCE_VERIFICATION_REGISTRY.",
+  "rejected_from_apply_cohort": {
+    "manufacturer_identity_unresolved": 623,
+    "pdf_verification_failed": 0
+  },
+  "stage1_replaced_prior_candidates": [6467, 6405, 6407, 7044, 7045],
+  "stage1_approved_candidates": [1067, 1078, 1168, 1176, 1680]
+}
