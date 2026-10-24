@@ -77,6 +77,13 @@ frontend/**/*.pem
 .deploy-secrets
 .env.staging.generated
 .logo_audit/
+audit/ast-price-and-catalog-20261024/source/
+audit/ast-price-and-catalog-20261024/work/
+audit/ast-price-and-catalog-20261024/CATALOG_SNAPSHOT_*.csv
+audit/ast-price-and-catalog-20261024/CATEGORIES_SNAPSHOT_*.csv
+audit/ast-price-and-catalog-20261024/*.csv
+audit/ast-price-and-catalog-20261024/*.xlsx
+audit/ast-price-and-catalog-20261024/EXECUTION_MANIFEST.sha256
 
 # Chumpower official catalog: keep reports, skip bulky manufacturer PDF binaries
 data/imports/chumpower/official_catalog/pdfs/

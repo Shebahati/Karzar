@@ -1,0 +1,34 @@
+{
+  "generated_at": "2026-10-24T13:19:56+00:00",
+  "source_pdfs_processed": 22,
+  "source_archive_sha256": "976fca74faabd4fb62bb57feb396450717c32b660efa2200db0a94b032d55a8b",
+  "catalog_snapshot_sha256": "1e8a888adb06e431d3a21087fcd9eb3eb92044f3b00eb6f6a575db4da45677fd",
+  "candidate_rows_raw": 3252,
+  "total_authoritative_source_rows": 3079,
+  "authoritative_passed_extraction_rows": 2911,
+  "primary_outcomes": {
+    "UPDATE": 1648,
+    "HOLD": 122,
+    "CREATE": 1141,
+    "REJECTED": 168
+  },
+  "ledger_balance_check": true,
+  "inclusive_outcome_equation": "UPDATE+CREATE+UNCHANGED+HOLD+REJECTED=3079 == total_source_identity_keys=3079",
+  "inclusive_outcome_balanced": true,
+  "raw_extraction_rejected_row_events": 333,
+  "rejected_unique_keys": 168,
+  "auth_build_stats": {
+    "raw_no_code": 12,
+    "authoritative_keys": 2911,
+    "rejected_extraction_keys": 120,
+    "rejected_conflict_keys": 48
+  },
+  "matched_not_in_update_explanation": "Of authoritative rows matching an existing product: UNCHANGED=0, HOLD(large-swing QA)=32, plus pricing-policy HOLDs on authoritative rows.",
+  "sum_selling_price_before_update_scope": "54735394080.00",
+  "sum_selling_price_after_update_scope": "59814630000",
+  "manifest_sha256_SOURCE_ROW_LEDGER.csv": "98908e4bf0f070b84dafce77f0319b30400adfc06e8330b2c677394e4a264c5b",
+  "manifest_sha256_UPDATE_PRODUCTS.csv": "956cadc7bd6b29f81dcc360455d8c635b6d84d8f46ce63b0c1ec7e121b2eb428",
+  "manifest_sha256_CREATE_PRODUCTS.csv": "59fb155de7b2f3a2620cf8d445088982a213fb1321cf79004e777daebdb88619",
+  "manifest_sha256_HOLD_PRODUCTS.csv": "01671d1b0f9ca5c958e337ea443f441789180d476f216d2bb848fa1dcf6f7279",
+  "manifest_sha256_SOURCE_DOCUMENTS.csv": "6e0b14081d6a298a49402556a242f92a2834ffe4e7d1125e2936d53bfdae0cdc"
+}
