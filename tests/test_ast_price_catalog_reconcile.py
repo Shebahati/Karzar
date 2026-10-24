@@ -27,10 +27,11 @@ class AstReconcileTests(unittest.TestCase):
         self.assertEqual(price, Decimal("89700000"))
         self.assertEqual(policy, "AST_COOPERATION_LIST_RIAL_DIV_10")
 
-    def test_pricing_policy_hold_on_review_label(self):
-        price, policy, _ = proposed_customer_price(100_000_000, "15_DEVICE_OR_10_SPARE_REVIEW")
-        self.assertIsNone(price)
-        self.assertIn("HOLD", policy)
+    def test_review_discount_label_does_not_block_sell_price(self):
+        price, policy, flags = proposed_customer_price(100_000_000, "15_DEVICE_OR_10_SPARE_REVIEW")
+        self.assertEqual(price, Decimal("10000000"))
+        self.assertEqual(policy, "AST_COOPERATION_LIST_RIAL_DIV_10")
+        self.assertIn("QA_DEVICE_SPARE_DISCOUNT_SPLIT", flags)
 
     def test_authoritative_rejects_conflict_keys(self):
         rows = [

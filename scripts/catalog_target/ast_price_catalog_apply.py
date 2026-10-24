@@ -287,3 +287,36 @@ def manifest_identity(update_path: Path, create_path: Path) -> dict[str, str]:
         "update_manifest_sha256": sha256_file(update_path),
         "create_manifest_sha256": sha256_file(create_path),
     }
+
+
+def build_rollback_manifest_from_updates(plan_rows: list[UpdatePlanRow]) -> list[dict[str, str]]:
+    return [
+        {
+            "product_id": str(row.product_id),
+            "sku": row.sku,
+            "rollback_base_price": str(row.expected_current_price or ""),
+            "applied_proposed_price": str(row.proposed_price or ""),
+        }
+        for row in plan_rows
+    ]
+
+
+def rollback_updates_sql(
+    conn: DbConnection,
+    journal_rows: list[dict[str, str]],
+    *,
+    dry_run: bool,
+) -> int:
+    sql = """
+UPDATE products
+SET base_price = %s, updated_at = NOW()
+WHERE id = %s AND sku = %s AND deleted_at IS NULL
+"""
+    if dry_run:
+        return 0
+    written = 0
+    for row in journal_rows:
+        price = parse_price(row.get("rollback_base_price") or "")
+        conn.execute(sql, (price, int(row["product_id"]), row["sku"]))
+        written += 1
+    return written

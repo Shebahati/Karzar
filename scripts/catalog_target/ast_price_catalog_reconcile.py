@@ -19,10 +19,11 @@ from catalog_target.ast_price_catalog_constants import (
     HOLD_EXTRACTION_STATUSES,
     OWNER_AUTH_APPLY,
     OWNER_AUTH_ROLLBACK,
+    OWNER_COMMERCIAL_PRICING_POLICY_APPROVED,
     PRICE_DECREASE_REVIEW_PCT,
     PRICE_INCREASE_REVIEW_PCT,
-    PRICING_POLICY_HOLD_FAMILY,
     PRICING_POLICY_ID,
+    QA_DEVICE_SPARE_DISCOUNT_SPLIT,
     SOURCE_ARCHIVE_SHA256,
 )
 from catalog_target.core import normalize_sku
@@ -70,15 +71,17 @@ def norm_code(code: str) -> str:
     return normalize_sku(code or "").replace("×", "X")
 
 
-def parse_discount_percent(label: str) -> tuple[int | None, str | None]:
+def parse_discount_percent(label: str) -> tuple[int | None, list[str]]:
+    """Parse supplier cash discount for procurement evidence only (never blocks sell price)."""
+    flags: list[str] = []
     if not label:
-        return None, "missing_discount_label"
+        return None, flags
     if "REVIEW" in label.upper():
-        return None, PRICING_POLICY_HOLD_FAMILY
+        flags.append(QA_DEVICE_SPARE_DISCOUNT_SPLIT)
     m = re.match(r"^(\d+)", label.strip())
     if not m:
-        return None, PRICING_POLICY_HOLD_FAMILY
-    return int(m.group(1)), None
+        return None, flags
+    return int(m.group(1)), flags
 
 
 def list_toman_from_rial(rial: int) -> Decimal | None:
@@ -95,16 +98,12 @@ def net_purchase_toman(list_toman: Decimal, discount_pct: int | None) -> Decimal
     return (list_toman * factor).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
 
 
-def proposed_customer_price(
-    rial: int, discount_label: str
-) -> tuple[Decimal | None, str, str | None]:
-    disc, disc_hold = parse_discount_percent(discount_label)
-    if disc_hold:
-        return None, disc_hold, disc_hold
+def proposed_customer_price(rial: int, discount_label: str) -> tuple[Decimal | None, str, list[str]]:
+    _, proc_flags = parse_discount_percent(discount_label)
     list_t = list_toman_from_rial(rial)
     if list_t is None:
-        return None, "INVALID_SOURCE_PRICE", None
-    return list_t, PRICING_POLICY_ID, None
+        return None, "INVALID_SOURCE_PRICE", proc_flags
+    return list_t, PRICING_POLICY_ID, proc_flags
 
 
 def category_for_file(filename: str) -> tuple[int | None, str]:
@@ -404,11 +403,11 @@ def run_reconcile(
         brand_key = BRAND_HINT_TO_KEY.get(brand_hint, "")
         code = norm_code(r.get("code_candidate") or "")
         rial = int(r.get("source_price_rial") or 0)
-        disc, _ = parse_discount_percent(r.get("cash_discount_label") or "")
-        proposed, policy_id, _ = proposed_customer_price(rial, r.get("cash_discount_label") or "")
+        disc, proc_flags = parse_discount_percent(r.get("cash_discount_label") or "")
+        proposed, policy_id, proc_flags2 = proposed_customer_price(rial, r.get("cash_discount_label") or "")
         list_t = list_toman_from_rial(rial)
 
-        qa_flags: list[str] = []
+        qa_flags: list[str] = list(proc_flags) + list(proc_flags2)
         hold_reason = ""
 
         if not brand_id:
@@ -427,8 +426,8 @@ def run_reconcile(
             outcome_counts["HOLD"] += 1
             continue
 
-        if policy_id != PRICING_POLICY_ID:
-            hold_reason = policy_id
+        if proposed is None or policy_id != PRICING_POLICY_ID:
+            hold_reason = policy_id if proposed is None else "INVALID_SOURCE_PRICE"
             pid = product.product_id if product else ""
             ledger.append(_ledger_from(r, code, "HOLD", hold_reason, qa_flags, pid, "", "", policy_id))
             holds.append(
@@ -648,9 +647,12 @@ def run_reconcile(
         ),
         "rejected_unique_keys": len(rejected_ledger),
         "auth_build_stats": dict(auth_stats),
+        "owner_commercial_pricing_policy_status": OWNER_COMMERCIAL_PRICING_POLICY_APPROVED,
+        "pricing_policy_id": PRICING_POLICY_ID,
         "matched_not_in_update_explanation": (
-            f"Of authoritative rows matching an existing product: UNCHANGED={outcome_counts['UNCHANGED']}, "
-            f"HOLD(large-swing QA)={len(abnormal_updates)}, plus pricing-policy HOLDs on authoritative rows."
+            f"Matched existing SKUs not in UPDATE manifest: UNCHANGED={outcome_counts.get('UNCHANGED', 0)}, "
+            f"QA_LARGE_PRICE_SWING HOLD={len(abnormal_updates)}. "
+            f"Cash-discount REVIEW labels are procurement QA flags only (not pricing holds)."
         ),
         "sum_selling_price_before_update_scope": str(sum_before),
         "sum_selling_price_after_update_scope": str(sum_after),
@@ -663,6 +665,9 @@ def run_reconcile(
     (sanitized / "RECONCILIATION_SUMMARY.json").write_text(
         json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
+    policy_evidence = _price_policy_evidence(manifest_hashes)
+    (audit_dir / "PRICE_POLICY_EVIDENCE.md").write_text(policy_evidence, encoding="utf-8")
+    (sanitized / "PRICE_POLICY_EVIDENCE.md").write_text(policy_evidence, encoding="utf-8")
     (audit_dir / "COMMERCIAL_PRICING_DECISION.md").write_text(commercial, encoding="utf-8")
     (sanitized / "COMMERCIAL_PRICING_DECISION.md").write_text(commercial, encoding="utf-8")
     plan = _production_apply_plan(manifest_hashes)
@@ -677,10 +682,35 @@ def run_reconcile(
         f"REJECTED: **{outcome_counts['REJECTED']}**\n"
         f"- Large-swing QA holds: **{len(abnormal_updates)}** (see `ABNORMAL_UPDATE_REVIEW.csv`)\n"
         f"- Hold reasons: `{dict(hold_breakdown)}`\n"
-        f"- Commercial policy pending acceptance: `{PRICING_POLICY_ID}`\n",
+        f"- Commercial policy: **`{OWNER_COMMERCIAL_PRICING_POLICY_APPROVED}`** (`{PRICING_POLICY_ID}`)\n",
         encoding="utf-8",
     )
     return report
+
+
+def _price_policy_evidence(manifest_hashes: dict[str, str]) -> str:
+    return f"""# AST price policy evidence
+
+## Owner commercial approval
+
+- **Status:** `{OWNER_COMMERCIAL_PRICING_POLICY_APPROVED}`
+- **Policy ID:** `{PRICING_POLICY_ID}`
+- **Formula:** `base_price = verified_pdf_rial / 10` (Toman, Decimal)
+- **Scope:** One-time AST supplier archive SHA256 `{SOURCE_ARCHIVE_SHA256}` only.
+
+## Cash discount handling
+
+- Recorded in manifests as `cash_discount_percent` for procurement analysis.
+- **Not** subtracted from customer `base_price`.
+- **Not** applied as storefront promotion; **do not** modify `original_price`.
+- Labels with device/spare split (`*_REVIEW`) set QA flag `{QA_DEVICE_SPARE_DISCOUNT_SPLIT}` only.
+
+## Manifest fingerprints (post-approval regeneration)
+
+- UPDATE: `{manifest_hashes.get("UPDATE_PRODUCTS.csv", "")}`
+- CREATE: `{manifest_hashes.get("CREATE_PRODUCTS.csv", "")}`
+- LEDGER: `{manifest_hashes.get("SOURCE_ROW_LEDGER.csv", "")}`
+"""
 
 
 def _ledger_from(
@@ -793,7 +823,7 @@ def _build_commercial_report(
     lines = [
         "# Commercial pricing decision report (AST)",
         "",
-        "## Proposed policy (owner acceptance required)",
+        f"## Approved policy (`{OWNER_COMMERCIAL_PRICING_POLICY_APPROVED}`)",
         "",
         f"- **Policy ID:** `{PRICING_POLICY_ID}`",
         "- **Supplier list (Rial):** raw PDF comma-grouped values.",
@@ -801,7 +831,7 @@ def _build_commercial_report(
         "- **Cash discount:** purchase-side only (not storefront promo).",
         "- **Net acquisition (info):** `list_toman × (1 − discount/100)`.",
         "- **Customer `base_price`:** `list_toman` (no invented margin).",
-        f"- **HOLD:** `{PRICING_POLICY_HOLD_FAMILY}` when discount label requires device/spare split.",
+        f"- **Procurement QA flag:** `{QA_DEVICE_SPARE_DISCOUNT_SPLIT}` (does not block sell price).",
         "",
         "| PDF family | SKU | Current | List Toman | Cash % | Net purchase | Proposed sell | Basis |",
         "|---|---|---:|---:|---:|---:|---:|---|",
@@ -814,17 +844,17 @@ def _build_commercial_report(
         product = (idx.get((brand_id, code)) or [None])[0]
         rial = int(sample.get("source_price_rial") or 0)
         list_t = list_toman_from_rial(rial)
-        disc, hold = parse_discount_percent(sample.get("cash_discount_label") or "")
+        disc, _ = parse_discount_percent(sample.get("cash_discount_label") or "")
         proposed, pol, _ = proposed_customer_price(rial, sample.get("cash_discount_label") or "")
         current = product.base_price if product else None
         net = net_purchase_toman(list_t, disc) if list_t and disc else None
-        basis = pol if proposed else (hold or "n/a")
+        basis = pol if proposed else "n/a"
         lines.append(
             f"| {fname[:36]} | {code} | {current or ''} | {list_t or ''} | {disc or 'HOLD'} | "
             f"{net or ''} | {proposed or ''} | {basis} |"
         )
 
-    lines += ["", "## Owner must accept or replace policy before APPLY.", ""]
+    lines += ["", f"## Owner approval recorded: `{OWNER_COMMERCIAL_PRICING_POLICY_APPROVED}`.", ""]
     return "\n".join(lines)
 
 

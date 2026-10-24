@@ -1,6 +1,6 @@
 # Commercial pricing decision report (AST)
 
-## Proposed policy (owner acceptance required)
+## Approved policy (`OWNER_COMMERCIAL_PRICING_POLICY_APPROVED`)
 
 - **Policy ID:** `AST_COOPERATION_LIST_RIAL_DIV_10`
 - **Supplier list (Rial):** raw PDF comma-grouped values.
@@ -8,7 +8,7 @@
 - **Cash discount:** purchase-side only (not storefront promo).
 - **Net acquisition (info):** `list_toman × (1 − discount/100)`.
 - **Customer `base_price`:** `list_toman` (no invented margin).
-- **HOLD:** `HOLD_PRICING_POLICY_DEVICE_SPARE_SPLIT` when discount label requires device/spare split.
+- **Procurement QA flag:** `QA_DEVICE_SPARE_DISCOUNT_SPLIT` (does not block sell price).
 
 | PDF family | SKU | Current | List Toman | Cash % | Net purchase | Proposed sell | Basis |
 |---|---|---:|---:|---:|---:|---:|---|
@@ -21,11 +21,11 @@
 | لیست قیمت ابزار تیز کن 14050707.pdf | AST-15MA | 78538680.00 | 72000000 | 15 | 61200000 | 72000000 | AST_COOPERATION_LIST_RIAL_DIV_10 |
 | کلت و فشنگی های مونوفورس AST 1405070 | BT30-HC20-80 |  | 25410000 | 20 | 20328000 | 25410000 | AST_COOPERATION_LIST_RIAL_DIV_10 |
 | لیست قیمت  فرز انگشتی 14050707.pdf | 677002 | 950400.00 | 875000 | 20 | 700000 | 875000 | AST_COOPERATION_LIST_RIAL_DIV_10 |
-| قلاویززن برقی 14050721.pdf | AST-TRM10 | 141372000.00 | 156860000 | HOLD |  |  | HOLD_PRICING_POLICY_DEVICE_SPARE_SPLIT |
+| قلاویززن برقی 14050721.pdf | AST-TRM10 | 141372000.00 | 156860000 | 15 | 133331000 | 156860000 | AST_COOPERATION_LIST_RIAL_DIV_10 |
 | لیست قیمت قلاویز ماشینی چینی AST1405 | 678002 |  | 795000 | 20 | 636000 | 795000 | AST_COOPERATION_LIST_RIAL_DIV_10 |
 | لیست مته مرغک و مته خزینه 14050707.p | 671001 | 330000.00 | 305000 | 20 | 244000 | 305000 | AST_COOPERATION_LIST_RIAL_DIV_10 |
 | گیره مارک AST POWER 14050707.pdf | AST-VH320 | 74052000.00 | 67880000 | 15 | 57698000 | 67880000 | AST_COOPERATION_LIST_RIAL_DIV_10 |
 | تایکوپ و صفحه گردان 14050721.pdf | AST-BS0-5 | 74124600.00 | 89700000 | 10 | 80730000 | 89700000 | AST_COOPERATION_LIST_RIAL_DIV_10 |
-| قلاویز زن اتومات 14050707.pdf | AST-GAT7 | 45553200.00 | 41765000 | HOLD |  |  | HOLD_PRICING_POLICY_DEVICE_SPARE_SPLIT |
+| قلاویز زن اتومات 14050707.pdf | AST-GAT7 | 45553200.00 | 41765000 | 15 | 35500250 | 41765000 | AST_COOPERATION_LIST_RIAL_DIV_10 |
 
-## Owner must accept or replace policy before APPLY.
+## Owner approval recorded: `OWNER_COMMERCIAL_PRICING_POLICY_APPROVED`.
