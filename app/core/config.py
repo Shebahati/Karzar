@@ -169,6 +169,9 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7, ge=1, le=90)
     IDEMPOTENCY_TTL_HOURS: int = Field(default=24, ge=1, le=168)
 
+    # Hero Studio PR1 — API publish/rollback disabled by default (Issue #550).
+    HERO_STUDIO_API_PUBLISH: bool = False
+
     APP_ENV: str = "development"
     # Mutable data-plane identity (independent of APP_ENV label). See
     # app/core/data_plane.py and docs/CATALOG_STAGING_ISOLATION.md.

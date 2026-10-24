@@ -335,10 +335,12 @@ def test_t17_t21_legacy_dimensions_still_valid_in_seed():
 def test_alembic_head_is_single_descendant_of_s2():
     script = get_alembic_script_directory()
     heads = script.get_heads()
-    assert heads == ["a3f410b5c6d7"]
+    assert heads == ["f2a3b4c5d6e7"]
+    hero = script.get_revision("f2a3b4c5d6e7")
+    assert set(hero.down_revision) == {"a2b3c4d5e6f7", "a3f410b5c6d7"}
     assert is_runtime_revision_compatible(
         "s2t3u4v5w6x7",
-        "a3f410b5c6d7",
+        "f2a3b4c5d6e7",
         script_directory=script,
     )
     merge = script.get_revision("a3f410b5c6d7")

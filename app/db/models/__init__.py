@@ -23,6 +23,11 @@ from app.db.models.content import (
     OtpPurpose,
     ProductComment,
 )
+from app.db.models.hero_design import (
+    HeroDesignDraft,
+    HeroDesignPublished,
+    HeroDesignRevision,
+)
 from app.db.models.hesabfa import (
     HesabfaContactMapping,
     HesabfaInvoiceRecord,
@@ -137,4 +142,7 @@ __all__ = [
     "ProductChangeLog",
     "IdempotencyKey",
     "StepUpTokenUse",
+    "HeroDesignRevision",
+    "HeroDesignPublished",
+    "HeroDesignDraft",
 ]

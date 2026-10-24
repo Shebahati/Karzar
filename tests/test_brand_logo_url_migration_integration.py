@@ -39,9 +39,9 @@ def _run_alembic(db_name: str, *args: str) -> None:
     )
 
 
-def test_alembic_single_head_is_a3f410():
+def test_alembic_single_head_is_f2a3b4c5d6e7():
     heads = get_alembic_script_directory().get_heads()
-    assert heads == ["a3f410b5c6d7"]
+    assert heads == ["f2a3b4c5d6e7"]
 
 
 @requires_postgres
@@ -59,7 +59,7 @@ def test_c1_drift_upgrade_to_head_creates_bestseller_without_seeding():
             conn = await connect_disposable(db_name)
             try:
                 rev = await conn.fetchval("SELECT version_num FROM alembic_version")
-                assert rev == "a3f410b5c6d7"
+                assert rev == "f2a3b4c5d6e7"
                 preserved = await conn.fetchval(
                     "SELECT logo_url FROM brands WHERE slug = $1",
                     slug,

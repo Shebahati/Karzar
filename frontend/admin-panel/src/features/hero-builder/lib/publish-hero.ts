@@ -1,5 +1,9 @@
 import type { PublishedHeroPack } from "@/entities/hero";
 import { cmsService } from "@/services/cms";
+import {
+  isLegacyHeroFilePublishEnabled,
+  LEGACY_HERO_FILE_PUBLISH_DISABLED_FA,
+} from "./legacy-publish";
 
 function primaryCta(config: PublishedHeroPack["slides"][number]["config"]) {
   const btn = config.buttons[0];
@@ -78,7 +82,18 @@ export async function publishHeroPack(pack: PublishedHeroPack): Promise<{
   fileOk: boolean;
   cms?: { created: number; updated: number };
   detail?: string;
+  messageFa?: string;
+  legacyDisabled?: boolean;
 }> {
+  if (!isLegacyHeroFilePublishEnabled()) {
+    return {
+      fileOk: false,
+      detail: "legacy_publish_disabled",
+      messageFa: LEGACY_HERO_FILE_PUBLISH_DISABLED_FA,
+      legacyDisabled: true,
+    };
+  }
+
   // Always send categoryDock explicitly — older clients dropped it and wiped the storefront dock.
   const payload: PublishedHeroPack = {
     version: 1,
@@ -100,13 +115,20 @@ export async function publishHeroPack(pack: PublishedHeroPack): Promise<{
 
   const fileOk = fileRes.ok;
   let detail: string | undefined;
+  let messageFa: string | undefined;
+  let legacyDisabled = false;
   if (!fileOk) {
     try {
-      const err = (await fileRes.json()) as { error?: string };
+      const err = (await fileRes.json()) as { error?: string; message_fa?: string };
       detail = err.error ?? `file_publish_${fileRes.status}`;
+      messageFa = err.message_fa;
+      if (fileRes.status === 403 && err.error === "legacy_publish_disabled") {
+        legacyDisabled = true;
+      }
     } catch {
       detail = `file_publish_${fileRes.status}`;
     }
+    return { fileOk, detail, messageFa, legacyDisabled };
   }
 
   let cms: { created: number; updated: number } | undefined;
@@ -117,5 +139,5 @@ export async function publishHeroPack(pack: PublishedHeroPack): Promise<{
     detail = detail ? `${detail}; ${cmsMsg}` : cmsMsg;
   }
 
-  return { fileOk, cms, detail };
+  return { fileOk, cms, detail, messageFa, legacyDisabled };
 }

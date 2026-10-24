@@ -15,6 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { publishHeroPack } from "../lib/publish-hero";
+import {
+  isLegacyHeroFilePublishEnabled,
+  LEGACY_HERO_FILE_PUBLISH_DISABLED_FA,
+} from "../lib/legacy-publish";
 import { HeroDockManager } from "./hero-dock-manager";
 import { HeroPreview } from "./hero-preview";
 import { HeroSettingsSidebar } from "./hero-settings-sidebar";
@@ -36,6 +40,7 @@ const PHASE_TABS: { id: Phase; label: string }[] = [
 ];
 
 export function HeroBuilderShell() {
+  const legacyFilePublishEnabled = isLegacyHeroFilePublishEnabled();
   const [phase, setPhase] = useState<Phase>("slides");
   const [publishing, setPublishing] = useState(false);
 
@@ -91,7 +96,7 @@ export function HeroBuilderShell() {
           `منتشر شد · ${pack.slides.length} اسلاید · ${featuredCount}/${HERO_FEATURED_SLOT_COUNT} داک${result.cms ? ` · CMS: ${result.cms.updated} به‌روز / ${result.cms.created} جدید` : ""}`,
         );
       } else {
-        toast.error(result.detail ?? "انتشار فایل ناموفق بود");
+        toast.error(result.messageFa ?? result.detail ?? "انتشار فایل ناموفق بود");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "خطا در انتشار");
@@ -183,12 +188,35 @@ export function HeroBuilderShell() {
                 </Button>
               </>
             ) : null}
-            <Button type="button" size="sm" disabled={publishing} onClick={() => void publish()}>
-              {publishing ? "در حال انتشار…" : "انتشار روی سایت"}
-            </Button>
+            <span
+              title={
+                legacyFilePublishEnabled
+                  ? undefined
+                  : LEGACY_HERO_FILE_PUBLISH_DISABLED_FA
+              }
+              className="inline-flex"
+            >
+              <Button
+                type="button"
+                size="sm"
+                disabled={publishing || !legacyFilePublishEnabled}
+                onClick={() => void publish()}
+              >
+                {publishing ? "در حال انتشار…" : "انتشار روی سایت"}
+              </Button>
+            </span>
           </div>
         </div>
       </header>
+
+      {!legacyFilePublishEnabled ? (
+        <div
+          role="status"
+          className="rounded-2xl border border-amber-300/80 bg-amber-50 px-4 py-3 text-xs font-bold leading-relaxed text-amber-950"
+        >
+          {LEGACY_HERO_FILE_PUBLISH_DISABLED_FA}
+        </div>
+      ) : null}
 
       {phase === "slides" ? (
         <div className="min-h-0 flex-1 overflow-y-auto">
