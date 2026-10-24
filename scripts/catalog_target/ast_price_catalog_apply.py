@@ -7,10 +7,11 @@ import hashlib
 import json
 import os
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any, Callable, Protocol
+from typing import Any, Protocol
 
 from catalog_target.ast_price_catalog_constants import (
     OWNER_AUTH_APPLY,
@@ -19,7 +20,7 @@ from catalog_target.ast_price_catalog_constants import (
     SOURCE_ARCHIVE_SHA256,
 )
 from catalog_target.ast_price_catalog_reconcile import CREATE_APPROVAL_OWNER
-from catalog_target.sales_wave_apply import ApplyAbort, normalize_database_url
+from catalog_target.sales_wave_apply import ApplyAbort
 
 CREATE_APPROVAL_REQUIRED = CREATE_APPROVAL_OWNER
 
@@ -346,7 +347,10 @@ async def create_products_ast_batch(
     """AST one-time CREATE: ProductCreate validation, flush-only, no Hesabfa."""
     from app.crud.product import check_sku_exists, create_product
     from app.schemas.product import ProductCreate
-    from app.utils.category_validation import ensure_brand_exists, ensure_selectable_product_category
+    from app.utils.category_validation import (
+        ensure_brand_exists,
+        ensure_selectable_product_category,
+    )
 
     created_ids: list[int] = []
     for row in plan_rows:
