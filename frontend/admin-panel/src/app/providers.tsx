@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 /**
  * Application-wide client providers.
@@ -29,7 +30,8 @@ export function Providers({ children }: { children: ReactNode }) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
       {children}
       <Toaster
         position="bottom-left"
@@ -41,5 +43,6 @@ export function Providers({ children }: { children: ReactNode }) {
         }}
       />
     </QueryClientProvider>
+    </ThemeProvider>
   );
 }

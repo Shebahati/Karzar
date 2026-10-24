@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "./providers";
+import { ThemeScript } from "@/components/theme-script";
 
 export const metadata: Metadata = {
   title: {

@@ -81,6 +81,33 @@
 
     --font-iranyekan: "IRANYekanX";
   }
+
+  .dark {
+    --background: 220 10% 10%;
+    --foreground: 210 15% 92%;
+    --ink: 210 20% 96%;
+    --card: 220 10% 14%;
+    --card-foreground: 210 15% 92%;
+    --popover: 220 10% 13%;
+    --popover-foreground: 210 15% 92%;
+    --primary: 359 71% 52%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 8% 18%;
+    --secondary-foreground: 210 12% 88%;
+    --muted: 220 8% 16%;
+    --muted-foreground: 215 10% 68%;
+    --accent: 220 12% 20%;
+    --accent-foreground: 210 15% 90%;
+    --destructive: 8 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 50% 42%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 90% 52%;
+    --warning-foreground: 220 10% 12%;
+    --border: 220 8% 22%;
+    --input: 220 8% 18%;
+    --ring: 359 71% 52%;
+  }
 }
 
 @layer base {
@@ -126,7 +153,7 @@
 
 @layer components {
   .glass {
-    @apply bg-white/70 backdrop-blur-xl backdrop-saturate-150;
+    @apply bg-card/75 backdrop-blur-xl backdrop-saturate-150 dark:bg-card/80;
   }
 
   .admin-page-title {

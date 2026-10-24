@@ -62,8 +62,8 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      <div className="rounded-xl bg-white p-4 shadow-sm">
-        <div className="mb-3 flex items-center gap-2 text-sm font-bold text-[#4F4F4F]">
+      <div className="rounded-xl bg-card p-4 shadow-sm">
+        <div className="mb-3 flex items-center gap-2 text-sm font-bold text-muted-foreground">
           <Filter set="light" size={18} primaryColor="#D02327" />
           فیلتر
         </div>
@@ -147,7 +147,7 @@ export default function OrdersPage() {
                     className="grid grid-cols-1 items-center gap-2 rounded-lg px-4 py-3 transition-colors hover:bg-[#F7F7F7] md:grid-cols-[1fr_1fr_120px_120px_88px] md:gap-4"
                   >
                     <div>
-                      <p className="text-sm font-bold text-[#4F4F4F] tnum">{order.tracking_code}</p>
+                      <p className="text-sm font-bold text-muted-foreground tnum">{order.tracking_code}</p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(order.created_at).toLocaleDateString("fa-IR")}
                       </p>

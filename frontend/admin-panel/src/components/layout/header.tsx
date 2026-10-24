@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { catalogService } from "@/services/catalog";
 import { ApiError } from "@/lib/api-client";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const ROUTE_TITLES: { prefix: string; title: string }[] = [
   { prefix: "/catalog/products/new", title: "افزودن محصول جدید" },
@@ -73,6 +74,7 @@ export function Header() {
         <p className="text-xs text-muted-foreground">پنل مدیریت فروشگاه کارزار</p>
       </div>
 
+      <ThemeToggle />
       <div className="relative ms-auto hidden w-72 md:block">
         <span className="pointer-events-none absolute inset-y-0 start-3 flex items-center text-muted-foreground">
           <Search set="light" size={18} />
