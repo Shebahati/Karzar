@@ -170,6 +170,7 @@ async def publish_hero(
         expected_parent_revision_id=body.expected_parent_revision_id,
         publish_comment=body.publish_comment,
     )
+    await db.commit()
     return HeroPublishResult(
         revision_id=pointer.revision_id,
         etag=pointer.etag,
@@ -184,6 +185,7 @@ async def rollback_hero(
     db: AsyncSession = Depends(get_db),
 ):
     pointer = await hero_service.rollback_to_revision(db, actor=actor, revision_id=body.revision_id)
+    await db.commit()
     return HeroPublishResult(
         revision_id=pointer.revision_id,
         etag=pointer.etag,
