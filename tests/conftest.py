@@ -2,6 +2,7 @@
 
 import os
 
+os.environ.setdefault("LOG_TO_FILE", "false")
 os.environ.setdefault("POSTGRES_USER", "test")
 os.environ.setdefault("POSTGRES_PASSWORD", "test")
 os.environ.setdefault("POSTGRES_SERVER", "localhost")
@@ -290,6 +291,14 @@ def override_database(_test_schema):
         app.dependency_overrides.clear()
         if USE_POSTGRES_TESTS:
             asyncio.run(test_engine.dispose())
+
+
+@pytest.fixture(autouse=True)
+def _disable_storefront_image_hiding_for_tests(monkeypatch):
+    """Legacy integration tests create products without images; production hides them."""
+    from app.core.config import settings as app_settings
+
+    monkeypatch.setattr(app_settings, "STOREFRONT_HIDE_IMAGELESS_PRODUCTS", False)
 
 
 @pytest.fixture
