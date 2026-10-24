@@ -528,10 +528,11 @@ def execute_ast_catalog_apply(
             "creates": create_journal,
             "stale_guard": guard.__dict__,
         }
+        if not post_commit_verify_updates(conn, update_journal):
+            conn.rollback()
+            raise ApplyAbort("PRE_COMMIT_VERIFY_FAILED")
         write_journal(journal_path, journal)
         conn.commit()
-        if not post_commit_verify_updates(conn, update_journal):
-            raise ApplyAbort("POST_COMMIT_VERIFY_FAILED")
         return ApplyResult(
             mode="apply",
             committed=True,
