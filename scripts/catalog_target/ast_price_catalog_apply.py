@@ -7,11 +7,10 @@ import hashlib
 import json
 import os
 import uuid
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Callable, Protocol
 
 from catalog_target.ast_price_catalog_constants import (
     OWNER_AUTH_APPLY,
@@ -20,7 +19,7 @@ from catalog_target.ast_price_catalog_constants import (
     SOURCE_ARCHIVE_SHA256,
 )
 from catalog_target.ast_price_catalog_reconcile import CREATE_APPROVAL_OWNER
-from catalog_target.sales_wave_apply import ApplyAbort
+from catalog_target.sales_wave_apply import ApplyAbort, normalize_database_url
 
 CREATE_APPROVAL_REQUIRED = CREATE_APPROVAL_OWNER
 
@@ -233,6 +232,8 @@ def assert_apply_gates(
             raise ApplyAbort("confirm_update_manifest_sha256_mismatch")
         if confirm_create_manifest_sha256 != create_manifest_sha256:
             raise ApplyAbort("confirm_create_manifest_sha256_mismatch")
+        if confirm_update_count < 0 or confirm_create_count < 0:
+            raise ApplyAbort("missing_explicit_confirm_mutation_counts")
         if confirm_update_count != update_count or confirm_create_count != create_count:
             raise ApplyAbort("confirm_mutation_count_mismatch")
     if rollback:
@@ -347,10 +348,7 @@ async def create_products_ast_batch(
     """AST one-time CREATE: ProductCreate validation, flush-only, no Hesabfa."""
     from app.crud.product import check_sku_exists, create_product
     from app.schemas.product import ProductCreate
-    from app.utils.category_validation import (
-        ensure_brand_exists,
-        ensure_selectable_product_category,
-    )
+    from app.utils.category_validation import ensure_brand_exists, ensure_selectable_product_category
 
     created_ids: list[int] = []
     for row in plan_rows:
@@ -477,20 +475,9 @@ def execute_ast_catalog_apply(
     live_by_id: dict[int, dict[str, str]] | None = None,
     create_executor: Callable[[DbConnection, list[CreatePlanRow]], tuple[int, list[dict[str, Any]]]] | None = None,
 ) -> ApplyResult:
+    """Unit-test sync path only (SQL INSERT). Production uses execute_ast_apply_async."""
     assert_unique_update_product_ids(update_rows)
     guard = verify_update_stale_guard(update_rows, live_by_id or {})
-    if update_rows and not guard.ok:
-        return ApplyResult(
-            mode="dry_run" if dry_run else "apply",
-            committed=False,
-            updates_written=0,
-            creates_written=0,
-            batch_id=batch_id,
-            stale_guard=guard,
-            aborted_reason="BLOCKED_STALE_GUARD",
-            production_apply_executed=False,
-        )
-
     journal_path = journal_dir / f"AST_APPLY_{batch_id}.json"
     if dry_run:
         write_journal(
@@ -515,14 +502,22 @@ def execute_ast_catalog_apply(
             journal_path=str(journal_path),
             production_apply_executed=False,
         )
-
-    def _default_create(c: DbConnection, rows: list[CreatePlanRow]) -> tuple[int, list[dict[str, Any]]]:
-        return apply_creates_sql(c, rows, dry_run=False)
-
-    create_fn = create_executor or _default_create
+    if create_executor is None:
+        raise ApplyAbort("production_apply_requires_execute_ast_apply_async")
+    if update_rows and not guard.ok:
+        return ApplyResult(
+            mode="apply",
+            committed=False,
+            updates_written=0,
+            creates_written=0,
+            batch_id=batch_id,
+            stale_guard=guard,
+            aborted_reason="BLOCKED_STALE_GUARD",
+            production_apply_executed=False,
+        )
     try:
         updates_written, update_journal = apply_updates_sql(conn, update_rows, dry_run=False)
-        creates_written, create_journal = create_fn(conn, create_rows)
+        creates_written, create_journal = create_executor(conn, create_rows)
         journal = {
             "batch_id": batch_id,
             "mode": "APPLY",
@@ -532,9 +527,6 @@ def execute_ast_catalog_apply(
             "creates": create_journal,
             "stale_guard": guard.__dict__,
         }
-        if not post_commit_verify_updates(conn, update_journal):
-            conn.rollback()
-            raise ApplyAbort("PRE_COMMIT_VERIFY_FAILED")
         write_journal(journal_path, journal)
         conn.commit()
         return ApplyResult(
@@ -565,6 +557,9 @@ def rollback_from_journal(
     *,
     dry_run: bool,
 ) -> int:
+    state = str(journal.get("execution_state") or "")
+    if state and state not in {"COMMITTED", "VERIFIED"}:
+        raise ApplyAbort(f"rollback_journal_invalid_state:{state}")
     if not journal.get("committed"):
         raise ApplyAbort("rollback_journal_not_committed")
     updates = journal.get("updates") or []

@@ -17,5 +17,5 @@
 ## Manifest fingerprints (post-approval regeneration)
 
 - UPDATE: `ba2eb3784f7b2026fc7c72a0cbc9260fa4484ec60de6af87cc8cc58720dcb891`
-- CREATE: `f2d3d55729b7ec6a65ab9770d5043ea6c7f3ca0cc999ceedc5c81ad4d83ca606`
-- LEDGER: `ca33573626957f7f5b29c3b233fe344254d03d2d27738ba62e5b748974b42608`
+- CREATE: ``
+- LEDGER: `353ffebe948ed8c6e60db1cc9447805a2967af0b3b3cfb8b829a491be80d7003`

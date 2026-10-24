@@ -39,6 +39,24 @@ class AstApplyGateTests(unittest.TestCase):
                 create_count=0,
             )
 
+    def test_blocks_missing_explicit_confirm_counts(self):
+        with self.assertRaises(ApplyAbort):
+            assert_apply_gates(
+                apply=True,
+                rollback=False,
+                owner_authorization="AUTHORIZE_AST_PRICE_CATALOG_APPLY",
+                confirm_production_write=True,
+                confirm_source_sha256=SOURCE_ARCHIVE_SHA256,
+                confirm_update_manifest_sha256="a",
+                confirm_create_manifest_sha256="b",
+                update_manifest_sha256="a",
+                create_manifest_sha256="b",
+                confirm_update_count=-1,
+                confirm_create_count=0,
+                update_count=1,
+                create_count=0,
+            )
+
     def test_load_update_skips_non_ok_validation(self):
         path = Path(tempfile.mkstemp(suffix=".csv")[1])
         path.write_text(

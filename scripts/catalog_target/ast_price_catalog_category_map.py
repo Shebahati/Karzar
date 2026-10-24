@@ -24,6 +24,7 @@ CAT = {
     "endmill_carbide_flat": 35,
     "endmill_carbide_ball": 36,
     "endmill_carbide_tip": 37,
+    "endmill_hss": 38,
     "drill_indexable": 41,
     "drill_core": 46,
     "drill_conical": 44,
@@ -54,7 +55,7 @@ class CategoryDecision:
 
 # Longest / most specific source filename needles first.
 _FILE_RULES: list[tuple[str, int, str, str]] = [
-    ("قلاویز ET", CAT["tap_machine_straight"], "قلاویز ماشینی صاف", "file:et_tap"),
+    ("قلاویز ET", CAT["tap_machine_straight"], "قلاویز ماشینی", "file:et_tap"),
     ("قلاویز ماشینی چینی", CAT["tap_machine_straight"], "قلاویز ماشینی صاف", "file:chinese_machine_tap"),
     ("قلاویز زن اتومات", CAT["tap_machine"], "دستگاه قلاویز زن", "file:tap_machine_auto"),
     ("قلاویززن برقی", CAT["tap_machine"], "دستگاه قلاویز زن", "file:tap_machine_electric"),
@@ -63,14 +64,13 @@ _FILE_RULES: list[tuple[str, int, str, str]] = [
     ("لیست قیمت دریل مگنت", CAT["magnet_drill_machine"], "دستگاه دریل مگنت", "file:magnet_drill"),
     ("لیست قیمت کردریل", CAT["annular_cutter"], "برقو", "file:annular_cutter"),
     ("لیست قیمت گردبر دریل مگنت", CAT["annular_cutter"], "برقو", "file:magnet_annular"),
-    ("لیست قیمت  فرز انگشتی", CAT["endmill_carbide_flat"], "انگشتی سرتخت کارباید", "file:endmill"),
+    ("لیست قیمت  فرز انگشتی", CAT["endmill_carbide_flat"], "انگشتی", "file:endmill"),
     ("لیست قیمت  مته برگی", CAT["drill_indexable"], "مته کارباید", "file:indexable_drill"),
     ("لیست مته مرغک و مته خزینه", CAT["drill_core"], "مته مرغک", "file:core_drill"),
     ("مته ته کونیک", CAT["drill_conical"], "مته پشت کونیک HSS", "file:conical_drill"),
     ("مته یوتکس", CAT["drill_indexable"], "مته کارباید", "file:utex_drill"),
     ("لیست قیمت ابزار تیز کن", CAT["tool_sharpener_machine"], "دستگاه ابزار تیزکن", "file:sharpener"),
     ("مولتی اسپیندل", CAT["multi_spindle"], "مولتی اسپیندل", "file:multi_spindle"),
-    ("سه نظام", CAT["chuck_3jaw"], "سه نظام و لوازم جانبی", "file:3jaw_chuck"),
     ("پول استادگیر", CAT["pull_stud"], "PULL STUD – پول استاد", "file:pull_stud"),
     ("کلت و فشنگی", CAT["collet_bt"], "کولت BT و فشنگی و آچار", "file:collet"),
     ("کلاهک و دنباله", CAT["morse_cap"], "کلاهک تبدیل مورس", "file:morse_cap"),
@@ -115,13 +115,31 @@ def _chumpower_from_code(code: str) -> CategoryDecision | None:
     return None
 
 
-def _endmill_variant(code: str, nearby: str) -> int:
+def _endmill_variant(code: str, nearby: str) -> tuple[int, str]:
     blob = f"{code} {nearby}".upper()
+    if re.search(r"HSS\s*CO|HSSCO|HSS-?CO", blob) or "HSS" in blob:
+        return CAT["endmill_hss"], "انگشتی HSS"
     if "BALL" in blob or "گرد" in nearby:
-        return CAT["endmill_carbide_ball"]
+        return CAT["endmill_carbide_ball"], "انگشتی سر گرد کارباید"
     if "TIP" in blob or "تیپ" in nearby:
-        return CAT["endmill_carbide_tip"]
-    return CAT["endmill_carbide_flat"]
+        return CAT["endmill_carbide_tip"], "انگشتی تیپ کارباید"
+    return CAT["endmill_carbide_flat"], "انگشتی سرتخت کارباید"
+
+
+def _et_tap_variant(code: str, nearby: str) -> CategoryDecision | None:
+    blob = f"{code} {nearby}".lower()
+    if "مارپیچ" in blob or "spiral" in blob:
+        return CategoryDecision(CAT["tap_machine_spiral"], "قلاویز ماشینی مارپیچ", "et:tap_spiral")
+    if "صاف" in blob or "straight" in blob:
+        return CategoryDecision(CAT["tap_machine_straight"], "قلاویز ماشینی صاف", "et:tap_straight")
+    return CategoryDecision(None, "", "et:tap_variant_unresolved", "HOLD_ET_TAP_VARIANT")
+
+
+def _chuck_decision(fname: str, nearby: str) -> CategoryDecision:
+    blob = f"{fname} {nearby}".lower()
+    if "تراش" in blob and "دریل" not in blob:
+        return CategoryDecision(CAT["chuck_3jaw"], "سه نظام و لوازم جانبی", "chuck:lathe_3jaw")
+    return CategoryDecision(None, "", "chuck:drill_vs_lathe_unresolved", "HOLD_DRILL_CHUCK_IDENTITY")
 
 
 def classify_create_category(
@@ -146,11 +164,22 @@ def classify_create_category(
             return hit
         return CategoryDecision(None, "", "dasqua:missing_keyword", "HOLD_CATEGORY_MAPPING")
 
+    if "سه نظام" in fname:
+        decision = _chuck_decision(fname, code_nearby)
+        if decision.category_id and _selectable(decision.category_id, cat_meta):
+            return decision
+        return decision
+
+    if "قلاویز ET" in fname and brand_hint == "ET":
+        et = _et_tap_variant(code, code_nearby)
+        if et.category_id and _selectable(et.category_id, cat_meta):
+            return et
+        return et
+
     for needle, cat_id, family, rule in _FILE_RULES:
         if needle in fname:
             if "فرز انگشتی" in needle:
-                cat_id = _endmill_variant(code, code_nearby)
-                family = "انگشتی کارباید"
+                cat_id, family = _endmill_variant(code, code_nearby)
             if brand_hint == "ET" and "قلاویز ET" not in fname:
                 return CategoryDecision(
                     None, "", "et:wrong_source_file", "HOLD_BRAND_SOURCE_MISMATCH"

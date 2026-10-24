@@ -9,11 +9,12 @@ import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 from typing import Any, Literal
 
 from catalog_target.ast_price_catalog_category_map import classify_create_category
+from catalog_target.ast_price_catalog_manifest_acceptance import write_owner_manifest_bundle
 from catalog_target.ast_price_catalog_constants import (
     BRAND_HINT_TO_ID,
     BRAND_HINT_TO_KEY,
@@ -269,6 +270,14 @@ def build_authoritative_rows(
     return authoritative, rejected_ledger, stats
 
 
+def extraction_visual_qa_cleared(r: dict[str, str]) -> bool:
+    status = (r.get("status") or "").strip()
+    if status != "CANDIDATE_EXACT_VISUAL_QA_REQUIRED":
+        return True
+    verified = (r.get("visual_pdf_qa_verified") or r.get("extraction_visual_qa_verified") or "").strip().upper()
+    return verified == "YES"
+
+
 def pct_change(old: Decimal | None, new: Decimal | None) -> Decimal | None:
     if old is None or new is None or old == 0:
         return None
@@ -513,6 +522,24 @@ def run_reconcile(
             outcome_counts["UPDATE"] += 1
             continue
 
+        if not extraction_visual_qa_cleared(r):
+            hold_reason = "HOLD_VISUAL_PDF_QA_REQUIRED"
+            ledger.append(
+                _ledger_from(r, code, "HOLD", hold_reason, qa_flags, "", str(proposed or ""), "", policy_id)
+            )
+            holds.append(_hold_row(r, code, hold_reason, qa_flags))
+            outcome_counts["HOLD"] += 1
+            continue
+
+        if QA_MANUFACTURER_IDENTITY_REVIEW in qa_flags:
+            hold_reason = "HOLD_MANUFACTURER_IDENTITY_UNVERIFIED"
+            ledger.append(
+                _ledger_from(r, code, "HOLD", hold_reason, qa_flags, "", str(proposed or ""), "", policy_id)
+            )
+            holds.append(_hold_row(r, code, hold_reason, qa_flags))
+            outcome_counts["HOLD"] += 1
+            continue
+
         cat_decision = classify_create_category(
             source_file=r.get("file") or "",
             brand_hint=brand_hint,
@@ -612,6 +639,7 @@ def run_reconcile(
         (audit_dir / "SOURCE_DOCUMENTS.csv").write_bytes(source_docs_csv.read_bytes())
 
     manifest_hashes = _write_execution_manifest(audit_dir)
+    write_owner_manifest_bundle(sanitized, manifest_hashes)
 
     with source_docs_csv.open(encoding="utf-8-sig") as f:
         pdf_count = len(list(csv.DictReader(f)))
@@ -853,7 +881,7 @@ def _production_apply_plan(hashes: dict[str, str]) -> str:
     return f"""# Production APPLY plan
 
 1. Owner accepts `{PRICING_POLICY_ID}` in COMMERCIAL_PRICING_DECISION.md.
-2. Resolve HOLD / ABNORMAL_UPDATE_REVIEW rows (32 large swings + 11 duplicate-SKU collisions stay out of UPDATE).
+2. Resolve HOLD / ABNORMAL_UPDATE_REVIEW rows (large-swing and duplicate-SKU collisions stay out of UPDATE; see `ABNORMAL_UPDATE_REVIEW.csv` for current count).
 3. Per-row CREATE QA: set `approval_status={CREATE_APPROVAL_OWNER}` only on validated CREATE manifest rows.
 4. Backup production DB.
 5. Fresh catalog snapshot + stale-state check (UPDATE `expected_current_price` / SKU guards).

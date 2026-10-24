@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T13:37:20+00:00",
+  "generated_at": "2026-10-24T14:07:53+00:00",
   "source_pdfs_processed": 22,
   "source_archive_sha256": "976fca74faabd4fb62bb57feb396450717c32b660efa2200db0a94b032d55a8b",
   "catalog_snapshot_sha256": "1e8a888adb06e431d3a21087fcd9eb3eb92044f3b00eb6f6a575db4da45677fd",
@@ -8,8 +8,7 @@
   "authoritative_passed_extraction_rows": 2911,
   "primary_outcomes": {
     "UPDATE": 1706,
-    "HOLD": 253,
-    "CREATE": 952,
+    "HOLD": 1205,
     "REJECTED": 168
   },
   "ledger_balance_check": true,
@@ -28,9 +27,8 @@
   "matched_not_in_update_explanation": "Matched existing SKUs not in UPDATE manifest: UNCHANGED=0, QA_LARGE_PRICE_SWING HOLD=32. Cash-discount REVIEW labels are procurement QA flags only (not pricing holds).",
   "sum_selling_price_before_update_scope": "58043044800.00",
   "sum_selling_price_after_update_scope": "63303420000",
-  "manifest_sha256_SOURCE_ROW_LEDGER.csv": "ca33573626957f7f5b29c3b233fe344254d03d2d27738ba62e5b748974b42608",
+  "manifest_sha256_SOURCE_ROW_LEDGER.csv": "353ffebe948ed8c6e60db1cc9447805a2967af0b3b3cfb8b829a491be80d7003",
   "manifest_sha256_UPDATE_PRODUCTS.csv": "ba2eb3784f7b2026fc7c72a0cbc9260fa4484ec60de6af87cc8cc58720dcb891",
-  "manifest_sha256_CREATE_PRODUCTS.csv": "f2d3d55729b7ec6a65ab9770d5043ea6c7f3ca0cc999ceedc5c81ad4d83ca606",
-  "manifest_sha256_HOLD_PRODUCTS.csv": "754d35de6d87042707eb39df7cc74f96960a44db9565be50df8bb8100852e00e",
+  "manifest_sha256_HOLD_PRODUCTS.csv": "4dbe7529c7d4aabccb1edda3e5d8d002e52829a47f24c1ca8de4432fbb59bd4a",
   "manifest_sha256_SOURCE_DOCUMENTS.csv": "6e0b14081d6a298a49402556a242f92a2834ffe4e7d1125e2936d53bfdae0cdc"
 }

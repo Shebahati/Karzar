@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
@@ -18,6 +19,7 @@ from catalog_target.ast_price_catalog_apply import (  # noqa: E402
     ApplyAbort,
     CreatePlanRow,
     UpdatePlanRow,
+    apply_creates_sql,
     apply_updates_sql,
     execute_ast_catalog_apply,
     load_create_plan,
@@ -175,6 +177,7 @@ class AstApplyIntegrationTests(unittest.TestCase):
                 journal_dir=Path(td),
                 metadata={},
                 live_by_id={10: {"sku": "U1", "base_price": "1000"}},
+                create_executor=lambda c, rows: apply_creates_sql(c, rows, dry_run=False),
             )
         self.assertTrue(result.production_apply_executed)
         self.assertEqual(result.updates_written, 1)
@@ -186,6 +189,7 @@ class AstApplyIntegrationTests(unittest.TestCase):
         conn = FakeConn(store)
         journal = {
             "committed": True,
+            "execution_state": "VERIFIED",
             "updates": [
                 {
                     "product_id": 10,
@@ -238,6 +242,17 @@ class AstApplyIntegrationTests(unittest.TestCase):
             cat_meta=meta,
         )
         self.assertEqual(decision.category_id, 35)
+
+    def test_category_hssco_endmill_not_carbide(self):
+        meta = {38: {"selectable": True}, 35: {"selectable": True}}
+        decision = classify_create_category(
+            source_file="لیست قیمت  فرز انگشتی 14050707.pdf",
+            brand_hint="ASTPOWER_OR_SOURCE_BRAND_REVIEW",
+            code="HSSCO10",
+            code_nearby="HSS CO 10mm",
+            cat_meta=meta,
+        )
+        self.assertEqual(decision.category_id, 38)
 
     def test_cli_apply_not_noop(self):
         ops = SCRIPTS / "ops"
