@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import csv
 import json
-import os
 import sys
 import tempfile
 import unittest
@@ -12,19 +11,38 @@ import uuid
 from decimal import Decimal
 from pathlib import Path
 
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
+from catalog_target.ast_price_catalog_apply import UpdatePlanRow  # noqa: E402
+from catalog_target.ast_price_catalog_backup_attestation import (  # noqa: E402
+    assert_production_backup_attestation_gate,
+)
+from catalog_target.ast_price_catalog_database_identity import (  # noqa: E402
+    fetch_database_identity_fingerprint,
+)
+from catalog_target.ast_price_catalog_execution import (  # noqa: E402
+    _apply_updates_async,
+    async_sqlalchemy_database_url,
+)
+from catalog_target.ast_price_catalog_execution_store import (  # noqa: E402
+    assert_update_product_ids_not_committed,
+    committed_update_product_ids,
+    ensure_execution_store,
+    insert_prepared_batch,
+    mark_batch_committed,
+)
+from catalog_target.ast_price_catalog_update_canary import select_canary_partitions  # noqa: E402
+from catalog_target.sales_wave_apply import ApplyAbort  # noqa: E402
 from tests.test_ast_price_catalog_apply_postgres import INTEGRATION_DB, RUN_PG  # noqa: E402
 
 
 async def _ensure_execution_table(session) -> None:
-    from catalog_target.ast_price_catalog_execution_store import ensure_execution_store
-    from catalog_target.sales_wave_apply import ApplyAbort
-    from sqlalchemy import text
-
     try:
         await ensure_execution_store(session)
     except ApplyAbort:
@@ -49,16 +67,6 @@ async def _ensure_execution_table(session) -> None:
 @unittest.skipUnless(RUN_PG, "PostgreSQL integration URL not configured")
 class AstCanaryPostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
     async def test_stage_partitions_do_not_double_update(self) -> None:
-        from catalog_target.ast_price_catalog_execution import async_sqlalchemy_database_url
-        from catalog_target.ast_price_catalog_execution_store import (
-            assert_update_product_ids_not_committed,
-            committed_update_product_ids,
-            insert_prepared_batch,
-            mark_batch_committed,
-        )
-        from catalog_target.ast_price_catalog_update_canary import select_canary_partitions
-        from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-
         audit = ROOT / "audit/ast-price-and-catalog-20261024"
         update_path = audit / "UPDATE_PRODUCTS.csv"
         if not update_path.is_file():
@@ -87,7 +95,7 @@ class AstCanaryPostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
                     update_journal=[{"product_id": pid, "sku": "X", "new_price": "1"}],
                     create_journal=[],
                 )
-            with self.assertRaises(Exception):
+            with self.assertRaises(ApplyAbort):
                 await assert_update_product_ids_not_committed(
                     session,
                     product_ids=[pid],
@@ -96,24 +104,17 @@ class AstCanaryPostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
             committed = await committed_update_product_ids(session, master_update_manifest_sha256=master)
             self.assertIn(pid, committed)
             await session.execute(
-                __import__("sqlalchemy").text("DELETE FROM ast_catalog_execution_batches WHERE batch_id = :b"),
+                text("DELETE FROM ast_catalog_execution_batches WHERE batch_id = :b"),
                 {"b": batch_id},
             )
             await session.commit()
         await engine.dispose()
 
     async def test_database_identity_fingerprint_readable(self) -> None:
-        from catalog_target.ast_price_catalog_database_identity import fetch_database_identity_fingerprint
-
         identity = await fetch_database_identity_fingerprint(INTEGRATION_DB)
         self.assertIn("db=", identity)
 
     async def test_real_transaction_rollback(self) -> None:
-        from catalog_target.ast_price_catalog_apply import UpdatePlanRow
-        from catalog_target.ast_price_catalog_execution import _apply_updates_async, async_sqlalchemy_database_url
-        from sqlalchemy import text
-        from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-
         engine = create_async_engine(async_sqlalchemy_database_url(INTEGRATION_DB))
         async with engine.connect() as conn:
             row = (
@@ -139,9 +140,6 @@ class AstCanaryPostgresIntegrationTests(unittest.IsolatedAsyncioTestCase):
         await engine.dispose()
 
     def test_backup_gate_rejects_missing_verified_identity(self) -> None:
-        from catalog_target.ast_price_catalog_backup_attestation import assert_production_backup_attestation_gate
-        from catalog_target.sales_wave_apply import ApplyAbort
-
         path = Path(tempfile.mkstemp(suffix=".json")[1])
         path.write_text(
             json.dumps(

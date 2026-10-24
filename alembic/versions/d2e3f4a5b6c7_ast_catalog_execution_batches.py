@@ -1,7 +1,7 @@
 """AST one-time catalog execution batch journal (#552)
 
 Revision ID: d2e3f4a5b6c7
-Revises: c1d2e3f4a5b6
+Revises: a3f410b5c6d7
 Create Date: 2026-10-24
 """
 
@@ -12,7 +12,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision: str = "d2e3f4a5b6c7"
-down_revision: Union[str, None] = "c1d2e3f4a5b6"
+down_revision: Union[str, None] = "a3f410b5c6d7"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
