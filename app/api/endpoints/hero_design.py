@@ -71,10 +71,18 @@ async def get_cms_published(
 ):
     pointer = await hero_service.get_published_pointer(db)
     if pointer is None:
-        raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="No published hero design")
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="No published hero design",
+        )
     revision = await db.get(HeroDesignRevision, pointer.revision_id)
     if revision is None:
-        raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Published revision missing")
+        raise api_error(
+            status.HTTP_404_NOT_FOUND,
+            error_code=ErrorCode.NOT_FOUND,
+            message="Published revision missing",
+        )
     return _pack_response(pointer, revision)
 
 
@@ -109,9 +117,15 @@ async def get_revision(
 ):
     revision = await db.get(HeroDesignRevision, revision_id)
     if revision is None:
-        raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Revision not found")
+        raise api_error(
+            status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="Revision not found"
+        )
     pointer = await hero_service.get_published_pointer(db)
-    published_at = pointer.published_at if pointer and pointer.revision_id == revision_id else revision.created_at
+    published_at = (
+        pointer.published_at
+        if pointer and pointer.revision_id == revision_id
+        else revision.created_at
+    )
     return HeroDesignedPackResponse(
         revision_id=revision.id,
         etag=revision.pack_sha256,
@@ -131,7 +145,9 @@ async def get_draft(
 ):
     draft = await hero_service.get_draft_row(db)
     if draft is None:
-        raise api_error(status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="No draft")
+        raise api_error(
+            status.HTTP_404_NOT_FOUND, error_code=ErrorCode.NOT_FOUND, message="No draft"
+        )
     return HeroDraftReadResponse(
         base_revision_id=draft.base_revision_id,
         draft_json=draft.draft_json,
@@ -200,7 +216,12 @@ async def rollback_hero(
             error_code=ErrorCode.STEP_UP_MISMATCH,
             message="Step-up token does not match the authenticated user",
         )
-    pointer = await hero_service.rollback_to_revision(db, actor=actor, revision_id=body.revision_id)
+    pointer = await hero_service.rollback_to_revision(
+        db,
+        actor=actor,
+        revision_id=body.revision_id,
+        expected_current_revision_id=body.expected_current_revision_id,
+    )
     await db.commit()
     return HeroPublishResult(
         revision_id=pointer.revision_id,

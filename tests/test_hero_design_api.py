@@ -141,7 +141,7 @@ def test_publish_success_and_rollback(hero_seeded, step_up_headers, monkeypatch)
     }
     rollback = client.post(
         "/api/v1/cms/hero-design/rollback",
-        json={"revision_id": parent},
+        json={"revision_id": parent, "expected_current_revision_id": new_id},
         headers=headers3,
     )
     assert rollback.status_code == 200
@@ -244,3 +244,56 @@ def test_publish_parent_mismatch_after_successful_publish(hero_seeded, step_up_h
         headers=headers2,
     )
     assert second.status_code == 409
+
+
+def test_rollback_stale_current_revision_rejected(hero_seeded, step_up_headers, monkeypatch):
+    monkeypatch.setattr(settings, "HERO_STUDIO_API_PUBLISH", True)
+    pub = client.get("/api/v1/cms/hero-design/published", headers=step_up_headers)
+    parent = pub.json()["revision_id"]
+    publish = client.post(
+        "/api/v1/cms/hero-design/publish",
+        json={"expected_parent_revision_id": parent},
+        headers=step_up_headers,
+    )
+    assert publish.status_code == 200
+    current_id = publish.json()["revision_id"]
+
+    pin = client.post(
+        "/api/v1/auth/verify-pin",
+        json={"pin": settings.ADMIN_STEP_UP_PIN},
+        headers={"Authorization": step_up_headers["Authorization"]},
+    )
+    headers2 = {**step_up_headers, "X-Step-Up-Token": pin.json()["secure_token"]}
+    rollback = client.post(
+        "/api/v1/cms/hero-design/rollback",
+        json={"revision_id": parent, "expected_current_revision_id": parent},
+        headers=headers2,
+    )
+    assert rollback.status_code == 409
+    assert rollback.json()["error_code"] == "CONFLICT"
+
+
+def test_validate_malformed_pack_returns_structured_errors(admin_headers):
+    res = client.post(
+        "/api/v1/cms/hero-design/validate",
+        json={
+            "pack_json": {
+                "version": 1,
+                "slides": [{"isActive": True, "sortOrder": "nope", "id": "x", "config": {}}] * 5,
+                "categoryDock": {
+                    "categories": [
+                        {"key": "discounts", "featuredOrder": "bad"},
+                        {"key": "metrology", "featuredOrder": 1},
+                        {"key": "inserts", "featuredOrder": 2},
+                        {"key": "endmills", "featuredOrder": 3},
+                        {"key": "industrial-machines", "featuredOrder": 4},
+                    ]
+                },
+            }
+        },
+        headers=admin_headers,
+    )
+    assert res.status_code == 200
+    body = res.json()
+    assert body["valid"] is False
+    assert body["errors"]

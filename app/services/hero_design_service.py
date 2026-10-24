@@ -23,8 +23,8 @@ from app.db.models.hero_design import (
 from app.db.models.user import User
 from app.schemas.hero_design import (
     EXPECTED_R0_SHA256,
-    REBORN_FIVE_ASSET_PREFIX,
     REBORN_FIVE_DOCK_KEYS,
+    REBORN_FIVE_R0_SLIDE_ASSETS,
     REBORN_FIVE_SLIDE_IDS,
     HeroValidationErrorItem,
 )
@@ -52,81 +52,170 @@ def load_pack_from_path(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _append_error(errors: list[HeroValidationErrorItem], field: str, message: str) -> None:
+    errors.append(HeroValidationErrorItem(field=field, message=message))
+
+
+def _safe_non_negative_int(
+    value: Any,
+    field: str,
+    errors: list[HeroValidationErrorItem],
+) -> int | None:
+    if isinstance(value, bool):
+        _append_error(errors, field, "must be an integer")
+        return None
+    if isinstance(value, int):
+        number = value
+    elif isinstance(value, float) and value.is_integer():
+        number = int(value)
+    elif isinstance(value, str):
+        stripped = value.strip()
+        if not stripped.isdigit():
+            _append_error(errors, field, "must be an integer")
+            return None
+        number = int(stripped)
+    else:
+        _append_error(errors, field, "must be an integer")
+        return None
+    if number < 0:
+        _append_error(errors, field, "must be non-negative")
+        return None
+    return number
+
+
+def _slide_sort_key(slide: dict[str, Any]) -> int:
+    order = slide.get("sortOrder")
+    if isinstance(order, bool) or not isinstance(order, int | float):
+        return 10_000
+    return int(order)
+
+
 def validate_pack(pack: dict[str, Any]) -> list[HeroValidationErrorItem]:
     errors: list[HeroValidationErrorItem] = []
+    if not isinstance(pack, dict):
+        _append_error(errors, "pack", "must be an object")
+        return errors
     if pack.get("version") != 1:
-        errors.append(HeroValidationErrorItem(field="version", message="must be 1"))
+        _append_error(errors, "version", "must be 1")
     slides = pack.get("slides")
     if not isinstance(slides, list):
-        errors.append(HeroValidationErrorItem(field="slides", message="must be array"))
+        _append_error(errors, "slides", "must be array")
         return errors
-    active = [s for s in slides if isinstance(s, dict) and s.get("isActive")]
-    if len(active) != 5:
-        errors.append(
-            HeroValidationErrorItem(field="slides", message="requires exactly 5 active slides")
-        )
-    keys: list[str] = []
-    for slide in active:
-        cfg = slide.get("config") if isinstance(slide.get("config"), dict) else {}
-        key = cfg.get("linkedOrbKey")
-        if isinstance(key, str):
-            keys.append(key)
-    active_sorted = sorted(
-        active,
-        key=lambda s: int(s.get("sortOrder") or 0) if isinstance(s.get("sortOrder"), int | float) else 0,
-    )
-    slide_ids = [s.get("id") for s in active_sorted if isinstance(s.get("id"), str)]
-    if slide_ids != list(REBORN_FIVE_SLIDE_IDS):
-        errors.append(
-            HeroValidationErrorItem(
-                field="slides.id",
-                message=f"expected active slide ids {list(REBORN_FIVE_SLIDE_IDS)}",
-            )
-        )
-    for idx, slide in enumerate(active_sorted):
-        cfg = slide.get("config") if isinstance(slide.get("config"), dict) else {}
-        bg = cfg.get("background") if isinstance(cfg.get("background"), dict) else {}
-        for field in ("imageUrl", "mobileImageUrl"):
-            url = bg.get(field)
-            if not isinstance(url, str) or not url.startswith(REBORN_FIVE_ASSET_PREFIX):
-                errors.append(
-                    HeroValidationErrorItem(
-                        field=f"slides[{idx}].config.background.{field}",
-                        message=f"must start with {REBORN_FIVE_ASSET_PREFIX}",
-                    )
-                )
 
-    if keys != list(REBORN_FIVE_DOCK_KEYS):
-        errors.append(
-            HeroValidationErrorItem(
-                field="slides.config.linkedOrbKey",
-                message=f"expected order {list(REBORN_FIVE_DOCK_KEYS)}",
-            )
+    active: list[dict[str, Any]] = []
+    for index, slide in enumerate(slides):
+        if not isinstance(slide, dict):
+            _append_error(errors, f"slides[{index}]", "must be an object")
+            continue
+        if slide.get("isActive"):
+            active.append(slide)
+
+    if len(active) != 5:
+        _append_error(errors, "slides", "requires exactly 5 active slides")
+
+    active_sorted = sorted(active, key=_slide_sort_key)
+    expected_orders = list(range(1, 6))
+    sort_orders: list[int] = []
+    for idx, slide in enumerate(active_sorted):
+        order = _safe_non_negative_int(slide.get("sortOrder"), f"slides[{idx}].sortOrder", errors)
+        if order is not None:
+            sort_orders.append(order)
+    if len(sort_orders) == 5 and sort_orders != expected_orders:
+        _append_error(
+            errors,
+            "slides.sortOrder",
+            f"expected active sortOrder sequence {expected_orders}",
         )
+
+    slide_ids = [slide.get("id") for slide in active_sorted]
+    if slide_ids != list(REBORN_FIVE_SLIDE_IDS):
+        _append_error(
+            errors,
+            "slides.id",
+            f"expected active slide ids {list(REBORN_FIVE_SLIDE_IDS)}",
+        )
+
+    assets_by_id = {row[0]: (row[1], row[2]) for row in REBORN_FIVE_R0_SLIDE_ASSETS}
+    for idx, slide in enumerate(active_sorted):
+        slide_id = slide.get("id")
+        expected_assets = assets_by_id.get(slide_id) if isinstance(slide_id, str) else None
+        cfg = slide.get("config")
+        if not isinstance(cfg, dict):
+            _append_error(errors, f"slides[{idx}].config", "must be an object")
+            continue
+        orb_key = cfg.get("linkedOrbKey")
+        if not isinstance(orb_key, str):
+            _append_error(errors, f"slides[{idx}].config.linkedOrbKey", "must be a string")
+        bg = cfg.get("background")
+        if not isinstance(bg, dict):
+            _append_error(errors, f"slides[{idx}].config.background", "must be an object")
+            continue
+        desktop = bg.get("imageUrl")
+        mobile = bg.get("mobileImageUrl")
+        if expected_assets is None:
+            continue
+        expected_desktop, expected_mobile = expected_assets
+        if desktop != expected_desktop:
+            _append_error(
+                errors,
+                f"slides[{idx}].config.background.imageUrl",
+                f"expected {expected_desktop}",
+            )
+        if mobile != expected_mobile:
+            _append_error(
+                errors,
+                f"slides[{idx}].config.background.mobileImageUrl",
+                f"expected {expected_mobile}",
+            )
+
+    orb_keys: list[str] = []
+    for slide in active_sorted:
+        cfg = slide.get("config")
+        if isinstance(cfg, dict) and isinstance(cfg.get("linkedOrbKey"), str):
+            orb_keys.append(cfg["linkedOrbKey"])
+    if orb_keys != list(REBORN_FIVE_DOCK_KEYS):
+        _append_error(
+            errors,
+            "slides.config.linkedOrbKey",
+            f"expected order {list(REBORN_FIVE_DOCK_KEYS)}",
+        )
+
     dock = pack.get("categoryDock")
     if not isinstance(dock, dict):
-        errors.append(HeroValidationErrorItem(field="categoryDock", message="required"))
-    else:
-        cats = dock.get("categories")
-        if not isinstance(cats, list):
-            errors.append(HeroValidationErrorItem(field="categoryDock.categories", message="array"))
-        else:
-            featured = sorted(
-                [
-                    c
-                    for c in cats
-                    if isinstance(c, dict) and c.get("featuredOrder") is not None
-                ],
-                key=lambda c: int(c.get("featuredOrder") or 0),
-            )
-            featured_keys = [c.get("key") for c in featured]
-            if featured_keys != list(REBORN_FIVE_DOCK_KEYS):
-                errors.append(
-                    HeroValidationErrorItem(
-                        field="categoryDock.categories.featuredOrder",
-                        message="featured dock keys mismatch",
-                    )
-                )
+        _append_error(errors, "categoryDock", "required")
+        return errors
+
+    cats = dock.get("categories")
+    if not isinstance(cats, list):
+        _append_error(errors, "categoryDock.categories", "array")
+        return errors
+
+    featured_rows: list[tuple[int, str, int]] = []
+    for index, category in enumerate(cats):
+        if not isinstance(category, dict):
+            _append_error(errors, f"categoryDock.categories[{index}]", "must be an object")
+            continue
+        featured_order = category.get("featuredOrder")
+        if featured_order is None:
+            continue
+        parsed_order = _safe_non_negative_int(
+            featured_order,
+            f"categoryDock.categories[{index}].featuredOrder",
+            errors,
+        )
+        key = category.get("key")
+        if parsed_order is not None and isinstance(key, str):
+            featured_rows.append((parsed_order, key, index))
+
+    featured_rows.sort(key=lambda row: row[0])
+    featured_keys = [row[1] for row in featured_rows]
+    if featured_keys != list(REBORN_FIVE_DOCK_KEYS):
+        _append_error(
+            errors,
+            "categoryDock.categories.featuredOrder",
+            "featured dock keys mismatch",
+        )
+
     return errors
 
 
@@ -205,17 +294,19 @@ async def seed_r0_if_absent(db: AsyncSession, *, actor_id: int | None = None) ->
 async def list_revisions(
     db: AsyncSession, *, limit: int = 20, offset: int = 0
 ) -> tuple[list[HeroDesignRevision], int]:
-    total = (
-        await db.execute(select(HeroDesignRevision))
-    ).scalars().all()
+    total = (await db.execute(select(HeroDesignRevision))).scalars().all()
     rows = (
-        await db.execute(
-            select(HeroDesignRevision)
-            .order_by(HeroDesignRevision.created_at.desc())
-            .limit(limit)
-            .offset(offset)
+        (
+            await db.execute(
+                select(HeroDesignRevision)
+                .order_by(HeroDesignRevision.created_at.desc())
+                .limit(limit)
+                .offset(offset)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return list(rows), len(total)
 
 
@@ -281,7 +372,9 @@ async def publish_from_server_draft(
     await db.flush()
     now = datetime.now(UTC)
     if pointer is None:
-        pointer = HeroDesignPublished(id=1, revision_id=revision.id, etag=sha, published_by=actor.id)
+        pointer = HeroDesignPublished(
+            id=1, revision_id=revision.id, etag=sha, published_by=actor.id
+        )
         db.add(pointer)
     else:
         pointer.revision_id = revision.id
@@ -310,6 +403,7 @@ async def rollback_to_revision(
     *,
     actor: User,
     revision_id: str,
+    expected_current_revision_id: str,
 ) -> HeroDesignPublished:
     if not api_publish_enabled():
         _publish_disabled()
@@ -327,12 +421,22 @@ async def rollback_to_revision(
             error_code=ErrorCode.CONFLICT,
             message="No published pointer",
         )
+    if expected_current_revision_id != pointer.revision_id:
+        raise api_error(
+            status.HTTP_409_CONFLICT,
+            error_code=ErrorCode.CONFLICT,
+            message="Current revision mismatch",
+            details=[
+                {
+                    "field": "expected_current_revision_id",
+                    "message": (
+                        f"expected {expected_current_revision_id!r} current {pointer.revision_id!r}"
+                    ),
+                }
+            ],
+        )
     if pointer.revision_id == revision_id:
         return pointer
-    current = await db.get(HeroDesignRevision, pointer.revision_id)
-    if current and current.status == "published":
-        current.status = "superseded"
-    target.status = "published"
     pointer.revision_id = revision_id
     pointer.etag = target.pack_sha256
     pointer.published_at = datetime.now(UTC)
@@ -350,7 +454,10 @@ async def rollback_to_revision(
         action="hero_design.rollback",
         entity_type="hero_design",
         entity_id=revision_id,
-        details={"pack_sha256": target.pack_sha256},
+        details={
+            "pack_sha256": target.pack_sha256,
+            "from_revision_id": expected_current_revision_id,
+        },
     )
     await db.flush()
     return pointer

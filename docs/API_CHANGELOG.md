@@ -23,6 +23,13 @@ Non-breaking additions (new optional fields, new endpoints, new error codes) are
 **Contract references:** [API_CONTRACT.md](API_CONTRACT.md), [`../openapi/v1.json`](../openapi/v1.json)
 
 
+
+### 2026-10-24 — Hero Studio PR1 owner review corrections
+
+- `POST /api/v1/cms/hero-design/rollback` body now requires `expected_current_revision_id` (409 on stale pointer; pointer-only rollback per PR1 contract).
+- `validate_pack` enforces canonical Storefront R0 H01–H05 desktop/mobile asset mapping and structured errors for malformed dock/slide fields.
+- Regenerated `openapi/v1.json`.
+
 ### 2026-10-22 — Hero Studio PR1 revision foundation (Issue #550)
 
 - New read APIs: `GET /api/v1/storefront/hero-design`, `GET /api/v1/cms/hero-design/published`, revision history, draft read, validate.

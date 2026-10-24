@@ -24,7 +24,34 @@ REBORN_FIVE_SLIDE_IDS = (
     "slide_h05_machines",
 )
 
-REBORN_FIVE_ASSET_PREFIX = "/images/hero/reborn-5/photo-20261021-v2/"
+# Canonical H01–H05 desktop/mobile mapping from Storefront R0 (`hero-design.json` SHA256 above).
+REBORN_FIVE_R0_SLIDE_ASSETS: tuple[tuple[str, str, str], ...] = (
+    (
+        "slide_h01_special_offers",
+        "/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-desktop-16x9.webp",
+        "/images/hero/reborn-5/photo-20261021-v2/H01-special-offers-mobile-4x3.webp",
+    ),
+    (
+        "slide_h02_measuring",
+        "/images/hero/reborn-5/photo-20261021-v2/H02-measuring-tools-desktop-16x9.webp",
+        "/images/hero/reborn-5/photo-20261021-v2/H02-measuring-tools-mobile-4x3.webp",
+    ),
+    (
+        "slide_h03_inserts",
+        "/images/hero/reborn-5/photo-20261021-v2/H03-inserts-turning-tools-desktop-16x9.webp",
+        "/images/hero/reborn-5/photo-20261021-v2/H03-inserts-turning-tools-mobile-4x3.webp",
+    ),
+    (
+        "slide_h04_endmills",
+        "/images/hero/reborn-5/photo-20261021-v2/H04-end-mills-desktop-16x9.webp",
+        "/images/hero/reborn-5/photo-20261021-v2/H04-end-mills-mobile-4x3.webp",
+    ),
+    (
+        "slide_h05_machines",
+        "/images/hero/reborn-5/photo-20261021-v2/H05-industrial-machines-desktop-16x9.webp",
+        "/images/hero/reborn-5/photo-20261021-v2/H05-industrial-machines-mobile-4x3.webp",
+    ),
+)
 
 
 class HeroValidationErrorItem(BaseModel):
@@ -48,6 +75,7 @@ class HeroPublishRequest(BaseModel):
 
 class HeroRollbackRequest(BaseModel):
     revision_id: str = Field(min_length=36, max_length=36)
+    expected_current_revision_id: str = Field(min_length=36, max_length=36)
 
 
 class HeroRevisionSummary(BaseModel):
