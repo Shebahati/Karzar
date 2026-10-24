@@ -94,6 +94,7 @@ export interface OrderDetail extends OrderSummary {
   shipping_carrier_code?: string | null;
   shipping_service_code?: string | null;
   shipments?: import("@/features/orders/shipment-actions").AdminShipment[];
+  acquisition?: OrderAcquisition | null;
 }
 
 export interface IssueQuotePayload {
@@ -120,20 +121,6 @@ export interface OrderStatusUpdatePayload {
   note?: string | null;
   postal_tracking_code?: string | null;
   delivery_eta?: string | null;
-}
-
-export interface OrderAcquisition {
-  source: string;
-  source_label: string;
-  first_touch_source: string;
-  first_touch_source_label: string;
-  last_non_direct_source?: string | null;
-  last_non_direct_source_label?: string | null;
-  source_subtype?: string | null;
-  method?: string | null;
-  landing_path?: string | null;
-  captured_at?: string | null;
-  campaign?: Record<string, string> | null;
 }
 
 export interface OrderDetailBackend {
@@ -163,6 +150,7 @@ export interface OrderDetailBackend {
   shipping_carrier_code?: string | null;
   shipping_service_code?: string | null;
   shipments?: import("@/features/orders/shipment-actions").AdminShipment[];
+  acquisition?: OrderAcquisition | null;
 }
 
 
