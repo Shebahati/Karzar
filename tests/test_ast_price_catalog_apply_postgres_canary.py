@@ -39,6 +39,7 @@ from catalog_target.ast_price_catalog_execution_store import (  # noqa: E402
 )
 from catalog_target.ast_price_catalog_update_canary import select_canary_partitions  # noqa: E402
 from catalog_target.sales_wave_apply import ApplyAbort  # noqa: E402
+
 from tests.test_ast_price_catalog_apply_postgres import INTEGRATION_DB, RUN_PG  # noqa: E402
 
 
