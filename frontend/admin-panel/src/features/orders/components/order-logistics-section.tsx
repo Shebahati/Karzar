@@ -56,23 +56,13 @@ function ManualPortalWorkflow({
   orderId: number;
   orderStatus: string;
   pending: boolean;
-  onRegister: (body: {
-    tracking_code: string;
-    provider_parcel_no?: string;
-    carrier_code?: string;
-    service_code?: string;
-    internal_note?: string;
-  }) => Promise<void>;
+  onRegister: (body: { tracking_code: string }) => Promise<void>;
   onHandoff: () => Promise<void>;
   onDeliver: () => Promise<void>;
   onRequestCorrect: (body: { tracking_code: string }) => void;
   actions: ReturnType<typeof shipmentActionAvailability>;
 }) {
   const [tracking, setTracking] = useState("");
-  const [parcelNo, setParcelNo] = useState("");
-  const [carrier, setCarrier] = useState("");
-  const [service, setService] = useState("");
-  const [note, setNote] = useState("");
   const statusHint = manualPortalStatusLabel(shipment);
 
   return (
@@ -95,53 +85,14 @@ function ManualPortalWorkflow({
               value={tracking}
               onChange={(e) => setTracking(e.target.value)}
               minLength={10}
-            />
-          </label>
-          <label className="grid gap-1 text-xs">
-            شماره مرسوله پستکس (اختیاری)
-            <input
-              className="rounded-md border px-2 py-1 tnum"
-              value={parcelNo}
-              onChange={(e) => setParcelNo(e.target.value)}
-            />
-          </label>
-          <label className="grid gap-1 text-xs">
-            حامل (اختیاری)
-            <input
-              className="rounded-md border px-2 py-1"
-              value={carrier}
-              onChange={(e) => setCarrier(e.target.value)}
-            />
-          </label>
-          <label className="grid gap-1 text-xs">
-            سرویس (اختیاری)
-            <input
-              className="rounded-md border px-2 py-1"
-              value={service}
-              onChange={(e) => setService(e.target.value)}
-            />
-          </label>
-          <label className="grid gap-1 text-xs">
-            یادداشت داخلی (اختیاری)
-            <textarea
-              className="rounded-md border px-2 py-1"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={2}
+              disabled={pending}
+              autoComplete="off"
             />
           </label>
           <Button
             size="sm"
             disabled={pending || tracking.trim().length < 10}
-            onClick={() =>
-              void onRegister({
-                tracking_code: tracking.trim(),
-                provider_parcel_no: parcelNo.trim() || undefined,
-                carrier_code: carrier.trim() || undefined,
-                service_code: service.trim() || undefined,
-                internal_note: note.trim() || undefined,
-              })
-            }
+            onClick={() => void onRegister({ tracking_code: tracking.trim() })}
           >
             ثبت اطلاعات مرسوله پستکس
           </Button>
@@ -194,6 +145,46 @@ function ManualPortalWorkflow({
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+
+function ManualFulfillmentRegister({
+  shipment,
+  pending,
+  onSubmit,
+}: {
+  shipment: AdminShipment;
+  pending: boolean;
+  onSubmit: (trackingCode: string) => void;
+}) {
+  const [tracking, setTracking] = useState("");
+  const minLen = shipment.provider === "local_delivery" ? 1 : 10;
+  const canSubmit = tracking.trim().length >= minLen;
+  const label =
+    shipment.provider === "local_delivery" ? "ثبت پیک" : "ثبت اطلاعات ارسال";
+
+  return (
+    <div className="grid w-full gap-2 rounded-lg border border-dashed p-3 sm:max-w-md">
+      <label className="grid gap-1 text-xs">
+        کد رهگیری (الزامی)
+        <input
+          className="rounded-md border px-2 py-1 tnum"
+          value={tracking}
+          onChange={(e) => setTracking(e.target.value)}
+          disabled={pending}
+          autoComplete="off"
+        />
+      </label>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={pending || !canSubmit}
+        onClick={() => onSubmit(tracking.trim())}
+      >
+        {label}
+      </Button>
     </div>
   );
 }
@@ -471,46 +462,26 @@ export function OrderLogisticsSection({ order }: { order: OrderDetail }) {
                 <p className="text-xs text-destructive">{shipment.last_error_message}</p>
               )}
               {isManualFulfillmentProvider(shipment.provider) && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col flex-wrap gap-2">
                   {actions.canManualRegister && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={pending}
-                      onClick={() => {
-                        const tracking =
-                          shipment.provider === "local_delivery"
-                            ? (window.prompt("کد رهگیری (در صورت وجود)") ?? "")
-                            : (window.prompt("کد رهگیری (یا خالی بگذارید)") ?? "");
-                        const providerRef =
-                          shipment.provider === "local_delivery"
-                            ? ""
-                            : (window.prompt("شناسه مرجع حامل (در صورت نبود رهگیری)") ?? "");
-                        const courierName =
-                          shipment.provider === "local_delivery"
-                            ? (window.prompt("نام پیک") ?? "")
-                            : "";
+                    <ManualFulfillmentRegister
+                      shipment={shipment}
+                      pending={pending}
+                      onSubmit={(trackingCode) => {
                         if (
                           shipment.provider !== "local_delivery" &&
-                          !tracking.trim() &&
-                          !providerRef.trim()
+                          trackingCode.length < 10
                         ) {
-                          toast.error("کد رهگیری یا شناسه مرجع حامل الزامی است.");
+                          toast.error("کد رهگیری باید حداقل ۱۰ نویسه باشد.");
                           return;
                         }
                         void run("اطلاعات ارسال ثبت شد", () =>
                           shippingAdminService.manualRegister(order.id, shipment.internal_id, {
-                            tracking_code: tracking.trim() || null,
-                            provider_reference: providerRef.trim() || null,
-                            courier_name: courierName.trim() || null,
+                            tracking_code: trackingCode || null,
                           }),
                         );
                       }}
-                    >
-                      {shipment.provider === "local_delivery"
-                        ? "ثبت پیک"
-                        : "ثبت اطلاعات ارسال"}
-                    </Button>
+                    />
                   )}
                   {actions.canManualHandoff && order.status === "processing" && (
                     <Button
