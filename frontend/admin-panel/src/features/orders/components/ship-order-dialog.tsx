@@ -14,8 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { useUpdateOrderStatus } from "@/features/orders/queries";
 import { ApiError } from "@/lib/api-client";
 import { formatToman, toPersianDigits } from "@/lib/utils";
@@ -30,9 +28,6 @@ interface ShipOrderDialogProps {
 export function ShipOrderDialog({ order, open, onOpenChange }: ShipOrderDialogProps) {
   const updateStatus = useUpdateOrderStatus(order.id);
   const [postalCode, setPostalCode] = useState(order.postal_tracking_code ?? "");
-  const [deliveryEta, setDeliveryEta] = useState(order.delivery_eta ?? "");
-  const [note, setNote] = useState("");
-
   const canSubmit = postalCode.trim().length >= 10;
 
   async function handleSubmit() {
@@ -45,8 +40,6 @@ export function ShipOrderDialog({ order, open, onOpenChange }: ShipOrderDialogPr
       await updateStatus.mutateAsync({
         status: "shipped",
         postal_tracking_code: postalCode.trim(),
-        delivery_eta: deliveryEta || null,
-        note: note.trim() || null,
       });
       toast.success("اطلاعات ارسال ثبت شد.");
       onOpenChange(false);
@@ -79,27 +72,15 @@ export function ShipOrderDialog({ order, open, onOpenChange }: ShipOrderDialogPr
             <p className="mt-1 font-bold tnum">{formatToman(order.estimated_total)}</p>
           </div>
 
-          <Field label="کد رهگیری اداره پست *" htmlFor="ship-postal">
+          <Field label="کد رهگیری مرسوله *" htmlFor="ship-postal">
             <Input
               id="ship-postal"
               value={postalCode}
               onChange={(e) => setPostalCode(e.target.value)}
               placeholder="مثال: ۱۲۳۴۵۶۷۸۹۰۱۲۳۴۵۶"
               className="tnum"
-            />
-          </Field>
-
-          <Field label="زمان تحویل تقریبی" htmlFor="ship-eta">
-            <DateTimePicker value={deliveryEta} onChange={setDeliveryEta} />
-          </Field>
-
-          <Field label="یادداشت داخلی (اختیاری)" htmlFor="ship-note">
-            <Textarea
-              id="ship-note"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={2}
-              placeholder="مثلاً: ارسال با تیپاکس"
+              autoComplete="off"
+              disabled={updateStatus.isPending}
             />
           </Field>
         </div>
